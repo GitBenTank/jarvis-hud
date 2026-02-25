@@ -1,0 +1,24 @@
+---
+description: Thesis Lock – canonical narrative spec for Jarvis HUD
+alwaysApply: true
+---
+
+# Thesis Lock Enforcement
+
+Treat `docs/strategy/jarvis-hud-video-thesis.md` as the canonical narrative spec.
+
+**All future execution-layer changes must reference Thesis Lock.**
+
+Before implementing features that touch approvals, execution, or agent behavior:
+
+1. Read the [Thesis Lock section](../../docs/strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift)
+2. Confirm the feature does not violate any of the six non-negotiable principles
+3. If a proposed feature contradicts Thesis Lock, flag it as **architectural drift** — the feature is incorrect, not the thesis
+
+The six principles:
+- Agents can propose anything
+- Execution requires explicit human approval
+- Approval does not equal execution
+- Every action produces receipts (artifact + log)
+- The model is not a trusted principal
+- Autonomy in thinking. Authority in action.

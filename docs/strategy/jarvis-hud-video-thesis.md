@@ -8,6 +8,7 @@ category: product-strategy
 related:
   - docs/architecture/control-plane.md
   - docs/security/agent-execution-model.md
+  - docs/decisions/0001-thesis-lock.md
   - docs/governance/
   - docs/roadmap/
 ---
@@ -221,6 +222,7 @@ See also:
 
 - [Control Plane Architecture](../architecture/control-plane.md)
 - [Agent Execution Model](../security/agent-execution-model.md)
+- [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 
 ---
 

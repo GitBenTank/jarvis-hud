@@ -79,6 +79,10 @@ export function getYoutubePackageDir(dateKey: string, approvalId: string): strin
   return path.join(ROOT, "youtube-packages", dateKey, approvalId);
 }
 
+export function getReflectionDir(dateKey: string, reflectionId: string): string {
+  return path.join(ROOT, "reflections", dateKey, reflectionId);
+}
+
 export function getDateKey(): string {
   const now = new Date();
   const y = now.getFullYear();

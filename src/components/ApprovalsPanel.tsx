@@ -36,6 +36,9 @@ function getCardSummary(payload: unknown): string {
   if (n.kind === "content.publish" && n.channel && n.title) {
     return `${n.channel} · ${n.title}`;
   }
+  if (n.kind === "reflection.note") {
+    return n.summary || "Reflection note";
+  }
   return n.summary || "(no summary)";
 }
 
@@ -45,6 +48,7 @@ type DetailModalProps = Readonly<{
   onApprove: (id: string) => void;
   onDeny: (id: string) => void;
   onExecute: (id: string) => void;
+  onCreateReflection?: (result: ExecuteResult) => void;
   executeResult: ExecuteResult | null;
   executeLoading: boolean;
 }>;
@@ -55,11 +59,14 @@ function DetailModal({
   onApprove,
   onDeny,
   onExecute,
+  onCreateReflection,
   executeResult,
   executeLoading,
 }: DetailModalProps) {
   const normalized = normalizeAction(event.payload);
   const isPublish = normalized.kind === "content.publish";
+  const isReflection = normalized.kind === "reflection.note";
+  const isExecutable = isPublish || isReflection;
 
   return (
     <div
@@ -114,7 +121,7 @@ function DetailModal({
           </div>
         </dl>
 
-        {isPublish && (
+        {(isPublish || isReflection) && (
           <div className="mt-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-800 dark:bg-blue-900/30">
             <h3 className="font-medium">What happens if you approve?</h3>
             <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
@@ -122,13 +129,21 @@ function DetailModal({
                 <strong>Approve</strong> = changes status only (no posting)
               </li>
               <li>
-                <strong>Execute (dry run)</strong> = writes artifact to
-                publish-queue + action log, still no posting
+                {isReflection ? (
+                  <strong>Execute</strong>
+                ) : (
+                  <strong>Execute (dry run)</strong>
+                )}{" "}
+                = {isReflection
+                  ? "writes reflection files + action log receipt"
+                  : "writes artifact to publish-queue + action log, still no posting"}
               </li>
             </ul>
-            <p className="mt-2 font-bold text-zinc-800 dark:text-zinc-200">
-              Posting is NOT implemented
-            </p>
+            {isPublish && (
+              <p className="mt-2 font-bold text-zinc-800 dark:text-zinc-200">
+                Posting is NOT implemented
+              </p>
+            )}
           </div>
         )}
 
@@ -154,6 +169,14 @@ function DetailModal({
                 </pre>
               </div>
             </div>
+          </div>
+        ) : isReflection ? (
+          <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+            <h3 className="mb-2 font-medium">Reflection note</h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Source: {(event.payload as Record<string, unknown>)?.sourceKind} ·{" "}
+              {(event.payload as Record<string, unknown>)?.sourceApprovalId as string}
+            </p>
           </div>
         ) : normalized.kind === "unknown" ? (
           <div className="mt-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-900/30">
@@ -190,24 +213,24 @@ function DetailModal({
           </div>
         )}
 
-        {event.status === "approved" && !event.executed && isPublish && (
+        {event.status === "approved" && !event.executed && isExecutable && (
           <div className="mt-6 flex items-center gap-2">
             <button
               onClick={() => onExecute(event.id)}
               disabled={executeLoading}
               className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {executeLoading ? "Executing…" : "Execute (dry run)"}
+              {executeLoading ? "Executing…" : isReflection ? "Execute" : "Execute (dry run)"}
             </button>
-            <Badge variant="dry_run">DRY RUN</Badge>
+            {isPublish && <Badge variant="dry_run">DRY RUN</Badge>}
           </div>
         )}
 
-        {event.status === "approved" && !event.executed && !isPublish && (
+        {event.status === "approved" && !event.executed && !isExecutable && (
           <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/30">
             <p className="font-medium">Execution not supported yet</p>
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Only content.publish actions can be executed.
+              Only content.publish and reflection.note actions can be executed.
             </p>
           </div>
         )}
@@ -281,6 +304,17 @@ function DetailModal({
                       ? "Open package in Cursor"
                       : "Open artifact in Cursor"}
                   </button>
+                  {(executeResult.kind === "content.publish" ||
+                    executeResult.kind === "youtube.package") &&
+                    onCreateReflection && (
+                    <button
+                      type="button"
+                      onClick={() => onCreateReflection(executeResult)}
+                      className="rounded border border-emerald-600 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-300 dark:hover:bg-emerald-900/30"
+                    >
+                      Create Reflection (proposal)
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -392,6 +426,31 @@ export default function ApprovalsPanel() {
       }
     },
     [fetchApprovals, detailEvent]
+  );
+
+  const handleCreateReflection = useCallback(
+    async (result: ExecuteResult) => {
+      const sourceOutputPath = result.outputPath ?? result.artifactPath ?? "";
+      if (!sourceOutputPath) return;
+      try {
+        const res = await fetch("/api/reflections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sourceKind: result.kind,
+            sourceApprovalId: result.approvalId,
+            sourceOutputPath,
+          }),
+        });
+        if (res.ok) {
+          fetchApprovals();
+          window.dispatchEvent(new CustomEvent("jarvis-refresh"));
+        }
+      } catch {
+        // ignore
+      }
+    },
+    [fetchApprovals]
   );
 
   const approvals = data?.approvals ?? [];
@@ -533,6 +592,7 @@ export default function ApprovalsPanel() {
           onApprove={handleApprove}
           onDeny={handleDeny}
           onExecute={handleExecute}
+          onCreateReflection={handleCreateReflection}
           executeResult={executeResult}
           executeLoading={executeLoading}
         />

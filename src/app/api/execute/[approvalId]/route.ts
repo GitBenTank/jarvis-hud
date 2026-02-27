@@ -10,6 +10,7 @@ import {
   writePublishArtifact,
 } from "@/lib/action-log";
 import { writeYoutubePackage } from "@/lib/youtube-package";
+import { writeReflection } from "@/lib/reflection";
 import { normalizeAction } from "@/lib/normalize";
 
 type Event = {
@@ -67,9 +68,9 @@ export async function POST(
 
     const normalized = normalizeAction(event.payload);
 
-    if (normalized.kind !== "content.publish") {
+    if (normalized.kind !== "content.publish" && normalized.kind !== "reflection.note") {
       return NextResponse.json(
-        { error: "Only content.publish actions can be executed" },
+        { error: "Only content.publish and reflection.note actions can be executed" },
         { status: 400 }
       );
     }
@@ -82,7 +83,31 @@ export async function POST(
     let outputPath: string | null = null;
     let executionKind = "content.publish";
 
-    if (channel === "youtube") {
+    if (normalized.kind === "reflection.note") {
+      const p = event.payload as Record<string, unknown>;
+      const sourceKind = String(p.sourceKind ?? "unknown");
+      const sourceApprovalId = String(p.sourceApprovalId ?? "");
+      const sourceOutputPath = String(p.sourceOutputPath ?? "");
+      outputPath = await writeReflection({
+        reflectionId: approvalId,
+        dateKey,
+        sourceKind,
+        sourceApprovalId,
+        sourceOutputPath,
+        createdAt: executedAt,
+      });
+      executionKind = "reflection.note";
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        at: executedAt,
+        kind: "reflection.note",
+        approvalId,
+        status: actionStatus,
+        summary: normalized.summary,
+        payload: event.payload,
+        outputPath,
+      });
+    } else if (channel === "youtube") {
       outputPath = await writeYoutubePackage({
         approvalId,
         dateKey,

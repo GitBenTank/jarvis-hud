@@ -32,6 +32,21 @@ const REFLECTION_TEMPLATE = `# Reflection
 - Audience reaction:
 - Technical friction:
 - Next iteration:
+
+---
+
+## Decision Triggered
+- [ ] No change
+- [ ] UI change
+- [ ] Architecture change
+- [ ] Thesis clarification
+- [ ] New execution type
+
+## Confidence Level (1–5)
+(1 = uncertain, 5 = strong conviction)
+
+## One Concrete Next Action
+(Write exactly one actionable step)
 `;
 
 export async function writeReflection(input: ReflectionInput): Promise<string> {

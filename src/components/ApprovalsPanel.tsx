@@ -31,7 +31,26 @@ type ExecuteResult = {
   dryRun: boolean;
   readyForUpload?: boolean;
   videoFilePath?: string | null;
+  tagsCount?: number;
 };
+
+type ExecuteError = {
+  approvalId: string;
+  error: string;
+  reasons?: string[];
+};
+
+function getYoutubeTagCount(payload: unknown): number | null {
+  const p = payload as Record<string, unknown>;
+  const yt = p?.youtube as Record<string, unknown> | undefined;
+  const tagsStr = typeof yt?.tags === "string" ? yt.tags : null;
+  if (!tagsStr) return null;
+  const count = tagsStr
+    .split(/[\s,]+/)
+    .map((t: string) => t.trim())
+    .filter(Boolean).length;
+  return count;
+}
 
 function getCardSummary(payload: unknown): string {
   const n = normalizeAction(payload);
@@ -55,6 +74,7 @@ type DetailModalProps = Readonly<{
   onExecute: (id: string) => void;
   onCreateReflection?: (result: ExecuteResult) => void;
   executeResult: ExecuteResult | null;
+  executeError: ExecuteError | null;
   executeLoading: boolean;
 }>;
 
@@ -66,13 +86,17 @@ function DetailModal({
   onExecute,
   onCreateReflection,
   executeResult,
+  executeError,
   executeLoading,
 }: DetailModalProps) {
   const normalized = normalizeAction(event.payload);
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
   const isSystemNote = normalized.kind === "system.note";
+  const isYouTube = isPublish && normalized.channel === "youtube";
   const isExecutable = isPublish || isReflection || isSystemNote;
+  const blockedForEvent = executeError?.approvalId === event.id;
+  const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
 
   return (
     <div
@@ -127,7 +151,7 @@ function DetailModal({
           </div>
         </dl>
 
-        {(isPublish || isReflection) && (
+        {(isPublish || isReflection || isSystemNote) && (
           <div className="mt-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-800 dark:bg-blue-900/30">
             <h3 className="font-medium">What happens if you approve?</h3>
             <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
@@ -168,6 +192,12 @@ function DetailModal({
                 <span className="font-medium text-zinc-500">Title:</span>{" "}
                 {normalized.title ?? "(untitled)"}
               </div>
+              {isYouTube && youtubeTagCount !== null && (
+                <div>
+                  <span className="font-medium text-zinc-500">Tags:</span>{" "}
+                  {youtubeTagCount} (minimum 8)
+                </div>
+              )}
               <div>
                 <span className="font-medium text-zinc-500">Body:</span>
                 <pre className="mt-1 whitespace-pre-wrap break-words rounded bg-zinc-100 p-2 dark:bg-zinc-900">
@@ -219,6 +249,28 @@ function DetailModal({
           </div>
         )}
 
+        {isYouTube && event.status === "approved" && !event.executed && (
+          <div className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+            Tags: {youtubeTagCount !== null ? `${youtubeTagCount} (minimum 8)` : "not specified (minimum 8)"}
+          </div>
+        )}
+
+        {blockedForEvent && executeError && (
+          <div className="mt-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-900/30">
+            <p className="font-medium">Execution blocked</p>
+            <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
+              {(executeError.reasons ?? [executeError.error]).map((r) => (
+                <li key={r}>{r}</li>
+              ))}
+            </ul>
+            {isYouTube && youtubeTagCount !== null && (
+              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                Tags: {youtubeTagCount} (minimum 8)
+              </p>
+            )}
+          </div>
+        )}
+
         {event.status === "approved" && !event.executed && isExecutable && (
           <div className="mt-6 flex items-center gap-2">
             <button
@@ -248,18 +300,33 @@ function DetailModal({
               <Badge variant="dry_run">DRY RUN</Badge>
             </p>
             {executeResult.kind === "youtube.package" && (
-              <div className="mt-2 flex flex-wrap gap-3 text-sm">
-                <span>
-                  Ready for upload:{" "}
-                  <strong>{executeResult.readyForUpload ? "YES" : "NO"}</strong>
-                </span>
-                <span>
-                  Video file:{" "}
-                  <code className="text-xs">
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  This created a package + receipts. It did not post anything.
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Output path:</span>{" "}
+                    <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Upload readiness:</span>{" "}
+                    {executeResult.readyForUpload ? "READY" : "NOT READY"}
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Tags count:</span>{" "}
+                    {executeResult.tagsCount ?? "—"}
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Video file path:</span>{" "}
                     {executeResult.videoFilePath ?? "none"}
-                  </code>
-                </span>
-              </div>
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Adapter:</span>{" "}
+                    youtube.v1
+                  </div>
+                </div>
+              </>
             )}
             {(executeResult.outputPath ?? executeResult.artifactPath) && (
               <div className="mt-2 space-y-2">
@@ -324,6 +391,26 @@ function DetailModal({
                       ? "Open package in Cursor"
                       : "Open artifact in Cursor"}
                   </button>
+                  {executeResult.kind === "youtube.package" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const summary = [
+                          `Title: ${normalized.title ?? "(untitled)"}`,
+                          `Output path: ${executeResult.outputPath ?? executeResult.artifactPath ?? ""}`,
+                          `Upload readiness: ${executeResult.readyForUpload ? "READY" : "NOT READY"}`,
+                          `Tags count: ${executeResult.tagsCount ?? "—"}`,
+                          `Video file path: ${executeResult.videoFilePath ?? "none"}`,
+                          "",
+                          "Next step: Upload manually (no posting occurs without explicit approval + execution).",
+                        ].join("\n");
+                        navigator.clipboard.writeText(summary);
+                      }}
+                      className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                    >
+                      Copy package summary
+                    </button>
+                  )}
                   {(executeResult.kind === "content.publish" ||
                     executeResult.kind === "youtube.package") &&
                     onCreateReflection && (
@@ -351,6 +438,7 @@ export default function ApprovalsPanel() {
   const [loading, setLoading] = useState(true);
   const [detailEvent, setDetailEvent] = useState<Event | null>(null);
   const [executeResult, setExecuteResult] = useState<ExecuteResult | null>(null);
+  const [executeError, setExecuteError] = useState<ExecuteError | null>(null);
   const [executeLoading, setExecuteLoading] = useState(false);
 
   const fetchApprovals = useCallback(async () => {
@@ -428,16 +516,24 @@ export default function ApprovalsPanel() {
     async (id: string) => {
       setExecuteLoading(true);
       setExecuteResult(null);
+      setExecuteError(null);
       try {
         const res = await fetch(`/api/execute/${id}`, { method: "POST" });
         const json = await res.json();
         if (res.ok) {
           setExecuteResult(json);
+          setExecuteError(null);
           fetchApprovals();
           const updated = detailEvent?.id === id
             ? { ...detailEvent, executed: true, executedAt: json.executedAt }
             : detailEvent;
           if (updated) setDetailEvent(updated);
+        } else if (res.status === 400 && json.error) {
+          setExecuteError({
+            approvalId: id,
+            error: json.error,
+            reasons: Array.isArray(json.reasons) ? json.reasons : undefined,
+          });
         }
       } catch {
         // ignore
@@ -608,12 +704,14 @@ export default function ApprovalsPanel() {
           onClose={() => {
             setDetailEvent(null);
             setExecuteResult(null);
+            setExecuteError(null);
           }}
           onApprove={handleApprove}
           onDeny={handleDeny}
           onExecute={handleExecute}
           onCreateReflection={handleCreateReflection}
           executeResult={executeResult}
+          executeError={executeError}
           executeLoading={executeLoading}
         />
       )}

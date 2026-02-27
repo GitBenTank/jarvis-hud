@@ -91,6 +91,7 @@ export async function POST(
     let executionKind = "content.publish";
     let readyForUpload: boolean | undefined;
     let videoFilePath: string | null | undefined;
+    let tagsCount: number | undefined;
 
     if (normalized.kind === "system.note") {
       outputPath = await writeSystemNote({
@@ -155,12 +156,16 @@ export async function POST(
       };
       const validation = validateYoutubePackage(youtubeInput);
       if (!validation.valid) {
-        return NextResponse.json({ error: validation.error }, { status: 400 });
+        return NextResponse.json(
+          { error: validation.error, reasons: validation.reasons ?? [validation.error] },
+          { status: 400 }
+        );
       }
       const result = await writeYoutubePackage(youtubeInput);
       outputPath = result.outputPath;
       readyForUpload = result.readyForUpload;
       videoFilePath = result.videoFilePath;
+      tagsCount = result.tagsCount;
       executionKind = "youtube.package";
       await appendActionLog({
         id: crypto.randomUUID(),
@@ -213,6 +218,7 @@ export async function POST(
     if (executionKind === "youtube.package") {
       response.readyForUpload = readyForUpload;
       response.videoFilePath = videoFilePath ?? null;
+      response.tagsCount = tagsCount;
     }
     return NextResponse.json(response);
   } catch {

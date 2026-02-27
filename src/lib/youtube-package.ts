@@ -22,7 +22,7 @@ export type YoutubePackageInput = {
 
 export type YoutubeValidationResult =
   | { valid: true }
-  | { valid: false; error: string };
+  | { valid: false; error: string; reasons: string[] };
 
 function parseTagCount(tagsStr: string): number {
   return tagsStr
@@ -39,9 +39,17 @@ export function validateYoutubePackage(input: YoutubePackageInput): YoutubeValid
   const tags = yt.tags ?? deriveTags(input.title ?? "", input.body ?? "");
   const tagCount = parseTagCount(tags);
 
-  if (!title) return { valid: false, error: "YouTube package not ready: missing title" };
-  if (!description) return { valid: false, error: "YouTube package not ready: missing description" };
-  if (tagCount < 8) return { valid: false, error: "YouTube package not ready: tags must include at least 8" };
+  const reasons: string[] = [];
+  if (!title) reasons.push("missing title");
+  if (!description) reasons.push("missing description");
+  if (tagCount < 8) reasons.push("tags must include at least 8");
+  if (reasons.length > 0) {
+    return {
+      valid: false,
+      error: `YouTube package not ready: ${reasons.join("; ")}`,
+      reasons,
+    };
+  }
   return { valid: true };
 }
 
@@ -86,7 +94,12 @@ function deriveThumbnailText(title: string): string {
   return [opt1, opt2, opt3, opt4].filter(Boolean).join("\n");
 }
 
-export async function writeYoutubePackage(input: YoutubePackageInput): Promise<string> {
+export async function writeYoutubePackage(input: YoutubePackageInput): Promise<{
+  outputPath: string;
+  readyForUpload: boolean;
+  videoFilePath: string | null;
+  tagsCount: number;
+}> {
   const dir = getYoutubePackageDir(input.dateKey, input.approvalId);
   ensurePathSafe(dir);
   await ensureDir(dir);
@@ -115,9 +128,11 @@ export async function writeYoutubePackage(input: YoutubePackageInput): Promise<s
     dryRun: true,
     kind: "youtube.package",
     channel: "youtube",
+    adapterVersion: "youtube.v1",
     outputPath: dir,
     videoFilePath: videoFilePath ?? undefined,
     readyForUpload,
+    tagsCount: tagCount,
   };
 
   await fs.writeFile(path.join(dir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf-8");
@@ -133,5 +148,6 @@ export async function writeYoutubePackage(input: YoutubePackageInput): Promise<s
     outputPath: dir,
     readyForUpload,
     videoFilePath: videoFilePath ?? null,
+    tagsCount: tagCount,
   };
 }

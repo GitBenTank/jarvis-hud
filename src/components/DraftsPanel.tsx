@@ -30,6 +30,9 @@ Every action produces receipts (artifact + log).
 
 Autonomy in thinking.
 Authority in action.`,
+  youtube: {
+    tags: `jarvis hud, ai control plane, agentic ai governance, ai agent approval system, openclaw ai, human in the loop ai, ai tool execution, runtime control layer, agent execution safety, ai execution boundary, builder operating system, developer ai tools, ai workflow automation, technical founder tools`,
+  },
 };
 
 const SYSTEM_NOTE_PRESET = {
@@ -54,6 +57,7 @@ export default function DraftsPanel() {
   const [body, setBody] = useState("");
   const [note, setNote] = useState("");
   const [videoFilePath, setVideoFilePath] = useState("");
+  const [youtubeTags, setYoutubeTags] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ id: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +74,7 @@ export default function DraftsPanel() {
     setChannel(YOUTUBE_PRESET.channel);
     setTitle(YOUTUBE_PRESET.title);
     setBody(YOUTUBE_PRESET.body);
+    setYoutubeTags(YOUTUBE_PRESET.youtube?.tags ?? "");
     setNote("");
     setVideoFilePath("");
     setResult(null);
@@ -95,8 +100,10 @@ export default function DraftsPanel() {
         payload.note = note;
       } else {
         payload.body = body;
-        if (channel === "youtube" && videoFilePath.trim()) {
-          payload.youtube = { videoFilePath: videoFilePath.trim() };
+        if (channel === "youtube") {
+          payload.youtube = {};
+          if (videoFilePath.trim()) payload.youtube.videoFilePath = videoFilePath.trim();
+          if (youtubeTags.trim()) payload.youtube.tags = youtubeTags.trim();
         }
       }
       const res = await fetch("/api/drafts/content", {
@@ -180,18 +187,34 @@ export default function DraftsPanel() {
           />
         </div>
         {channel === "youtube" && (
-          <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Video file path (optional)
-            </label>
-            <input
-              type="text"
-              value={videoFilePath}
-              onChange={(e) => setVideoFilePath(e.target.value)}
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
-              placeholder="/Users/.../Exports/jarvis-hud-thesis.mp4"
-            />
-          </div>
+          <>
+            <div>
+              <label htmlFor="youtube-tags" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Tags (comma-separated, minimum 8)
+              </label>
+              <input
+                id="youtube-tags"
+                type="text"
+                value={youtubeTags}
+                onChange={(e) => setYoutubeTags(e.target.value)}
+                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                placeholder="jarvis hud, ai control plane, ..."
+              />
+            </div>
+            <div>
+              <label htmlFor="youtube-video" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Video file path (optional)
+              </label>
+              <input
+                id="youtube-video"
+                type="text"
+                value={videoFilePath}
+                onChange={(e) => setVideoFilePath(e.target.value)}
+                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                placeholder="/Users/.../Exports/jarvis-hud-thesis.mp4"
+              />
+            </div>
+          </>
         )}
         <div>
           <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">

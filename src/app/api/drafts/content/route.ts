@@ -22,7 +22,7 @@ type DraftContentBody = {
   body?: string;
   note?: string;
   tags?: string[];
-  youtube?: { videoFilePath?: string };
+  youtube?: { videoFilePath?: string; tags?: string };
 };
 
 function isDraftContentBody(body: unknown): body is DraftContentBody {
@@ -62,8 +62,11 @@ export async function POST(request: NextRequest) {
         body: body.body ?? "",
         dryRun: true,
       };
-      if (body.channel === "youtube" && body.youtube?.videoFilePath) {
-        payload.youtube = { videoFilePath: body.youtube.videoFilePath };
+      if (body.channel === "youtube" && body.youtube) {
+        const yt: Record<string, string> = {};
+        if (body.youtube.videoFilePath) yt.videoFilePath = body.youtube.videoFilePath;
+        if (body.youtube.tags) yt.tags = body.youtube.tags;
+        if (Object.keys(yt).length > 0) payload.youtube = yt;
       }
     }
     const event: Event = {

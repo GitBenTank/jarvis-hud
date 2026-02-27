@@ -29,6 +29,8 @@ type ExecuteResult = {
   artifactPath?: string | null;
   outputPath?: string | null;
   dryRun: boolean;
+  readyForUpload?: boolean;
+  videoFilePath?: string | null;
 };
 
 function getCardSummary(payload: unknown): string {
@@ -241,6 +243,20 @@ function DetailModal({
             <p className="mt-1 flex items-center gap-2">
               <Badge variant="dry_run">DRY RUN</Badge>
             </p>
+            {executeResult.kind === "youtube.package" && (
+              <div className="mt-2 flex flex-wrap gap-3 text-sm">
+                <span>
+                  Ready for upload:{" "}
+                  <strong>{executeResult.readyForUpload ? "YES" : "NO"}</strong>
+                </span>
+                <span>
+                  Video file:{" "}
+                  <code className="text-xs">
+                    {executeResult.videoFilePath ?? "none"}
+                  </code>
+                </span>
+              </div>
+            )}
             {(executeResult.outputPath ?? executeResult.artifactPath) && (
               <div className="mt-2 space-y-2">
                 <div className="flex items-center gap-2">

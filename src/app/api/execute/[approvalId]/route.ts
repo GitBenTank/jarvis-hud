@@ -9,7 +9,7 @@ import {
   appendActionLog,
   writePublishArtifact,
 } from "@/lib/action-log";
-import { writeYoutubePackage } from "@/lib/youtube-package";
+import { writeYoutubePackage, validateYoutubePackage } from "@/lib/youtube-package";
 import { writeReflection } from "@/lib/reflection";
 import { normalizeAction } from "@/lib/normalize";
 
@@ -82,6 +82,8 @@ export async function POST(
     let artifactPath: string | null = null;
     let outputPath: string | null = null;
     let executionKind = "content.publish";
+    let readyForUpload: boolean | undefined;
+    let videoFilePath: string | null | undefined;
 
     if (normalized.kind === "reflection.note") {
       const p = event.payload as Record<string, unknown>;
@@ -108,15 +110,30 @@ export async function POST(
         outputPath,
       });
     } else if (channel === "youtube") {
-      outputPath = await writeYoutubePackage({
+      const youtubePayload = (event.payload as Record<string, unknown>)?.youtube as Record<string, unknown> | undefined;
+      const youtubeInput = {
         approvalId,
         dateKey,
         channel: "youtube",
         title: normalized.title,
         body: normalized.body,
         createdAt: executedAt,
-        youtube: (event.payload as Record<string, unknown>)?.youtube as Record<string, string> | undefined,
-      });
+        youtube: youtubePayload
+          ? {
+              videoFilePath: typeof youtubePayload.videoFilePath === "string" ? youtubePayload.videoFilePath : undefined,
+              tags: typeof youtubePayload.tags === "string" ? youtubePayload.tags : undefined,
+              description: typeof youtubePayload.description === "string" ? youtubePayload.description : undefined,
+            }
+          : undefined,
+      };
+      const validation = validateYoutubePackage(youtubeInput);
+      if (!validation.valid) {
+        return NextResponse.json({ error: validation.error }, { status: 400 });
+      }
+      const result = await writeYoutubePackage(youtubeInput);
+      outputPath = result.outputPath;
+      readyForUpload = result.readyForUpload;
+      videoFilePath = result.videoFilePath;
       executionKind = "youtube.package";
       await appendActionLog({
         id: crypto.randomUUID(),
@@ -155,7 +172,7 @@ export async function POST(
     events[index] = updated;
     await writeJson(filePath, events);
 
-    return NextResponse.json({
+    const response: Record<string, unknown> = {
       ok: true,
       approvalId,
       executedAt,
@@ -164,7 +181,12 @@ export async function POST(
       outputPath,
       dryRun: true,
       status: actionStatus,
-    });
+    };
+    if (executionKind === "youtube.package") {
+      response.readyForUpload = readyForUpload;
+      response.videoFilePath = videoFilePath ?? null;
+    }
+    return NextResponse.json(response);
   } catch {
     return NextResponse.json(
       { error: "Failed to execute" },

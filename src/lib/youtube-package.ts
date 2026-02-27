@@ -16,8 +16,34 @@ export type YoutubePackageInput = {
     pinned_comment?: string;
     shorts_hook?: string;
     thumbnail_text?: string;
+    videoFilePath?: string;
   };
 };
+
+export type YoutubeValidationResult =
+  | { valid: true }
+  | { valid: false; error: string };
+
+function parseTagCount(tagsStr: string): number {
+  return tagsStr
+    .split(/[\s,]+/)
+    .map((t) => t.trim())
+    .filter(Boolean).length;
+}
+
+export function validateYoutubePackage(input: YoutubePackageInput): YoutubeValidationResult {
+  const title = (input.title ?? "").trim();
+  const body = (input.body ?? "").trim();
+  const yt = input.youtube ?? {};
+  const description = (yt.description ?? (body || title)).trim();
+  const tags = yt.tags ?? deriveTags(input.title ?? "", input.body ?? "");
+  const tagCount = parseTagCount(tags);
+
+  if (!title) return { valid: false, error: "YouTube package not ready: missing title" };
+  if (!description) return { valid: false, error: "YouTube package not ready: missing description" };
+  if (tagCount < 8) return { valid: false, error: "YouTube package not ready: tags must include at least 8" };
+  return { valid: true };
+}
 
 function deriveTags(title: string, body: string): string {
   const text = `${title} ${body}`.toLowerCase();
@@ -75,6 +101,12 @@ export async function writeYoutubePackage(input: YoutubePackageInput): Promise<s
   const pinned_comment = yt.pinned_comment ?? "Discussion and feedback welcome.";
   const shorts_hook = yt.shorts_hook ?? (body.trim().split("\n")[0]?.slice(0, 100) ?? title);
   const thumbnail_text = yt.thumbnail_text ?? deriveThumbnailText(title);
+  const videoFilePath = yt.videoFilePath?.trim();
+  const tagCount = parseTagCount(tags);
+  const readyForUpload =
+    title.length > 0 &&
+    description.length > 0 &&
+    tagCount >= 8;
 
   const manifest = {
     approvalId: input.approvalId,
@@ -84,6 +116,8 @@ export async function writeYoutubePackage(input: YoutubePackageInput): Promise<s
     kind: "youtube.package",
     channel: "youtube",
     outputPath: dir,
+    videoFilePath: videoFilePath ?? undefined,
+    readyForUpload,
   };
 
   await fs.writeFile(path.join(dir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf-8");
@@ -95,5 +129,9 @@ export async function writeYoutubePackage(input: YoutubePackageInput): Promise<s
   await fs.writeFile(path.join(dir, "shorts_hook.md"), shorts_hook, "utf-8");
   await fs.writeFile(path.join(dir, "thumbnail_text.txt"), thumbnail_text, "utf-8");
 
-  return dir;
+  return {
+    outputPath: dir,
+    readyForUpload,
+    videoFilePath: videoFilePath ?? null,
+  };
 }

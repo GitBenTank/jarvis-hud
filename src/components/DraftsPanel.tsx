@@ -36,6 +36,7 @@ export default function DraftsPanel() {
   const [channel, setChannel] = useState("blog");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [videoFilePath, setVideoFilePath] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ id: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +53,7 @@ export default function DraftsPanel() {
     setChannel(YOUTUBE_PRESET.channel);
     setTitle(YOUTUBE_PRESET.title);
     setBody(YOUTUBE_PRESET.body);
+    setVideoFilePath("");
     setResult(null);
     setError(null);
   };
@@ -61,10 +63,18 @@ export default function DraftsPanel() {
     setResult(null);
     setError(null);
     try {
+      const payload: { channel: string; title: string; body: string; youtube?: { videoFilePath: string } } = {
+        channel,
+        title,
+        body,
+      };
+      if (channel === "youtube" && videoFilePath.trim()) {
+        payload.youtube = { videoFilePath: videoFilePath.trim() };
+      }
       const res = await fetch("/api/drafts/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channel, title, body }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok) {
@@ -128,6 +138,20 @@ export default function DraftsPanel() {
             placeholder="Post title"
           />
         </div>
+        {channel === "youtube" && (
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Video file path (optional)
+            </label>
+            <input
+              type="text"
+              value={videoFilePath}
+              onChange={(e) => setVideoFilePath(e.target.value)}
+              className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+              placeholder="/Users/.../Exports/jarvis-hud-thesis.mp4"
+            />
+          </div>
+        )}
         <div>
           <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Body

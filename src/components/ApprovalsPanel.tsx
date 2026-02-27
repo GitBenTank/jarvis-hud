@@ -41,6 +41,9 @@ function getCardSummary(payload: unknown): string {
   if (n.kind === "reflection.note") {
     return n.summary || "Reflection note";
   }
+  if (n.kind === "system.note") {
+    return n.summary || "System note";
+  }
   return n.summary || "(no summary)";
 }
 
@@ -68,7 +71,8 @@ function DetailModal({
   const normalized = normalizeAction(event.payload);
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
-  const isExecutable = isPublish || isReflection;
+  const isSystemNote = normalized.kind === "system.note";
+  const isExecutable = isPublish || isReflection || isSystemNote;
 
   return (
     <div
@@ -232,7 +236,7 @@ function DetailModal({
           <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/30">
             <p className="font-medium">Execution not supported yet</p>
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Only content.publish and reflection.note actions can be executed.
+              Only content.publish, reflection.note, and system.note actions can be executed.
             </p>
           </div>
         )}

@@ -11,6 +11,7 @@ import {
 } from "@/lib/action-log";
 import { writeYoutubePackage, validateYoutubePackage } from "@/lib/youtube-package";
 import { writeReflection } from "@/lib/reflection";
+import { writeSystemNote } from "@/lib/system-note";
 import { normalizeAction } from "@/lib/normalize";
 
 type Event = {
@@ -68,9 +69,15 @@ export async function POST(
 
     const normalized = normalizeAction(event.payload);
 
-    if (normalized.kind !== "content.publish" && normalized.kind !== "reflection.note") {
+    if (
+      normalized.kind !== "content.publish" &&
+      normalized.kind !== "reflection.note" &&
+      normalized.kind !== "system.note"
+    ) {
       return NextResponse.json(
-        { error: "Only content.publish and reflection.note actions can be executed" },
+        {
+          error: "Only content.publish, reflection.note, and system.note actions can be executed",
+        },
         { status: 400 }
       );
     }
@@ -85,7 +92,27 @@ export async function POST(
     let readyForUpload: boolean | undefined;
     let videoFilePath: string | null | undefined;
 
-    if (normalized.kind === "reflection.note") {
+    if (normalized.kind === "system.note") {
+      outputPath = await writeSystemNote({
+        approvalId,
+        dateKey,
+        title: normalized.title ?? "(untitled)",
+        note: normalized.note ?? "",
+        tags: normalized.tags,
+        createdAt: executedAt,
+      });
+      executionKind = "system.note";
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        at: executedAt,
+        kind: "system.note",
+        approvalId,
+        status: actionStatus,
+        summary: normalized.summary,
+        payload: event.payload,
+        outputPath,
+      });
+    } else if (normalized.kind === "reflection.note") {
       const p = event.payload as Record<string, unknown>;
       const sourceKind = String(p.sourceKind ?? "unknown");
       const sourceApprovalId = String(p.sourceApprovalId ?? "");
@@ -161,6 +188,7 @@ export async function POST(
         status: "written",
         summary: normalized.summary,
         payload: event.payload,
+        artifactPath,
       });
     }
 

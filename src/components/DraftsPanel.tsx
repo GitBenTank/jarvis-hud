@@ -32,10 +32,27 @@ Autonomy in thinking.
 Authority in action.`,
 };
 
+const SYSTEM_NOTE_PRESET = {
+  channel: "system",
+  title: "Decision Log Entry",
+  note: `## Context
+What prompted this decision?
+
+## Decision
+What did we decide?
+
+## Rationale
+Why this path vs alternatives?
+
+## Outcome (fill in later)
+- `,
+};
+
 export default function DraftsPanel() {
   const [channel, setChannel] = useState("blog");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [note, setNote] = useState("");
   const [videoFilePath, setVideoFilePath] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ id: string } | null>(null);
@@ -53,7 +70,17 @@ export default function DraftsPanel() {
     setChannel(YOUTUBE_PRESET.channel);
     setTitle(YOUTUBE_PRESET.title);
     setBody(YOUTUBE_PRESET.body);
+    setNote("");
     setVideoFilePath("");
+    setResult(null);
+    setError(null);
+  };
+
+  const handleSystemNotePreset = () => {
+    setChannel(SYSTEM_NOTE_PRESET.channel);
+    setTitle(SYSTEM_NOTE_PRESET.title);
+    setNote(SYSTEM_NOTE_PRESET.note);
+    setBody("");
     setResult(null);
     setError(null);
   };
@@ -63,13 +90,14 @@ export default function DraftsPanel() {
     setResult(null);
     setError(null);
     try {
-      const payload: { channel: string; title: string; body: string; youtube?: { videoFilePath: string } } = {
-        channel,
-        title,
-        body,
-      };
-      if (channel === "youtube" && videoFilePath.trim()) {
-        payload.youtube = { videoFilePath: videoFilePath.trim() };
+      const payload: Record<string, unknown> = { channel, title };
+      if (channel === "system") {
+        payload.note = note;
+      } else {
+        payload.body = body;
+        if (channel === "youtube" && videoFilePath.trim()) {
+          payload.youtube = { videoFilePath: videoFilePath.trim() };
+        }
       }
       const res = await fetch("/api/drafts/content", {
         method: "POST",
@@ -81,6 +109,7 @@ export default function DraftsPanel() {
         setResult({ id: data.id });
         setTitle("");
         setBody("");
+        setNote("");
       } else {
         setError(data.error ?? "Failed to create approval");
       }
@@ -110,6 +139,13 @@ export default function DraftsPanel() {
         >
           YouTube: Jarvis HUD Thesis Video Pack
         </button>
+        <button
+          type="button"
+          onClick={handleSystemNotePreset}
+          className="rounded border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+        >
+          System Note: Decision Log Entry
+        </button>
       </div>
 
       <div className="space-y-3">
@@ -119,11 +155,16 @@ export default function DraftsPanel() {
           </label>
           <select
             value={channel}
-            onChange={(e) => setChannel(e.target.value)}
+            onChange={(e) => {
+              setChannel(e.target.value);
+              setResult(null);
+              setError(null);
+            }}
             className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
           >
             <option value="blog">blog</option>
             <option value="youtube">youtube</option>
+            <option value="system">system</option>
           </select>
         </div>
         <div>
@@ -135,7 +176,7 @@ export default function DraftsPanel() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
-            placeholder="Post title"
+            placeholder={channel === "system" ? "Note title" : "Post title"}
           />
         </div>
         {channel === "youtube" && (
@@ -154,20 +195,24 @@ export default function DraftsPanel() {
         )}
         <div>
           <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Body
+            {channel === "system" ? "Note" : "Body"}
           </label>
           <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
+            value={channel === "system" ? note : body}
+            onChange={(e) => (channel === "system" ? setNote(e.target.value) : setBody(e.target.value))}
             className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
-            placeholder="Post body..."
+            placeholder={channel === "system" ? "Markdown note..." : "Post body..."}
             rows={4}
           />
         </div>
 
         <button
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={
+            loading ||
+            !title.trim() ||
+            (channel === "system" ? !note.trim() : !body.trim())
+          }
           className="rounded bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
         >
           {loading ? "Submitting…" : "Submit to Control Plane"}

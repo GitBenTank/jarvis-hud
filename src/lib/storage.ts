@@ -83,6 +83,18 @@ export function getReflectionDir(dateKey: string, reflectionId: string): string 
   return path.join(ROOT, "reflections", dateKey, reflectionId);
 }
 
+export function getSystemNoteDir(dateKey: string): string {
+  return path.join(ROOT, "system-notes", dateKey);
+}
+
+export function getSystemNoteFilePath(dateKey: string, approvalId: string): string {
+  return path.join(getSystemNoteDir(dateKey), `${approvalId}.md`);
+}
+
+export function getSystemNoteManifestPath(dateKey: string, approvalId: string): string {
+  return path.join(getSystemNoteDir(dateKey), `${approvalId}.json`);
+}
+
 export function getDateKey(): string {
   const now = new Date();
   const y = now.getFullYear();

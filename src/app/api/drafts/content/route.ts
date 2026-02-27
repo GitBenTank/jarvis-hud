@@ -19,18 +19,20 @@ type Event = {
 type DraftContentBody = {
   channel: string;
   title: string;
-  body: string;
+  body?: string;
+  note?: string;
+  tags?: string[];
   youtube?: { videoFilePath?: string };
 };
 
 function isDraftContentBody(body: unknown): body is DraftContentBody {
   if (!body || typeof body !== "object") return false;
   const o = body as Record<string, unknown>;
-  return (
-    typeof o.channel === "string" &&
-    typeof o.title === "string" &&
-    typeof o.body === "string"
-  );
+  if (typeof o.channel !== "string" || typeof o.title !== "string") return false;
+  if (o.channel === "system") {
+    return typeof o.note === "string";
+  }
+  return typeof o.body === "string";
 }
 
 export async function POST(request: NextRequest) {
@@ -44,15 +46,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload: Record<string, unknown> = {
-      kind: "content.publish",
-      channel: body.channel,
-      title: body.title,
-      body: body.body,
-      dryRun: true,
-    };
-    if (body.channel === "youtube" && body.youtube?.videoFilePath) {
-      payload.youtube = { videoFilePath: body.youtube.videoFilePath };
+    let payload: Record<string, unknown>;
+    if (body.channel === "system") {
+      payload = {
+        kind: "system.note",
+        title: body.title,
+        note: body.note,
+        tags: Array.isArray(body.tags) ? body.tags : undefined,
+      };
+    } else {
+      payload = {
+        kind: "content.publish",
+        channel: body.channel,
+        title: body.title,
+        body: body.body ?? "",
+        dryRun: true,
+      };
+      if (body.channel === "youtube" && body.youtube?.videoFilePath) {
+        payload.youtube = { videoFilePath: body.youtube.videoFilePath };
+      }
     }
     const event: Event = {
       id: crypto.randomUUID(),

@@ -4,6 +4,8 @@ export function normalizeAction(payload: unknown): {
   channel?: string;
   title?: string;
   body?: string;
+  note?: string;
+  tags?: string[];
   dryRun?: boolean;
 } {
   if (!payload || typeof payload !== "object") {
@@ -11,6 +13,17 @@ export function normalizeAction(payload: unknown): {
   }
 
   const p = payload as Record<string, unknown>;
+
+  if (p.kind === "system.note") {
+    const title = String(p.title ?? "(untitled)");
+    return {
+      kind: "system.note",
+      summary: title,
+      title,
+      note: String(p.note ?? ""),
+      tags: Array.isArray(p.tags) ? p.tags.map(String) : undefined,
+    };
+  }
 
   if (p.kind === "reflection.note") {
     const sourceKind = String(p.sourceKind ?? "unknown");

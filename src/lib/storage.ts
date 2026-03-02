@@ -83,6 +83,10 @@ export function getReflectionDir(dateKey: string, reflectionId: string): string 
   return path.join(ROOT, "reflections", dateKey, reflectionId);
 }
 
+export function getCodeDiffDir(dateKey: string, approvalId: string): string {
+  return path.join(ROOT, "code-diffs", dateKey, approvalId);
+}
+
 export function getSystemNoteDir(dateKey: string): string {
   return path.join(ROOT, "system-notes", dateKey);
 }

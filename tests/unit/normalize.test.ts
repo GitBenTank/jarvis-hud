@@ -62,4 +62,24 @@ describe("normalizeAction", () => {
     expect(result.kind).toBe("doThing");
     expect(result.summary).toBe("T");
   });
+
+  it("code.diff payload: kind code.diff + title + summary from code.summary", () => {
+    const result = normalizeAction({
+      kind: "code.diff",
+      title: "Add feature X",
+      code: { summary: "Implements feature X", diffText: "diff...", files: ["src/x.ts"] },
+    });
+    expect(result.kind).toBe("code.diff");
+    expect(result.title).toBe("Add feature X");
+    expect(result.summary).toBe("Implements feature X");
+  });
+
+  it("code.diff payload without code.summary => uses title as summary", () => {
+    const result = normalizeAction({
+      kind: "code.diff",
+      title: "Refactor utils",
+    });
+    expect(result.kind).toBe("code.diff");
+    expect(result.summary).toBe("Refactor utils");
+  });
 });

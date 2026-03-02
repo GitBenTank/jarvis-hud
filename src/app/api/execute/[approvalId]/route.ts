@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   getDateKey,
   getEventsFilePath,
@@ -6,12 +6,18 @@ import {
   writeJson,
 } from "@/lib/storage";
 import {
+  isAuthEnabled,
+  getSessionFromCookie,
+  isStepUpValid,
+} from "@/lib/auth";
+import {
   appendActionLog,
   writePublishArtifact,
 } from "@/lib/action-log";
 import { writeYoutubePackage, validateYoutubePackage } from "@/lib/youtube-package";
 import { writeReflection } from "@/lib/reflection";
 import { writeSystemNote } from "@/lib/system-note";
+import { writeCodeDiffBundle } from "@/lib/code-diff";
 import { normalizeAction } from "@/lib/normalize";
 
 type Event = {
@@ -27,10 +33,27 @@ type Event = {
 };
 
 export async function POST(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ approvalId: string }> }
 ) {
   try {
+    if (isAuthEnabled()) {
+      const cookie = request.headers.get("cookie");
+      const session = getSessionFromCookie(cookie);
+      if (!session) {
+        return NextResponse.json(
+          { error: "Session required" },
+          { status: 401 }
+        );
+      }
+      if (!isStepUpValid(session)) {
+        return NextResponse.json(
+          { error: "Step-up required to execute", code: "STEP_UP_REQUIRED" },
+          { status: 403 }
+        );
+      }
+    }
+
     const { approvalId } = await params;
 
     const dateKey = getDateKey();
@@ -72,11 +95,13 @@ export async function POST(
     if (
       normalized.kind !== "content.publish" &&
       normalized.kind !== "reflection.note" &&
-      normalized.kind !== "system.note"
+      normalized.kind !== "system.note" &&
+      normalized.kind !== "code.diff"
     ) {
       return NextResponse.json(
         {
-          error: "Only content.publish, reflection.note, and system.note actions can be executed",
+          error:
+            "Only content.publish, reflection.note, system.note, and code.diff actions can be executed",
         },
         { status: 400 }
       );
@@ -131,6 +156,51 @@ export async function POST(
         id: crypto.randomUUID(),
         at: executedAt,
         kind: "reflection.note",
+        approvalId,
+        status: actionStatus,
+        summary: normalized.summary,
+        payload: event.payload,
+        outputPath,
+      });
+    } else if (normalized.kind === "code.diff") {
+      const p = event.payload as Record<string, unknown>;
+      const codePayload = p?.code as Record<string, unknown> | undefined;
+      outputPath = await writeCodeDiffBundle({
+        approvalId,
+        dateKey,
+        title: normalized.title ?? "(untitled)",
+        createdAt: executedAt,
+        code: codePayload
+          ? {
+              baseRef:
+                typeof codePayload.baseRef === "string"
+                  ? codePayload.baseRef
+                  : undefined,
+              targetRef:
+                typeof codePayload.targetRef === "string"
+                  ? codePayload.targetRef
+                  : undefined,
+              diffText:
+                typeof codePayload.diffText === "string"
+                  ? codePayload.diffText
+                  : undefined,
+              files: Array.isArray(codePayload.files)
+                ? codePayload.files.filter(
+                    (f): f is string => typeof f === "string"
+                  )
+                : undefined,
+              summary:
+                typeof codePayload.summary === "string"
+                  ? codePayload.summary
+                  : undefined,
+            }
+          : undefined,
+      });
+      executionKind = "code.diff";
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        at: executedAt,
+        kind: "code.diff",
         approvalId,
         status: actionStatus,
         summary: normalized.summary,

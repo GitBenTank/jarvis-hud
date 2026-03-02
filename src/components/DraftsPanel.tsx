@@ -51,6 +51,16 @@ Why this path vs alternatives?
 - `,
 };
 
+const CODE_DIFF_PRESET = {
+  channel: "code",
+  title: "Dry-run Change Bundle",
+  code: {
+    summary: "Proposed code changes — no apply, receipts only.",
+    diffText: "",
+    files: [] as string[],
+  },
+};
+
 export default function DraftsPanel() {
   const [channel, setChannel] = useState("blog");
   const [title, setTitle] = useState("");
@@ -58,6 +68,9 @@ export default function DraftsPanel() {
   const [note, setNote] = useState("");
   const [videoFilePath, setVideoFilePath] = useState("");
   const [youtubeTags, setYoutubeTags] = useState("");
+  const [codeSummary, setCodeSummary] = useState("");
+  const [diffText, setDiffText] = useState("");
+  const [filesList, setFilesList] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ id: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +103,18 @@ export default function DraftsPanel() {
     setError(null);
   };
 
+  const handleCodeDiffPreset = () => {
+    setChannel(CODE_DIFF_PRESET.channel);
+    setTitle(CODE_DIFF_PRESET.title);
+    setCodeSummary(CODE_DIFF_PRESET.code.summary ?? "");
+    setDiffText(CODE_DIFF_PRESET.code.diffText ?? "");
+    setFilesList("");
+    setBody("");
+    setNote("");
+    setResult(null);
+    setError(null);
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setResult(null);
@@ -98,12 +123,24 @@ export default function DraftsPanel() {
       const payload: Record<string, unknown> = { channel, title };
       if (channel === "system") {
         payload.note = note;
+      } else if (channel === "code") {
+        const code: Record<string, string | string[]> = {};
+        if (codeSummary.trim()) code.summary = codeSummary.trim();
+        if (diffText.trim()) code.diffText = diffText.trim();
+        if (filesList.trim()) {
+          code.files = filesList
+            .split(/[\n,]+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+        payload.code = code;
       } else {
         payload.body = body;
         if (channel === "youtube") {
-          payload.youtube = {};
-          if (videoFilePath.trim()) payload.youtube.videoFilePath = videoFilePath.trim();
-          if (youtubeTags.trim()) payload.youtube.tags = youtubeTags.trim();
+          const youtube: Record<string, string> = {};
+          if (videoFilePath.trim()) youtube.videoFilePath = videoFilePath.trim();
+          if (youtubeTags.trim()) youtube.tags = youtubeTags.trim();
+          payload.youtube = youtube;
         }
       }
       const res = await fetch("/api/drafts/content", {
@@ -153,6 +190,13 @@ export default function DraftsPanel() {
         >
           System Note: Decision Log Entry
         </button>
+        <button
+          type="button"
+          onClick={handleCodeDiffPreset}
+          className="rounded border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+        >
+          Code Diff: Dry-run Change Bundle
+        </button>
       </div>
 
       <div className="space-y-3">
@@ -172,6 +216,7 @@ export default function DraftsPanel() {
             <option value="blog">blog</option>
             <option value="youtube">youtube</option>
             <option value="system">system</option>
+            <option value="code">code</option>
           </select>
         </div>
         <div>
@@ -186,6 +231,49 @@ export default function DraftsPanel() {
             placeholder={channel === "system" ? "Note title" : "Post title"}
           />
         </div>
+        {channel === "code" && (
+          <>
+            <div>
+              <label htmlFor="code-summary" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Summary (optional)
+              </label>
+              <input
+                id="code-summary"
+                type="text"
+                value={codeSummary}
+                onChange={(e) => setCodeSummary(e.target.value)}
+                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                placeholder="Overview of proposed changes"
+              />
+            </div>
+            <div>
+              <label htmlFor="code-diff" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Diff text (optional)
+              </label>
+              <textarea
+                id="code-diff"
+                value={diffText}
+                onChange={(e) => setDiffText(e.target.value)}
+                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                placeholder="Paste unified diff here..."
+                rows={4}
+              />
+            </div>
+            <div>
+              <label htmlFor="code-files" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Files list (optional, comma or newline)
+              </label>
+              <input
+                id="code-files"
+                type="text"
+                value={filesList}
+                onChange={(e) => setFilesList(e.target.value)}
+                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                placeholder="src/file.ts, lib/utils.ts"
+              />
+            </div>
+          </>
+        )}
         {channel === "youtube" && (
           <>
             <div>
@@ -216,25 +304,29 @@ export default function DraftsPanel() {
             </div>
           </>
         )}
-        <div>
-          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            {channel === "system" ? "Note" : "Body"}
-          </label>
-          <textarea
-            value={channel === "system" ? note : body}
-            onChange={(e) => (channel === "system" ? setNote(e.target.value) : setBody(e.target.value))}
-            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
-            placeholder={channel === "system" ? "Markdown note..." : "Post body..."}
-            rows={4}
-          />
-        </div>
+        {channel !== "code" && (
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              {channel === "system" ? "Note" : "Body"}
+            </label>
+            <textarea
+              value={channel === "system" ? note : body}
+              onChange={(e) =>
+                channel === "system" ? setNote(e.target.value) : setBody(e.target.value)
+              }
+              className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+              placeholder={channel === "system" ? "Markdown note..." : "Post body..."}
+              rows={4}
+            />
+          </div>
+        )}
 
         <button
           onClick={handleSubmit}
           disabled={
             loading ||
             !title.trim() ||
-            (channel === "system" ? !note.trim() : !body.trim())
+            (channel === "system" ? !note.trim() : channel === "code" ? false : !body.trim())
           }
           className="rounded bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
         >

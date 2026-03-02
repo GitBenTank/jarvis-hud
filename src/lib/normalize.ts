@@ -34,6 +34,20 @@ export function normalizeAction(payload: unknown): {
     };
   }
 
+  if (p.kind === "code.diff") {
+    const title = String(p.title ?? "(untitled)");
+    const code = p.code as Record<string, unknown> | undefined;
+    const summary =
+      (typeof code?.summary === "string" ? code.summary : "") ||
+      title ||
+      "Code diff (dry-run)";
+    return {
+      kind: "code.diff",
+      summary,
+      title,
+    };
+  }
+
   const isPublish =
     p.kind === "content.publish" ||
     p.action === "publish" ||
@@ -49,7 +63,7 @@ export function normalizeAction(payload: unknown): {
       channel: typeof channel === "object" ? JSON.stringify(channel) : String(channel),
       title: titleStr,
       body: typeof body === "object" ? JSON.stringify(body) : String(body),
-      dryRun: p.dryRun ?? true,
+      dryRun: typeof p.dryRun === "boolean" ? p.dryRun : true,
       summary: titleStr !== "(untitled)" ? titleStr : "Publish content",
     };
   }

@@ -23,6 +23,11 @@ type DraftContentBody = {
   note?: string;
   tags?: string[];
   youtube?: { videoFilePath?: string; tags?: string };
+  code?: {
+    diffText?: string;
+    files?: string[] | string;
+    summary?: string;
+  };
 };
 
 function isDraftContentBody(body: unknown): body is DraftContentBody {
@@ -31,6 +36,9 @@ function isDraftContentBody(body: unknown): body is DraftContentBody {
   if (typeof o.channel !== "string" || typeof o.title !== "string") return false;
   if (o.channel === "system") {
     return typeof o.note === "string";
+  }
+  if (o.channel === "code") {
+    return true;
   }
   return typeof o.body === "string";
 }
@@ -53,6 +61,25 @@ export async function POST(request: NextRequest) {
         title: body.title,
         note: body.note,
         tags: Array.isArray(body.tags) ? body.tags : undefined,
+      };
+    } else if (body.channel === "code") {
+      const filesRaw = body.code?.files;
+      const files: string[] = Array.isArray(filesRaw)
+        ? filesRaw.filter((f): f is string => typeof f === "string")
+        : typeof filesRaw === "string"
+          ? filesRaw
+              .split(/[\n,]+/)
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
+      payload = {
+        kind: "code.diff",
+        title: body.title,
+        code: {
+          diffText: body.code?.diffText,
+          files: files.length > 0 ? files : undefined,
+          summary: body.code?.summary,
+        },
       };
     } else {
       payload = {

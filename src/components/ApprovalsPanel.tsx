@@ -38,6 +38,7 @@ type ExecuteError = {
   approvalId: string;
   error: string;
   reasons?: string[];
+  stepUpRequired?: boolean;
 };
 
 function getYoutubeTagCount(payload: unknown): number | null {
@@ -62,6 +63,9 @@ function getCardSummary(payload: unknown): string {
   }
   if (n.kind === "system.note") {
     return n.summary || "System note";
+  }
+  if (n.kind === "code.diff") {
+    return n.summary || "Code diff (dry-run)";
   }
   return n.summary || "(no summary)";
 }
@@ -93,8 +97,9 @@ function DetailModal({
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
   const isSystemNote = normalized.kind === "system.note";
+  const isCodeDiff = normalized.kind === "code.diff";
   const isYouTube = isPublish && normalized.channel === "youtube";
-  const isExecutable = isPublish || isReflection || isSystemNote;
+  const isExecutable = isPublish || isReflection || isSystemNote || isCodeDiff;
   const blockedForEvent = executeError?.approvalId === event.id;
   const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
 
@@ -151,7 +156,7 @@ function DetailModal({
           </div>
         </dl>
 
-        {(isPublish || isReflection || isSystemNote) && (
+        {(isPublish || isReflection || isSystemNote || isCodeDiff) && (
           <div className="mt-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-800 dark:bg-blue-900/30">
             <h3 className="font-medium">What happens if you approve?</h3>
             <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
@@ -166,18 +171,63 @@ function DetailModal({
                 )}{" "}
                 = {isReflection
                   ? "writes reflection files + action log receipt"
-                  : "writes artifact to publish-queue + action log, still no posting"}
+                  : isCodeDiff
+                    ? "writes local diff bundle + action log receipt, no changes applied"
+                    : "writes artifact to publish-queue + action log, still no posting"}
               </li>
             </ul>
             {isPublish && (
-              <p className="mt-2 font-bold text-zinc-800 dark:text-zinc-200">
-                Posting is NOT implemented
-              </p>
+              <div className="mt-3 rounded-lg border border-amber-400/50 bg-amber-50/80 py-2 px-3 text-sm dark:border-amber-400/30 dark:bg-amber-950/30">
+                <p className="font-medium text-amber-900 dark:text-amber-200">
+                  No posting occurs. This action only writes a local package + receipts.
+                </p>
+              </div>
             )}
           </div>
         )}
 
-        {isPublish ? (
+        {isCodeDiff ? (
+          (() => {
+            const code = (event.payload as Record<string, unknown>)?.code as Record<string, unknown> | undefined;
+            const summary = code && typeof code.summary === "string" ? code.summary : null;
+            const diffTextVal = code && typeof code.diffText === "string" ? code.diffText : null;
+            const files = code && Array.isArray(code.files) ? (code.files as string[]) : [];
+            return (
+              <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <h3 className="mb-2 flex items-center gap-2 font-medium">
+                  Code diff preview
+                  <Badge variant="dry_run">DRY RUN</Badge>
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Title:</span>{" "}
+                    {normalized.title ?? "(untitled)"}
+                  </div>
+                  {summary && (
+                    <div>
+                      <span className="font-medium text-zinc-500">Summary:</span>{" "}
+                      {summary}
+                    </div>
+                  )}
+                  {files.length > 0 && (
+                    <div>
+                      <span className="font-medium text-zinc-500">Files:</span>{" "}
+                      {files.join(", ")}
+                    </div>
+                  )}
+                  {diffTextVal && (
+                    <div>
+                      <span className="font-medium text-zinc-500">Diff:</span>
+                      <pre className="mt-1 max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-100 p-2 text-xs dark:bg-zinc-900">
+                        {diffTextVal}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()
+        ) : isPublish ? (
           <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
             <h3 className="mb-2 flex items-center gap-2 font-medium">
               Content preview
@@ -210,8 +260,8 @@ function DetailModal({
           <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
             <h3 className="mb-2 font-medium">Reflection note</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Source: {(event.payload as Record<string, unknown>)?.sourceKind} ·{" "}
-              {(event.payload as Record<string, unknown>)?.sourceApprovalId as string}
+              Source: {String((event.payload as Record<string, unknown>)?.sourceKind ?? "unknown")} ·{" "}
+              {String((event.payload as Record<string, unknown>)?.sourceApprovalId ?? "")}
             </p>
           </div>
         ) : normalized.kind === "unknown" ? (
@@ -258,29 +308,48 @@ function DetailModal({
         {blockedForEvent && executeError && (
           <div className="mt-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-900/30">
             <p className="font-medium">Execution blocked</p>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
-              {(executeError.reasons ?? [executeError.error]).map((r) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
-            {isYouTube && youtubeTagCount !== null && (
-              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-                Tags: {youtubeTagCount} (minimum 8)
+            {executeError.stepUpRequired ? (
+              <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+                Step-up required — use Step up button in System Status.
               </p>
+            ) : (
+              <>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
+                  {(executeError.reasons ?? [executeError.error]).map((r) => (
+                    <li key={r}>{r}</li>
+                  ))}
+                </ul>
+                {isYouTube && youtubeTagCount !== null && (
+                  <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                    Tags: {youtubeTagCount} (minimum 8)
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}
 
         {event.status === "approved" && !event.executed && isExecutable && (
-          <div className="mt-6 flex items-center gap-2">
-            <button
-              onClick={() => onExecute(event.id)}
-              disabled={executeLoading}
-              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {executeLoading ? "Executing…" : isReflection ? "Execute" : "Execute (dry run)"}
-            </button>
-            {isPublish && <Badge variant="dry_run">DRY RUN</Badge>}
+          <div className="mt-6 space-y-3">
+            <div className="rounded border border-zinc-300 bg-zinc-50/80 py-2 px-3 text-sm dark:border-zinc-600 dark:bg-zinc-800/80">
+              <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution Boundary</p>
+              <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
+                Approve changes status. Execute writes artifacts + receipts.
+              </p>
+            </div>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Execute writes local artifacts + receipts only. It does not post.
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onExecute(event.id)}
+                disabled={executeLoading}
+                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {executeLoading ? "Executing…" : isReflection ? "Execute" : "Execute (dry run)"}
+              </button>
+              {isPublish && <Badge variant="dry_run">DRY RUN</Badge>}
+            </div>
           </div>
         )}
 
@@ -288,7 +357,7 @@ function DetailModal({
           <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/30">
             <p className="font-medium">Execution not supported yet</p>
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Only content.publish, reflection.note, and system.note actions can be executed.
+              Only content.publish, reflection.note, system.note, and code.diff actions can be executed.
             </p>
           </div>
         )}
@@ -299,6 +368,19 @@ function DetailModal({
             <p className="mt-1 flex items-center gap-2">
               <Badge variant="dry_run">DRY RUN</Badge>
             </p>
+            {executeResult.kind === "code.diff" && (
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  This wrote a local diff bundle + receipts. No changes were applied.
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Output path:</span>{" "}
+                    <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
+                </div>
+              </>
+            )}
             {executeResult.kind === "youtube.package" && (
               <>
                 <p className="mt-2 text-zinc-600 dark:text-zinc-400">
@@ -309,6 +391,9 @@ function DetailModal({
                     <span className="font-medium text-zinc-500">Output path:</span>{" "}
                     <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
                   </div>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Next: Open package → paste title/description/tags → upload manually in YouTube Studio
+                  </p>
                   <div>
                     <span className="font-medium text-zinc-500">Upload readiness:</span>{" "}
                     {executeResult.readyForUpload ? "READY" : "NOT READY"}
@@ -327,6 +412,14 @@ function DetailModal({
                   </div>
                 </div>
               </>
+            )}
+            <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
+              Receipts written to action log.
+            </p>
+            {executeResult.kind === "youtube.package" && (
+              <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                This created a local YouTube package. You still upload manually in YouTube Studio.
+              </p>
             )}
             {(executeResult.outputPath ?? executeResult.artifactPath) && (
               <div className="mt-2 space-y-2">
@@ -392,24 +485,46 @@ function DetailModal({
                       : "Open artifact in Cursor"}
                   </button>
                   {executeResult.kind === "youtube.package" && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const summary = [
-                          `Title: ${normalized.title ?? "(untitled)"}`,
-                          `Output path: ${executeResult.outputPath ?? executeResult.artifactPath ?? ""}`,
-                          `Upload readiness: ${executeResult.readyForUpload ? "READY" : "NOT READY"}`,
-                          `Tags count: ${executeResult.tagsCount ?? "—"}`,
-                          `Video file path: ${executeResult.videoFilePath ?? "none"}`,
-                          "",
-                          "Next step: Upload manually (no posting occurs without explicit approval + execution).",
-                        ].join("\n");
-                        navigator.clipboard.writeText(summary);
-                      }}
-                      className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
-                    >
-                      Copy package summary
-                    </button>
+                    <>
+                      <div className="flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const p = event.payload as Record<string, unknown>;
+                            const yt = p?.youtube as Record<string, unknown> | undefined;
+                            const title = String(normalized.title ?? "(untitled)");
+                            const description = String(normalized.body ?? "");
+                            const tags = typeof yt?.tags === "string" ? yt.tags : "";
+                            const text = `Title\n${title}\n\nDescription\n${description}\n\nTags\n${tags}`;
+                            navigator.clipboard.writeText(text);
+                          }}
+                          className="rounded bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+                        >
+                          Copy upload fields
+                        </button>
+                        <p className="mt-1 text-[10px] text-zinc-500 dark:text-zinc-400">
+                          Paste into YouTube Studio (no links, no paths).
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const summary = [
+                            `Title: ${normalized.title ?? "(untitled)"}`,
+                            `Output path: ${executeResult.outputPath ?? executeResult.artifactPath ?? ""}`,
+                            `Upload readiness: ${executeResult.readyForUpload ? "READY" : "NOT READY"}`,
+                            `Tags count: ${executeResult.tagsCount ?? "—"}`,
+                            `Video file path: ${executeResult.videoFilePath ?? "none"}`,
+                            "",
+                            "Next step: Upload manually (no posting occurs without explicit approval + execution).",
+                          ].join("\n");
+                          navigator.clipboard.writeText(summary);
+                        }}
+                        className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                      >
+                        Copy package summary
+                      </button>
+                    </>
                   )}
                   {(executeResult.kind === "content.publish" ||
                     executeResult.kind === "youtube.package") &&
@@ -518,7 +633,10 @@ export default function ApprovalsPanel() {
       setExecuteResult(null);
       setExecuteError(null);
       try {
-        const res = await fetch(`/api/execute/${id}`, { method: "POST" });
+        const res = await fetch(`/api/execute/${id}`, {
+          method: "POST",
+          credentials: "include",
+        });
         const json = await res.json();
         if (res.ok) {
           setExecuteResult(json);
@@ -533,6 +651,12 @@ export default function ApprovalsPanel() {
             approvalId: id,
             error: json.error,
             reasons: Array.isArray(json.reasons) ? json.reasons : undefined,
+          });
+        } else if (res.status === 403 && json.code === "STEP_UP_REQUIRED") {
+          setExecuteError({
+            approvalId: id,
+            error: json.error ?? "Step-up required",
+            stepUpRequired: true,
           });
         }
       } catch {

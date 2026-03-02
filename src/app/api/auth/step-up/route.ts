@@ -3,14 +3,25 @@ import {
   isAuthEnabled,
   getSessionFromCookie,
   updateSessionStepUp,
+  AuthConfigError,
 } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
-  if (!isAuthEnabled()) {
-    return NextResponse.json(
-      { error: "Auth is not enabled (JARVIS_AUTH_ENABLED)" },
-      { status: 400 }
-    );
+  try {
+    if (!isAuthEnabled()) {
+      return NextResponse.json(
+        { error: "Auth is not enabled (JARVIS_AUTH_ENABLED)" },
+        { status: 400 }
+      );
+    }
+  } catch (err) {
+    if (err instanceof AuthConfigError) {
+      return NextResponse.json(
+        { error: err.message },
+        { status: 500 }
+      );
+    }
+    throw err;
   }
 
   const cookie = request.headers.get("cookie");

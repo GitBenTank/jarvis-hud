@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { isAuthEnabled, getSessionFromCookie } from "@/lib/auth";
+import { isAuthEnabled, getSessionFromCookie, AuthConfigError } from "@/lib/auth";
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -9,8 +9,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!isAuthEnabled()) {
-    return NextResponse.next();
+  try {
+    if (!isAuthEnabled()) {
+      return NextResponse.next();
+    }
+  } catch (err) {
+    if (err instanceof AuthConfigError) {
+      return NextResponse.json(
+        { error: err.message },
+        { status: 500 }
+      );
+    }
+    throw err;
   }
 
   if (

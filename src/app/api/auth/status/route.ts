@@ -3,10 +3,22 @@ import {
   isAuthEnabled,
   getSessionFromCookie,
   isStepUpValid,
+  AuthConfigError,
 } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
-  const authEnabled = isAuthEnabled();
+  let authEnabled: boolean;
+  try {
+    authEnabled = isAuthEnabled();
+  } catch (err) {
+    if (err instanceof AuthConfigError) {
+      return NextResponse.json(
+        { error: err.message },
+        { status: 500 }
+      );
+    }
+    throw err;
+  }
 
   if (!authEnabled) {
     return NextResponse.json({

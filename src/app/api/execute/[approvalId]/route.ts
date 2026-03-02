@@ -9,6 +9,7 @@ import {
   isAuthEnabled,
   getSessionFromCookie,
   isStepUpValid,
+  AuthConfigError,
 } from "@/lib/auth";
 import {
   appendActionLog,
@@ -37,21 +38,31 @@ export async function POST(
   { params }: { params: Promise<{ approvalId: string }> }
 ) {
   try {
-    if (isAuthEnabled()) {
-      const cookie = request.headers.get("cookie");
-      const session = getSessionFromCookie(cookie);
-      if (!session) {
+    try {
+      if (isAuthEnabled()) {
+        const cookie = request.headers.get("cookie");
+        const session = getSessionFromCookie(cookie);
+        if (!session) {
+          return NextResponse.json(
+            { error: "Session required" },
+            { status: 401 }
+          );
+        }
+        if (!isStepUpValid(session)) {
+          return NextResponse.json(
+            { error: "Step-up required to execute", code: "STEP_UP_REQUIRED" },
+            { status: 403 }
+          );
+        }
+      }
+    } catch (authErr) {
+      if (authErr instanceof AuthConfigError) {
         return NextResponse.json(
-          { error: "Session required" },
-          { status: 401 }
+          { error: authErr.message },
+          { status: 500 }
         );
       }
-      if (!isStepUpValid(session)) {
-        return NextResponse.json(
-          { error: "Step-up required to execute", code: "STEP_UP_REQUIRED" },
-          { status: 403 }
-        );
-      }
+      throw authErr;
     }
 
     const { approvalId } = await params;

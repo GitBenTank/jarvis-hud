@@ -1,9 +1,26 @@
 import { createHmac, randomBytes } from "node:crypto";
 
-const AUTH_ENABLED = process.env.JARVIS_AUTH_ENABLED === "true";
-const AUTH_SECRET = process.env.JARVIS_AUTH_SECRET ?? "dev-secret-change-in-production";
+const AUTH_REQUESTED = process.env.JARVIS_AUTH_ENABLED === "true";
 const COOKIE_NAME = "jarvis_session";
 const STEP_UP_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+export class AuthConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AuthConfigError";
+  }
+}
+
+function getSecret(): string {
+  if (!AUTH_REQUESTED) return "";
+  const secret = process.env.JARVIS_AUTH_SECRET;
+  if (!secret || typeof secret !== "string" || secret.length < 16) {
+    throw new AuthConfigError(
+      "Auth enabled but JARVIS_AUTH_SECRET is missing or invalid (min 16 chars required)"
+    );
+  }
+  return secret;
+}
 
 export type Session = {
   id: string;
@@ -12,11 +29,25 @@ export type Session = {
 };
 
 export function isAuthEnabled(): boolean {
-  return AUTH_ENABLED && AUTH_SECRET.length >= 16;
+  if (!AUTH_REQUESTED) return false;
+  try {
+    getSecret();
+    return true;
+  } catch {
+    throw new AuthConfigError(
+      "Auth enabled but JARVIS_AUTH_SECRET is missing or invalid (min 16 chars required)"
+    );
+  }
 }
 
 function sign(payload: string): string {
-  return createHmac("sha256", AUTH_SECRET).update(payload).digest("base64url");
+  const secret = getSecret();
+  if (!secret) {
+    throw new AuthConfigError(
+      "Auth enabled but JARVIS_AUTH_SECRET is missing or invalid (min 16 chars required)"
+    );
+  }
+  return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
 function encode(obj: Session): string {

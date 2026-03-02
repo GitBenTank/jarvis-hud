@@ -11,6 +11,7 @@ type ActionEntry = {
   summary: string;
   payload: unknown;
   outputPath?: string;
+  artifactPath?: string;
 };
 
 type ActionsResponse = {
@@ -91,45 +92,64 @@ export default function ActivityLogPanel() {
               {action.summary && (
                 <p className="mt-1.5 text-zinc-700 dark:text-zinc-300">{action.summary}</p>
               )}
-              {action.outputPath && (
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <code className="flex-1 truncate rounded bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800">
-                    {action.outputPath}
-                  </code>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      try {
-                        await fetch("/api/os/open", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ path: action.outputPath, app: "finder" }),
-                        });
-                      } catch {
-                        // ignore
+              {(action.outputPath ?? action.artifactPath) && (
+                <div className="mt-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 truncate rounded bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800">
+                      {action.outputPath ?? action.artifactPath}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigator.clipboard.writeText(action.outputPath ?? action.artifactPath ?? "")
                       }
-                    }}
-                    className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
-                  >
-                    Open in Finder
-                  </button>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      try {
-                        await fetch("/api/os/open", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ path: action.outputPath, app: "cursor" }),
-                        });
-                      } catch {
-                        // ignore
-                      }
-                    }}
-                    className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
-                  >
-                    Open in Cursor
-                  </button>
+                      className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await fetch("/api/os/open", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              path: action.outputPath ?? action.artifactPath,
+                              app: "finder",
+                            }),
+                          });
+                        } catch {
+                          // ignore
+                        }
+                      }}
+                      className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                    >
+                      Open in Finder
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await fetch("/api/os/open", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              path: action.outputPath ?? action.artifactPath,
+                              app: "cursor",
+                            }),
+                          });
+                        } catch {
+                          // ignore
+                        }
+                      }}
+                      className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                    >
+                      Open in Cursor
+                    </button>
+                  </div>
                 </div>
               )}
             </li>

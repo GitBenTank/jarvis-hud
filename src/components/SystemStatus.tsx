@@ -21,11 +21,20 @@ type ResetResult = {
 
 type ConfigData = {
   jarvisRoot: string;
+  authEnabled?: boolean;
+};
+
+type AuthStatusData = {
+  authEnabled: boolean;
+  hasSession: boolean;
+  stepUpValid: boolean;
 };
 
 export default function SystemStatus() {
   const [data, setData] = useState<StatusData | null>(null);
   const [config, setConfig] = useState<ConfigData | null>(null);
+  const [authStatus, setAuthStatus] = useState<AuthStatusData | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
   const [resetModal, setResetModal] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetResult, setResetResult] = useState<ResetResult | null>(null);
@@ -45,6 +54,18 @@ export default function SystemStatus() {
       const configData = await configRes.json();
 
       setConfig(configData.jarvisRoot ? configData : null);
+
+      if (configData.authEnabled) {
+        try {
+          const authRes = await fetch("/api/auth/status", { credentials: "include" });
+          const authData = await authRes.json();
+          setAuthStatus(authData);
+        } catch {
+          setAuthStatus(null);
+        }
+      } else {
+        setAuthStatus(null);
+      }
 
       const approvedReady = (approved.approvals ?? []).filter(
         (e: { executed?: boolean }) => !e.executed
@@ -71,6 +92,37 @@ export default function SystemStatus() {
     const handler = () => fetchStatus();
     window.addEventListener("jarvis-refresh", handler);
     return () => window.removeEventListener("jarvis-refresh", handler);
+  }, [fetchStatus]);
+
+  const handleAuthInit = useCallback(async () => {
+    setAuthLoading(true);
+    try {
+      const res = await fetch("/api/auth/init", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchStatus();
+      }
+    } finally {
+      setAuthLoading(false);
+    }
+  }, [fetchStatus]);
+
+  const handleStepUp = useCallback(async () => {
+    setAuthLoading(true);
+    try {
+      const res = await fetch("/api/auth/step-up", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchStatus();
+        globalThis.dispatchEvent(new CustomEvent("jarvis-refresh"));
+      }
+    } finally {
+      setAuthLoading(false);
+    }
   }, [fetchStatus]);
 
   const handleResetConfirm = useCallback(async () => {
@@ -158,6 +210,46 @@ export default function SystemStatus() {
             <span className="font-medium text-zinc-500">Actions today:</span>{" "}
             <span className="text-zinc-800 dark:text-zinc-200">{data.actionsCount}</span>
           </div>
+          {config?.authEnabled && (
+            <>
+              <div>
+                <span className="font-medium text-zinc-500">Auth:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">ON</span>
+              </div>
+              <div>
+                <span className="font-medium text-zinc-500">Step-up:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {authStatus?.stepUpValid ? "valid" : "expired"}
+                </span>
+              </div>
+              {!authStatus?.hasSession && (
+                <button
+                  type="button"
+                  onClick={handleAuthInit}
+                  disabled={authLoading}
+                  className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800 disabled:opacity-50"
+                >
+                  {authLoading ? "…" : "Establish session"}
+                </button>
+              )}
+              {authStatus?.hasSession && !authStatus?.stepUpValid && (
+                <button
+                  type="button"
+                  onClick={handleStepUp}
+                  disabled={authLoading}
+                  className="rounded border border-blue-500 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-900/30 disabled:opacity-50"
+                >
+                  {authLoading ? "…" : "Step up"}
+                </button>
+              )}
+            </>
+          )}
+          {config && !config.authEnabled && (
+            <div>
+              <span className="font-medium text-zinc-500">Auth:</span>{" "}
+              <span className="text-zinc-800 dark:text-zinc-200">OFF</span>
+            </div>
+          )}
         </div>
 
         {resetResult && (

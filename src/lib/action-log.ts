@@ -17,6 +17,7 @@ export type ActionLogEntry = {
   summary: string;
   payload: unknown;
   outputPath?: string;
+  artifactPath?: string;
 };
 
 export async function appendActionLog(entry: ActionLogEntry): Promise<void> {
@@ -34,7 +35,10 @@ export async function readActionLog(dateKey?: string): Promise<ActionLogEntry[]>
   ensurePathSafe(filePath);
   try {
     const content = await fs.readFile(filePath, "utf-8");
-    const lines = content.trim().split("\n").filter(Boolean);
+    const lines = content
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
     const entries = lines.map((line) => JSON.parse(line) as ActionLogEntry);
     const reversed = [...entries].reverse();
     return reversed.slice(0, 100);

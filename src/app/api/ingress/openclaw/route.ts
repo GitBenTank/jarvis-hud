@@ -15,6 +15,7 @@ import {
   isTimestampInWindow,
 } from "@/lib/ingress-openclaw";
 import { getNonceCache } from "@/lib/nonce-cache";
+import { getIngressRateLimiter } from "@/lib/rate-limit";
 
 type IngressEvent = {
   id: string;
@@ -72,6 +73,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Ingress secret missing or invalid" },
         { status: 403 }
+      );
+    }
+
+    const forwarded = request.headers.get("x-forwarded-for");
+    const ip =
+      (forwarded?.split(",")[0]?.trim()) ||
+      (request.headers.get("x-real-ip") ?? undefined) ||
+      "unknown";
+    const clientIp = ip || "unknown";
+
+    const limiter = getIngressRateLimiter();
+    const limitResult = limiter.check(clientIp);
+    if (!limitResult.ok) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limitResult.retryAfterSec) },
+        }
       );
     }
 
@@ -163,11 +183,27 @@ export async function POST(request: NextRequest) {
     const traceId = crypto.randomUUID();
     const receivedAt = new Date().toISOString();
 
+    const FORBIDDEN_PAYLOAD_KEYS = [
+      "status",
+      "requiresApproval",
+      "executedAt",
+      "approvedAt",
+      "traceId",
+      "id",
+    ];
+    const rawPayload =
+      body.payload && typeof body.payload === "object" ? body.payload : {};
+    const sanitized = Object.fromEntries(
+      Object.entries(rawPayload).filter(
+        ([k]) => !FORBIDDEN_PAYLOAD_KEYS.includes(k)
+      )
+    );
+
     const payload: Record<string, unknown> = {
       kind: body.kind,
       title: body.title,
       summary: body.summary,
-      ...(body.payload && typeof body.payload === "object" ? body.payload : {}),
+      ...sanitized,
     };
 
     const event: IngressEvent = {
@@ -205,7 +241,7 @@ export async function POST(request: NextRequest) {
       status: "pending",
     });
   } catch (err: unknown) {
-    console.error("[ingress/openclaw]", err);
+    console.error("[ingress/openclaw]", (err as Error)?.message ?? "Unknown error");
     return NextResponse.json(
       { error: "Failed to process ingress" },
       { status: 500 }

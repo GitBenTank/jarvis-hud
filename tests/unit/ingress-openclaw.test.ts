@@ -30,20 +30,24 @@ async function createRequest(opts: {
   timestamp?: string;
   nonce?: string;
   signature?: string;
+  headers?: Record<string, string>;
 }) {
   const rawBody = JSON.stringify(opts.body ?? VALID_BODY);
   const timestamp = opts.timestamp ?? String(Date.now());
   const nonce = opts.nonce ?? crypto.randomUUID();
   const sig = opts.signature ?? sign(SECRET, timestamp, nonce, rawBody);
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "X-Jarvis-Timestamp": timestamp,
+    "X-Jarvis-Nonce": nonce,
+    "X-Jarvis-Signature": sig,
+    ...opts.headers,
+  };
+
   return new Request("http://localhost/api/ingress/openclaw", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Jarvis-Timestamp": timestamp,
-      "X-Jarvis-Nonce": nonce,
-      "X-Jarvis-Signature": sig,
-    },
+    headers,
     body: rawBody,
   });
 }
@@ -66,7 +70,9 @@ describe("POST /api/ingress/openclaw", () => {
     process.env.JARVIS_INGRESS_OPENCLAW_SECRET = SECRET;
     process.env.JARVIS_INGRESS_ALLOWLIST_CONNECTORS = "openclaw";
     const { getNonceCache } = await import("@/lib/nonce-cache");
+    const { getIngressRateLimiter } = await import("@/lib/rate-limit");
     getNonceCache().reset();
+    getIngressRateLimiter().reset();
   });
 
   it("returns 403 when ingress disabled", async () => {
@@ -207,5 +213,27 @@ describe("POST /api/ingress/openclaw", () => {
     const req = await createRequest({ body: badBody });
     const res = await POST(req as import("next/server").NextRequest);
     expect(res.status).toBe(400);
+  });
+
+  it("returns 429 when rate limit exceeded (61st request from same IP)", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const testIp = "192.168.1.100";
+    const reqWithIp = async () => {
+      const req = await createRequest({
+        headers: { "X-Forwarded-For": testIp },
+      });
+      return POST(req as import("next/server").NextRequest);
+    };
+
+    for (let i = 0; i < 60; i++) {
+      const res = await reqWithIp();
+      expect(res.status).toBe(200);
+    }
+
+    const res61 = await reqWithIp();
+    expect(res61.status).toBe(429);
+    const json = await res61.json();
+    expect(json.error).toBe("Rate limit exceeded");
+    expect(res61.headers.get("Retry-After")).toBeDefined();
   });
 });

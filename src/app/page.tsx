@@ -98,11 +98,14 @@ export default function Home() {
             </div>
             <div>
               <p className="font-medium text-zinc-500 dark:text-zinc-500">
-                Next hardening <span className="text-xs italic">(TODO / roadmap, not implemented)</span>
+                Controls (planned) <span className="text-xs italic">(roadmap, not implemented)</span>
               </p>
               <ul className="mt-1 list-inside list-disc space-y-0.5 text-xs text-zinc-500 dark:text-zinc-500">
                 <li>Re-authentication to execute (step-up)</li>
                 <li>Execution allowlist per kind (capabilities)</li>
+                <li>Trusted ingress allowlists (reduce prompt injection surface)</li>
+                <li>Scoped connector identities (separate accounts / service principals)</li>
+                <li>Key limits and alerts (policy-gated outbound)</li>
                 <li>Session TTL + device binding</li>
                 <li>Rate limits + audit alerts</li>
                 <li>Sanitization / injection checks on rendered content</li>

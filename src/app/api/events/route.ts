@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import {
   getDateKey,
   getEventsFilePath,
@@ -8,6 +10,7 @@ import {
 
 type Event = {
   id: string;
+  traceId: string;
   type: "proposed_action" | "log" | "snapshot";
   agent: string;
   payload: unknown;
@@ -63,6 +66,7 @@ export async function POST(request: NextRequest) {
 
     const event: Event = {
       id: crypto.randomUUID(),
+      traceId: crypto.randomUUID(),
       type: body.type,
       agent: body.agent,
       payload: body.payload,

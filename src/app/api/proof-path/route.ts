@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import { promises as fs } from "node:fs";
 import {
   readJson,
@@ -12,6 +14,7 @@ import { normalizeAction } from "@/lib/normalize";
 
 type Event = {
   id: string;
+  traceId?: string;
   payload: unknown;
   status: string;
   requiresApproval?: boolean;

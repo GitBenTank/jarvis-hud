@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import { readJson, getEventsFilePath, getDateKey } from "@/lib/storage";
 import { readActionLogByTraceId, type ActionLogEntry } from "@/lib/action-log";
 import { normalizeAction } from "@/lib/normalize";

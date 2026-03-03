@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import { createSession, isAuthEnabled, AuthConfigError } from "@/lib/auth";
 
 export async function POST() {

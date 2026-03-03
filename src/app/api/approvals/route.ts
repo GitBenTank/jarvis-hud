@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import {
   getDateKey,
   getEventsFilePath,
@@ -7,6 +9,7 @@ import {
 
 type Event = {
   id: string;
+  traceId?: string;
   type: "proposed_action" | "log" | "snapshot";
   agent: string;
   payload: unknown;

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import {
   getDateKey,
   getEventsFilePath,
@@ -95,6 +97,13 @@ export async function POST(
     if (event.status !== "approved") {
       return NextResponse.json(
         { error: "Event is not approved" },
+        { status: 400 }
+      );
+    }
+
+    if (event.requiresApproval !== true) {
+      return NextResponse.json(
+        { error: "Event did not require approval; execution blocked" },
         { status: 400 }
       );
     }

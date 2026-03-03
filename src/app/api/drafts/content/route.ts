@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import {
   getDateKey,
   getEventsFilePath,
@@ -8,6 +10,7 @@ import {
 
 type Event = {
   id: string;
+  traceId: string;
   type: "proposed_action" | "log" | "snapshot";
   agent: string;
   payload: unknown;
@@ -24,6 +27,7 @@ type DraftContentBody = {
   tags?: string[];
   youtube?: { videoFilePath?: string; tags?: string };
   code?: {
+    action?: "diff" | "apply";
     diffText?: string;
     files?: string[] | string;
     summary?: string;
@@ -63,6 +67,14 @@ export async function POST(request: NextRequest) {
         tags: Array.isArray(body.tags) ? body.tags : undefined,
       };
     } else if (body.channel === "code") {
+      const action = body.code?.action === "apply" ? "apply" : "diff";
+      const diffText = typeof body.code?.diffText === "string" ? body.code.diffText : "";
+      if (action === "apply" && !diffText.trim()) {
+        return NextResponse.json(
+          { error: "code.diffText is required for code.apply" },
+          { status: 400 }
+        );
+      }
       const filesRaw = body.code?.files;
       const files: string[] = Array.isArray(filesRaw)
         ? filesRaw.filter((f): f is string => typeof f === "string")
@@ -73,10 +85,10 @@ export async function POST(request: NextRequest) {
               .filter(Boolean)
           : [];
       payload = {
-        kind: "code.diff",
+        kind: action === "apply" ? "code.apply" : "code.diff",
         title: body.title,
         code: {
-          diffText: body.code?.diffText,
+          diffText: diffText || undefined,
           files: files.length > 0 ? files : undefined,
           summary: body.code?.summary,
         },
@@ -98,6 +110,7 @@ export async function POST(request: NextRequest) {
     }
     const event: Event = {
       id: crypto.randomUUID(),
+      traceId: crypto.randomUUID(),
       type: "proposed_action",
       agent: "drafts-ui",
       payload,

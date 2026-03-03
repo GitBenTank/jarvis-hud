@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { isAuthEnabled, getSessionFromCookie, AuthConfigError } from "@/lib/auth";
+import { isAuthEnabled, hasSessionCookie } from "@/lib/auth-edge";
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -9,32 +9,21 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  try {
-    if (!isAuthEnabled()) {
-      return NextResponse.next();
-    }
-  } catch (err) {
-    if (err instanceof AuthConfigError) {
-      return NextResponse.json(
-        { error: err.message },
-        { status: 500 }
-      );
-    }
-    throw err;
+  if (!isAuthEnabled()) {
+    return NextResponse.next();
   }
 
   if (
     path === "/api/auth/init" ||
     path === "/api/auth/status" ||
-    path === "/api/config"
+    path === "/api/config" ||
+    path.startsWith("/api/ingress/")
   ) {
     return NextResponse.next();
   }
 
   const cookie = request.headers.get("cookie");
-  const session = getSessionFromCookie(cookie);
-
-  if (!session) {
+  if (!hasSessionCookie(cookie)) {
     return NextResponse.json(
       { error: "Session required. Call POST /api/auth/init first." },
       { status: 401 }

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
 import { spawn } from "node:child_process";
 import { ensurePathAllowed } from "@/lib/storage";
 

@@ -2,7 +2,9 @@ import ActionsPanel from "@/components/ActionsPanel";
 import ActivityLogPanel from "@/components/ActivityLogPanel";
 import ApprovalsPanel from "@/components/ApprovalsPanel";
 import DraftsPanel from "@/components/DraftsPanel";
+import ResearchNotesPanel from "@/components/ResearchNotesPanel";
 import SystemStatus from "@/components/SystemStatus";
+import TracePanel from "@/components/TracePanel";
 
 export default function Home() {
   return (
@@ -115,6 +117,12 @@ export default function Home() {
           <p className="mt-4 text-xs italic text-zinc-500 dark:text-zinc-400">
             Zero Trust: never trust, always verify.
           </p>
+        </div>
+        <div className="mb-6">
+          <ResearchNotesPanel />
+        </div>
+        <div className="mb-6">
+          <TracePanel />
         </div>
         <div className="space-y-6">
           <DraftsPanel />

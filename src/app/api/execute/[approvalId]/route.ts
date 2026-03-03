@@ -19,10 +19,17 @@ import { writeYoutubePackage, validateYoutubePackage } from "@/lib/youtube-packa
 import { writeReflection } from "@/lib/reflection";
 import { writeSystemNote } from "@/lib/system-note";
 import { writeCodeDiffBundle } from "@/lib/code-diff";
+import {
+  writeCodeApplyBundle,
+  CodeApplyError,
+  getCodeApplyBlockReasons,
+} from "@/lib/code-apply";
 import { normalizeAction } from "@/lib/normalize";
+import { evaluateExecutePolicy } from "@/lib/policy";
 
 type Event = {
   id: string;
+  traceId?: string;
   type: "proposed_action" | "log" | "snapshot";
   agent: string;
   payload: unknown;
@@ -38,23 +45,10 @@ export async function POST(
   { params }: { params: Promise<{ approvalId: string }> }
 ) {
   try {
+    let authEnabled = false;
+    let stepUpValid = true;
     try {
-      if (isAuthEnabled()) {
-        const cookie = request.headers.get("cookie");
-        const session = getSessionFromCookie(cookie);
-        if (!session) {
-          return NextResponse.json(
-            { error: "Session required" },
-            { status: 401 }
-          );
-        }
-        if (!isStepUpValid(session)) {
-          return NextResponse.json(
-            { error: "Step-up required to execute", code: "STEP_UP_REQUIRED" },
-            { status: 403 }
-          );
-        }
-      }
+      authEnabled = isAuthEnabled();
     } catch (authErr) {
       if (authErr instanceof AuthConfigError) {
         return NextResponse.json(
@@ -63,6 +57,17 @@ export async function POST(
         );
       }
       throw authErr;
+    }
+    if (authEnabled) {
+      const cookie = request.headers.get("cookie");
+      const session = getSessionFromCookie(cookie);
+      if (!session) {
+        return NextResponse.json(
+          { error: "Session required" },
+          { status: 401 }
+        );
+      }
+      stepUpValid = isStepUpValid(session);
     }
 
     const { approvalId } = await params;
@@ -102,24 +107,27 @@ export async function POST(
     }
 
     const normalized = normalizeAction(event.payload);
-
-    if (
-      normalized.kind !== "content.publish" &&
-      normalized.kind !== "reflection.note" &&
-      normalized.kind !== "system.note" &&
-      normalized.kind !== "code.diff"
-    ) {
+    const codeApplyBlockReasons =
+      normalized.kind === "code.apply" ? getCodeApplyBlockReasons() : undefined;
+    const policyResult = evaluateExecutePolicy({
+      kind: normalized.kind,
+      authEnabled,
+      stepUpValid,
+      codeApplyBlockReasons,
+    });
+    if (!policyResult.ok) {
       return NextResponse.json(
         {
-          error:
-            "Only content.publish, reflection.note, system.note, and code.diff actions can be executed",
+          error: policyResult.reasons[0] ?? "Execution blocked by policy",
+          reasons: policyResult.reasons,
         },
-        { status: 400 }
+        { status: policyResult.status }
       );
     }
 
     const executedAt = new Date().toISOString();
     const actionStatus = "executed";
+    const traceId = event.traceId ?? event.id;
     const channel = normalized.channel ?? "unknown";
 
     let artifactPath: string | null = null;
@@ -128,6 +136,14 @@ export async function POST(
     let readyForUpload: boolean | undefined;
     let videoFilePath: string | null | undefined;
     let tagsCount: number | undefined;
+    let codeApplyCommitHash: string | null = null;
+    let codeApplyRollbackCommand: string | null = null;
+    let codeApplyNoChangesApplied = false;
+    let codeApplyFilesChanged: string[] = [];
+    let codeApplyStatsText: string | null = null;
+    let codeApplyStatsJson: { filesChangedCount: number; insertions: number; deletions: number } | null = null;
+    let codeApplyRepoHeadBefore: string | null = null;
+    let codeApplyRepoHeadAfter: string | null = null;
 
     if (normalized.kind === "system.note") {
       outputPath = await writeSystemNote({
@@ -141,12 +157,12 @@ export async function POST(
       executionKind = "system.note";
       await appendActionLog({
         id: crypto.randomUUID(),
+        traceId,
         at: executedAt,
         kind: "system.note",
         approvalId,
         status: actionStatus,
         summary: normalized.summary,
-        payload: event.payload,
         outputPath,
       });
     } else if (normalized.kind === "reflection.note") {
@@ -165,19 +181,73 @@ export async function POST(
       executionKind = "reflection.note";
       await appendActionLog({
         id: crypto.randomUUID(),
+        traceId,
         at: executedAt,
         kind: "reflection.note",
         approvalId,
         status: actionStatus,
         summary: normalized.summary,
-        payload: event.payload,
         outputPath,
+      });
+    } else if (normalized.kind === "code.apply") {
+      const p = event.payload as Record<string, unknown>;
+      const codePayload = p?.code as Record<string, unknown> | undefined;
+      const diffText = typeof codePayload?.diffText === "string" ? codePayload.diffText : "";
+      if (!diffText.trim()) {
+        return NextResponse.json(
+          { error: "code.diffText is required for code.apply" },
+          { status: 400 }
+        );
+      }
+      const result = await writeCodeApplyBundle({
+        approvalId,
+        traceId,
+        dateKey,
+        title: normalized.title ?? "(untitled)",
+        createdAt: executedAt,
+        code: {
+          diffText: diffText.trim(),
+          files: Array.isArray(codePayload?.files)
+            ? codePayload.files.filter((f): f is string => typeof f === "string")
+            : undefined,
+          summary:
+            typeof codePayload?.summary === "string" ? codePayload.summary : undefined,
+        },
+      });
+      outputPath = result.outputPath;
+      executionKind = "code.apply";
+      codeApplyCommitHash = result.commitHash;
+      codeApplyRollbackCommand = result.rollbackCommand;
+      codeApplyNoChangesApplied = result.noChangesApplied;
+      codeApplyFilesChanged = result.filesChanged;
+      codeApplyStatsText = result.statsText;
+      codeApplyStatsJson = result.statsJson;
+      codeApplyRepoHeadBefore = result.repoHeadBefore;
+      codeApplyRepoHeadAfter = result.repoHeadAfter;
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        traceId,
+        at: executedAt,
+        kind: "code.apply",
+        approvalId,
+        status: actionStatus,
+        summary: normalized.summary,
+        outputPath,
+        commitHash: result.commitHash,
+        rollbackCommand: result.rollbackCommand,
+        noChangesApplied: result.noChangesApplied,
+        filesChanged: result.filesChanged,
+        statsText: result.statsText,
+        statsJson: result.statsJson,
+        repoHeadBefore: result.repoHeadBefore,
+        repoHeadAfter: result.repoHeadAfter,
       });
     } else if (normalized.kind === "code.diff") {
       const p = event.payload as Record<string, unknown>;
       const codePayload = p?.code as Record<string, unknown> | undefined;
       outputPath = await writeCodeDiffBundle({
         approvalId,
+        traceId,
         dateKey,
         title: normalized.title ?? "(untitled)",
         createdAt: executedAt,
@@ -210,12 +280,12 @@ export async function POST(
       executionKind = "code.diff";
       await appendActionLog({
         id: crypto.randomUUID(),
+        traceId,
         at: executedAt,
         kind: "code.diff",
         approvalId,
         status: actionStatus,
         summary: normalized.summary,
-        payload: event.payload,
         outputPath,
       });
     } else if (channel === "youtube") {
@@ -250,12 +320,12 @@ export async function POST(
       executionKind = "youtube.package";
       await appendActionLog({
         id: crypto.randomUUID(),
+        traceId,
         at: executedAt,
         kind: "youtube.package",
         approvalId,
         status: actionStatus,
         summary: normalized.summary,
-        payload: event.payload,
         outputPath,
       });
     } else {
@@ -268,12 +338,12 @@ export async function POST(
       });
       await appendActionLog({
         id: crypto.randomUUID(),
+        traceId,
         at: executedAt,
         kind: "content.publish",
         approvalId,
         status: "written",
         summary: normalized.summary,
-        payload: event.payload,
         artifactPath,
       });
     }
@@ -293,16 +363,29 @@ export async function POST(
       kind: executionKind,
       artifactPath,
       outputPath,
-      dryRun: true,
+      dryRun: executionKind !== "code.apply",
       status: actionStatus,
     };
+    if (executionKind === "code.apply") {
+      response.commitHash = codeApplyCommitHash;
+      response.rollbackCommand = codeApplyRollbackCommand;
+      response.noChangesApplied = codeApplyNoChangesApplied;
+      response.filesChanged = codeApplyFilesChanged;
+      response.statsText = codeApplyStatsText;
+      response.statsJson = codeApplyStatsJson;
+      response.repoHeadBefore = codeApplyRepoHeadBefore;
+      response.repoHeadAfter = codeApplyRepoHeadAfter;
+    }
     if (executionKind === "youtube.package") {
       response.readyForUpload = readyForUpload;
       response.videoFilePath = videoFilePath ?? null;
       response.tagsCount = tagsCount;
     }
     return NextResponse.json(response);
-  } catch {
+  } catch (err) {
+    if (err instanceof CodeApplyError && err.code === "DIRTY_WORKTREE") {
+      return NextResponse.json({ error: err.message }, { status: 409 });
+    }
     return NextResponse.json(
       { error: "Failed to execute" },
       { status: 500 }

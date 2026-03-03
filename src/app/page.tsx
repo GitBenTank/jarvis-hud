@@ -89,7 +89,12 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <p className="font-medium text-zinc-600 dark:text-zinc-400">Current controls</p>
+              <p className="font-medium text-zinc-600 dark:text-zinc-400">
+                Current controls{" "}
+                <span className="inline-block rounded border border-emerald-500 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:border-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-300">
+                  Execution Policy: enforced
+                </span>
+              </p>
               <ul className="mt-1 list-inside list-disc space-y-0.5 text-zinc-600 dark:text-zinc-400">
                 <li>Human-gated execution (approve ≠ execute)</li>
                 <li>External API access: OFF (for now)</li>

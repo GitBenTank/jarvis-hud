@@ -2,6 +2,8 @@
 
 How to sign requests to `POST /api/ingress/openclaw` for Jarvis HUD integration.
 
+**Full handoff protocol:** See [OpenClaw Integration Verification](../openclaw-integration-verification.md) for the deterministic runbook (Jarvis + OpenClaw + smoke + UI verification).
+
 ---
 
 ## Smoke Test (Local Validation)

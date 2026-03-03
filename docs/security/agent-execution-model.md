@@ -34,4 +34,19 @@ The execution model enforces Thesis Lock at runtime:
 
 ---
 
+## Execution Boundary + Trusted Ingress
+
+The execution boundary (approve ≠ execute, receipts, no model authority) controls **what can execute**.
+
+[Trusted Ingress](./trusted-ingress.md) controls **what can propose**—only allowlisted sources should create proposals; default deny.
+
+Together they form defense in depth:
+
+- Trusted Ingress → reduce prompt injection surface at proposal entry
+- Execution boundary → prevent unauthorized execution regardless of proposal origin
+
+Today Jarvis has no automatic external ingestion. Trusted Ingress is a policy model for future connectors.
+
+---
+
 See: [Control Plane Architecture](../architecture/control-plane.md) for the system design.

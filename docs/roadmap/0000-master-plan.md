@@ -132,11 +132,13 @@ Current adapters:
 - `youtube.package`
 - `system.note`
 - `reflection.note`
+- `code.diff` — dry-run diff packaging
+- `code.apply` — git-backed apply + commit with receipts and rollback notes
 
 Planned adapters:
 
-- `code.diff` — dry-run diff packaging
-- `code.apply` — git-backed patch apply with commit receipts
+- Replay mode — trace playback
+- Policy v1 — risk tiers + allowlists
 
 External integrations remain policy-gated.
 
@@ -233,6 +235,8 @@ Enterprise Hardening Layer
 - RBAC extension
 - Immutable audit export
 - Compliance documentation surface
+- Trusted Ingress allowlists (when connectors added)
+- Scoped connector identities (separate accounts / service principals)
 
 ---
 

@@ -6,6 +6,7 @@ import Badge from "./Badge";
 
 type Event = {
   id: string;
+  traceId?: string;
   type: "proposed_action" | "log" | "snapshot";
   agent: string;
   payload: unknown;
@@ -14,6 +15,14 @@ type Event = {
   createdAt: string;
   executed?: boolean;
   executedAt?: string;
+  source?: {
+    connector: string;
+    verified?: boolean;
+    receivedAt?: string;
+    nonce?: string;
+    timestamp?: string;
+  };
+  trustedIngress?: { ok: boolean; reasons?: string[] };
 };
 
 type ApprovalsResponse = {
@@ -32,6 +41,9 @@ type ExecuteResult = {
   readyForUpload?: boolean;
   videoFilePath?: string | null;
   tagsCount?: number;
+  commitHash?: string | null;
+  rollbackCommand?: string | null;
+  noChangesApplied?: boolean;
 };
 
 type ExecuteError = {
@@ -67,6 +79,9 @@ function getCardSummary(payload: unknown): string {
   if (n.kind === "code.diff") {
     return n.summary || "Code diff (dry-run)";
   }
+  if (n.kind === "code.apply") {
+    return n.summary || "Code apply (git commit)";
+  }
   return n.summary || "(no summary)";
 }
 
@@ -98,8 +113,9 @@ function DetailModal({
   const isReflection = normalized.kind === "reflection.note";
   const isSystemNote = normalized.kind === "system.note";
   const isCodeDiff = normalized.kind === "code.diff";
+  const isCodeApply = normalized.kind === "code.apply";
   const isYouTube = isPublish && normalized.channel === "youtube";
-  const isExecutable = isPublish || isReflection || isSystemNote || isCodeDiff;
+  const isExecutable = isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply;
   const blockedForEvent = executeError?.approvalId === event.id;
   const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
 
@@ -134,6 +150,25 @@ function DetailModal({
             <dt className="font-medium text-zinc-500">Type</dt>
             <dd>{event.type}</dd>
           </div>
+          {event.source?.connector === "openclaw" && (
+            <div>
+              <dt className="font-medium text-zinc-500">Source</dt>
+              <dd className="flex flex-wrap items-center gap-2">
+                <span className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium">
+                  OpenClaw{event.source.verified ? " (verified)" : ""}
+                </span>
+                <span
+                  className={`rounded px-2 py-0.5 text-xs font-medium ${
+                    event.trustedIngress?.ok
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                      : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+                  }`}
+                >
+                  Ingress: {event.trustedIngress?.ok ? "passed" : "failed"}
+                </span>
+              </dd>
+            </div>
+          )}
           <div>
             <dt className="font-medium text-zinc-500">Status</dt>
             <dd>
@@ -156,7 +191,7 @@ function DetailModal({
           </div>
         </dl>
 
-        {(isPublish || isReflection || isSystemNote || isCodeDiff) && (
+        {(isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply) && (
           <div className="mt-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-800 dark:bg-blue-900/30">
             <h3 className="font-medium">What happens if you approve?</h3>
             <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
@@ -166,16 +201,27 @@ function DetailModal({
               <li>
                 {isReflection ? (
                   <strong>Execute</strong>
+                ) : isCodeApply ? (
+                  <strong>Execute (git commit)</strong>
                 ) : (
                   <strong>Execute (dry run)</strong>
                 )}{" "}
                 = {isReflection
                   ? "writes reflection files + action log receipt"
-                  : isCodeDiff
-                    ? "writes local diff bundle + action log receipt, no changes applied"
-                    : "writes artifact to publish-queue + action log, still no posting"}
+                  : isCodeApply
+                    ? "modifies working tree + creates local git commit + receipts (no pushing)"
+                    : isCodeDiff
+                      ? "writes local diff bundle + action log receipt, no changes applied"
+                      : "writes artifact to publish-queue + action log, still no posting"}
               </li>
             </ul>
+            {isCodeApply && (
+              <div className="mt-3 rounded-lg border border-amber-400/50 bg-amber-50/80 py-2 px-3 text-sm dark:border-amber-400/30 dark:bg-amber-950/30">
+                <p className="font-medium text-amber-900 dark:text-amber-200">
+                  This will modify your working tree and create a local git commit. No pushing.
+                </p>
+              </div>
+            )}
             {isPublish && (
               <div className="mt-3 rounded-lg border border-amber-400/50 bg-amber-50/80 py-2 px-3 text-sm dark:border-amber-400/30 dark:bg-amber-950/30">
                 <p className="font-medium text-amber-900 dark:text-amber-200">
@@ -186,7 +232,7 @@ function DetailModal({
           </div>
         )}
 
-        {isCodeDiff ? (
+        {(isCodeDiff || isCodeApply) ? (
           (() => {
             const code = (event.payload as Record<string, unknown>)?.code as Record<string, unknown> | undefined;
             const summary = code && typeof code.summary === "string" ? code.summary : null;
@@ -195,8 +241,14 @@ function DetailModal({
             return (
               <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
                 <h3 className="mb-2 flex items-center gap-2 font-medium">
-                  Code diff preview
-                  <Badge variant="dry_run">DRY RUN</Badge>
+                  {isCodeApply ? "Code apply preview" : "Code diff preview"}
+                  {isCodeApply ? (
+                    <span className="rounded bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-200">
+                      GIT COMMIT
+                    </span>
+                  ) : (
+                    <Badge variant="dry_run">DRY RUN</Badge>
+                  )}
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div>
@@ -346,7 +398,13 @@ function DetailModal({
                 disabled={executeLoading}
                 className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                {executeLoading ? "Executing…" : isReflection ? "Execute" : "Execute (dry run)"}
+                {executeLoading
+                  ? "Executing…"
+                  : isReflection
+                    ? "Execute"
+                    : isCodeApply
+                      ? "Execute (git commit)"
+                      : "Execute (dry run)"}
               </button>
               {isPublish && <Badge variant="dry_run">DRY RUN</Badge>}
             </div>
@@ -357,7 +415,7 @@ function DetailModal({
           <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/30">
             <p className="font-medium">Execution not supported yet</p>
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Only content.publish, reflection.note, system.note, and code.diff actions can be executed.
+              Only content.publish, reflection.note, system.note, code.diff, and code.apply actions can be executed.
             </p>
           </div>
         )}
@@ -366,7 +424,9 @@ function DetailModal({
           <div className="mt-4 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-800 dark:bg-emerald-900/30">
             <p className="font-medium">Executed</p>
             <p className="mt-1 flex items-center gap-2">
-              <Badge variant="dry_run">DRY RUN</Badge>
+              {executeResult.kind !== "code.apply" && (
+                <Badge variant="dry_run">DRY RUN</Badge>
+              )}
             </p>
             {executeResult.kind === "code.diff" && (
               <>
@@ -378,6 +438,27 @@ function DetailModal({
                     <span className="font-medium text-zinc-500">Output path:</span>{" "}
                     <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
                   </div>
+                </div>
+              </>
+            )}
+            {executeResult.kind === "code.apply" && (
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  {executeResult.noChangesApplied
+                    ? "Receipt written. No changes were staged; no commit was created."
+                    : "Working tree modified and local commit created. No pushing."}
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Output path:</span>{" "}
+                    <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
+                  {executeResult.rollbackCommand && (
+                    <div>
+                      <span className="font-medium text-zinc-500">Rollback:</span>{" "}
+                      <code className="text-xs">{executeResult.rollbackCommand}</code>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -658,6 +739,11 @@ export default function ApprovalsPanel() {
             error: json.error ?? "Step-up required",
             stepUpRequired: true,
           });
+        } else if (res.status === 409 && json.error) {
+          setExecuteError({
+            approvalId: id,
+            error: json.error,
+          });
         }
       } catch {
         // ignore
@@ -747,6 +833,25 @@ export default function ApprovalsPanel() {
                     {normalizeAction(event.payload).kind}
                   </span>
                   <StatusBadge event={event} />
+                  {event.source?.connector === "openclaw" && (
+                    <>
+                      <span
+                        className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-500 dark:text-zinc-400"
+                        title="Connector source"
+                      >
+                        OpenClaw{event.source.verified ? " (verified)" : ""}
+                      </span>
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs font-medium ${
+                          event.trustedIngress?.ok
+                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                            : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+                        }`}
+                      >
+                        Ingress: {event.trustedIngress?.ok ? "passed" : "failed"}
+                      </span>
+                    </>
+                  )}
                   <span className="text-zinc-500">·</span>
                   <span className="text-sm text-zinc-600 dark:text-zinc-400">
                     {event.agent}
@@ -801,6 +906,25 @@ export default function ApprovalsPanel() {
                     </span>
                     <StatusBadge event={event} />
                     <Badge variant="dry_run">DRY RUN</Badge>
+                    {event.source?.connector === "openclaw" && (
+                      <>
+                        <span
+                          className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-500 dark:text-zinc-400"
+                          title="Connector source"
+                        >
+                          OpenClaw{event.source.verified ? " (verified)" : ""}
+                        </span>
+                        <span
+                          className={`rounded px-2 py-0.5 text-xs font-medium ${
+                            event.trustedIngress?.ok
+                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                              : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+                          }`}
+                        >
+                          Ingress: {event.trustedIngress?.ok ? "passed" : "failed"}
+                        </span>
+                      </>
+                    )}
                     <span className="text-zinc-500">·</span>
                     <span className="text-sm text-zinc-600 dark:text-zinc-400">
                       {event.agent}

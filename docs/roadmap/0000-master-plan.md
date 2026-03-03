@@ -8,7 +8,8 @@
 - [Agent Execution Model](../security/agent-execution-model.md)  
 - [Control Plane](../architecture/control-plane.md)  
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)  
-- [ADR-0002: Positioning and ICP](../decisions/0002-money-arc-and-icp.md)
+- [ADR-0002: Positioning and ICP](../decisions/0002-money-arc-and-icp.md)  
+- [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md)
 
 ---
 
@@ -235,7 +236,7 @@ Enterprise Hardening Layer
 - RBAC extension
 - Immutable audit export
 - Compliance documentation surface
-- Trusted Ingress allowlists (when connectors added)
+- Trusted Ingress: connector ingress v1 (OpenClaw) with HMAC + replay protection and allowlist
 - Scoped connector identities (separate accounts / service principals)
 
 ---

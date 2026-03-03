@@ -11,6 +11,7 @@ type TraceEvent = {
   executedAt?: string;
   summary?: string;
   title?: string;
+  source?: { connector: string; verified?: boolean };
 };
 
 type TraceAction = {
@@ -296,6 +297,15 @@ export default function TracePanel() {
                         <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
                           {event.kind}
                         </span>
+                        {event.source?.connector && (
+                          <span
+                            className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-500 dark:text-zinc-400"
+                            title="Source connector"
+                          >
+                            {event.source.connector}
+                            {event.source.verified ? " (verified)" : ""}
+                          </span>
+                        )}
                         <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                           {event.title ?? event.summary ?? "(untitled)"}
                         </span>

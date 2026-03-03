@@ -36,18 +36,29 @@ Default: **deny**. Only explicitly allowlisted inputs create proposals.
 
 ---
 
-## Current State
+## Connector Ingress (OpenClaw)
 
-Jarvis HUD does **not** auto-ingest email or any external channel today.
+As of connector ingress v1, OpenClaw can submit proposals via `POST /api/ingress/openclaw` when explicitly enabled.
 
-Proposals enter via:
+**Authentication and replay protection:**
+
+- **HMAC-SHA256 signature** — Request body is signed with a shared secret. Headers: `X-Jarvis-Timestamp`, `X-Jarvis-Nonce`, `X-Jarvis-Signature`. Message format: `${timestamp}.${nonce}.${rawBody}`. Server verifies using `timingSafeEqual`.
+- **Timestamp window** — Reject if timestamp older than 5 minutes or more than 2 minutes in the future.
+- **Nonce cache** — In-memory LRU cache (~2000 entries) rejects reused nonces. Prevents replay attacks within the timestamp window.
+- **Connector allowlist** — `JARVIS_INGRESS_ALLOWLIST_CONNECTORS` specifies which connectors are permitted. Default deny.
+
+Ingress is **off by default**. Requires `JARVIS_INGRESS_OPENCLAW_ENABLED=true` and `JARVIS_INGRESS_OPENCLAW_SECRET` (min 32 chars). See [ADR-0004: Connector Ingress v1](../decisions/0004-connector-ingress-v1.md).
+
+---
+
+## Other Proposal Entry Points
+
+Proposals also enter via:
 
 - `POST /api/events` — Programmatic event creation
 - `POST /api/drafts/content` — UI draft creation
 
-Both require an explicit request. There is no automatic polling of inboxes, webhooks, or external APIs.
-
-Trusted Ingress is documented here as a **policy model for future connectors**—not as a feature that exists today.
+Both require an explicit request. There is no automatic polling of inboxes, webhooks, or external APIs outside the connector ingress endpoint.
 
 ---
 

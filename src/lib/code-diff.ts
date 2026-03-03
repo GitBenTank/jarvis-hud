@@ -12,6 +12,7 @@ export type CodeDiffPayload = {
 
 export type WriteCodeDiffBundleInput = {
   approvalId: string;
+  traceId: string;
   dateKey: string;
   title: string;
   createdAt: string;
@@ -43,7 +44,7 @@ export function getCodeDiffDirPath(dateKey: string, approvalId: string): string 
 export async function writeCodeDiffBundle(
   input: WriteCodeDiffBundleInput
 ): Promise<string> {
-  const { approvalId, dateKey, title, createdAt, code } = input;
+  const { approvalId, traceId, dateKey, title, createdAt, code } = input;
   const dirPath = getCodeDiffDir(dateKey, approvalId);
   ensurePathSafe(dirPath);
   await ensureDir(dirPath);
@@ -60,6 +61,7 @@ export async function writeCodeDiffBundle(
 
   const manifest = {
     kind: "code.diff",
+    traceId,
     approvalId,
     createdAt,
     dateKey,

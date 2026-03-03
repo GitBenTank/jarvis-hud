@@ -82,4 +82,15 @@ describe("normalizeAction", () => {
     expect(result.kind).toBe("code.diff");
     expect(result.summary).toBe("Refactor utils");
   });
+
+  it("code.apply payload: kind code.apply + title + summary", () => {
+    const result = normalizeAction({
+      kind: "code.apply",
+      title: "Add feature",
+      code: { summary: "Implements feature", diffText: "diff..." },
+    });
+    expect(result.kind).toBe("code.apply");
+    expect(result.title).toBe("Add feature");
+    expect(result.summary).toBe("Implements feature");
+  });
 });

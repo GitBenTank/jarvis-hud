@@ -87,6 +87,10 @@ export function getCodeDiffDir(dateKey: string, approvalId: string): string {
   return path.join(ROOT, "code-diffs", dateKey, approvalId);
 }
 
+export function getCodeApplyDir(dateKey: string, approvalId: string): string {
+  return path.join(ROOT, "code-applies", dateKey, approvalId);
+}
+
 export function getSystemNoteDir(dateKey: string): string {
   return path.join(ROOT, "system-notes", dateKey);
 }

@@ -49,4 +49,4 @@ Today Jarvis has no automatic external ingestion. Trusted Ingress is a policy mo
 
 ---
 
-See: [Control Plane Architecture](../architecture/control-plane.md) for the system design.
+See: [Control Plane Architecture](../architecture/control-plane.md) for the system design. See [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md) for the policy boundary.

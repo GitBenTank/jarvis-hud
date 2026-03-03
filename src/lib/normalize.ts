@@ -48,6 +48,20 @@ export function normalizeAction(payload: unknown): {
     };
   }
 
+  if (p.kind === "code.apply") {
+    const title = String(p.title ?? "(untitled)");
+    const code = p.code as Record<string, unknown> | undefined;
+    const summary =
+      (typeof code?.summary === "string" ? code.summary : "") ||
+      title ||
+      "Code apply (git commit)";
+    return {
+      kind: "code.apply",
+      summary,
+      title,
+    };
+  }
+
   const isPublish =
     p.kind === "content.publish" ||
     p.action === "publish" ||

@@ -8,16 +8,30 @@ import {
   getPublishQueueDir,
 } from "./storage";
 
+/**
+ * Action log entry — receipt metadata only.
+ * Never log raw diffs, content bodies, or credentials in JSONL.
+ * Richer payload lives in the bundle (manifest, patch.diff, etc.).
+ */
 export type ActionLogEntry = {
   id: string;
+  traceId: string;
   at: string;
   kind: string;
   approvalId: string;
   status: string;
   summary: string;
-  payload: unknown;
   outputPath?: string;
   artifactPath?: string;
+  /** Adapter-specific: code.apply */
+  commitHash?: string | null;
+  rollbackCommand?: string | null;
+  noChangesApplied?: boolean;
+  filesChanged?: string[];
+  statsText?: string | null;
+  statsJson?: { filesChangedCount: number; insertions: number; deletions: number } | null;
+  repoHeadBefore?: string | null;
+  repoHeadAfter?: string | null;
 };
 
 export async function appendActionLog(entry: ActionLogEntry): Promise<void> {
@@ -42,6 +56,32 @@ export async function readActionLog(dateKey?: string): Promise<ActionLogEntry[]>
     const entries = lines.map((line) => JSON.parse(line) as ActionLogEntry);
     const reversed = [...entries].reverse();
     return reversed.slice(0, 100);
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "code" in err && err.code === "ENOENT") {
+      return [];
+    }
+    throw err;
+  }
+}
+
+/**
+ * Read action log entries filtered by traceId.
+ * Returns entries in chronological order (oldest first).
+ */
+export async function readActionLogByTraceId(
+  dateKey: string,
+  traceId: string
+): Promise<ActionLogEntry[]> {
+  const filePath = getActionsFilePath(dateKey);
+  ensurePathSafe(filePath);
+  try {
+    const content = await fs.readFile(filePath, "utf-8");
+    const lines = content
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const entries = lines.map((line) => JSON.parse(line) as ActionLogEntry & { traceId?: string });
+    return entries.filter((e) => e.traceId === traceId);
   } catch (err: unknown) {
     if (err && typeof err === "object" && "code" in err && err.code === "ENOENT") {
       return [];

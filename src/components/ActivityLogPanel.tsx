@@ -4,14 +4,21 @@ import { useCallback, useEffect, useState } from "react";
 
 type ActionEntry = {
   id: string;
+  traceId?: string;
   at: string;
   kind: string;
   approvalId: string;
   status: string;
   summary: string;
-  payload: unknown;
   outputPath?: string;
   artifactPath?: string;
+  commitHash?: string | null;
+  rollbackCommand?: string | null;
+  filesChanged?: string[];
+  statsText?: string | null;
+  statsJson?: { filesChangedCount: number; insertions: number; deletions: number } | null;
+  repoHeadBefore?: string | null;
+  repoHeadAfter?: string | null;
 };
 
 type ActionsResponse = {

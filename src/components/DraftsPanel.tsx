@@ -55,7 +55,19 @@ const CODE_DIFF_PRESET = {
   channel: "code",
   title: "Dry-run Change Bundle",
   code: {
+    action: "diff" as const,
     summary: "Proposed code changes — no apply, receipts only.",
+    diffText: "",
+    files: [] as string[],
+  },
+};
+
+const CODE_APPLY_PRESET = {
+  channel: "code",
+  title: "Commit Approved Diff",
+  code: {
+    action: "apply" as const,
+    summary: "This will modify your working tree and create a local git commit. No pushing.",
     diffText: "",
     files: [] as string[],
   },
@@ -68,6 +80,7 @@ export default function DraftsPanel() {
   const [note, setNote] = useState("");
   const [videoFilePath, setVideoFilePath] = useState("");
   const [youtubeTags, setYoutubeTags] = useState("");
+  const [codeAction, setCodeAction] = useState<"diff" | "apply">("diff");
   const [codeSummary, setCodeSummary] = useState("");
   const [diffText, setDiffText] = useState("");
   const [filesList, setFilesList] = useState("");
@@ -106,8 +119,22 @@ export default function DraftsPanel() {
   const handleCodeDiffPreset = () => {
     setChannel(CODE_DIFF_PRESET.channel);
     setTitle(CODE_DIFF_PRESET.title);
+    setCodeAction("diff");
     setCodeSummary(CODE_DIFF_PRESET.code.summary ?? "");
     setDiffText(CODE_DIFF_PRESET.code.diffText ?? "");
+    setFilesList("");
+    setBody("");
+    setNote("");
+    setResult(null);
+    setError(null);
+  };
+
+  const handleCodeApplyPreset = () => {
+    setChannel(CODE_APPLY_PRESET.channel);
+    setTitle(CODE_APPLY_PRESET.title);
+    setCodeAction("apply");
+    setCodeSummary(CODE_APPLY_PRESET.code.summary ?? "");
+    setDiffText(CODE_APPLY_PRESET.code.diffText ?? "");
     setFilesList("");
     setBody("");
     setNote("");
@@ -124,7 +151,9 @@ export default function DraftsPanel() {
       if (channel === "system") {
         payload.note = note;
       } else if (channel === "code") {
-        const code: Record<string, string | string[]> = {};
+        const code: Record<string, string | string[] | "diff" | "apply"> = {
+          action: codeAction,
+        };
         if (codeSummary.trim()) code.summary = codeSummary.trim();
         if (diffText.trim()) code.diffText = diffText.trim();
         if (filesList.trim()) {
@@ -197,6 +226,13 @@ export default function DraftsPanel() {
         >
           Code Diff: Dry-run Change Bundle
         </button>
+        <button
+          type="button"
+          onClick={handleCodeApplyPreset}
+          className="rounded border border-amber-400 px-3 py-1.5 text-sm hover:bg-amber-50 dark:border-amber-600 dark:hover:bg-amber-900/30"
+        >
+          Code Apply: Commit Approved Diff
+        </button>
       </div>
 
       <div className="space-y-3">
@@ -234,6 +270,27 @@ export default function DraftsPanel() {
         {channel === "code" && (
           <>
             <div>
+              <label htmlFor="code-action" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Action
+              </label>
+              <select
+                id="code-action"
+                value={codeAction}
+                onChange={(e) =>
+                  setCodeAction(e.target.value === "apply" ? "apply" : "diff")
+                }
+                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+              >
+                <option value="diff">Diff only (dry-run, no commit)</option>
+                <option value="apply">Apply + commit (modifies git repo)</option>
+              </select>
+              {codeAction === "apply" && (
+                <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                  This will modify your working tree and create a local git commit. No pushing. Requires JARVIS_REPO_ROOT.
+                </p>
+              )}
+            </div>
+            <div>
               <label htmlFor="code-summary" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Summary (optional)
               </label>
@@ -248,7 +305,7 @@ export default function DraftsPanel() {
             </div>
             <div>
               <label htmlFor="code-diff" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Diff text (optional)
+                Diff text {codeAction === "apply" ? "(required)" : "(optional)"}
               </label>
               <textarea
                 id="code-diff"
@@ -326,7 +383,7 @@ export default function DraftsPanel() {
           disabled={
             loading ||
             !title.trim() ||
-            (channel === "system" ? !note.trim() : channel === "code" ? false : !body.trim())
+            (channel === "system" ? !note.trim() : channel === "code" ? codeAction === "apply" && !diffText.trim() : !body.trim())
           }
           className="rounded bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
         >

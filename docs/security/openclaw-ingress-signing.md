@@ -6,13 +6,18 @@ How to sign requests to `POST /api/ingress/openclaw` for Jarvis HUD integration.
 
 ## Smoke Test (Local Validation)
 
-Validate ingress end-to-end without OpenClaw:
+Validate ingress end-to-end without OpenClaw. Use `dev:port` to avoid port collisions:
 
 ```bash
-# Set env (dev server must be running on port 3000)
-export JARVIS_INGRESS_OPENCLAW_ENABLED=true
-export JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-minimum"
-export JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw
+# Terminal 1: start dev on desired port (e.g. 3001)
+JARVIS_INGRESS_OPENCLAW_ENABLED=true \
+JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-minimum" \
+JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw \
+PORT=3001 pnpm dev:port
+
+# Terminal 2: smoke (point at same port)
+JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-minimum" \
+JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" \
 pnpm ingress:smoke
 ```
 
@@ -23,6 +28,8 @@ id: <uuid>
 traceId: <uuid>
 status: pending
 ```
+
+**Preflight:** Run `pnpm jarvis:doctor` (with same `JARVIS_HUD_BASE_URL` and ingress env) to check readiness before smoke or demos.
 
 **Common failure modes:**
 

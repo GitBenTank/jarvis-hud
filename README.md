@@ -70,6 +70,7 @@ Jarvis HUD uses deterministic, local-first execution adapters.
 Implemented:
 
 - `code.diff` — Dry-run diff packaging (no code applied)
+- `code.apply` — Local git commit only; no pushing (requires `JARVIS_REPO_ROOT`)
 - `content.publish` — Local artifact creation
 - `youtube.package` — Structured YouTube bundle output
 - `system.note`
@@ -77,7 +78,6 @@ Implemented:
 
 Planned:
 
-- `code.apply` — Git-backed apply with receipts and rollback notes
 - Replay mode for full trace playback
 - Policy v1 (risk tiers + allowlists)
 
@@ -100,6 +100,7 @@ Example structure:
 events/{date}.json
 actions/{date}.jsonl
 code-diffs/{date}/{approvalId}/
+code-applies/{date}/{approvalId}/
 publish-queue/{date}/
 youtube-packages/{date}/{approvalId}/
 ```
@@ -169,6 +170,8 @@ http://127.0.0.1:3000
 ```
 
 Auth can be enabled via environment variables.
+
+For `code.apply`: set `JARVIS_REPO_ROOT` to the git repo path. Working tree must be clean before executing.
 
 ---
 

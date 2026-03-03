@@ -5,12 +5,14 @@ import Badge from "./Badge";
 
 type ActionEntry = {
   id: string;
+  traceId?: string;
   at: string;
   kind: string;
   approvalId: string;
   status: string;
   summary: string;
-  payload: unknown;
+  outputPath?: string;
+  artifactPath?: string;
 };
 
 type ActionsResponse = {

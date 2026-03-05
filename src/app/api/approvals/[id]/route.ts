@@ -19,6 +19,10 @@ type Event = {
   createdAt: string;
   executed?: boolean;
   executedAt?: string;
+  proposalStatus?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  failedAt?: string;
 };
 
 type ApprovalBody = { action: "approve" | "deny" };
@@ -77,8 +81,15 @@ export async function POST(
       );
     }
 
+    const now = new Date().toISOString();
     const newStatus = body.action === "approve" ? "approved" : "denied";
-    const updated: Event = { ...event, status: newStatus };
+    const updated: Event = {
+      ...event,
+      status: newStatus,
+      ...(body.action === "approve"
+        ? { proposalStatus: "approved" as const, approvedAt: now }
+        : { proposalStatus: "rejected" as const, rejectedAt: now }),
+    };
     events[index] = updated;
     await writeJson(filePath, events);
 

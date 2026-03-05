@@ -13,6 +13,7 @@
     "test:unit": "vitest run",
     "demo:proof": "node scripts/demo-proof.mjs",
     "ingress:smoke": "node scripts/ingress-smoke.mjs",
+    "jarvis:smoke:apply": "node scripts/ingress-smoke-apply.mjs",
     "jarvis:doctor": "node scripts/jarvis-doctor.mjs"
   },
   "dependencies": {

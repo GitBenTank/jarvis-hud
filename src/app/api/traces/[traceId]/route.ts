@@ -72,6 +72,12 @@ export async function GET(
 
   const events = matchedEvents.map((e) => {
     const normalized = normalizeAction(e.payload);
+    const ev = e as StoredEvent & {
+      proposalStatus?: string;
+      approvedAt?: string;
+      rejectedAt?: string;
+      failedAt?: string;
+    };
     return {
       id: e.id,
       traceId: e.traceId ?? e.id,
@@ -79,9 +85,14 @@ export async function GET(
       status: e.status,
       createdAt: e.createdAt,
       executedAt: e.executedAt ?? undefined,
+      executed: e.executed,
       summary: normalized.summary,
       title: normalized.title,
       source: e.source ?? undefined,
+      proposalStatus: ev.proposalStatus,
+      approvedAt: ev.approvedAt,
+      rejectedAt: ev.rejectedAt,
+      failedAt: ev.failedAt,
     };
   });
 

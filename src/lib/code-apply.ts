@@ -7,6 +7,8 @@ import {
   ensurePathSafe,
   getJarvisRoot,
 } from "./storage";
+import { computePatchSha256 } from "./audit-hashes";
+import { appendCommitTrailers } from "./commit-trailers";
 
 export class CodeApplyError extends Error {
   constructor(
@@ -22,6 +24,8 @@ export type CodeApplyPayload = {
   diffText?: string;
   files?: string[];
   summary?: string;
+  /** If provided by proposal, preserved; otherwise computed from diffText */
+  patchSha256?: string;
 };
 
 export type WriteCodeApplyBundleInput = {
@@ -119,6 +123,9 @@ export type CodeApplyResult = {
   repoHeadBefore: string | null;
   repoHeadAfter: string | null;
   noChangesApplied: boolean;
+  patchSha256: string;
+  treeBefore: string | null;
+  treeAfter: string | null;
 };
 
 export async function writeCodeApplyBundle(
@@ -155,6 +162,17 @@ export async function writeCodeApplyBundle(
   const headBefore = runGitAllowFail(root, ["rev-parse", "HEAD"]);
   const repoHeadBefore = headBefore.ok && headBefore.output.trim() ? headBefore.output.trim() : null;
 
+  const treeBeforeResult = runGitAllowFail(root, ["rev-parse", "HEAD^{tree}"]);
+  const treeBefore =
+    treeBeforeResult.ok && treeBeforeResult.output.trim()
+      ? treeBeforeResult.output.trim()
+      : null;
+
+  const patchSha256 =
+    typeof code?.patchSha256 === "string" && /^[a-f0-9]{64}$/i.test(code.patchSha256)
+      ? code.patchSha256.toLowerCase()
+      : computePatchSha256(diffText);
+
   const checkResult = runGitWithInput(root, ["apply", "--check"], diffText);
   if (!checkResult.ok) {
     throw new Error(`Diff does not apply cleanly: ${checkResult.output}`);
@@ -171,6 +189,7 @@ export async function writeCodeApplyBundle(
   let statsText: string | null = null;
   let statsJson: CodeApplyStatsJson | null = null;
   const filesChanged: string[] = [];
+  let treeAfter: string | null = treeBefore;
 
   if (hasStagedChanges) {
     const filesResult = runGitAllowFail(root, ["diff", "--cached", "--name-only"]);
@@ -197,21 +216,44 @@ export async function writeCodeApplyBundle(
       };
     }
 
+    const receiptsPath = path.join(
+      getJarvisRoot(),
+      "code-applies",
+      dateKey,
+      approvalId
+    );
+
     const subject = `jarvis: apply ${approvalId} — ${title || "(untitled)"}`;
     const body = [
       code.summary?.trim() || "Applied via Jarvis HUD code.apply",
       "",
       `Timestamp: ${createdAt}`,
       `Approval ID: ${approvalId}`,
-      `Receipts: ${path.join(getJarvisRoot(), "code-applies", dateKey, approvalId)}`,
+      `Receipts: ${receiptsPath}`,
       `Rollback: git revert <hash>`,
     ].join("\n");
-    const message = `${subject}\n\n${body}`;
-    runGitWithInputSync(root, ["commit", "-F", "-"], message);
-    const hash = runGitAllowFail(root, ["rev-parse", "HEAD"]);
-    if (hash.ok && hash.output) {
-      commitHash = hash.output.trim();
-      rollbackCommand = `git revert ${commitHash}`;
+    const baseMessage = `${subject}\n\n${body}`;
+    runGitWithInputSync(root, ["commit", "-F", "-"], baseMessage);
+    let hashResult = runGitAllowFail(root, ["rev-parse", "HEAD"]);
+    if (hashResult.ok && hashResult.output) {
+      const treeAfterResult = runGitAllowFail(root, ["rev-parse", "HEAD^{tree}"]);
+      if (treeAfterResult.ok && treeAfterResult.output.trim()) {
+        treeAfter = treeAfterResult.output.trim();
+      }
+      const messageWithTrailers = appendCommitTrailers(baseMessage, {
+        traceId,
+        approvalId,
+        receiptPath: receiptsPath,
+        patchSha256,
+        treeBefore,
+        treeAfter,
+      });
+      runGitWithInputSync(root, ["commit", "--amend", "-F", "-"], messageWithTrailers);
+      hashResult = runGitAllowFail(root, ["rev-parse", "HEAD"]);
+      if (hashResult.ok && hashResult.output) {
+        commitHash = hashResult.output.trim();
+        rollbackCommand = `git revert ${commitHash}`;
+      }
       const showResult = runGitAllowFail(root, [
         "show",
         "--stat",
@@ -257,6 +299,9 @@ export async function writeCodeApplyBundle(
     repoHeadBefore,
     repoHeadAfter,
     noChangesApplied: !hasStagedChanges,
+    patchSha256,
+    treeBefore,
+    treeAfter,
   };
 
   const summaryLines = [
@@ -306,6 +351,9 @@ export async function writeCodeApplyBundle(
     repoHeadBefore,
     repoHeadAfter,
     noChangesApplied: !hasStagedChanges,
+    patchSha256,
+    treeBefore,
+    treeAfter,
   };
 }
 

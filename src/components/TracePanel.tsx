@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  normalizeProposalLifecycle,
+  type ProposalLifecycleEvent,
+} from "@/lib/proposal-lifecycle";
 
 type TraceEvent = {
   id: string;
@@ -9,9 +14,14 @@ type TraceEvent = {
   status: string;
   createdAt: string;
   executedAt?: string;
+  executed?: boolean;
   summary?: string;
   title?: string;
   source?: { connector: string; verified?: boolean };
+  proposalStatus?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  failedAt?: string;
 };
 
 type TraceAction = {
@@ -62,19 +72,21 @@ function statusStyles(status: string): { badge: string; dot: string } {
       dot: "bg-emerald-500",
     };
   }
-  if (s === "approved") {
+  if (s === "approved" || s === "executing") {
     return {
-      badge: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-      dot: "bg-blue-500",
+      badge: s === "executing"
+        ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300"
+        : "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
+      dot: s === "executing" ? "bg-indigo-500" : "bg-blue-500",
     };
   }
-  if (s === "pending") {
+  if (s === "pending" || s.includes("pending")) {
     return {
       badge: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
       dot: "bg-amber-500",
     };
   }
-  if (s === "denied" || s === "error") {
+  if (s === "denied" || s === "rejected" || s === "failed" || s === "error") {
     return {
       badge: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
       dot: "bg-red-500",
@@ -84,6 +96,21 @@ function statusStyles(status: string): { badge: string; dot: string } {
     badge: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
     dot: "bg-zinc-400",
   };
+}
+
+function buildLifecycleSteps(lifecycle: {
+  proposalStatus: string;
+  approvedAt: string | null;
+  executedAt: string | null;
+  rejectedAt: string | null;
+  failedAt: string | null;
+}): string {
+  const parts: string[] = ["pending_approval"];
+  if (lifecycle.rejectedAt) return "pending_approval → rejected";
+  if (lifecycle.approvedAt) parts.push("approved");
+  if (lifecycle.failedAt) return parts.join(" → ") + " → failed";
+  if (lifecycle.executedAt) parts.push("executed");
+  return parts.join(" → ");
 }
 
 function formatStatsJson(stats?: { filesChangedCount: number; insertions: number; deletions: number } | null): string {
@@ -98,11 +125,39 @@ function formatStatsJson(stats?: { filesChangedCount: number; insertions: number
 }
 
 export default function TracePanel() {
+  const searchParams = useSearchParams();
+  const traceFromUrl = searchParams.get("trace")?.trim() ?? "";
   const [traceId, setTraceId] = useState("");
   const [data, setData] = useState<TraceResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (traceFromUrl) {
+      setTraceId(traceFromUrl);
+      setLoading(true);
+      setError(null);
+      setData(null);
+      setExpandedIds(new Set());
+      fetch(`/api/traces/${encodeURIComponent(traceFromUrl)}`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.error) {
+            setError(json.error ?? "Trace not found");
+            return;
+          }
+          const d = json as TraceResponse;
+          setData(d);
+          const events = d.events ?? [];
+          const lastId = events.length > 0 ? events.at(-1)!.id : null;
+          if (lastId) setExpandedIds(new Set([lastId]));
+        })
+        .catch(() => setError("Failed to fetch trace"))
+        .finally(() => setLoading(false));
+      document.getElementById("trace-timeline")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [traceFromUrl]);
 
   const copy = useCallback((text: string) => {
     if (text && text !== "—") navigator.clipboard.writeText(text);
@@ -205,7 +260,10 @@ export default function TracePanel() {
   );
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <div
+      id="trace-timeline"
+      className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+    >
       <h2 className="mb-3 text-lg font-semibold">Trace Timeline</h2>
       <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
         Reconstruct a trace end-to-end. Read-only. No automation.
@@ -262,8 +320,11 @@ export default function TracePanel() {
             {sortedEvents.map((event, idx) => {
               const isExpanded = expandedIds.has(event.id);
               const linkedReceipts = getLinkedReceipts(event.id);
-              const { badge, dot } = statusStyles(event.status);
+              const lifecycle = normalizeProposalLifecycle(event as ProposalLifecycleEvent);
+              const displayStatus = event.proposalStatus ?? event.status;
+              const { badge, dot } = statusStyles(displayStatus);
               const isLast = idx === sortedEvents.length - 1;
+              const lifecycleSteps = buildLifecycleSteps(lifecycle);
 
               return (
                 <div key={event.id} className="relative flex gap-3">
@@ -292,7 +353,7 @@ export default function TracePanel() {
                         <span
                           className={`rounded px-2 py-0.5 text-xs font-medium ${badge}`}
                         >
-                          {event.status}
+                          {lifecycle.proposalStatus}
                         </span>
                         <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
                           {event.kind}
@@ -336,7 +397,12 @@ export default function TracePanel() {
 
                     {isExpanded && (
                       <div className="mt-2 ml-1 space-y-3 border-l-2 border-zinc-200 pl-4 dark:border-zinc-700">
-                        {event.status === "executed" && linkedReceipts.length === 0 && (
+                        {lifecycleSteps !== "pending_approval" && (
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            Lifecycle: {lifecycleSteps}
+                          </p>
+                        )}
+                        {lifecycle.proposalStatus === "executed" && linkedReceipts.length === 0 && (
                           <p className="text-sm text-zinc-500 dark:text-zinc-400">
                             No receipts found for this execution.
                           </p>

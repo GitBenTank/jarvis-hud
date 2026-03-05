@@ -15,9 +15,17 @@ export async function GET() {
     const allowlist = getConnectorAllowlist();
     const openclawAllowed = allowlist.has("openclaw");
 
+    const irreversibleConfirmEnabled =
+      (process.env.JARVIS_UI_CONFIRM_IRREVERSIBLE ??
+        process.env.JARVIS_IRREVERSIBLE_CONFIRM_ENABLED) !== "false";
+    const ingressValidationEnabled =
+      process.env.JARVIS_INGRESS_OPENCLAW_VALIDATE !== "false";
+
     return NextResponse.json({
       jarvisRoot: getJarvisRoot(),
       authEnabled: isAuthEnabled(),
+      irreversibleConfirmEnabled,
+      ingressValidationEnabled,
       codeApplyAvailable: isCodeApplyAvailable(),
       ingressOpenclawEnabled:
         isIngressEnabled() && getIngressSecret() !== null,

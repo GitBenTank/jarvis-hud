@@ -1,4 +1,11 @@
-type BadgeVariant = "dry_run" | "pending" | "approved" | "executed";
+type BadgeVariant =
+  | "dry_run"
+  | "pending"
+  | "approved"
+  | "executed"
+  | "rejected"
+  | "failed"
+  | "executing";
 
 const variantClasses: Record<BadgeVariant, string> = {
   dry_run:
@@ -9,6 +16,12 @@ const variantClasses: Record<BadgeVariant, string> = {
     "border-blue-500 text-blue-700 dark:border-blue-400 dark:text-blue-300",
   executed:
     "border-purple-500 text-purple-700 dark:border-purple-400 dark:text-purple-300",
+  rejected:
+    "border-red-500 text-red-700 dark:border-red-400 dark:text-red-300",
+  failed:
+    "border-red-600 text-red-800 dark:border-red-500 dark:text-red-400",
+  executing:
+    "border-indigo-500 text-indigo-700 dark:border-indigo-400 dark:text-indigo-300",
 };
 
 export default function Badge({

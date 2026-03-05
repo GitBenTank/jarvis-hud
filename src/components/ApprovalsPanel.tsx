@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { normalizeAction } from "@/lib/normalize";
+import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
+import {
+  requiresIrreversibleConfirmation,
+  getConfirmationPhrase,
+} from "@/lib/risk";
+import AgentProposalsFeed from "./AgentProposalsFeed";
 import Badge from "./Badge";
 
 type Event = {
@@ -15,6 +21,10 @@ type Event = {
   createdAt: string;
   executed?: boolean;
   executedAt?: string;
+  proposalStatus?: ProposalStatus;
+  approvedAt?: string;
+  rejectedAt?: string;
+  failedAt?: string;
   source?: {
     connector: string;
     verified?: boolean;
@@ -65,6 +75,60 @@ function getYoutubeTagCount(payload: unknown): number | null {
   return count;
 }
 
+function proposalStatusToVariant(
+  s: ProposalStatus
+): "pending" | "approved" | "executed" | "rejected" | "failed" | "executing" {
+  if (s === "executed") return "executed";
+  if (s === "executing") return "executing";
+  if (s === "approved") return "approved";
+  if (s === "rejected" || s === "failed") return s;
+  return "pending";
+}
+
+function proposalStatusToLabel(s: ProposalStatus): string {
+  const labels: Record<ProposalStatus, string> = {
+    proposed: "PROPOSED",
+    validated: "VALIDATED",
+    pending_approval: "PENDING",
+    approved: "APPROVED",
+    executing: "EXECUTING",
+    executed: "EXECUTED",
+    rejected: "REJECTED",
+    failed: "FAILED",
+    archived: "ARCHIVED",
+  };
+  return labels[s] ?? s.toUpperCase();
+}
+
+function LifecycleStatusBadge({ event }: { event: Event }) {
+  const n = normalizeProposalLifecycle(event);
+  return <Badge variant={proposalStatusToVariant(n.proposalStatus)}>{proposalStatusToLabel(n.proposalStatus)}</Badge>;
+}
+
+function LifecycleTimestamps({ event }: { event: Event }) {
+  const n = normalizeProposalLifecycle(event);
+  return (
+    <>
+      <div>
+        <dt className="font-medium text-zinc-500">Created</dt>
+        <dd>{n.createdAt}</dd>
+      </div>
+      {n.approvedAt && (
+        <div>
+          <dt className="font-medium text-zinc-500">Approved</dt>
+          <dd>{n.approvedAt}</dd>
+        </div>
+      )}
+      {n.executedAt && (
+        <div>
+          <dt className="font-medium text-zinc-500">Executed</dt>
+          <dd>{n.executedAt}</dd>
+        </div>
+      )}
+    </>
+  );
+}
+
 function getCardSummary(payload: unknown): string {
   const n = normalizeAction(payload);
   if (n.kind === "content.publish" && n.channel && n.title) {
@@ -95,6 +159,7 @@ type DetailModalProps = Readonly<{
   executeResult: ExecuteResult | null;
   executeError: ExecuteError | null;
   executeLoading: boolean;
+  irreversibleConfirmEnabled: boolean;
 }>;
 
 function DetailModal({
@@ -107,8 +172,22 @@ function DetailModal({
   executeResult,
   executeError,
   executeLoading,
+  irreversibleConfirmEnabled,
 }: DetailModalProps) {
   const normalized = normalizeAction(event.payload);
+  const needsConfirmation =
+    irreversibleConfirmEnabled &&
+    requiresIrreversibleConfirmation(normalized.kind);
+  const [confirmCheckbox, setConfirmCheckbox] = useState(false);
+  const [confirmPhrase, setConfirmPhrase] = useState("");
+  const phrase = getConfirmationPhrase(normalized.kind);
+  const isConfirmed =
+    !needsConfirmation || (confirmCheckbox && confirmPhrase.trim() === phrase);
+
+  useEffect(() => {
+    setConfirmCheckbox(false);
+    setConfirmPhrase("");
+  }, [event.id]);
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
   const isSystemNote = normalized.kind === "system.note";
@@ -172,23 +251,14 @@ function DetailModal({
           <div>
             <dt className="font-medium text-zinc-500">Status</dt>
             <dd>
-              {event.executed ? (
-                <Badge variant="executed">EXECUTED</Badge>
-              ) : event.status === "approved" ? (
-                <Badge variant="approved">APPROVED</Badge>
-              ) : (
-                <Badge variant="pending">PENDING</Badge>
-              )}
+              <LifecycleStatusBadge event={event} />
             </dd>
           </div>
           <div>
             <dt className="font-medium text-zinc-500">Agent</dt>
             <dd>{event.agent}</dd>
           </div>
-          <div>
-            <dt className="font-medium text-zinc-500">Created</dt>
-            <dd>{event.createdAt}</dd>
-          </div>
+          <LifecycleTimestamps event={event} />
         </dl>
 
         {(isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply) && (
@@ -234,9 +304,12 @@ function DetailModal({
 
         {(isCodeDiff || isCodeApply) ? (
           (() => {
-            const code = (event.payload as Record<string, unknown>)?.code as Record<string, unknown> | undefined;
+            const p = event.payload as Record<string, unknown>;
+            const code = p?.code as Record<string, unknown> | undefined;
             const summary = code && typeof code.summary === "string" ? code.summary : null;
-            const diffTextVal = code && typeof code.diffText === "string" ? code.diffText : null;
+            const diffTextVal =
+              (code && typeof code.diffText === "string" ? code.diffText : null) ??
+              (typeof p.patch === "string" ? p.patch : null);
             const files = code && Array.isArray(code.files) ? (code.files as string[]) : [];
             return (
               <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
@@ -267,13 +340,17 @@ function DetailModal({
                       {files.join(", ")}
                     </div>
                   )}
-                  {diffTextVal && (
+                  {diffTextVal ? (
                     <div>
-                      <span className="font-medium text-zinc-500">Diff:</span>
-                      <pre className="mt-1 max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-100 p-2 text-xs dark:bg-zinc-900">
+                      <span className="font-medium text-zinc-500">Patch (read-only):</span>
+                      <pre className="mt-1 max-h-96 overflow-y-auto overflow-x-auto whitespace-pre font-mono text-xs leading-relaxed rounded border border-zinc-200 bg-zinc-100 p-3 dark:border-zinc-600 dark:bg-zinc-900">
                         {diffTextVal}
                       </pre>
                     </div>
+                  ) : (
+                    <p className="text-amber-600 dark:text-amber-400">
+                      No patch provided — do not approve blindly.
+                    </p>
                   )}
                 </div>
               </div>
@@ -383,6 +460,56 @@ function DetailModal({
 
         {event.status === "approved" && !event.executed && isExecutable && (
           <div className="mt-6 space-y-3">
+            {needsConfirmation && (
+              <div className="space-y-3">
+                <div className="rounded border border-red-400 bg-red-50/80 py-2 px-3 text-sm dark:border-red-600 dark:bg-red-950/40">
+                  <p className="font-semibold text-red-900 dark:text-red-200">
+                    HIGH RISK — typed confirmation required
+                  </p>
+                </div>
+                <div className="rounded border border-amber-300 bg-amber-50/80 py-3 px-4 text-sm dark:border-amber-600 dark:bg-amber-950/30">
+                  <p className="font-medium text-amber-900 dark:text-amber-200">
+                    Irreversible action confirmation
+                  </p>
+                  <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
+                    This will modify the repo. Confirm both steps before executing.
+                  </p>
+                  <label className="mt-3 flex cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={confirmCheckbox}
+                      onChange={(e) => setConfirmCheckbox(e.target.checked)}
+                      className="rounded border-zinc-400"
+                    />
+                    <span>I understand this will modify the repo</span>
+                  </label>
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
+                      This is a CRITICAL action. Type {phrase} to enable execution.
+                    </p>
+                    <label className="mt-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                      Type {phrase} to confirm:
+                    </label>
+                    <input
+                      type="text"
+                      value={confirmPhrase}
+                      onChange={(e) => setConfirmPhrase(e.target.value)}
+                      placeholder={phrase}
+                      className={`mt-1 w-full rounded border px-3 py-2 text-sm font-mono dark:bg-zinc-800 dark:text-zinc-200 ${
+                        confirmPhrase.length > 0 && confirmPhrase.trim() !== phrase
+                          ? "border-red-500 bg-red-50 dark:border-red-600 dark:bg-red-950/30"
+                          : "border-zinc-300 bg-white dark:border-zinc-600"
+                      }`}
+                    />
+                    {confirmPhrase.length > 0 && confirmPhrase.trim() !== phrase && (
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                        Must match exactly: {phrase}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="rounded border border-zinc-300 bg-zinc-50/80 py-2 px-3 text-sm dark:border-zinc-600 dark:bg-zinc-800/80">
               <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution Boundary</p>
               <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
@@ -395,7 +522,7 @@ function DetailModal({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onExecute(event.id)}
-                disabled={executeLoading}
+                disabled={executeLoading || !isConfirmed}
                 className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {executeLoading
@@ -632,6 +759,7 @@ export default function ApprovalsPanel() {
   const [data, setData] = useState<ApprovalsResponse | null>(null);
   const [approvedData, setApprovedData] = useState<ApprovalsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [irreversibleConfirmEnabled, setIrreversibleConfirmEnabled] = useState(true);
   const [detailEvent, setDetailEvent] = useState<Event | null>(null);
   const [executeResult, setExecuteResult] = useState<ExecuteResult | null>(null);
   const [executeError, setExecuteError] = useState<ExecuteError | null>(null);
@@ -661,6 +789,17 @@ export default function ApprovalsPanel() {
     const id = setInterval(fetchApprovals, 5000);
     return () => clearInterval(id);
   }, [fetchApprovals]);
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((c) => {
+        if (typeof c.irreversibleConfirmEnabled === "boolean") {
+          setIrreversibleConfirmEnabled(c.irreversibleConfirmEnabled);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handler = () => fetchApprovals();
@@ -780,171 +919,29 @@ export default function ApprovalsPanel() {
   );
 
   const approvals = data?.approvals ?? [];
-  const approvedNotExecuted = (approvedData?.approvals ?? []).filter(
-    (e) => !e.executed
-  );
-
-  function StatusBadge({ event }: { event: Event }) {
-    if (event.executed) return <Badge variant="executed">EXECUTED</Badge>;
-    if (event.status === "approved") return <Badge variant="approved">APPROVED</Badge>;
-    return <Badge variant="pending">PENDING</Badge>;
-  }
+  const approvedList = approvedData?.approvals ?? [];
+  const approvedNotExecuted = approvedList.filter((e) => !e.executed);
+  const lastExecutedProposal = [...approvedList]
+    .filter((e) => e.executed)
+    .sort(
+      (a, b) =>
+        new Date(b.executedAt ?? b.createdAt).getTime() -
+        new Date(a.executedAt ?? a.createdAt).getTime()
+    )[0] ?? null;
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
-          Proposals Awaiting Authorization {data?.dateKey && `(${data.dateKey})`}
-        </h2>
-        <button
-          onClick={fetchApprovals}
-          disabled={loading}
-          className="rounded bg-zinc-200 px-3 py-1.5 text-sm hover:bg-zinc-300 disabled:opacity-50 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-        >
-          Refresh
-        </button>
-      </div>
-
-      {loading && approvals.length === 0 && (
-        <p className="text-sm text-zinc-500">Loading…</p>
-      )}
-      {!loading && approvals.length === 0 && (
-        <>
-          <p className="text-sm text-zinc-500">No proposals awaiting authorization.</p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            The agent may propose. Execution authority originates with a human.
-          </p>
-        </>
-      )}
-      {approvals.length > 0 && (
-        <>
-          <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-            The agent may propose. Execution authority originates with a human.
-          </p>
-          <ul className="space-y-3">
-          {approvals.map((event) => (
-            <li
-              key={event.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded border border-amber-300 p-3 dark:border-amber-600"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">
-                    {normalizeAction(event.payload).kind}
-                  </span>
-                  <StatusBadge event={event} />
-                  {event.source?.connector === "openclaw" && (
-                    <>
-                      <span
-                        className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-500 dark:text-zinc-400"
-                        title="Connector source"
-                      >
-                        OpenClaw{event.source.verified ? " (verified)" : ""}
-                      </span>
-                      <span
-                        className={`rounded px-2 py-0.5 text-xs font-medium ${
-                          event.trustedIngress?.ok
-                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-                            : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
-                        }`}
-                      >
-                        Ingress: {event.trustedIngress?.ok ? "passed" : "failed"}
-                      </span>
-                    </>
-                  )}
-                  <span className="text-zinc-500">·</span>
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {event.agent}
-                  </span>
-                </div>
-                <p className="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
-                  {getCardSummary(event.payload)}
-                </p>
-                <p className="mt-0.5 text-xs text-zinc-400">
-                  {event.createdAt}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setDetailEvent(event)}
-                  className="rounded border border-zinc-300 px-3 py-1 text-sm hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
-                >
-                  Details
-                </button>
-                <button
-                  onClick={() => handleDeny(event.id)}
-                  className="rounded border border-zinc-300 px-3 py-1 text-sm hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
-                >
-                  Deny
-                </button>
-                <button
-                  onClick={() => handleApprove(event.id)}
-                  className="rounded bg-emerald-600 px-3 py-1 text-sm text-white hover:bg-emerald-700"
-                >
-                  Approve
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-        </>
-      )}
-
-      {approvedNotExecuted.length > 0 && (
-        <>
-          <h3 className="mb-2 mt-6 font-medium">Authorized (Awaiting Execution)</h3>
-          <ul className="space-y-3">
-            {approvedNotExecuted.map((event) => (
-              <li
-                key={event.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded border border-blue-300 p-3 dark:border-blue-600"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium">
-                      {normalizeAction(event.payload).kind}
-                    </span>
-                    <StatusBadge event={event} />
-                    <Badge variant="dry_run">DRY RUN</Badge>
-                    {event.source?.connector === "openclaw" && (
-                      <>
-                        <span
-                          className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-500 dark:text-zinc-400"
-                          title="Connector source"
-                        >
-                          OpenClaw{event.source.verified ? " (verified)" : ""}
-                        </span>
-                        <span
-                          className={`rounded px-2 py-0.5 text-xs font-medium ${
-                            event.trustedIngress?.ok
-                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-                              : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
-                          }`}
-                        >
-                          Ingress: {event.trustedIngress?.ok ? "passed" : "failed"}
-                        </span>
-                      </>
-                    )}
-                    <span className="text-zinc-500">·</span>
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {event.agent}
-                    </span>
-                  </div>
-                  <p className="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
-                    {getCardSummary(event.payload)}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setDetailEvent(event)}
-                  className="rounded border border-blue-300 px-3 py-1 text-sm dark:border-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50"
-                >
-                  Details / Execute (dry run)
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+    <>
+      <AgentProposalsFeed
+        pendingApprovals={approvals}
+        approvedNotExecuted={approvedNotExecuted}
+        lastExecutedProposal={lastExecutedProposal}
+        loading={loading}
+        dateKey={data?.dateKey}
+        onDetails={(e) => setDetailEvent(e as Event)}
+        onApprove={handleApprove}
+        onDeny={handleDeny}
+        onRefresh={fetchApprovals}
+      />
 
       {detailEvent && (
         <DetailModal
@@ -961,8 +958,9 @@ export default function ApprovalsPanel() {
           executeResult={executeResult}
           executeError={executeError}
           executeLoading={executeLoading}
+          irreversibleConfirmEnabled={irreversibleConfirmEnabled}
         />
       )}
-    </div>
+    </>
   );
 }

@@ -6,6 +6,11 @@ import {
   getEventsFilePath,
   readJson,
 } from "@/lib/storage";
+import {
+  isPendingApproval,
+  isApprovedAwaitingExecution,
+  isRejected,
+} from "@/lib/proposal-lifecycle";
 
 type Event = {
   id: string;
@@ -43,7 +48,13 @@ export async function GET(request: NextRequest) {
     const filtered =
       status === "all"
         ? approvalEvents
-        : approvalEvents.filter((e) => e.status === status);
+        : status === "pending"
+          ? approvalEvents.filter((e) => isPendingApproval(e))
+          : status === "approved"
+            ? approvalEvents.filter((e) => isApprovedAwaitingExecution(e))
+            : status === "denied"
+              ? approvalEvents.filter((e) => isRejected(e))
+              : approvalEvents;
 
     return NextResponse.json({ dateKey, approvals: filtered });
   } catch {

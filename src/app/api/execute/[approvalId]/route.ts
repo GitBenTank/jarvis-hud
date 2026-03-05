@@ -40,6 +40,9 @@ type Event = {
   createdAt: string;
   executed?: boolean;
   executedAt?: string;
+  proposalStatus?: string;
+  approvedAt?: string;
+  failedAt?: string;
 };
 
 export async function POST(
@@ -134,6 +137,9 @@ export async function POST(
       );
     }
 
+    events[index] = { ...event, proposalStatus: "executing" };
+    await writeJson(filePath, events);
+
     const executedAt = new Date().toISOString();
     const actionStatus = "executed";
     const traceId = event.traceId ?? event.id;
@@ -201,13 +207,20 @@ export async function POST(
     } else if (normalized.kind === "code.apply") {
       const p = event.payload as Record<string, unknown>;
       const codePayload = p?.code as Record<string, unknown> | undefined;
-      const diffText = typeof codePayload?.diffText === "string" ? codePayload.diffText : "";
+      const diffText =
+        (typeof codePayload?.diffText === "string" ? codePayload.diffText : "") ||
+        (typeof p.patch === "string" ? p.patch : "") ||
+        "";
       if (!diffText.trim()) {
         return NextResponse.json(
           { error: "code.diffText is required for code.apply" },
           { status: 400 }
         );
       }
+      const patchSha256FromPayload =
+        typeof codePayload?.patchSha256 === "string" ? codePayload.patchSha256 : null;
+      const patchSha256FromTop =
+        typeof (p?.patchSha256) === "string" ? (p.patchSha256 as string) : null;
       const result = await writeCodeApplyBundle({
         approvalId,
         traceId,
@@ -221,6 +234,7 @@ export async function POST(
             : undefined,
           summary:
             typeof codePayload?.summary === "string" ? codePayload.summary : undefined,
+          patchSha256: patchSha256FromPayload ?? patchSha256FromTop ?? undefined,
         },
       });
       outputPath = result.outputPath;
@@ -361,6 +375,7 @@ export async function POST(
       ...event,
       executed: true,
       executedAt,
+      proposalStatus: "executed",
     };
     events[index] = updated;
     await writeJson(filePath, events);
@@ -392,6 +407,24 @@ export async function POST(
     }
     return NextResponse.json(response);
   } catch (err) {
+    try {
+      const { approvalId: failedId } = await params;
+      const dateKey = getDateKey();
+      const filePath = getEventsFilePath(dateKey);
+      const events = await readJson<Event[]>(filePath);
+      const idx = events?.findIndex((e) => e.id === failedId) ?? -1;
+      if (events && idx >= 0 && events[idx]?.status === "approved" && !events[idx]?.executed) {
+        const ev = events[idx];
+        events[idx] = {
+          ...ev,
+          proposalStatus: "failed",
+          failedAt: new Date().toISOString(),
+        };
+        await writeJson(filePath, events);
+      }
+    } catch {
+      // ignore — best-effort lifecycle update
+    }
     if (err instanceof CodeApplyError && err.code === "DIRTY_WORKTREE") {
       return NextResponse.json({ error: err.message }, { status: 409 });
     }

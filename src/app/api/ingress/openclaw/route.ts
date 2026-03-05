@@ -18,6 +18,12 @@ import {
 } from "@/lib/ingress-openclaw";
 import { getNonceCache } from "@/lib/nonce-cache";
 import { getIngressRateLimiter } from "@/lib/rate-limit";
+import {
+  validateRawBodySize,
+  validateIngressBody,
+} from "@/lib/ingress-schema";
+import { validateOpenClawProposal } from "@/lib/ingress/validate-openclaw-proposal";
+import { ALLOWED_KINDS } from "@/lib/policy";
 
 type IngressEvent = {
   id: string;
@@ -27,6 +33,7 @@ type IngressEvent = {
   payload: Record<string, unknown>;
   requiresApproval: boolean;
   status: "pending";
+  proposalStatus?: "pending_approval";
   createdAt: string;
   kind?: string;
   title?: string;
@@ -46,23 +53,9 @@ type IngressBody = {
   title: string;
   summary: string;
   payload?: Record<string, unknown>;
+  patch?: string;
   source: { connector: string };
 };
-
-function isIngressBody(body: unknown): body is IngressBody {
-  if (!body || typeof body !== "object") return false;
-  const o = body as Record<string, unknown>;
-  const src = o.source;
-  if (!src || typeof src !== "object") return false;
-  const srcObj = src as Record<string, unknown>;
-  return (
-    typeof o.kind === "string" &&
-    typeof o.title === "string" &&
-    typeof o.summary === "string" &&
-    (o.payload === undefined || (typeof o.payload === "object" && o.payload !== null)) &&
-    srcObj.connector === "openclaw"
-  );
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -100,20 +93,71 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
     if (!rawBody.trim()) {
       return NextResponse.json(
-        { error: "JSON body required" },
+        { error: "JSON body required", code: "EMPTY_BODY", field: "body" },
         { status: 400 }
       );
     }
 
-    let body: IngressBody;
+    let parsed: unknown;
     try {
-      body = JSON.parse(rawBody) as IngressBody;
+      parsed = JSON.parse(rawBody);
     } catch {
       return NextResponse.json(
-        { error: "Invalid JSON body" },
+        { error: "Invalid JSON body", code: "INVALID_JSON", field: "body" },
         { status: 400 }
       );
     }
+
+    const validateEnabled =
+      process.env.JARVIS_INGRESS_OPENCLAW_VALIDATE !== "false";
+    const maxBytes = 1024 * 1024;
+
+    if (validateEnabled) {
+      const v = validateOpenClawProposal({
+        rawBody,
+        parsed,
+        maxBytes,
+        allowedKinds: [...ALLOWED_KINDS],
+      });
+      if (!v.ok) {
+        const status =
+          v.code === "payload_too_large"
+            ? 413
+            : v.code === "unsupported_kind"
+              ? 422
+              : 400;
+        return NextResponse.json(
+          { error: v.message, field: v.field },
+          { status }
+        );
+      }
+    } else {
+      const bodySizeErr = validateRawBodySize(rawBody);
+      if (bodySizeErr) {
+        return NextResponse.json(
+          {
+            error: bodySizeErr.message,
+            code: bodySizeErr.code,
+            field: bodySizeErr.field,
+          },
+          { status: 400 }
+        );
+      }
+      const validation = validateIngressBody(parsed);
+      if (!validation.ok) {
+        const first = validation.errors[0];
+        return NextResponse.json(
+          {
+            error: first?.message ?? "Validation failed",
+            code: first?.code ?? "VALIDATION_ERROR",
+            field: first?.field,
+            errors: validation.errors,
+          },
+          { status: 400 }
+        );
+      }
+    }
+    const body = parsed as IngressBody;
 
     const timestamp = request.headers.get("x-jarvis-timestamp");
     const nonce = request.headers.get("x-jarvis-nonce");
@@ -162,16 +206,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!isIngressBody(body)) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid body: kind, title, summary, payload (object), and source.connector=openclaw required",
-        },
-        { status: 400 }
-      );
-    }
-
     if (!isAllowedKind(body.kind)) {
       return NextResponse.json(
         {
@@ -208,6 +242,32 @@ export async function POST(request: NextRequest) {
       ...sanitized,
     };
 
+    if (body.kind === "code.apply") {
+      const patchFromBody = typeof body.patch === "string" ? body.patch : null;
+      const patchFromPayload =
+        sanitized.patch && typeof (sanitized as Record<string, unknown>).patch === "string"
+          ? ((sanitized as Record<string, unknown>).patch as string)
+          : null;
+      const existingCode =
+        payload.code && typeof payload.code === "object"
+          ? (payload.code as Record<string, unknown>)
+          : {};
+      const diffText =
+        typeof (existingCode as Record<string, unknown>).diffText === "string"
+          ? ((existingCode as Record<string, unknown>).diffText as string)
+          : patchFromBody ?? patchFromPayload ?? "";
+
+      payload.code = {
+        ...(existingCode as Record<string, unknown>),
+        diffText: diffText.trim(),
+        summary:
+          typeof (existingCode as Record<string, unknown>).summary === "string"
+            ? (existingCode as Record<string, unknown>).summary
+            : body.summary,
+      };
+      delete (payload as Record<string, unknown>).patch;
+    }
+
     const event: IngressEvent = {
       id,
       traceId,
@@ -216,6 +276,7 @@ export async function POST(request: NextRequest) {
       payload,
       requiresApproval: true,
       status: "pending",
+      proposalStatus: "pending_approval",
       createdAt: receivedAt,
       kind: body.kind,
       title: body.title,

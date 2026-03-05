@@ -2,6 +2,100 @@
 
 This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress works end-to-end, without guesswork.
 
+## Demo flow (video prep)
+
+**Secret lock:** Source `scripts/demo-env.sh` in both terminals so nothing can drift.
+
+**Terminal 1 (Jarvis):**
+```bash
+cd ~/Documents/jarvis-hud
+source scripts/demo-env.sh
+killall node 2>/dev/null || true
+node -e 'console.log("Jarvis secret len:", process.env.JARVIS_INGRESS_OPENCLAW_SECRET?.length, "PORT:", process.env.PORT)'
+pnpm dev:port
+```
+
+**Terminal 2 (OpenClaw):**
+```bash
+cd ~/Documents/openclaw
+source scripts/demo-env.sh
+node -e 'console.log("OpenClaw secret len:", process.env.JARVIS_INGRESS_OPENCLAW_SECRET?.length, "base:", process.env.JARVIS_BASE_URL)'
+curl -s "$JARVIS_BASE_URL/api/config" | head -c 120; echo
+pnpm jarvis:smoke
+```
+
+If the curl doesn't return JSON-ish immediately, you're not talking to the Jarvis you think you are.
+
+**401 after this?** Almost certainly allowlist connector mismatch (`source.connector` must be `"openclaw"`) or the Jarvis process was started earlier without the demo env—restart and retry.
+
+### Fastest fix when 401 persists: inline env
+
+Don't rely on `source`; start Jarvis with inline env so the process gets the exact vars:
+
+```bash
+cd ~/Documents/jarvis-hud
+killall node 2>/dev/null || true
+
+PORT=3001 \
+JARVIS_INGRESS_OPENCLAW_ENABLED=true \
+JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars" \
+JARVIS_INGRESS_ALLOWLIST_CONNECTORS="openclaw" \
+pnpm dev:port
+```
+
+Then OpenClaw smoke (inline env):
+
+```bash
+cd ~/Documents/openclaw
+JARVIS_BASE_URL="http://127.0.0.1:3001" \
+JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars" \
+pnpm jarvis:smoke
+```
+
+If that still 401s, it's no longer "env not loaded"—it's signing/bytes/headers.
+
+### Prove the running Jarvis process has the env (optional)
+
+```bash
+PID=$(lsof -tiTCP:3001 -sTCP:LISTEN)
+echo "PID=$PID"
+ps eww -p "$PID" 2>/dev/null | tr ' ' '\n' | grep -E 'JARVIS_INGRESS_OPENCLAW|JARVIS_INGRESS_ALLOWLIST|PORT' || echo "(vars not visible)"
+```
+
+### Diagnose 401 with debug + local verify
+
+1. Run smoke with debug: `JARVIS_DEBUG=1 pnpm jarvis:smoke` (after sourcing demo-env). Note timestamp, nonce, rawBodyLen, sig prefix/suffix.
+
+2. Run Jarvis verify with same values:
+   ```bash
+   cd ~/Documents/jarvis-hud
+   source scripts/demo-env.sh
+   TIMESTAMP="..." NONCE="..." RAW_BODY='{"kind":"system.note",...}' JARVIS_INGRESS_OPENCLAW_SECRET="..." node scripts/verify-ingress-signature.mjs
+   ```
+   - If verifier matches: body bytes are changing between signing and verification.
+   - If it doesn't match: secret mismatch or wrong Jarvis instance.
+
+### Telegram proof run (optional)
+
+For Telegram conversational chat, use `pnpm dev` (channels enabled). **Do not use** `pnpm gateway:dev` — it sets `OPENCLAW_SKIP_CHANNELS=1` and Telegram won't receive updates.
+
+```bash
+cd ~/Documents/openclaw
+pkill -f openclaw || true
+pnpm dev
+```
+
+Then DM the bot: `/start` → `pair` → `ping`. Expect inbound logs for each message.
+
+| Log outcome | Cause | Next step |
+|-------------|-------|-----------|
+| Nothing | Bot not receiving (token, channels, webhook/polling) | Paste first ~30 lines of startup logs (redact tokens) |
+| Inbound logs, no reply | Pairing / allowlist / agent binding | Complete pairing, add `allowFrom` or `agents.list` bound to telegram |
+
+Even without reply, you can film: Telegram inbound → OpenClaw logs → proposal to Jarvis → approve → receipts.
+
+---
+
 ## Goal
 
 Prove:
@@ -19,6 +113,52 @@ Prove:
 - No background orchestration
 
 This is strictly "proposal ingress → human gate → deterministic execution".
+
+---
+
+## Threat model
+
+Jarvis HUD assumes the following threats and mitigations:
+
+| Threat | Mitigation |
+|--------|------------|
+| Agents hallucinate or misinterpret intent | Human approval before execution; proposals are reviewed, not auto-applied |
+| Prompt injection / malicious inputs | HMAC-signed ingress; connector allowlist; kind allowlist; nonce replay protection |
+| Connector compromise (secret leaked) | Rotate secret; nonce + timestamp limits; rate limiting |
+| Irreversible action risk (e.g. `code.apply`) | Human gate; clean worktree check; patch size limits; reject binary blobs; git-based apply with receipts |
+| Lack of auditable trail | Every execution produces receipts (manifest, patch, action log); commit trailers with trace/approval IDs |
+| Unauthorized execution | Optional auth + step-up; approval ≠ execution; policy blocks at execute time |
+
+Core principle: **the model is never a trusted principal**. Execution authority originates with the human.
+
+---
+
+## Proposal lifecycle
+
+Proposals move through explicit statuses. UI and trace timeline reflect these transitions.
+
+| Status | Meaning |
+|--------|---------|
+| `proposed` | Ingested; not yet validated |
+| `validated` | Validation passed (if applicable) |
+| `pending_approval` | Awaiting human approval |
+| `approved` | Approved; awaiting execution |
+| `executing` | Execution in progress |
+| `executed` | Execution completed; receipts written |
+| `rejected` | Human denied |
+| `failed` | Execution attempted but failed |
+| `archived` | Archived (future use) |
+
+**Transitions:**
+
+- Ingress → `pending_approval` (with `createdAt`)
+- Approve → `approved` (with `approvedAt`)
+- Deny → `rejected` (with `rejectedAt`)
+- Execute start → `executing`
+- Execute success → `executed` (with `executedAt`)
+- Execute error → `failed` (with `failedAt`)
+
+Legacy events without `proposalStatus` are normalized at read time from `status`, `executed`, etc.
 
 ---
 
@@ -124,8 +264,9 @@ In Jarvis UI (Approvals panel):
 Then:
 
 1. Approve
-2. Execute
-3. Confirm:
+2. For `code.apply`: complete the irreversible confirmation (checkbox + type `APPLY`)
+3. Execute
+4. Verify:
    - Action log entry exists
    - Bundle path exists (artifact output path)
    - Trace timeline shows the event and receipt linkage
@@ -161,6 +302,12 @@ Then:
 - Ensure OpenClaw signs exactly: `${timestamp}.${nonce}.${rawBody}`
 - Ensure HMAC-SHA256 hex digest (`digest("hex")`)
 - Ensure rawBody is the exact POST body string
+
+**Debug (no secrets leaked):**
+
+1. OpenClaw: `JARVIS_DEBUG=1 JARVIS_INGRESS_OPENCLAW_SECRET=... pnpm jarvis:smoke` → prints secretLen, timestamp, nonce, rawBodyLen, messageLen, sig prefix/suffix
+2. Both sides: `node -e 'console.log("len=", process.env.JARVIS_INGRESS_OPENCLAW_SECRET?.length)'` (run in each env) → lengths must match
+3. Jarvis verify locally: `TIMESTAMP=... NONCE=... RAW_BODY='...' JARVIS_INGRESS_OPENCLAW_SECRET=... node scripts/verify-ingress-signature.mjs` (in jarvis-hud)
 
 ### 409 — Nonce replay
 
@@ -200,6 +347,40 @@ Plus:
 node -v
 pnpm -v
 ```
+
+---
+
+## Validation
+
+Ingress validation defaults ON unless `JARVIS_INGRESS_OPENCLAW_VALIDATE=false`. When ON, the ingress route validates proposal payloads before writing:
+
+- **Required fields:** `kind`, `title`, `summary`, `source.connector` (must be `"openclaw"`)
+- **Size limits:** raw body ≤ 1 MB; title ≤ 120 chars; summary ≤ 500 chars; `patch` ≤ 1 MB (when present)
+- **Allowed kinds:** Must be in the execution allowlist (see policy)
+- **Patch sanity:** For `code.apply`/`code.diff`, patch must contain `diff --git` or `--- ` and `+++ `; must not contain binary markers (`GIT binary patch`, `literal `) or null bytes
+- **Unknown keys:** Rejects top-level keys not in the allowlist
+
+**HTTP status codes:**
+
+| Condition                  | Status |
+|---------------------------|--------|
+| Validation fail (bad_request) | 400 |
+| Body or patch too large   | 413 |
+| Kind not in allowlist      | 422 |
+
+To bypass validation for demos, set `JARVIS_INGRESS_OPENCLAW_VALIDATE=false`. HMAC and auth remain enforced.
+
+---
+
+## Irreversible action confirmation
+
+For high-risk kinds (e.g. `code.apply`), the UI enforces an extra confirmation step between **Approve** and **Execute**:
+
+1. **Approve** — changes status only
+2. **Confirm** — checkbox “I understand this will modify a repo” + type `APPLY` in the input
+3. **Execute** — only enabled when confirmation is complete
+
+This is UI-only; the execute API is unchanged. Set `JARVIS_UI_CONFIRM_IRREVERSIBLE=false` to skip the confirmation step (Execute behaves as before).
 
 ---
 

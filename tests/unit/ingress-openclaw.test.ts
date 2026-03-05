@@ -236,4 +236,83 @@ describe("POST /api/ingress/openclaw", () => {
     expect(json.error).toBe("Rate limit exceeded");
     expect(res61.headers.get("Retry-After")).toBeDefined();
   });
+
+  it("accepts code.apply with top-level patch and normalizes to payload.code.diffText", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");
+
+    const tinyPatch = "diff --git a/README.md b/README.md\nindex 123..456 100644\n--- a/README.md\n+++ b/README.md\n@@ -1,3 +1,4 @@\n # Jarvis HUD\n+\n+Smoke test line.\n";
+    const body = {
+      kind: "code.apply",
+      title: "Add smoke test line",
+      summary: "Adds a comment to README",
+      patch: tinyPatch,
+      source: { connector: "openclaw" },
+    };
+
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.ok).toBe(true);
+    expect(json.status).toBe("pending");
+
+    const dateKey = getDateKey();
+    const filePath = getEventsFilePath(dateKey);
+    const events = await readJson<unknown[]>(filePath);
+    const written = (events ?? []).find((e: { id?: string }) => e.id === json.id) as Record<string, unknown>;
+    expect(written).toBeDefined();
+    const code = written?.payload as Record<string, unknown>;
+    const payloadCode = code?.code as Record<string, unknown> | undefined;
+    expect(payloadCode?.diffText).toBe(tinyPatch.trim());
+  });
+
+  it("returns 400 when code.apply missing patch", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const body = {
+      kind: "code.apply",
+      title: "No patch",
+      summary: "Missing patch",
+      source: { connector: "openclaw" },
+    };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error).toContain("patch");
+  });
+
+  it("returns 400 when code.apply patch contains null bytes (binary)", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const body = {
+      kind: "code.apply",
+      title: "Binary patch",
+      summary: "Invalid",
+      patch: "diff --git a/x b/x\ninvalid\x00binary",
+      source: { connector: "openclaw" },
+    };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error).toContain("binary");
+  });
+
+  it("returns 413 when code.apply patch exceeds size limit", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const hugePatch = "diff --git a/x b/x\n" + "x".repeat(1024 * 1024); // > 1 MB
+    const body = {
+      kind: "code.apply",
+      title: "Huge patch",
+      summary: "Too large",
+      patch: hugePatch,
+      source: { connector: "openclaw" },
+    };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(413);
+    const json = await res.json();
+    expect(json.error).toMatch(/size|exceeds|bytes|large/i);
+  });
 });

@@ -1,7 +1,15 @@
+import { Suspense } from "react";
 import ActionsPanel from "@/components/ActionsPanel";
 import ActivityLogPanel from "@/components/ActivityLogPanel";
+import AgentActivityPanel from "@/components/AgentActivityPanel";
+import AgentRuntimeStatus from "@/components/AgentRuntimeStatus";
 import ApprovalsPanel from "@/components/ApprovalsPanel";
 import DraftsPanel from "@/components/DraftsPanel";
+import ExecutionAuthorityBanner from "@/components/ExecutionAuthorityBanner";
+import ModePills from "@/components/ModePills";
+import RuntimeTelemetryStrip from "@/components/RuntimeTelemetryStrip";
+import SafetyGatePanel from "@/components/SafetyGatePanel";
+import ExecutionTimeline from "@/components/ExecutionTimeline";
 import ResearchNotesPanel from "@/components/ResearchNotesPanel";
 import SystemStatus from "@/components/SystemStatus";
 import TracePanel from "@/components/TracePanel";
@@ -13,9 +21,24 @@ export default function Home() {
         <p className="mb-6 text-center text-sm font-medium text-zinc-500 dark:text-zinc-400">
           Jarvis HUD — Runtime Boundary Layer for Agentic Execution
         </p>
+        <div className="flex flex-col border-b border-zinc-700 bg-zinc-900 sm:flex-row sm:items-center sm:gap-4">
+          <ExecutionAuthorityBanner />
+          <ModePills />
+        </div>
+        <RuntimeTelemetryStrip />
+        <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-2">
+          <div className="mx-auto flex max-w-2xl items-center justify-between">
+            <span className="text-[10px] uppercase tracking-widest text-zinc-500">Safety Gate</span>
+            <SafetyGatePanel />
+          </div>
+        </div>
+        <AgentRuntimeStatus />
         <SystemStatus />
         <div className="mb-6">
           <ActivityLogPanel />
+        </div>
+        <div className="mb-6">
+          <AgentActivityPanel />
         </div>
         <div className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="text-lg font-semibold">Runtime Control Plane</h2>
@@ -127,11 +150,16 @@ export default function Home() {
           <ResearchNotesPanel />
         </div>
         <div className="mb-6">
-          <TracePanel />
+          <Suspense fallback={<div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">Trace Timeline…</div>}>
+            <TracePanel />
+          </Suspense>
         </div>
         <div className="space-y-6">
           <DraftsPanel />
           <ApprovalsPanel />
+          <div>
+            <ExecutionTimeline />
+          </div>
           <ActionsPanel />
         </div>
       </main>

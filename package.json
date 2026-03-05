@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 127.0.0.1 -p 3000",
+    "dev": "next dev -H 127.0.0.1 -p ${PORT:-3000}",
     "dev:3001": "next dev -H 127.0.0.1 -p 3001",
     "dev:port": "node scripts/dev-port.mjs",
     "build": "next build",
@@ -17,12 +17,15 @@
     "jarvis:doctor": "node scripts/jarvis-doctor.mjs"
   },
   "dependencies": {
+    "dagre": "^0.8.5",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/dagre": "^0.7.54",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

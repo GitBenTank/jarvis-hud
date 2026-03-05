@@ -8,7 +8,7 @@
 
 **Status:** v0.1 Control Plane Alpha
 
-Event-sourced control plane for AI agent execution. AI proposes, humans authorize, every action produces receipts.
+Event-sourced control plane for AI agent execution. AI proposes, humans authorize, every action produces receipts. Inspired by control-plane architectures used in Kubernetes and Temporal.
 
 ## TL;DR
 
@@ -196,6 +196,38 @@ Jarvis HUD is designed around several architectural principles:
 
 ---
 
+## Positioning
+
+Jarvis HUD is a **Kubernetes-like control plane** for AI agent actions. Its current focus is controlled execution: validate, approve, execute, receipt.
+
+Architecturally, Jarvis borrows ideas from both Kubernetes-style control planes and Temporal-style workflow history. The v0.1–v0.3 roadmap emphasizes policy, approval, receipts, and replay for one-shot actions. Workflow semantics (retries, multi-step chains, resumable state) may emerge in later versions where they earn their place.
+
+**Decision rule for design choices:** If the core question is *"Should this action be allowed and executed?"* → lean Kubernetes. If it is *"How does this multi-step process progress over time?"* → lean Temporal. Right now Jarvis focuses on the first.
+
+---
+
+## Focus (v0.x Direction)
+
+Jarvis HUD v0.x focuses on single-developer workflows on a single machine.
+
+The goal is to provide a clear, safe execution boundary between AI agents and the developer's system, where proposed actions are visible, reviewable, and auditable before execution.
+
+This approach emphasizes:
+- Local-first execution
+- Explicit human approval
+- Traceable action lifecycles
+- Deterministic replay through event logs
+
+The architecture remains remote-capable: workers are designed as consumers of the event log and can run locally or remotely. However, distributed execution, multi-tenancy, and orchestration concerns are intentionally deferred until later versions.
+
+In short:
+
+*v0.x optimizes for depth of single-developer UX, not breadth of distributed infrastructure.*
+
+**Design rule for v0.x:** Does this change make Jarvis safer, clearer, or faster for one developer using agents locally?
+
+---
+
 ## Why This Exists
 
 Most AI agents today can directly execute actions. Jarvis introduces governance, traceability, and receipts so that AI actions are auditable, reversible, human-controlled, and observable. This turns agent execution into a controlled system operation, not a black box.
@@ -346,10 +378,10 @@ It is a control plane.
 
 Stack:
 
-- Next.js 16 (App Router)
-- React 19
 - TypeScript
-- Tailwind v4
+- Next.js (control plane + API)
+- React (approval UI)
+- Tailwind
 - pnpm
 
 Run locally:

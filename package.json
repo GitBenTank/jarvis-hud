@@ -14,7 +14,10 @@
     "demo:proof": "node scripts/demo-proof.mjs",
     "ingress:smoke": "node scripts/ingress-smoke.mjs",
     "jarvis:smoke:apply": "node scripts/ingress-smoke-apply.mjs",
-    "jarvis:doctor": "node scripts/jarvis-doctor.mjs"
+    "jarvis:doctor": "node scripts/jarvis-doctor.mjs",
+    "demo:boot": "bash scripts/demo-boot.sh",
+    "demo:verify": "bash scripts/demo-verify.sh",
+    "demo:smoke": "bash scripts/demo-smoke.sh"
   },
   "dependencies": {
     "dagre": "^0.8.5",

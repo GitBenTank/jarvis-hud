@@ -135,7 +135,7 @@ function ProposalCard({
           <Link
             href={`/?trace=${encodeURIComponent(event.traceId ?? event.id)}`}
             className="font-mono text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-            title="View trace timeline"
+            title="View activity timeline"
           >
             {traceShort}
           </Link>

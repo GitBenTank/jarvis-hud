@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import ActionsPanel from "@/components/ActionsPanel";
 import ActivityLogPanel from "@/components/ActivityLogPanel";
@@ -18,9 +19,17 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <main className="mx-auto max-w-2xl px-4 py-8">
-        <p className="mb-6 text-center text-sm font-medium text-zinc-500 dark:text-zinc-400">
-          Jarvis HUD — Runtime Boundary Layer for Agentic Execution
-        </p>
+        <div className="mb-6 flex items-center justify-center gap-4">
+          <p className="text-center text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            Jarvis HUD — Runtime Boundary Layer for Agentic Execution
+          </p>
+          <Link
+            href="/activity"
+            className="text-sm font-medium text-amber-500 hover:text-amber-400 dark:text-amber-400 dark:hover:text-amber-300"
+          >
+            Activity
+          </Link>
+        </div>
         <div className="flex flex-col border-b border-zinc-700 bg-zinc-900 sm:flex-row sm:items-center sm:gap-4">
           <ExecutionAuthorityBanner />
           <ModePills />
@@ -150,7 +159,7 @@ export default function Home() {
           <ResearchNotesPanel />
         </div>
         <div className="mb-6">
-          <Suspense fallback={<div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">Trace Timeline…</div>}>
+          <Suspense fallback={<div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">Activity Timeline…</div>}>
             <TracePanel />
           </Suspense>
         </div>

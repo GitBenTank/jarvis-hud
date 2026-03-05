@@ -250,6 +250,29 @@ Expected success output:
 
 No secrets or raw request body should be logged.
 
+### Safe smoke (no secret in shell history)
+
+Run from jarvis-hud. Prompt for secret once so it doesn't get saved in scrollback:
+
+```bash
+read -s JARVIS_INGRESS_OPENCLAW_SECRET; echo
+export JARVIS_INGRESS_OPENCLAW_SECRET
+export JARVIS_HUD_BASE_URL="http://127.0.0.1:3001"
+
+cd ~/Documents/jarvis-hud
+pnpm ingress:smoke
+pnpm jarvis:smoke:apply
+```
+
+If either smoke fails, triage:
+
+| Check | Command |
+|-------|---------|
+| A) Jarvis reachable? | `curl -I http://127.0.0.1:3001` |
+| B) Secret mismatch? | Restart dev server after exporting env; 401/403 usually means wrong secret or server not reading env |
+| C) Wrong base URL? | Jarvis HUD scripts use `JARVIS_HUD_BASE_URL`; OpenClaw may use `JARVIS_BASE_URL` |
+| D) Expected | Both smokes report `status: pending` — approval/apply is the next step |
+
 ---
 
 ## Step 4 — Verify in Jarvis UI

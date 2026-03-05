@@ -264,7 +264,7 @@ export default function TracePanel() {
       id="trace-timeline"
       className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
     >
-      <h2 className="mb-3 text-lg font-semibold">Trace Timeline</h2>
+      <h2 className="mb-3 text-lg font-semibold">Activity Timeline</h2>
       <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
         Reconstruct a trace end-to-end. Read-only. No automation.
       </p>

@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
     "test:api": "node scripts/test-api.mjs",
     "test:unit": "vitest run",
     "demo:proof": "node scripts/demo-proof.mjs",

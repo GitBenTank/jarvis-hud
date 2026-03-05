@@ -1,8 +1,26 @@
 # Jarvis HUD
 
+![Version](https://img.shields.io/badge/version-v0.1-blue)
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![Demo](https://img.shields.io/badge/demo-60%20seconds-orange)
+![Architecture](https://img.shields.io/badge/architecture-control--plane-purple)
+![Stack](https://img.shields.io/badge/stack-TypeScript%20%2B%20Next.js-blue)
+
 **Status:** v0.1 Control Plane Alpha
 
-Secure AI code execution control plane. AI proposes. Humans authorize. Every action produces receipts.
+Event-sourced control plane for AI agent execution. AI proposes, humans authorize, every action produces receipts.
+
+## TL;DR
+
+Jarvis HUD is an event-sourced control plane for AI agent execution.
+
+Agents propose actions → humans approve → workers execute → receipts are written.
+
+Key properties:
+- Human-gated execution
+- Append-only event log
+- Deterministic lifecycle replay
+- Traceable receipts for every action
 
 ---
 
@@ -40,6 +58,76 @@ flowchart LR
 ```
 
 → [Architecture overview](docs/architecture/jarvis-control-plane.md)
+
+---
+
+## System Architecture
+
+Jarvis sits between AI agents and system execution, enforcing validation, approval, and receipt logging while emitting an event stream for observability and replay. Jarvis separates the control plane (validation, approval, event emission) from the data plane (execution workers).
+
+```mermaid
+flowchart LR
+    A[Agent] --> I[Ingress API]
+
+    subgraph Control Plane
+        I --> E[(Event Log<br/>events/*.json)]
+        E --> H[Human Approval UI]
+        H -->|approve| E
+    end
+
+    subgraph Data Plane
+        W[Execution Workers<br/>planned]
+        R[(Receipts Log<br/>actions/*.jsonl)]
+    end
+
+    E --> W
+    W --> R
+
+    subgraph Observability
+        P[Activity Stream API]
+        G[Activity Graph + Timeline]
+    end
+
+    R --> P
+    E --> P
+    P --> G
+```
+
+Execution is driven by consuming the event log, not by synchronous API handlers. The event log is append-only and keyed by `traceId`, allowing the entire execution lifecycle to be reconstructed deterministically. *Current v0.1: execute endpoint writes receipts synchronously; worker model is the architectural target.*
+
+**Control plane vs data plane:**
+
+- **Control plane** — validate, approve, emit events
+- **Data plane** — workers execute, emit receipts
+
+**Implementation references:**
+
+| Component | Path |
+|-----------|------|
+| Ingress API | `src/app/api/ingress/` |
+| Approval + Execution | `src/app/api/approvals/`, `src/app/api/execute/` |
+| Receipts | `src/lib/action-log.ts` |
+| Activity Stream | `src/app/api/activity/stream/` |
+| Activity Graph | `src/components/ActivityGraph.tsx` |
+
+---
+
+## Event Model
+
+Jarvis records execution lifecycle events in the append-only event log.
+
+| Event | Meaning |
+|-------|---------|
+| `proposal_created` | Agent submitted a proposed action |
+| `proposal_validated` | Ingress validation passed |
+| `proposal_approved` | Human authorized execution |
+| `execution_started` | Execution adapter began running |
+| `execution_completed` | Adapter finished successfully |
+| `receipt_created` | Action receipt written to `{JARVIS_ROOT}/actions/*.jsonl` |
+
+Events are correlated using a shared `traceId`, allowing the complete lifecycle of an agent action to be reconstructed deterministically.
+
+*`traceId` → links proposal, approval, execution, and receipt events*
 
 ---
 
@@ -82,6 +170,29 @@ Coming soon.
 | Execution Engine | Performs approved actions |
 | Action Log | Writes receipts to `{JARVIS_ROOT}/actions/*.jsonl` |
 | Activity Graph | Visual trace reconstruction with replay |
+
+---
+
+## Core Properties
+
+Jarvis enforces several guarantees for AI-driven execution:
+
+- **Human-in-the-loop** — execution requires explicit approval
+- **Traceability** — every action is tied to a `traceId`
+- **Receipts** — execution results are written to an immutable action log
+- **Replayability** — traces can be reconstructed and replayed in the Activity Graph
+- **Deterministic demo environment** — `demo:boot` / `demo:verify` / `demo:smoke`
+
+---
+
+## Design Principles
+
+Jarvis HUD is designed around several architectural principles:
+
+- **Separation of proposal and execution** — agents propose actions, but execution is gated
+- **Event-first architecture** — all activity is emitted as events and can be reconstructed
+- **Receipts over logs** — executions produce structured receipts rather than unstructured logs
+- **Human authority boundary** — the control plane preserves a clear human-in-the-loop decision point
 
 ---
 

@@ -28,6 +28,24 @@ This allows teams to run AI agents safely while keeping a verifiable record of w
 
 ---
 
+## Project Status
+
+Jarvis HUD is currently in **alpha**.
+
+**Working today:**
+- OpenClaw → Jarvis proposal flow
+- Human approval gate
+- Controlled execution
+- Receipt artifacts
+- Trace timeline
+
+**Planned next:**
+- Additional execution adapters
+- Richer trace visualization
+- Replayable traces
+
+---
+
 ## Design Principles
 
 Jarvis is built around a few core principles for safe and observable automation.
@@ -88,6 +106,40 @@ This provides a clear audit trail for every automated action.
 5. Inspect the execution receipt
 
 Full runbook: [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md)
+
+---
+
+## Feature Snapshot
+
+- **Proposal Gate** — Agents submit proposed actions instead of executing directly.
+- **Human Approval** — Operators review and approve actions in the Jarvis HUD UI.
+- **Controlled Execution** — Actions run through bounded execution adapters.
+- **Receipts & Artifacts** — Every execution produces a receipt and artifact record.
+- **Trace Timeline** — All activity is recorded as a traceable lifecycle.
+
+Jarvis turns AI-driven automation into a **verifiable, auditable workflow**.
+
+---
+
+## Action Lifecycle
+
+Jarvis enforces a structured lifecycle for all automated actions:
+
+```
+Agent
+  ↓
+Proposal
+  ↓
+Approval
+  ↓
+Execution
+  ↓
+Receipt
+  ↓
+Trace
+```
+
+This lifecycle ensures automation remains **observable, auditable, and human-controlled**.
 
 ---
 
@@ -176,6 +228,19 @@ Every execution produces a **receipt artifact** at `~/jarvis/actions/YYYY-MM-DD.
 Jarvis builds a timeline of activity (proposal received → approval recorded → execution completed). This creates an **auditable history of AI actions**.
 
 → [Full architecture doc](docs/architecture/control-plane.md)
+
+---
+
+## Use Cases
+
+Jarvis is designed for environments where AI-driven automation must remain safe and auditable.
+
+Examples:
+
+- **AI development tools** that generate code changes
+- **Infrastructure automation** proposed by agents
+- **CI/CD workflows** that require approval gates
+- **Agent frameworks** that need governance and traceability
 
 ---
 

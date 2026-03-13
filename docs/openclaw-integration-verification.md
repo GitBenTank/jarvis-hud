@@ -2,6 +2,8 @@
 
 This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress works end-to-end, without guesswork.
 
+**Verified:** OpenClaw → Jarvis ingress → approval → execution → receipt flow is working. Smoke test (`pnpm jarvis:smoke` from OpenClaw) produces pending proposals; human approves and executes in Jarvis UI; receipts written to `~/jarvis/actions/YYYY-MM-DD.jsonl`.
+
 ## Demo flow (video prep)
 
 **Secret lock:** Source `scripts/demo-env.sh` in both terminals so nothing can drift.
@@ -93,6 +95,15 @@ Then DM the bot: `/start` → `pair` → `ping`. Expect inbound logs for each me
 | Inbound logs, no reply | Pairing / allowlist / agent binding | Complete pairing, add `allowFrom` or `agents.list` bound to telegram |
 
 Even without reply, you can film: Telegram inbound → OpenClaw logs → proposal to Jarvis → approve → receipts.
+
+### Live Gateway chat (jarvis-hud skill)
+
+If the agent says it doesn't have the "jarvis" skill:
+
+1. **`~/.openclaw/.env`** — Set `JARVIS_BASE_URL=http://127.0.0.1:3001` (Jarvis demo uses port 3001).
+2. **Plugin id** — The extension is `jarvis-hud`, not `jarvis`. In `~/.openclaw/openclaw.json`, ensure `plugins.entries.jarvis-hud.enabled: true` and that `plugins.installs.jarvis-hud` points to the extension.
+3. **Prompt phrasing** — Ask to "use the jarvis-hud skill" or "propose a system note to Jarvis HUD" so the agent invokes `jarvis_propose_system_note`.
+4. **Restart** — After config or env changes, restart the OpenClaw Gateway.
 
 ---
 

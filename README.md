@@ -21,7 +21,7 @@ Jarvis is a **control plane for AI-driven automation**.
 Instead of letting agents execute actions directly, Jarvis enforces a structured lifecycle:
 
 ```
-Agent → Proposal → Approval → Execution → Receipt → Trace
+Agent → Proposal → Verification → Approval → Policy Gate → Execution → Receipt → Trace
 ```
 
 This allows teams to run AI agents safely while keeping a verifiable record of what happened.
@@ -80,7 +80,7 @@ Automation should be observable and debuggable.
 Jarvis builds a **trace timeline** of activity:
 
 ```
-Agent → Proposal → Approval → Execution → Receipt → Trace
+Agent → Proposal → Approval → Policy Gate → Execution → Receipt → Trace
 ```
 
 This provides a clear audit trail for every automated action.
@@ -113,6 +113,7 @@ Full runbook: [docs/openclaw-integration-verification.md](docs/openclaw-integrat
 
 - **Proposal Gate** — Agents submit proposed actions instead of executing directly.
 - **Human Approval** — Operators review and approve actions in the Jarvis HUD UI.
+- **Policy Gate** — Built-in policy checks (kind allowlist, auth step-up, preflight) run before adapters execute.
 - **Controlled Execution** — Actions run through bounded execution adapters.
 - **Receipts & Artifacts** — Every execution produces a receipt and artifact record.
 - **Trace Timeline** — All activity is recorded as a traceable lifecycle.
@@ -130,7 +131,11 @@ Agent
   ↓
 Proposal
   ↓
+Verification
+  ↓
 Approval
+  ↓
+Policy Gate
   ↓
 Execution
   ↓
@@ -182,7 +187,8 @@ flowchart LR
     C --> D[Signature Verification]
     D --> E[Approval Queue]
     E --> F[Human Operator]
-    F --> G[Controlled Execution]
+    F --> P[Policy Gate]
+    P --> G[Controlled Execution]
     G --> H[Receipt Artifact]
     H --> I[Traceable Timeline]
 ```
@@ -200,7 +206,7 @@ For a deeper explanation of the architecture, see [docs/architecture/control-pla
 Jarvis introduces a structured lifecycle for all agent actions:
 
 ```
-Agent → Proposal → Verification → Approval → Execution → Receipt → Trace
+Agent → Proposal → Verification → Approval → Policy Gate → Execution → Receipt → Trace
 ```
 
 ### 1. Proposal
@@ -215,19 +221,43 @@ Jarvis verifies connector identity, shared secret, and proposal structure. Inval
 
 A human operator reviews the proposed action in the **Jarvis HUD UI**. Actions cannot execute without approval.
 
-### 4. Execution
+### 4. Policy Gate
 
-Approved actions run through controlled adapters (system notes, file operations, code changes). Execution happens within a defined boundary.
+Before any adapter runs, Jarvis evaluates built-in policy checks. See [Policy](#policy) below.
 
-### 5. Receipt
+### 5. Execution
+
+If policy passes, approved actions run through controlled adapters (system notes, file operations, code changes). Execution happens within a defined boundary.
+
+### 6. Receipt
 
 Every execution produces a **receipt artifact** at `~/jarvis/actions/YYYY-MM-DD.jsonl`, including trace ID, proposal data, approval timestamp, execution result, and artifact path.
 
-### 6. Trace
+### 7. Trace
 
 Jarvis builds a timeline of activity (proposal received → approval recorded → execution completed). This creates an **auditable history of AI actions**.
 
 → [Full architecture doc](docs/architecture/control-plane.md)
+
+---
+
+## Policy
+
+Jarvis enforces a **policy gate** at execute-time — before any adapter runs. If policy blocks, no adapter code runs.
+
+**Today (built-in, in code):**
+
+- **Kind allowlist** — Only allowed action kinds (e.g. `system.note`, `code.apply`, `code.diff`) can execute. Unknown kinds are blocked.
+- **Auth step-up** — When auth is enabled, high-risk execution may require step-up authentication.
+- **code.apply preflight** — Requires `JARVIS_REPO_ROOT`, clean worktree, and other preflight checks before applying code.
+
+Policy is evaluated in `POST /api/execute/[approvalId]` via `evaluateExecutePolicy()`. See [ADR-0003](docs/decisions/0003-execution-policy-v1.md).
+
+**Planned later:**
+
+- Config-driven policy rules (e.g. per-kind `requireApproval`, `autoApprove`)
+- Risk tiers and environment restrictions
+- File-based policy definitions
 
 ---
 
@@ -579,13 +609,15 @@ It is a control plane.
 
 ## Roadmap
 
-Near-term goals:
+**Today:** Built-in policy (kind allowlist, step-up, preflight), OpenClaw integration, approval UI, receipt logging.
 
-- more execution adapters
-- richer trace visualization
-- replayable traces
-- additional agent connectors
-- stronger audit tooling
+**Planned next:**
+
+- **Config-driven policy engine** — Per-kind rules, file-based policy, environment restrictions
+- **Additional execution adapters** — More action kinds and bounded execution paths
+- **Trace replay** — Reconstruct and replay execution lifecycles from trace data
+- **Richer trace visualization** — Enhanced activity timeline and graph
+- **Additional agent connectors** — Beyond OpenClaw
 
 ---
 

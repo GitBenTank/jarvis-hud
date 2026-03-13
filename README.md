@@ -155,9 +155,13 @@ Then open http://127.0.0.1:3001 and http://127.0.0.1:3001/activity. Approve the 
 
 → [Full runbook](DEMO.md)
 
-### Demo Video (2 minutes)
+### OpenClaw Integration
 
-Coming soon.
+OpenClaw can propose actions to Jarvis via signed ingress (`POST /api/ingress/openclaw`). The flow is verified: OpenClaw smoke → pending proposal → human approve → execute → receipt. See [OpenClaw Integration Verification](docs/openclaw-integration-verification.md) for the full runbook.
+
+### Demo Video
+
+Episode 2 filmed. See [docs/video/](docs/video/) for the film checklist and artifacts.
 
 ---
 
@@ -391,11 +395,7 @@ pnpm install
 pnpm dev
 ```
 
-Default:
-
-```
-http://127.0.0.1:3000
-```
+Default port 3000: `http://127.0.0.1:3000`. The demo flow (`pnpm demo:boot`) uses port 3001.
 
 Auth can be enabled via environment variables.
 
@@ -407,6 +407,7 @@ For `code.apply`: set `JARVIS_REPO_ROOT` to the git repo path. Working tree must
 
 - [Architecture](docs/architecture/jarvis-control-plane.md) — Control plane lifecycle, trace model, event types
 - [Demo Runbook](DEMO.md) — Deterministic demo, verify, smoke, failure actions
+- [OpenClaw Integration Verification](docs/openclaw-integration-verification.md) — Ingress, env, approval, execution, receipt runbook
 - `docs/roadmap/0000-master-plan.md`
 - `docs/strategy/positioning-secure-ai-code-execution.md`
 - `docs/decisions/0001-thesis-lock.md`

@@ -42,11 +42,20 @@ type TraceAction = {
   repoHeadAfter?: string | null;
 };
 
+type TracePolicyDecision = {
+  traceId: string;
+  decision: "allow" | "deny";
+  rule: string;
+  reason: string;
+  timestamp: string;
+};
+
 type TraceResponse = {
   traceId: string;
   dateKey: string;
   events: TraceEvent[];
   actions: TraceAction[];
+  policyDecisions?: TracePolicyDecision[];
   artifactPaths: string[];
 };
 
@@ -98,7 +107,7 @@ function statusStyles(status: string): { badge: string; dot: string } {
   };
 }
 
-function buildLifecycleSteps(lifecycle: {
+function formatEventLifecycle(lifecycle: {
   proposalStatus: string;
   approvedAt: string | null;
   executedAt: string | null;
@@ -212,12 +221,16 @@ export default function TracePanel() {
       `  rollback: ${a.rollbackCommand ?? "—"}`,
     ]);
     const pathLines = data.artifactPaths ?? [];
+    const policyLines = (data.policyDecisions ?? []).map(
+      (pd) => `- ${pd.decision} | ${pd.rule} | ${pd.reason}`
+    );
     const lines = [
       `traceId: ${data.traceId}`,
       `dateKey: ${data.dateKey}`,
       "",
       "## Events",
       ...eventLines,
+      ...(policyLines.length > 0 ? ["", "## Policy decisions", ...policyLines] : []),
       ...(receiptLines.length > 0 ? ["", "## code.apply receipts", ...receiptLines] : []),
       ...(pathLines.length > 0 ? ["", "## Artifact paths", ...pathLines] : []),
     ];
@@ -245,6 +258,122 @@ export default function TracePanel() {
       return ta.localeCompare(tb) || a.createdAt.localeCompare(b.createdAt);
     });
   }, [data?.events]);
+
+  const primaryEvent = sortedEvents[0];
+  const primaryPolicy = useMemo(() => {
+    const pd = data?.policyDecisions ?? [];
+    return pd.at(-1);
+  }, [data?.policyDecisions]);
+  const primaryReceipt = useMemo(() => {
+    const actions = data?.actions ?? [];
+    if (!primaryEvent) return actions[0];
+    return actions.find((a) => a.approvalId === primaryEvent.id) ?? actions[0];
+  }, [data?.actions, primaryEvent]);
+
+  const traceHealth = useMemo(() => {
+    if (!primaryEvent) return null;
+    const policyDeny = primaryPolicy?.decision === "deny";
+    const execFailed = !!primaryEvent.failedAt;
+    const executed = !!primaryEvent.executed;
+    let status: string;
+    if (policyDeny) status = "BLOCKED";
+    else if (execFailed) status = "FAILED";
+    else if (executed) status = "VERIFIED";
+    else status = "PENDING";
+    return {
+      status,
+      policy: primaryPolicy ? primaryPolicy.decision.toUpperCase() : "—",
+      execution: policyDeny ? "—" : execFailed ? "FAILED" : executed ? "SUCCESS" : "PENDING",
+    };
+  }, [primaryEvent, primaryPolicy]);
+
+  const lifecycleSteps = useMemo(() => {
+    const steps: { id: string; label: string; icon: string; iconClass: string; lines: string[] }[] = [];
+    if (!primaryEvent) return steps;
+
+    const agent = primaryEvent.source?.connector ?? "agent";
+    const kind = primaryEvent.kind ?? "—";
+    steps.push({
+      id: "proposal",
+      label: "Proposal",
+      icon: "○",
+      iconClass: "text-zinc-400",
+      lines: [`Agent: ${agent}`, `Kind: ${kind}`, `Time: ${formatTime(primaryEvent.createdAt)}`],
+    });
+
+    if (primaryEvent.approvedAt || primaryEvent.status === "approved" || primaryEvent.executed) {
+      steps.push({
+        id: "approval",
+        label: "Approval",
+        icon: "✓",
+        iconClass: "text-emerald-600 dark:text-emerald-400",
+        lines: [
+          "Approved by: Human",
+          `Time: ${formatTime(primaryEvent.approvedAt ?? primaryEvent.createdAt)}`,
+        ],
+      });
+    } else if (primaryEvent.rejectedAt) {
+      steps.push({
+        id: "approval",
+        label: "Approval",
+        icon: "✗",
+        iconClass: "text-red-600 dark:text-red-400",
+        lines: ["Rejected", `Time: ${formatTime(primaryEvent.rejectedAt)}`],
+      });
+    }
+
+    const pd = primaryPolicy;
+    if (pd) {
+      steps.push({
+        id: "policy",
+        label: "Policy Check",
+        icon: "●",
+        iconClass: pd.decision === "allow" ? "text-emerald-500" : "text-red-500",
+        lines: [
+          `Status: ${pd.decision.toUpperCase()}`,
+          `Rule: ${pd.rule}`,
+          `Reason: ${pd.reason}`,
+        ],
+      });
+    } else if (primaryEvent.approvedAt) {
+      steps.push({
+        id: "policy",
+        label: "Policy Check",
+        icon: "○",
+        iconClass: "text-zinc-400",
+        lines: ["Not yet evaluated", "Execute to trigger policy gate"],
+      });
+    }
+
+    if (primaryEvent.executed || primaryEvent.failedAt) {
+      const failed = !!primaryEvent.failedAt;
+      steps.push({
+        id: "execution",
+        label: "Execution",
+        icon: failed ? "⚠" : "✓",
+        iconClass: failed ? "text-amber-500" : "text-emerald-600 dark:text-emerald-400",
+        lines: [
+          `Adapter: ${primaryReceipt?.kind ?? primaryEvent.kind ?? "—"}`,
+          `Status: ${failed ? "failed" : "success"}`,
+          `Time: ${formatTime(primaryEvent.executedAt ?? primaryEvent.failedAt)}`,
+        ],
+      });
+    }
+
+    if (primaryReceipt && (primaryEvent.executed || primaryEvent.failedAt)) {
+      const path = primaryReceipt.outputPath ?? primaryReceipt.artifactPath ?? "";
+      const logPath = path ? path.split("/").slice(-2).join("/") : `${data?.dateKey ?? ""}.jsonl`;
+      steps.push({
+        id: "receipt",
+        label: "Receipt",
+        icon: "📄",
+        iconClass: "text-zinc-500",
+        lines: ["Artifact written", logPath || `actions/${data?.dateKey ?? ""}.jsonl`],
+      });
+    }
+
+    return steps;
+  }, [primaryEvent, primaryPolicy, primaryReceipt, data?.dateKey]);
 
   const getLinkedReceipts = useCallback(
     (eventId: string) => {
@@ -315,6 +444,88 @@ export default function TracePanel() {
             </button>
           </div>
 
+          {/* Trace health header */}
+          {traceHealth && (
+            <div className="flex flex-wrap gap-3 rounded border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800">
+              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Status: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.status}</span>
+              </span>
+              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Policy: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.policy}</span>
+              </span>
+              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Execution: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.execution}</span>
+              </span>
+            </div>
+          )}
+
+          {/* Step timeline */}
+          {lifecycleSteps.length > 0 && (
+            <div className="space-y-0 rounded border border-zinc-200 dark:border-zinc-700">
+              {lifecycleSteps.map((step, idx) => (
+                <div
+                  key={step.id}
+                  className={`flex gap-3 px-3 py-2.5 ${
+                    idx < lifecycleSteps.length - 1
+                      ? "border-b border-zinc-200 dark:border-zinc-700"
+                      : ""
+                  }`}
+                >
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center text-sm ${step.iconClass}`}>
+                    {step.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                      {step.label}
+                    </div>
+                    <div className="mt-0.5 space-y-0.5 text-xs text-zinc-600 dark:text-zinc-400">
+                      {step.lines.map((line, i) => (
+                        <div key={i}>{line}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Policy Decisions (legacy / multiple) — show only if multiple decisions */}
+          {(data.policyDecisions?.length ?? 0) > 1 && (
+            <div className="rounded border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
+              <h3 className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Policy Decisions
+              </h3>
+              <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+                Why execution was allowed or blocked
+              </p>
+              <div className="space-y-2">
+                {data.policyDecisions!.map((pd, i) => (
+                  <div
+                    key={`${pd.timestamp}-${i}`}
+                    className="flex flex-wrap items-center gap-2 rounded border border-zinc-200 bg-white p-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                  >
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${
+                        pd.decision === "allow"
+                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                          : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+                      }`}
+                    >
+                      {pd.decision}
+                    </span>
+                    <span className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
+                      {pd.rule}
+                    </span>
+                    <span className="text-zinc-500 dark:text-zinc-400">{pd.reason}</span>
+                    <span className="ml-auto text-xs text-zinc-400">
+                      {formatTime(pd.timestamp)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Timeline */}
           <div className="relative">
             {sortedEvents.map((event, idx) => {
@@ -324,7 +535,7 @@ export default function TracePanel() {
               const displayStatus = event.proposalStatus ?? event.status;
               const { badge, dot } = statusStyles(displayStatus);
               const isLast = idx === sortedEvents.length - 1;
-              const lifecycleSteps = buildLifecycleSteps(lifecycle);
+              const eventLifecycleSteps = formatEventLifecycle(lifecycle);
 
               return (
                 <div key={event.id} className="relative flex gap-3">
@@ -397,9 +608,9 @@ export default function TracePanel() {
 
                     {isExpanded && (
                       <div className="mt-2 ml-1 space-y-3 border-l-2 border-zinc-200 pl-4 dark:border-zinc-700">
-                        {lifecycleSteps !== "pending_approval" && (
+                        {eventLifecycleSteps !== "pending_approval" && (
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            Lifecycle: {lifecycleSteps}
+                            Lifecycle: {eventLifecycleSteps}
                           </p>
                         )}
                         {lifecycle.proposalStatus === "executed" && linkedReceipts.length === 0 && (

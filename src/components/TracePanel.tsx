@@ -50,12 +50,20 @@ type TracePolicyDecision = {
   timestamp: string;
 };
 
+type TraceReconciliation = {
+  traceId: string;
+  status: "verified" | "drift_detected" | "not_reconcilable_yet";
+  reason: string;
+  timestamp: string;
+};
+
 type TraceResponse = {
   traceId: string;
   dateKey: string;
   events: TraceEvent[];
   actions: TraceAction[];
   policyDecisions?: TracePolicyDecision[];
+  reconciliations?: TraceReconciliation[];
   artifactPaths: string[];
 };
 
@@ -270,6 +278,11 @@ export default function TracePanel() {
     return actions.find((a) => a.approvalId === primaryEvent.id) ?? actions[0];
   }, [data?.actions, primaryEvent]);
 
+  const primaryReconciliation = useMemo(() => {
+    const rec = data?.reconciliations ?? [];
+    return rec.at(-1);
+  }, [data?.reconciliations]);
+
   const traceHealth = useMemo(() => {
     if (!primaryEvent) return null;
     const policyDeny = primaryPolicy?.decision === "deny";
@@ -280,12 +293,19 @@ export default function TracePanel() {
     else if (execFailed) status = "FAILED";
     else if (executed) status = "VERIFIED";
     else status = "PENDING";
+    const reconciliation =
+      primaryReconciliation?.status === "verified"
+        ? "VERIFIED"
+        : primaryReconciliation?.status === "drift_detected"
+          ? "DRIFT"
+          : "PENDING";
     return {
       status,
       policy: primaryPolicy ? primaryPolicy.decision.toUpperCase() : "—",
       execution: policyDeny ? "—" : execFailed ? "FAILED" : executed ? "SUCCESS" : "PENDING",
+      reconciliation,
     };
-  }, [primaryEvent, primaryPolicy]);
+  }, [primaryEvent, primaryPolicy, primaryReconciliation]);
 
   const lifecycleSteps = useMemo(() => {
     const steps: { id: string; label: string; icon: string; iconClass: string; lines: string[] }[] = [];
@@ -372,8 +392,26 @@ export default function TracePanel() {
       });
     }
 
+    if (primaryReconciliation) {
+      const rec = primaryReconciliation;
+      const icon = rec.status === "verified" ? "✓" : rec.status === "drift_detected" ? "⚠" : "○";
+      const iconClass =
+        rec.status === "verified"
+          ? "text-emerald-600 dark:text-emerald-400"
+          : rec.status === "drift_detected"
+            ? "text-amber-500"
+            : "text-zinc-400";
+      steps.push({
+        id: "reconciliation",
+        label: "Reconciliation",
+        icon,
+        iconClass,
+        lines: [`Status: ${rec.status}`, `Reason: ${rec.reason}`, `Time: ${formatTime(rec.timestamp)}`],
+      });
+    }
+
     return steps;
-  }, [primaryEvent, primaryPolicy, primaryReceipt, data?.dateKey]);
+  }, [primaryEvent, primaryPolicy, primaryReceipt, primaryReconciliation, data?.dateKey]);
 
   const getLinkedReceipts = useCallback(
     (eventId: string) => {
@@ -455,6 +493,9 @@ export default function TracePanel() {
               </span>
               <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Execution: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.execution}</span>
+              </span>
+              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Reconciliation: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.reconciliation}</span>
               </span>
             </div>
           )}

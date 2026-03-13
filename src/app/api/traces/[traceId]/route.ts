@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 import { readJson, getEventsFilePath, getDateKey } from "@/lib/storage";
 import { readActionLogByTraceId, type ActionLogEntry } from "@/lib/action-log";
 import { readPolicyDecisionsByTraceId, type PolicyDecisionEntry } from "@/lib/policy-decision-log";
+import { readReconciliationByTraceId, type ReconciliationEntry } from "@/lib/reconciliation-log";
 import { normalizeAction } from "@/lib/normalize";
 
 type StoredEvent = {
@@ -48,6 +49,7 @@ export async function GET(
   const matchedEvents: StoredEvent[] = [];
   const matchedActions: ActionLogEntry[] = [];
   const matchedPolicyDecisions: PolicyDecisionEntry[] = [];
+  const matchedReconciliations: ReconciliationEntry[] = [];
 
   for (const dateKey of dateKeys) {
     const events = await readJson<StoredEvent[]>(getEventsFilePath(dateKey));
@@ -58,6 +60,7 @@ export async function GET(
 
     const actions = await readActionLogByTraceId(dateKey, tid);
     const policyDecisions = await readPolicyDecisionsByTraceId(dateKey, tid);
+    const reconciliations = await readReconciliationByTraceId(dateKey, tid);
 
     if (eventMatches.length > 0 || actions.length > 0) {
       if (!foundDateKey) foundDateKey = dateKey;
@@ -65,9 +68,11 @@ export async function GET(
       matchedActions.push(...actions);
     }
     matchedPolicyDecisions.push(...policyDecisions);
+    matchedReconciliations.push(...reconciliations);
   }
 
   matchedPolicyDecisions.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+  matchedReconciliations.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
   if (matchedEvents.length === 0 && matchedActions.length === 0) {
     return NextResponse.json(
@@ -119,6 +124,7 @@ export async function GET(
     events,
     actions: matchedActions,
     policyDecisions: matchedPolicyDecisions,
+    reconciliations: matchedReconciliations,
     artifactPaths,
   });
 }

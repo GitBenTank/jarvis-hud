@@ -71,6 +71,10 @@ export function getPolicyDecisionsFilePath(dateKey: string): string {
   return path.join(ROOT, "policy-decisions", `${dateKey}.jsonl`);
 }
 
+export function getReconciliationFilePath(dateKey: string): string {
+  return path.join(ROOT, "reconciliation", `${dateKey}.jsonl`);
+}
+
 export function getPublishQueueDir(dateKey: string): string {
   return path.join(ROOT, "publish-queue", dateKey);
 }

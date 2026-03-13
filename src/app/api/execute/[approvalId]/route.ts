@@ -28,6 +28,10 @@ import {
 } from "@/lib/code-apply";
 import { normalizeAction } from "@/lib/normalize";
 import { evaluateExecutePolicy } from "@/lib/policy";
+import {
+  reconcileSystemNote,
+  appendReconciliationLog,
+} from "@/lib/reconciliation-log";
 
 type Event = {
   id: string;
@@ -181,6 +185,16 @@ export async function POST(
         summary: normalized.summary,
         outputPath,
       });
+      const reconciliation = await reconcileSystemNote({
+        traceId,
+        expected: {
+          kind: "system.note",
+          title: normalized.title ?? "(untitled)",
+          note: normalized.note ?? "",
+        },
+        observed: { artifactPath: outputPath },
+      });
+      await appendReconciliationLog(reconciliation);
     } else if (normalized.kind === "reflection.note") {
       const p = event.payload as Record<string, unknown>;
       const sourceKind = String(p.sourceKind ?? "unknown");

@@ -28,6 +28,47 @@ This allows teams to run AI agents safely while keeping a verifiable record of w
 
 ---
 
+## Design Principles
+
+Jarvis is built around a few core principles for safe and observable automation.
+
+### 1. Agents propose, they do not execute
+
+AI agents should not perform high-impact actions directly.
+
+Instead, they **propose actions** that must pass through a control plane before execution.
+
+### 2. Humans approve critical actions
+
+Automation should remain under human authority.
+
+Jarvis introduces an **approval gate** where operators review and approve proposed actions before they execute.
+
+### 3. Every action produces a receipt
+
+Automation must be auditable.
+
+Every executed action generates a **receipt artifact** that records:
+
+- proposal details
+- approval metadata
+- execution results
+- trace identifiers
+
+### 4. All activity is traceable
+
+Automation should be observable and debuggable.
+
+Jarvis builds a **trace timeline** of activity:
+
+```
+Agent → Proposal → Approval → Execution → Receipt → Trace
+```
+
+This provides a clear audit trail for every automated action.
+
+---
+
 ## Demo
 
 ![Jarvis Demo](docs/video/jarvis-demo.gif)

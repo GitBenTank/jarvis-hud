@@ -10,7 +10,31 @@
 
 **Jarvis HUD is an AI control plane for verifiable automation.**
 
-AI agents propose actions. Humans approve them. The system executes them with receipts and traceable history.
+AI agents propose actions. Humans approve them. Jarvis executes them with receipts and a traceable timeline.
+
+---
+
+## What Jarvis Is
+
+Jarvis is a **control plane for AI-driven automation**.
+
+Instead of letting agents execute actions directly, Jarvis enforces a structured lifecycle:
+
+```
+Agent → Proposal → Approval → Execution → Receipt → Trace
+```
+
+This allows teams to run AI agents safely while keeping a verifiable record of what happened.
+
+---
+
+## Demo
+
+![Jarvis Demo](docs/video/jarvis-demo.gif)
+
+*OpenClaw proposes an action → Jarvis verifies it → a human approves it → the system executes it with a receipt and trace history.*
+
+[Recording guide](docs/video/jarvis-demo-recording.md) — 7-second flow for capturing the GIF.
 
 ---
 

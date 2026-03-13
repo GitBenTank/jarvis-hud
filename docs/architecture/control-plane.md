@@ -128,7 +128,9 @@ The control plane enforces:
 
 ## See Also
 
+- [Security Model](security-model.md) — boundaries, defense in depth
 - [Agent Execution Model](../security/agent-execution-model.md) — security constraints
+- [Security Model](security-model.md) — boundaries, defense in depth
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md) — rationale for authority boundary
 - [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md) — policy gate, kind allowlist, step-up
 - [OpenClaw Integration Verification](../openclaw-integration-verification.md) — ingress, env, troubleshooting

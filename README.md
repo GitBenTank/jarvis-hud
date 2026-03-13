@@ -203,6 +203,18 @@ For a deeper explanation of the architecture, see [docs/architecture/control-pla
 
 *Jarvis acts as a control plane between AI agents and real system actions, enforcing verification, human approval, execution boundaries, and audit logging.*
 
+### Control Plane Layers
+
+Jarvis separates AI automation into three layers:
+
+- **Agent Layer** — AI systems that propose actions (e.g. OpenClaw, future connectors)
+- **Control Plane** — Verification, approval, policy enforcement, execution orchestration
+- **Audit Layer** — Receipts and trace timeline
+
+This structure ensures automated actions remain **governed, observable, and auditable**.
+
+---
+
 Jarvis introduces a structured lifecycle for all agent actions:
 
 ```
@@ -258,6 +270,19 @@ Policy is evaluated in `POST /api/execute/[approvalId]` via `evaluateExecutePoli
 - Config-driven policy rules (e.g. per-kind `requireApproval`, `autoApprove`)
 - Risk tiers and environment restrictions
 - File-based policy definitions
+
+---
+
+## Security Model
+
+Jarvis enforces several boundaries before any action executes:
+
+- **Connector verification** — Only trusted agents (e.g. OpenClaw with valid HMAC) can propose actions.
+- **Human approval gates** — No automatic execution of high-impact changes; operators must approve.
+- **Policy checks** — Kind allowlist, auth step-up, and preflight rules run before adapters.
+- **Receipts and traces** — Every executed action produces an auditable record.
+
+Together these controls form a governance layer for AI-driven automation. See [docs/architecture/security-model.md](docs/architecture/security-model.md) and [docs/security/agent-execution-model.md](docs/security/agent-execution-model.md).
 
 ---
 
@@ -648,7 +673,8 @@ For `code.apply`: set `JARVIS_REPO_ROOT` to the git repo path. Working tree must
 
 ## Documentation
 
-- [Architecture](docs/architecture/jarvis-control-plane.md) — Control plane lifecycle, trace model, event types
+- [Architecture](docs/architecture/control-plane.md) — Control plane lifecycle, trace model, event types
+- [Security Model](docs/architecture/security-model.md) — Boundaries, defense in depth, governance layer
 - [Demo Runbook](DEMO.md) — Deterministic demo, verify, smoke, failure actions
 - [OpenClaw Integration Verification](docs/openclaw-integration-verification.md) — Ingress, env, approval, execution, receipt runbook
 - `docs/roadmap/0000-master-plan.md`

@@ -265,6 +265,8 @@ Jarvis enforces a **policy gate** at execute-time — before any adapter runs. I
 
 Policy is evaluated in `POST /api/execute/[approvalId]` via `evaluateExecutePolicy()`. See [ADR-0003](docs/decisions/0003-execution-policy-v1.md).
 
+**Policy decision logs** — Every allow/deny decision is logged to `~/jarvis/policy-decisions/YYYY-MM-DD.jsonl`. Each entry includes `traceId`, `decision`, `rule`, `reason`, and `timestamp`. This closes the explainability gap: *why* was execution allowed or blocked? See [Policy Decision Logs](docs/architecture/policy-decision-logs.md).
+
 **Planned later:**
 
 - Config-driven policy rules (e.g. per-kind `requireApproval`, `autoApprove`)
@@ -674,7 +676,10 @@ For `code.apply`: set `JARVIS_REPO_ROOT` to the git repo path. Working tree must
 ## Documentation
 
 - [Architecture](docs/architecture/control-plane.md) — Control plane lifecycle, trace model, event types
+- [Agent Trust Model](docs/architecture/agent-trust-model.md) — Agents are proposers, not actors
 - [Security Model](docs/architecture/security-model.md) — Boundaries, defense in depth, governance layer
+- [Policy Decision Logs](docs/architecture/policy-decision-logs.md) — Why execution was allowed or blocked
+- [Reconciliation Concept](docs/architecture/reconciliation-concept.md) — Desired state, observed state, and drift detection
 - [Demo Runbook](DEMO.md) — Deterministic demo, verify, smoke, failure actions
 - [OpenClaw Integration Verification](docs/openclaw-integration-verification.md) — Ingress, env, approval, execution, receipt runbook
 - `docs/roadmap/0000-master-plan.md`

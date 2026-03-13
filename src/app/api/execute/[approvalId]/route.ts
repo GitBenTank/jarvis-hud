@@ -119,13 +119,15 @@ export async function POST(
     }
 
     const normalized = normalizeAction(event.payload);
+    const traceId = event.traceId ?? event.id;
     const codeApplyBlockReasons =
       normalized.kind === "code.apply" ? getCodeApplyBlockReasons() : undefined;
-    const policyResult = evaluateExecutePolicy({
+    const policyResult = await evaluateExecutePolicy({
       kind: normalized.kind,
       authEnabled,
       stepUpValid,
       codeApplyBlockReasons,
+      traceId,
     });
     if (!policyResult.ok) {
       return NextResponse.json(
@@ -142,7 +144,6 @@ export async function POST(
 
     const executedAt = new Date().toISOString();
     const actionStatus = "executed";
-    const traceId = event.traceId ?? event.id;
     const channel = normalized.channel ?? "unknown";
 
     let artifactPath: string | null = null;

@@ -21,6 +21,7 @@ Jarvis enforces multiple boundaries so AI-driven automation remains **governed, 
 2. **Approval gate** — Human authority. Proposals queue until approved; approval ≠ execution.
 3. **Policy gate** — Execute-time enforcement. Unknown kinds blocked; step-up when auth enabled; preflight for `code.apply`.
 4. **Audit trail** — Receipts written to `~/jarvis/actions/YYYY-MM-DD.jsonl`; traces link proposal → approval → execution → receipt.
+5. **Policy decision logs** — Every policy evaluation logged to `~/jarvis/policy-decisions/YYYY-MM-DD.jsonl` with `traceId`, `decision`, `rule`, `reason`, `timestamp`. Answers: *Why was execution allowed or blocked?*
 
 ---
 
@@ -32,6 +33,7 @@ Jarvis enforces multiple boundaries so AI-driven automation remains **governed, 
 
 ## See Also
 
+- [Policy Decision Logs](policy-decision-logs.md) — why execution was allowed or blocked
 - [Agent Execution Model](../security/agent-execution-model.md) — runtime constraints, Thesis Lock
 - [Trusted Ingress](../security/trusted-ingress.md) — connector verification
 - [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md) — policy gate implementation

@@ -67,6 +67,10 @@ export function getActionsFilePath(dateKey: string): string {
   return path.join(ROOT, "actions", `${dateKey}.jsonl`);
 }
 
+export function getPolicyDecisionsFilePath(dateKey: string): string {
+  return path.join(ROOT, "policy-decisions", `${dateKey}.jsonl`);
+}
+
 export function getPublishQueueDir(dateKey: string): string {
   return path.join(ROOT, "publish-queue", dateKey);
 }

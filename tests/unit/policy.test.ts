@@ -21,8 +21,8 @@ describe("policy", () => {
   });
 
   describe("evaluateExecutePolicy", () => {
-    it("blocks unknown kind with 400", () => {
-      const result = evaluateExecutePolicy({
+    it("blocks unknown kind with 400", async () => {
+      const result = await evaluateExecutePolicy({
         kind: "gmail.send",
         authEnabled: false,
         stepUpValid: true,
@@ -35,8 +35,8 @@ describe("policy", () => {
       }
     });
 
-    it("blocks code.apply without repo root", () => {
-      const result = evaluateExecutePolicy({
+    it("blocks code.apply without repo root", async () => {
+      const result = await evaluateExecutePolicy({
         kind: "code.apply",
         authEnabled: false,
         stepUpValid: true,
@@ -53,8 +53,8 @@ describe("policy", () => {
       }
     });
 
-    it("blocks when auth enabled without step-up", () => {
-      const result = evaluateExecutePolicy({
+    it("blocks when auth enabled without step-up", async () => {
+      const result = await evaluateExecutePolicy({
         kind: "content.publish",
         authEnabled: true,
         stepUpValid: false,
@@ -66,8 +66,8 @@ describe("policy", () => {
       }
     });
 
-    it("allows when auth enabled with step-up", () => {
-      const result = evaluateExecutePolicy({
+    it("allows when auth enabled with step-up", async () => {
+      const result = await evaluateExecutePolicy({
         kind: "content.publish",
         authEnabled: true,
         stepUpValid: true,
@@ -75,8 +75,8 @@ describe("policy", () => {
       expect(result.ok).toBe(true);
     });
 
-    it("allows when auth disabled", () => {
-      const result = evaluateExecutePolicy({
+    it("allows when auth disabled", async () => {
+      const result = await evaluateExecutePolicy({
         kind: "code.diff",
         authEnabled: false,
         stepUpValid: false,
@@ -84,8 +84,8 @@ describe("policy", () => {
       expect(result.ok).toBe(true);
     });
 
-    it("allows code.apply when no block reasons", () => {
-      const result = evaluateExecutePolicy({
+    it("allows code.apply when no block reasons", async () => {
+      const result = await evaluateExecutePolicy({
         kind: "code.apply",
         authEnabled: false,
         stepUpValid: true,

@@ -76,6 +76,10 @@ For a deeper explanation of the architecture, see [docs/architecture/control-pla
 
 ## Control Plane Architecture
 
+[![Jarvis Control Plane](docs/architecture/jarvis-control-plane.svg)](docs/architecture/control-plane.md)
+
+*Jarvis acts as a control plane between AI agents and real system actions, enforcing verification, human approval, execution boundaries, and audit logging.*
+
 Jarvis introduces a structured lifecycle for all agent actions:
 
 ```

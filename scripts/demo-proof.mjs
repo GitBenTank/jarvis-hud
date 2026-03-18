@@ -66,7 +66,7 @@ async function fetchProofPath() {
 
 async function main() {
   console.log(`Demo proof loop → ${BASE}`);
-  const resetData = await reset();
+  await reset();
   console.log("1. Reset OK");
   const draft = await postDraft();
   const approvalId = draft.id;

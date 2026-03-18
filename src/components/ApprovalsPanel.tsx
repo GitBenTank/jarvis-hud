@@ -134,29 +134,6 @@ function LifecycleTimestamps({ event }: { event: Event }) {
   );
 }
 
-function getCardSummary(payload: unknown): string {
-  const n = normalizeAction(payload);
-  if (n.kind === "content.publish" && n.channel && n.title) {
-    return `${n.channel} · ${n.title}`;
-  }
-  if (n.kind === "reflection.note") {
-    return n.summary || "Reflection note";
-  }
-  if (n.kind === "system.note") {
-    return n.summary || "System note";
-  }
-  if (n.kind === "code.diff") {
-    return n.summary || "Code diff (dry-run)";
-  }
-  if (n.kind === "code.apply") {
-    return n.summary || "Code apply (git commit)";
-  }
-  if (isRecoveryClass(n.kind)) {
-    return n.summary || `Recovery: ${n.kind}`;
-  }
-  return n.summary || "(no summary)";
-}
-
 type DetailModalProps = Readonly<{
   event: Event;
   onClose: () => void;
@@ -193,8 +170,10 @@ function DetailModal({
     !needsConfirmation || (confirmCheckbox && confirmPhrase.trim() === phrase);
 
   useEffect(() => {
-    setConfirmCheckbox(false);
-    setConfirmPhrase("");
+    queueMicrotask(() => {
+      setConfirmCheckbox(false);
+      setConfirmPhrase("");
+    });
   }, [event.id]);
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
@@ -871,7 +850,7 @@ export default function ApprovalsPanel() {
   }, []);
 
   useEffect(() => {
-    fetchApprovals();
+    queueMicrotask(() => fetchApprovals());
     const id = setInterval(fetchApprovals, 5000);
     return () => clearInterval(id);
   }, [fetchApprovals]);

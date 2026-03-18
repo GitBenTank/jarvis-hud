@@ -193,8 +193,8 @@ export default function SystemStatus() {
   }, []);
 
   useEffect(() => {
-    fetchStatus();
     const id = setInterval(fetchStatus, 5000);
+    queueMicrotask(() => fetchStatus());
     return () => clearInterval(id);
   }, [fetchStatus]);
 
@@ -276,7 +276,7 @@ export default function SystemStatus() {
   const archivePaths = resetResult?.archived
     ? Object.entries(resetResult.archived)
         .filter(([, v]) => v)
-        .map(([k, v]) => v as string)
+        .map(([, v]) => v as string)
     : [];
 
   return (

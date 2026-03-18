@@ -171,7 +171,7 @@ export default function MissionStrip() {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    queueMicrotask(() => fetchData());
     const id = setInterval(fetchData, 5000);
     return () => clearInterval(id);
   }, [fetchData]);

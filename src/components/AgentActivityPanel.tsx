@@ -38,7 +38,7 @@ export default function AgentActivityPanel() {
       ...e,
       at: new Date(base + i * 1000).toISOString(),
     }));
-    setEvents(initial);
+    queueMicrotask(() => setEvents(initial));
 
     const handler = () => {
       setEvents((prev) => [

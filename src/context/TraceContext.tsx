@@ -131,7 +131,7 @@ export function TraceProvider({ children }: { children: ReactNode }) {
   }, [traceIdFromUrl]);
 
   useEffect(() => {
-    fetchTrace();
+    queueMicrotask(() => fetchTrace());
   }, [fetchTrace]);
 
   useEffect(() => {

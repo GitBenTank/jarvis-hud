@@ -11,10 +11,6 @@ type Event = {
   executed?: boolean;
 };
 
-type ApprovalsResponse = {
-  approvals: Event[];
-};
-
 type GateState = "green" | "amber" | "red";
 
 function riskTierToOrder(tier: string): number {
@@ -93,7 +89,7 @@ export default function SafetyGatePanel() {
   }, []);
 
   useEffect(() => {
-    fetchGateState();
+    queueMicrotask(() => fetchGateState());
     const id = setInterval(fetchGateState, 5000);
     return () => clearInterval(id);
   }, [fetchGateState]);

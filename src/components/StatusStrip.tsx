@@ -98,8 +98,8 @@ export default function StatusStrip() {
   }, []);
 
   useEffect(() => {
-    fetchStatus();
     const id = setInterval(fetchStatus, 5000);
+    queueMicrotask(() => fetchStatus());
     return () => clearInterval(id);
   }, [fetchStatus]);
 

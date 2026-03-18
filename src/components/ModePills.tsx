@@ -34,8 +34,8 @@ export default function ModePills({ executionMode = "DRY RUN" }: ModePillsProps)
   }, []);
 
   useEffect(() => {
-    fetchConfig();
     const id = setInterval(fetchConfig, 5000);
+    queueMicrotask(() => fetchConfig());
     return () => clearInterval(id);
   }, [fetchConfig]);
 

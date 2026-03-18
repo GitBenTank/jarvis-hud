@@ -18,8 +18,8 @@ export default function OperationsRow() {
   }, []);
 
   useEffect(() => {
-    fetchPending();
     const id = setInterval(fetchPending, 5000);
+    queueMicrotask(() => fetchPending());
     return () => clearInterval(id);
   }, [fetchPending]);
 

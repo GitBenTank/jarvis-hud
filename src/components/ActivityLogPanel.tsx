@@ -59,7 +59,7 @@ export default function ActivityLogPanel() {
   }, []);
 
   useEffect(() => {
-    fetchActions();
+    queueMicrotask(() => fetchActions());
     const id = setInterval(fetchActions, 5000);
     return () => clearInterval(id);
   }, [fetchActions]);

@@ -459,39 +459,11 @@ export default function TracePanel() {
     return actions.some((a) => a.approvalId === primaryEvent.id);
   }, [dataSource?.actions, primaryEvent]);
 
-  const traceNarrativeSummary = useMemo(() => {
-    if (!primaryEvent) return null;
-    const rejected = !!primaryEvent.rejectedAt;
-    const approved = !!primaryEvent.approvedAt || primaryEvent.status === "approved" || primaryEvent.executed;
-    const executed = primaryEvent.executed || !!primaryEvent.failedAt;
-    const policyDeny = primaryPolicy?.decision === "deny";
-
-    if (rejected) {
-      return "The proposal was rejected before execution and no action was performed.";
-    }
-    if (approved && policyDeny) {
-      return "The proposal was approved but blocked by policy evaluation.";
-    }
-    if (executed && hasReceiptForPrimary) {
-      return "The proposal was approved, passed policy checks, executed successfully, and produced a receipt.";
-    }
-    if (executed && !hasReceiptForPrimary) {
-      return "The proposal was approved and executed, but no receipt was found in the action log.";
-    }
-    if (primaryEvent.failedAt) {
-      return "The proposal was approved but execution failed.";
-    }
-    if (approved) {
-      return "The proposal was approved and is ready for execution.";
-    }
-    return "The agent proposed an action which passed ingress verification and is currently awaiting human approval.";
-  }, [primaryEvent, primaryPolicy, hasReceiptForPrimary]);
+  type StageId = "proposal" | "approval" | "policy" | "execution" | "receipt" | "reconciliation";
 
   const lifecycleSteps = useMemo(() => {
     const steps: { id: string; label: string; icon: string; iconClass: string; lines: string[]; state: "done" | "missing" | "pending" }[] = [];
     if (!primaryEvent) return steps;
-
-    const LIFECYCLE_ORDER = ["proposal", "approval", "policy", "execution", "receipt", "reconciliation"] as const;
     const agent = primaryEvent.source?.connector ?? "agent";
     const kind = primaryEvent.kind ?? "—";
     const pd = primaryPolicy;
@@ -499,7 +471,7 @@ export default function TracePanel() {
     const approved = !!primaryEvent.approvedAt || primaryEvent.status === "approved" || primaryEvent.executed;
     const rejected = !!primaryEvent.rejectedAt;
 
-    const stageDefs: { id: (typeof LIFECYCLE_ORDER)[number]; step: { id: string; label: string; icon: string; iconClass: string; lines: string[]; state: "done" | "missing" | "pending" } }[] = [];
+    const stageDefs: { id: StageId; step: { id: string; label: string; icon: string; iconClass: string; lines: string[]; state: "done" | "missing" | "pending" } }[] = [];
 
     stageDefs.push({
       id: "proposal",

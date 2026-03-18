@@ -26,7 +26,7 @@ export default function ExecutionAuthorityBanner({
 
   useEffect(() => {
     if (countProp === undefined) {
-      fetchPending();
+      queueMicrotask(() => fetchPending());
       const id = setInterval(fetchPending, 5000);
       return () => clearInterval(id);
     }

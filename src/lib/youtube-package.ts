@@ -78,7 +78,7 @@ function deriveTags(title: string, body: string): string {
 }
 
 function deriveChapters(title: string): string {
-  return `00:00 - Introduction
+  return `00:00 - ${title || "Introduction"}
 01:00 - Main Points
 02:00 - Demo
 03:00 - Conclusion

@@ -210,7 +210,7 @@ export default function ActivityGraph() {
   }, [setNodes, setEdges, mode, selectedTraceId]);
 
   useEffect(() => {
-    fetchStream();
+    queueMicrotask(() => fetchStream());
     const id = setInterval(fetchStream, 5000);
     return () => clearInterval(id);
   }, [fetchStream]);

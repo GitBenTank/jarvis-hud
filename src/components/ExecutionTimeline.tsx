@@ -30,7 +30,7 @@ function buildPipelineStages(
   const policyDenied = policy?.decision === "deny";
   const receipt = actions.find((a) => a.approvalId === primaryEvent.id);
 
-  let proposal: PipelineStage = {
+  const proposal: PipelineStage = {
     id: "proposal",
     label: "Proposal",
     status: "done",

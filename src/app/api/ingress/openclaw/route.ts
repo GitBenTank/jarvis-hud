@@ -278,7 +278,9 @@ export async function POST(request: NextRequest) {
       delete (payload as Record<string, unknown>).patch;
     }
 
-    const bodySource = body.source && typeof body.source === "object" ? body.source : {};
+    const bodySource = (body.source && typeof body.source === "object"
+      ? body.source
+      : {}) as Record<string, unknown>;
     const event: IngressEvent = {
       id,
       traceId,

@@ -41,7 +41,7 @@ export function normalizeAction(payload: unknown): {
     };
   }
 
-  if (isRecoveryClass(p.kind)) {
+  if (typeof p.kind === "string" && isRecoveryClass(p.kind)) {
     const title = String(p.title ?? "(untitled)");
     const symptom = typeof p.symptom === "string" ? p.symptom : "";
     const summary = symptom || title || `Recovery: ${p.kind}`;

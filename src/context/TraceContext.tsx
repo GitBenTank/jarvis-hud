@@ -33,6 +33,12 @@ export type TraceEvent = {
   approvedAt?: string;
   rejectedAt?: string;
   failedAt?: string;
+  recovery?: {
+    class: string;
+    symptom: string;
+    verificationCheck: string;
+    fallbackIfFailed: string;
+  };
 };
 
 export type TraceAction = {
@@ -45,6 +51,13 @@ export type TraceAction = {
   summary: string;
   outputPath?: string;
   artifactPath?: string;
+  commitHash?: string | null;
+  rollbackCommand?: string | null;
+  verificationStatus?: "pending" | "verified" | "failed";
+  statsText?: string | null;
+  statsJson?: { filesChangedCount: number; insertions: number; deletions: number } | null;
+  repoHeadBefore?: string | null;
+  repoHeadAfter?: string | null;
 };
 
 export type TracePolicyDecision = {
@@ -55,13 +68,20 @@ export type TracePolicyDecision = {
   timestamp: string;
 };
 
+export type TraceReconciliation = {
+  traceId: string;
+  status: "verified" | "drift_detected" | "not_reconcilable_yet";
+  reason: string;
+  timestamp: string;
+};
+
 export type TraceResponse = {
   traceId: string;
   dateKey: string;
   events: TraceEvent[];
   actions: TraceAction[];
   policyDecisions?: TracePolicyDecision[];
-  reconciliations?: unknown[];
+  reconciliations?: TraceReconciliation[];
   artifactPaths: string[];
 };
 

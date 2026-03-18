@@ -95,6 +95,7 @@ export async function GET(
     const ev = e as StoredEvent & {
       proposalStatus?: string;
       approvedAt?: string;
+      rejectedAt?: string;
       failedAt?: string;
     };
     const payload = e.payload as Record<string, unknown> | null;

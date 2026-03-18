@@ -1,691 +1,152 @@
 # Jarvis HUD
 
+> **Status:** Experimental — actively being developed
+
 ![Version](https://img.shields.io/badge/version-v0.1-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-alpha-blue)
 ![Node](https://img.shields.io/badge/node-20+-green)
-![Demo](https://img.shields.io/badge/demo-60%20seconds-orange)
 ![Architecture](https://img.shields.io/badge/architecture-control--plane-purple)
 ![Stack](https://img.shields.io/badge/stack-TypeScript%20%2B%20Next.js-blue)
 
-**Jarvis HUD is an AI control plane for verifiable automation.**
+Jarvis HUD is an AI control plane for governed automation.
 
-AI agents propose actions. Humans approve them. Jarvis executes them with receipts and a traceable timeline.
+Jarvis acts as a control plane between AI agents and real-world execution systems. It separates AI reasoning from execution by enforcing a structured lifecycle:
 
----
+**Agent → Proposal → Approval → Execution → Receipt → Trace**
 
-## What Jarvis Is
-
-Jarvis is a **control plane for AI-driven automation**.
-
-Instead of letting agents execute actions directly, Jarvis enforces a structured lifecycle:
-
-```
-Agent → Proposal → Verification → Approval → Policy Gate → Execution → Receipt → Trace
-```
-
-This allows teams to run AI agents safely while keeping a verifiable record of what happened.
-
----
-
-## Project Status
-
-Jarvis HUD is currently in **alpha**.
-
-**Working today:**
-- OpenClaw → Jarvis proposal flow
-- Human approval gate
-- Controlled execution
-- Receipt artifacts
-- Trace timeline
-
-**Planned next:**
-- Additional execution adapters
-- Richer trace visualization
-- Replayable traces
-
----
-
-## Design Principles
-
-Jarvis is built around a few core principles for safe and observable automation.
-
-### 1. Agents propose, they do not execute
-
-AI agents should not perform high-impact actions directly.
-
-Instead, they **propose actions** that must pass through a control plane before execution.
-
-### 2. Humans approve critical actions
-
-Automation should remain under human authority.
-
-Jarvis introduces an **approval gate** where operators review and approve proposed actions before they execute.
-
-### 3. Every action produces a receipt
-
-Automation must be auditable.
-
-Every executed action generates a **receipt artifact** that records:
-
-- proposal details
-- approval metadata
-- execution results
-- trace identifiers
-
-### 4. All activity is traceable
-
-Automation should be observable and debuggable.
-
-Jarvis builds a **trace timeline** of activity:
-
-```
-Agent → Proposal → Approval → Policy Gate → Execution → Receipt → Trace
-```
-
-This provides a clear audit trail for every automated action.
-
----
-
-## Demo
-
-![Jarvis Demo](docs/video/jarvis-demo.gif)
-
-*OpenClaw proposes an action → Jarvis verifies it → a human approves it → the system executes it with a receipt and trace history.*
-
-[Recording guide](docs/video/jarvis-demo-recording.md) — 7-second flow for capturing the GIF.
-
----
-
-## Quick Demo
-
-1. Start Jarvis HUD
-2. Start OpenClaw
-3. Send a proposal from the agent
-4. Approve the action in the UI
-5. Inspect the execution receipt
-
-Full runbook: [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md)
-
----
-
-## Feature Snapshot
-
-- **Proposal Gate** — Agents submit proposed actions instead of executing directly.
-- **Human Approval** — Operators review and approve actions in the Jarvis HUD UI.
-- **Policy Gate** — Built-in policy checks (kind allowlist, auth step-up, preflight) run before adapters execute.
-- **Controlled Execution** — Actions run through bounded execution adapters.
-- **Receipts & Artifacts** — Every execution produces a receipt and artifact record.
-- **Trace Timeline** — All activity is recorded as a traceable lifecycle.
-
-Jarvis turns AI-driven automation into a **verifiable, auditable workflow**.
-
----
-
-## Action Lifecycle
-
-Jarvis enforces a structured lifecycle for all automated actions:
-
-```
-Agent
-  ↓
-Proposal
-  ↓
-Verification
-  ↓
-Approval
-  ↓
-Policy Gate
-  ↓
-Execution
-  ↓
-Receipt
-  ↓
-Trace
-```
-
-This lifecycle ensures automation remains **observable, auditable, and human-controlled**.
-
----
-
-## Why Jarvis Exists
-
-Most AI agent frameworks follow this model:
-
-> AI decides → Action executes immediately.
-
-Jarvis replaces that with:
-
-> Agent proposes → Human approves → Controlled execution → Receipt logging → Trace timeline.
-
-This allows organizations to use AI agents **without giving them unrestricted control over systems**.
-
----
-
-## Core Idea
-
-Jarvis acts as a **control plane between AI agents and real-world actions**.
-
-It enforces:
-
-- proposal verification
-- human approval gates
-- controlled execution
-- artifact logging
-- traceable activity timelines
-
----
-
-## How Jarvis Works
-
-Jarvis sits between AI agents and real actions. Agents do not execute directly. They propose actions, Jarvis verifies and queues them, humans approve them, and the system records receipts and trace data.
-
-```mermaid
-flowchart LR
-    A[OpenClaw Agent] --> B[Proposed Action]
-    B --> C[Jarvis Ingress]
-    C --> D[Signature Verification]
-    D --> E[Approval Queue]
-    E --> F[Human Operator]
-    F --> P[Policy Gate]
-    P --> G[Controlled Execution]
-    G --> H[Receipt Artifact]
-    H --> I[Traceable Timeline]
-```
-
-For a deeper explanation of the architecture, see [docs/architecture/control-plane.md](docs/architecture/control-plane.md).
-
----
-
-## Control Plane Architecture
-
-[![Jarvis Control Plane](docs/architecture/jarvis-control-plane.svg)](docs/architecture/control-plane.md)
-
-*Jarvis acts as a control plane between AI agents and real system actions, enforcing verification, human approval, execution boundaries, and audit logging.*
-
-### Control Plane Layers
-
-Jarvis separates AI automation into three layers:
-
-- **Agent Layer** — AI systems that propose actions (e.g. OpenClaw, future connectors)
-- **Control Plane** — Verification, approval, policy enforcement, execution orchestration
-- **Audit Layer** — Receipts and trace timeline
-
-This structure ensures automated actions remain **governed, observable, and auditable**.
-
----
-
-Jarvis introduces a structured lifecycle for all agent actions:
-
-```
-Agent → Proposal → Verification → Approval → Policy Gate → Execution → Receipt → Trace
-```
-
-### 1. Proposal
-
-An agent proposes an action (e.g. `system.note` — "OpenClaw integration test"). Proposals are submitted through an **ingress connector** (e.g. OpenClaw).
-
-### 2. Verification
-
-Jarvis verifies connector identity, shared secret, and proposal structure. Invalid proposals are rejected before reaching the UI.
-
-### 3. Approval
-
-A human operator reviews the proposed action in the **Jarvis HUD UI**. Actions cannot execute without approval.
-
-### 4. Policy Gate
-
-Before any adapter runs, Jarvis evaluates built-in policy checks. See [Policy](#policy) below.
-
-### 5. Execution
-
-If policy passes, approved actions run through controlled adapters (system notes, file operations, code changes). Execution happens within a defined boundary.
-
-### 6. Receipt
-
-Every execution produces a **receipt artifact** at `~/jarvis/actions/YYYY-MM-DD.jsonl`, including trace ID, proposal data, approval timestamp, execution result, and artifact path.
-
-### 7. Trace
-
-Jarvis builds a timeline of activity (proposal received → approval recorded → execution completed). This creates an **auditable history of AI actions**.
-
-→ [Full architecture doc](docs/architecture/control-plane.md)
-
----
-
-## Policy
-
-Jarvis enforces a **policy gate** at execute-time — before any adapter runs. If policy blocks, no adapter code runs.
-
-**Today (built-in, in code):**
-
-- **Kind allowlist** — Only allowed action kinds (e.g. `system.note`, `code.apply`, `code.diff`) can execute. Unknown kinds are blocked.
-- **Auth step-up** — When auth is enabled, high-risk execution may require step-up authentication.
-- **code.apply preflight** — Requires `JARVIS_REPO_ROOT`, clean worktree, and other preflight checks before applying code.
-
-Policy is evaluated in `POST /api/execute/[approvalId]` via `evaluateExecutePolicy()`. See [ADR-0003](docs/decisions/0003-execution-policy-v1.md).
-
-**Policy decision logs** — Every allow/deny decision is logged to `~/jarvis/policy-decisions/YYYY-MM-DD.jsonl`. Each entry includes `traceId`, `decision`, `rule`, `reason`, and `timestamp`. This closes the explainability gap: *why* was execution allowed or blocked? See [Policy Decision Logs](docs/architecture/policy-decision-logs.md).
-
-**Planned later:**
-
-- Config-driven policy rules (e.g. per-kind `requireApproval`, `autoApprove`)
-- Risk tiers and environment restrictions
-- File-based policy definitions
-
----
-
-## Security Model
-
-Jarvis enforces several boundaries before any action executes:
-
-- **Connector verification** — Only trusted agents (e.g. OpenClaw with valid HMAC) can propose actions.
-- **Human approval gates** — No automatic execution of high-impact changes; operators must approve.
-- **Policy checks** — Kind allowlist, auth step-up, and preflight rules run before adapters.
-- **Receipts and traces** — Every executed action produces an auditable record.
-
-Together these controls form a governance layer for AI-driven automation. See [docs/architecture/security-model.md](docs/architecture/security-model.md) and [docs/security/agent-execution-model.md](docs/security/agent-execution-model.md).
-
----
-
-## Use Cases
-
-Jarvis is designed for environments where AI-driven automation must remain safe and auditable.
-
-Examples:
-
-- **AI development tools** that generate code changes
-- **Infrastructure automation** proposed by agents
-- **CI/CD workflows** that require approval gates
-- **Agent frameworks** that need governance and traceability
-
----
-
-## System Architecture
-
-Jarvis sits between AI agents and system execution, enforcing validation, approval, and receipt logging while emitting an event stream for observability and replay. Jarvis separates the control plane (validation, approval, event emission) from the data plane (execution workers).
-
-```mermaid
-flowchart LR
-    A[Agent] --> I[Ingress API]
-
-    subgraph Control Plane
-        I --> E[(Event Log<br/>events/*.json)]
-        E --> H[Human Approval UI]
-        H -->|approve| E
-    end
-
-    subgraph Data Plane
-        W[Execution Workers<br/>planned]
-        R[(Receipts Log<br/>actions/*.jsonl)]
-    end
-
-    E --> W
-    W --> R
-
-    subgraph Observability
-        P[Activity Stream API]
-        G[Activity Graph + Timeline]
-    end
-
-    R --> P
-    E --> P
-    P --> G
-```
-
-Execution is driven by consuming the event log, not by synchronous API handlers. The event log is append-only and keyed by `traceId`, allowing the entire execution lifecycle to be reconstructed deterministically. *Current v0.1: execute endpoint writes receipts synchronously; worker model is the architectural target.*
-
-**Control plane vs data plane:**
-
-- **Control plane** — validate, approve, emit events
-- **Data plane** — workers execute, emit receipts
-
-**Implementation references:**
-
-| Component | Path |
-|-----------|------|
-| Ingress API | `src/app/api/ingress/` |
-| Approval + Execution | `src/app/api/approvals/`, `src/app/api/execute/` |
-| Receipts | `src/lib/action-log.ts` |
-| Activity Stream | `src/app/api/activity/stream/` |
-| Activity Graph | `src/components/ActivityGraph.tsx` |
-
----
-
-## Event Model
-
-Jarvis records execution lifecycle events in the append-only event log.
-
-| Event | Meaning |
-|-------|---------|
-| `proposal_created` | Agent submitted a proposed action |
-| `proposal_validated` | Ingress validation passed |
-| `proposal_approved` | Human authorized execution |
-| `execution_started` | Execution adapter began running |
-| `execution_completed` | Adapter finished successfully |
-| `receipt_created` | Action receipt written to `{JARVIS_ROOT}/actions/*.jsonl` |
-
-Events are correlated using a shared `traceId`, allowing the complete lifecycle of an agent action to be reconstructed deterministically.
-
-*`traceId` → links proposal, approval, execution, and receipt events*
-
----
-
-## Run the Demo (60 seconds)
-
-Start the deterministic demo environment:
-
-```bash
-pnpm demo:boot
-```
-
-Verify the system is ready:
-
-```bash
-pnpm demo:verify
-```
-
-Generate a proposal:
-
-```bash
-pnpm demo:smoke
-```
-
-Then open http://127.0.0.1:3001 and http://127.0.0.1:3001/activity. Approve the proposal → execute → replay the trace.
-
-→ [Full runbook](DEMO.md)
-
-### OpenClaw Integration
-
-Jarvis currently integrates with **OpenClaw agents**.
-
-Working flow:
-
-```
-OpenClaw Agent → Jarvis ingress → Human approval → Execution → Receipt logging
-```
-
-This integration has been verified end-to-end. See [OpenClaw Integration Verification](docs/openclaw-integration-verification.md) for the full runbook and troubleshooting notes.
-
-### Demo Status
-
-The OpenClaw → Jarvis integration flow has been verified:
-
-1. Agent proposes action
-2. Jarvis receives proposal
-3. Human approves action
-4. Execution runs
-5. Receipt recorded
-
-Demo runbooks and filming notes are available in [docs/video/](docs/video/).
-
----
-
-## Key Components
-
-| Component | Purpose |
-|-----------|---------|
-| Activity Stream | Normalized event feed for the control plane |
-| Approval Layer | Human gate before execution |
-| Execution Engine | Performs approved actions |
-| Action Log | Writes receipts to `{JARVIS_ROOT}/actions/*.jsonl` |
-| Activity Graph | Visual trace reconstruction with replay |
-
----
-
-## Core Properties
-
-Jarvis enforces several guarantees for AI-driven execution:
-
-- **Human-in-the-loop** — execution requires explicit approval
-- **Traceability** — every action is tied to a `traceId`
-- **Receipts** — execution results are written to an immutable action log
-- **Replayability** — traces can be reconstructed and replayed in the Activity Graph
-- **Deterministic demo environment** — `demo:boot` / `demo:verify` / `demo:smoke`
-
----
-
-## Design Principles
-
-Jarvis HUD is designed around several architectural principles:
-
-- **Separation of proposal and execution** — agents propose actions, but execution is gated
-- **Event-first architecture** — all activity is emitted as events and can be reconstructed
-- **Receipts over logs** — executions produce structured receipts rather than unstructured logs
-- **Human authority boundary** — the control plane preserves a clear human-in-the-loop decision point
-
----
-
-## Positioning
-
-Jarvis HUD is a **Kubernetes-like control plane** for AI agent actions. Its current focus is controlled execution: validate, approve, execute, receipt.
-
-Architecturally, Jarvis borrows ideas from both Kubernetes-style control planes and Temporal-style workflow history. The v0.1–v0.3 roadmap emphasizes policy, approval, receipts, and replay for one-shot actions. Workflow semantics (retries, multi-step chains, resumable state) may emerge in later versions where they earn their place.
-
-**Decision rule for design choices:** If the core question is *"Should this action be allowed and executed?"* → lean Kubernetes. If it is *"How does this multi-step process progress over time?"* → lean Temporal. Right now Jarvis focuses on the first.
-
----
-
-## Focus (v0.x Direction)
-
-Jarvis HUD v0.x focuses on single-developer workflows on a single machine.
-
-The goal is to provide a clear, safe execution boundary between AI agents and the developer's system, where proposed actions are visible, reviewable, and auditable before execution.
-
-This approach emphasizes:
-- Local-first execution
-- Explicit human approval
-- Traceable action lifecycles
-- Deterministic replay through event logs
-
-The architecture remains remote-capable: workers are designed as consumers of the event log and can run locally or remotely. However, distributed execution, multi-tenancy, and orchestration concerns are intentionally deferred until later versions.
-
-In short:
-
-*v0.x optimizes for depth of single-developer UX, not breadth of distributed infrastructure.*
-
-**Design rule for v0.x:** Does this change make Jarvis safer, clearer, or faster for one developer using agents locally?
-
----
-
-## Why This Exists
-
-Most AI agents today can directly execute actions. Jarvis introduces governance, traceability, and receipts so that AI actions are auditable, reversible, human-controlled, and observable. This turns agent execution into a controlled system operation, not a black box.
+The goal is to make AI systems observable, auditable, and safe to operate.
 
 ---
 
 ## Overview
 
-Jarvis HUD is a local-first control plane for AI-driven workflows.
+Jarvis sits between AI agents and system execution. Agents propose actions; humans approve them; the system executes with receipts and a traceable timeline.
 
-Modern AI agents can write files, modify code, run tools, and call APIs.  
-The capability gap is not intelligence — it is control.
+Built as a Next.js + TypeScript system with API routes acting as the control plane boundary.
 
-Jarvis HUD introduces a strict execution boundary:
+### Why this matters
 
-- Agents may **propose**
-- Humans must **authorize**
-- Execution produces **deterministic artifacts**
-- Every executed action produces a **receipt**
-- Approval is never execution
-- The model is never a trusted principal
+Modern AI agents can take actions — but those actions are often opaque and ungoverned.
 
-Jarvis HUD is agent-agnostic.  
-It does not replace agents.  
-It governs what they are allowed to execute.
+Jarvis introduces a control plane that ensures every action is:
 
----
+- **proposed** before execution
+- **evaluated** by policy
+- **optionally approved** by a human
+- **fully traceable** after execution
 
-## Core Principle
-
-**Autonomy in thinking. Authority in action.**
-
-AI systems may generate plans, diffs, content, and tool requests.
-
-They cannot execute them without explicit human authorization.
-
-This preserves:
-
-- Human verification
-- Clear accountability
-- Replayable trace history
-- Policy enforcement
-- Safe delegation
+This turns AI from a black box into a governed system.
 
 ---
 
-## Execution Model
+## Core Lifecycle
 
 ```
-Agent → Proposal → Approval Queue → Execute → Receipt (Artifact + Log)
+Agent → Proposal → Approval → Execution → Receipt → Trace
 ```
 
-### Key Guarantees
-
-- Approval ≠ execution
-- No silent execution
-- Receipts required for every executed action
-- Model output is not authority
-- External APIs remain disabled unless explicitly policy-gated
-- Optional authentication + step-up for high-risk execution
-
 ---
 
-## Current Execution Adapters
-
-Jarvis HUD uses deterministic, local-first execution adapters.
-
-Implemented:
-
-- `code.diff` — Dry-run diff packaging (no code applied)
-- `code.apply` — Local git commit only; no pushing (requires `JARVIS_REPO_ROOT`)
-- `content.publish` — Local artifact creation
-- `youtube.package` — Structured YouTube bundle output
-- `system.note`
-- `reflection.note`
-
-Planned:
-
-- Replay mode for full trace playback
-- Policy v1 (risk tiers + allowlists)
-
-All adapters must:
-
-- Require approval before execution
-- Produce artifacts
-- Produce action log receipts
-- Respect Thesis Lock constraints
-
----
-
-## Storage Model
-
-Default root: `${JARVIS_ROOT}` (local filesystem)
-
-Example structure:
-
-```
-events/{date}.json
-actions/{date}.jsonl
-code-diffs/{date}/{approvalId}/
-code-applies/{date}/{approvalId}/
-publish-queue/{date}/
-youtube-packages/{date}/{approvalId}/
-```
-
-Execution produces:
-
-- Artifact bundle
-- Structured log entry
-- Deterministic output directory
-
-No external network calls occur unless explicitly enabled.
-
----
-
-## Security Model
-
-Jarvis HUD follows a Zero Trust approach:
-
-- Never trust model output
-- Always require human authorization
-- Log all executed actions
-- Separate proposal from execution
-- Gate high-risk actions behind authentication and step-up
-
-See:
-
-- `docs/security/agent-execution-model.md`
-- `docs/decisions/0001-thesis-lock.md`
-
----
-
-## Non-Goals
-
-Jarvis HUD is not:
-
-- An LLM wrapper
-- An autonomous execution engine
-- A prompt optimization tool
-- A replacement for agent frameworks
-- A general AI orchestration system
-
-It is a control plane.
-
----
-
-## Roadmap
-
-**Today:** Built-in policy (kind allowlist, step-up, preflight), OpenClaw integration, approval UI, receipt logging.
-
-**Planned next:**
-
-- **Config-driven policy engine** — Per-kind rules, file-based policy, environment restrictions
-- **Additional execution adapters** — More action kinds and bounded execution paths
-- **Trace replay** — Reconstruct and replay execution lifecycles from trace data
-- **Richer trace visualization** — Enhanced activity timeline and graph
-- **Additional agent connectors** — Beyond OpenClaw
-
----
-
-## Development
-
-Stack:
-
-- TypeScript
-- Next.js (control plane + API)
-- React (approval UI)
-- Tailwind
-- pnpm
-
-Run locally:
+## Quick Start
 
 ```bash
 pnpm install
 pnpm dev
+pnpm demo:boot
 ```
 
-Default port 3000: `http://127.0.0.1:3000`. The demo flow (`pnpm demo:boot`) uses port 3001.
+Then open http://127.0.0.1:3001. Approve the proposal → execute → inspect the receipt and trace.
 
-Auth can be enabled via environment variables.
+→ [Full demo runbook](DEMO.md) · [OpenClaw integration verification](docs/openclaw-integration-verification.md)
 
-For `code.apply`: set `JARVIS_REPO_ROOT` to the git repo path. Working tree must be clean before executing.
+---
+
+## Architecture
+
+Jarvis sits between AI agents and system execution:
+
+[![Jarvis Control Plane](docs/architecture/jarvis-control-plane.svg)](docs/architecture/control-plane.md)
+
+- **Agent Layer** — AI systems propose actions (e.g. OpenClaw via HMAC-signed ingress)
+- **Control Plane** — Verification, approval, policy enforcement, execution orchestration
+- **Audit Layer** — Receipts at `~/jarvis/actions/*.jsonl`, policy decision logs, trace timeline
+
+**Key routes:**
+
+| Stage    | Route                           | Purpose                       |
+|----------|----------------------------------|-------------------------------|
+| Ingress  | `POST /api/ingress/openclaw`     | Receive signed proposals      |
+| Approval | `GET/POST /api/approvals`         | List and approve/deny          |
+| Execution| `POST /api/execute/[approvalId]` | Policy gate → adapters        |
+| Trace    | `GET /api/traces/[traceId]`      | Reconstruct session           |
+
+→ [Control plane architecture](docs/architecture/control-plane.md)
+
+---
+
+## Features
+
+- **Policy-gated execution** — Allow/deny before any action runs
+- **Human-in-the-loop approvals** — Operators review and authorize
+- **Receipt-based execution logging** — Every execution produces an auditable record
+- **Full trace reconstruction** — Proposal → outcome, replayable
+- **Proposal gate** — Agents submit proposed actions; no direct execution
+- **Human approval** — Operators review and approve in the Jarvis HUD UI
+- **Policy gate** — Kind allowlist, auth step-up, preflight checks before adapters run
+- **Controlled execution** — Bounded adapters: `system.note`, `code.diff`, `code.apply`, `youtube.package`, recovery classes
+- **Receipts & artifacts** — Every execution produces a receipt and artifact record
+- **Trace timeline** — All activity recorded with `traceId` for audit and replay
+- **Recovery verification** — Operators mark recovery actions verified or failed (closed loop)
+
+---
+
+## Development / Demo Commands
+
+| Command              | Purpose                                   |
+|----------------------|-------------------------------------------|
+| `pnpm dev`           | Start dev server (port 3000)               |
+| `pnpm dev:port`      | Start on configured port (e.g. 3001)      |
+| `pnpm demo:boot`     | Clean boot with ingress enabled            |
+| `pnpm demo:verify`   | Pre-demo checklist (config, stream)        |
+| `pnpm demo:smoke`    | Ingress smoke + apply smoke                |
+| `pnpm ingress:smoke`| Smoke test for `system.note` ingress       |
+| `pnpm jarvis:doctor` | Preflight (ingress, secret, allowlist)     |
+| `pnpm test:unit`     | Run unit tests                             |
+
+**Environment:** Copy `env.example` to `.env.local`. For OpenClaw integration: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, `JARVIS_INGRESS_OPENCLAW_SECRET` (min 32 chars), `JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw`. See [docs/setup/env.md](docs/setup/env.md).
+
+---
+
+## Contributing
+
+Contributions are welcome. Please:
+
+1. Open an issue to discuss substantial changes
+2. Fork, branch, and open a PR with a clear description
+3. Ensure `pnpm test:unit` passes
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contributor workflow.
 
 ---
 
 ## Documentation
 
-- [Architecture](docs/architecture/control-plane.md) — Control plane lifecycle, trace model, event types
-- [Agent Trust Model](docs/architecture/agent-trust-model.md) — Agents are proposers, not actors
-- [Security Model](docs/architecture/security-model.md) — Boundaries, defense in depth, governance layer
-- [Policy Decision Logs](docs/architecture/policy-decision-logs.md) — Why execution was allowed or blocked
-- [Reconciliation Concept](docs/architecture/reconciliation-concept.md) — Desired state, observed state, and drift detection
-- [Demo Runbook](DEMO.md) — Deterministic demo, verify, smoke, failure actions
-- [OpenClaw Integration Verification](docs/openclaw-integration-verification.md) — Ingress, env, approval, execution, receipt runbook
-- `docs/roadmap/0000-master-plan.md`
-- `docs/strategy/positioning-secure-ai-code-execution.md`
-- `docs/decisions/0001-thesis-lock.md`
-- `docs/decisions/0002-money-arc-and-icp.md`
+- [Architecture](docs/architecture/control-plane.md)
+- [Security model](docs/architecture/security-model.md)
+- [Policy decision logs](docs/architecture/policy-decision-logs.md)
+- [OpenClaw integration](docs/openclaw-integration-verification.md)
+- [Demo runbook](DEMO.md)
+- [Environment variables](docs/setup/env.md)
+
+---
+
+## Author
+
+**Ben Tankersley**  
+Building systems at the intersection of AI, music, and infrastructure  
+https://ctrlstrum.com  
+
+Currently exploring AI control planes, agent systems, and governed automation.
 
 ---
 

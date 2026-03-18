@@ -38,12 +38,16 @@ type IngressEvent = {
   kind?: string;
   title?: string;
   summary?: string;
+  correlationId?: string;
   source: {
     connector: string;
     receivedAt: string;
     verified: boolean;
     nonce: string;
     timestamp: string;
+    sessionId?: string;
+    agentId?: string;
+    requestId?: string;
   };
   trustedIngress: { ok: boolean; reasons: string[] };
 };
@@ -54,7 +58,13 @@ type IngressBody = {
   summary: string;
   payload?: Record<string, unknown>;
   patch?: string;
-  source: { connector: string };
+  source: {
+    connector: string;
+    sessionId?: string;
+    agentId?: string;
+    requestId?: string;
+  };
+  correlationId?: string;
 };
 
 export async function POST(request: NextRequest) {
@@ -268,6 +278,7 @@ export async function POST(request: NextRequest) {
       delete (payload as Record<string, unknown>).patch;
     }
 
+    const bodySource = body.source && typeof body.source === "object" ? body.source : {};
     const event: IngressEvent = {
       id,
       traceId,
@@ -281,12 +292,18 @@ export async function POST(request: NextRequest) {
       kind: body.kind,
       title: body.title,
       summary: body.summary,
+      ...(typeof body.correlationId === "string" && body.correlationId.trim()
+        ? { correlationId: body.correlationId.trim() }
+        : {}),
       source: {
         connector: "openclaw",
         receivedAt,
         verified: true,
         nonce,
         timestamp,
+        ...(typeof bodySource.sessionId === "string" ? { sessionId: bodySource.sessionId } : {}),
+        ...(typeof bodySource.agentId === "string" ? { agentId: bodySource.agentId } : {}),
+        ...(typeof bodySource.requestId === "string" ? { requestId: bodySource.requestId } : {}),
       },
       trustedIngress: { ok: true, reasons: [] },
     };

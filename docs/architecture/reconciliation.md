@@ -74,6 +74,7 @@ The controller runs every 5 seconds. On startup, one pass runs immediately.
 
 ## See Also
 
+- [Controller Runtime](controller-runtime.md) — Controller loop, multi-controller architecture
 - [Reconciliation Concept](reconciliation-concept.md) — desired vs observed state
 - [Control Plane Architecture](control-plane.md) — lifecycle
 - [Agent Trust Model](agent-trust-model.md) — agents as proposers

@@ -1,3 +1,5 @@
+import { isRecoveryClass } from "./recovery-shared";
+
 export function normalizeAction(payload: unknown): {
   kind: string;
   summary: string;
@@ -7,6 +9,11 @@ export function normalizeAction(payload: unknown): {
   note?: string;
   tags?: string[];
   dryRun?: boolean;
+  symptom?: string;
+  suspectedCause?: string;
+  recoveryAction?: string;
+  verificationCheck?: string;
+  fallbackIfFailed?: string;
 } {
   if (!payload || typeof payload !== "object") {
     return { kind: "unknown", summary: "Unknown action" };
@@ -31,6 +38,21 @@ export function normalizeAction(payload: unknown): {
     return {
       kind: "reflection.note",
       summary: `Reflection: ${sourceKind} · ${sourceApprovalId.slice(0, 8)}`,
+    };
+  }
+
+  if (isRecoveryClass(p.kind)) {
+    const title = String(p.title ?? "(untitled)");
+    const symptom = typeof p.symptom === "string" ? p.symptom : "";
+    const summary = symptom || title || `Recovery: ${p.kind}`;
+    return {
+      kind: p.kind,
+      summary,
+      symptom,
+      suspectedCause: String(p.suspectedCause ?? ""),
+      recoveryAction: String(p.recoveryAction ?? ""),
+      verificationCheck: String(p.verificationCheck ?? ""),
+      fallbackIfFailed: String(p.fallbackIfFailed ?? ""),
     };
   }
 

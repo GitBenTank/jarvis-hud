@@ -4,6 +4,67 @@
 
 ---
 
+## GitHub Repo Settings
+
+**Description** (Settings → General → Description):
+
+> Jarvis HUD — An AI control plane for verifiable automation. Agents propose actions, humans approve them, and the system executes them with receipts and traceability.
+
+**Topics** (Settings → General → Topics):
+
+```
+ai-agents
+ai-governance
+automation
+control-plane
+developer-tools
+ai-safety
+openclaw
+agent-frameworks
+```
+
+**Short taglines** (for search/profile):
+
+- *A control plane for AI agents. Proposals, approvals, execution, and receipts.*
+- *GitHub-style approvals for AI agents. Propose → approve → execute → trace.*
+
+---
+
+## Pinned Repo Description (Profile)
+
+When pinning Jarvis HUD to your GitHub profile, use one of these:
+
+**Recommended:**
+> Jarvis HUD — An AI control plane for verifiable automation. Agents propose actions, humans approve them, and the system executes them with receipts and a traceable lifecycle.
+
+**Shorter:**
+> Jarvis HUD — A control plane for AI agents. Propose → approve → execute → trace.
+
+**Devtool style:**
+> Jarvis HUD — GitHub-style approvals for AI agents. Proposals, human gates, execution receipts, and traceable automation.
+
+---
+
+## Profile Headline (optional)
+
+> Building AI tools and control planes for safe automation. Creator of Jarvis HUD.
+
+Or:
+
+> Developer building AI tools, control planes, and weird experiments.
+
+---
+
+## Twitter / LinkedIn one-liner
+
+**Full:**
+> I built Jarvis HUD, a control plane for AI agents. Agents propose actions → humans approve them → the system executes them with receipts and a traceable history.
+
+**Short:**
+> Jarvis HUD: GitHub-style approvals for AI agents.
+
+---
+
 ## LinkedIn Post
 
 **Secure AI code execution — open source**

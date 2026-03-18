@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { normalizeAction } from "@/lib/normalize";
 import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
+import { isRecoveryClass } from "@/lib/recovery-shared";
 import Badge from "./Badge";
 
 export type ProposalEvent = {
@@ -105,110 +106,142 @@ function ProposalCard({
   onDeny: (id: string) => void;
 }) {
   const normalized = normalizeAction(event.payload);
+  const isRecovery = isRecoveryClass(normalized.kind);
   const traceShort = event.traceId?.slice(0, 8) ?? event.id.slice(0, 8);
+  const sourceLabel = event.source?.connector ?? event.agent;
 
-  const borderClass =
-    variant === "pending"
-      ? "border-amber-300/80 bg-amber-50/30 dark:border-amber-600/60 dark:bg-amber-950/20"
+  const isPending = variant === "pending";
+  const isApproved = variant === "approved" && !event.executed;
+
+  const borderClass = isRecovery
+    ? "border-2 border-amber-600/50 bg-amber-50/30 dark:border-amber-500/40 dark:bg-amber-950/20"
+    : isPending
+      ? "border-2 border-amber-500/70 bg-amber-50/40 dark:border-amber-400/50 dark:bg-amber-950/25 shadow-sm"
       : variant === "approved"
-        ? "border-blue-300/80 bg-blue-50/30 dark:border-blue-600/60 dark:bg-blue-950/20"
-        : "border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50";
+        ? "border border-blue-400/50 bg-blue-50/20 dark:border-blue-500/40 dark:bg-blue-950/15"
+        : "border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50";
 
   return (
-    <li
-      className={`rounded-lg border p-4 ${borderClass}`}
-    >
-      <div className="mb-3">
-        <div className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-          {event.agent}
+    <li className={`rounded-lg border ${borderClass} ${isPending ? "p-5" : "p-4"}`}>
+      {isPending && (
+        <div className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+          Authority required
         </div>
-        <div className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
-          {normalized.kind}
+      )}
+
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+          <span className="text-zinc-500 dark:text-zinc-400">
+            <span className="font-medium text-zinc-600 dark:text-zinc-500">Source:</span>{" "}
+            <span className="font-medium text-zinc-800 dark:text-zinc-200">{sourceLabel}</span>
+            {event.source?.verified && (
+              <span className="ml-1 text-emerald-600 dark:text-emerald-400">verified</span>
+            )}
+          </span>
+          <span className="text-zinc-400">|</span>
+          <span className="font-mono text-zinc-600 dark:text-zinc-400">
+            <span className="text-zinc-500 dark:text-zinc-500">Kind:</span> {normalized.kind}
+          </span>
+          {isRecovery && (
+            <span className="rounded border border-amber-600/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/50 dark:text-amber-400">
+              Recovery
+            </span>
+          )}
         </div>
-        <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
-          &quot;{getCardSummary(event.payload)}&quot;
+
+        <p className={`font-medium text-zinc-800 dark:text-zinc-200 ${isPending || isRecovery ? "text-base" : "text-sm"}`}>
+          {getCardSummary(event.payload)}
         </p>
-      </div>
-      <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-zinc-500 dark:text-zinc-400">
-          Trace:{" "}
-          <Link
-            href={`/?trace=${encodeURIComponent(event.traceId ?? event.id)}`}
-            className="font-mono text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-            title="View activity timeline"
-          >
-            {traceShort}
-          </Link>
-        </span>
-        <span className="text-zinc-400">·</span>
-        <span>
-          Status: <StatusBadge event={event} />
-        </span>
-        {variant === "executed" && event.executedAt && (
-          <>
-            <span className="text-zinc-400">·</span>
-            <span
-              className="text-zinc-500 dark:text-zinc-400"
-              title={event.executedAt}
+
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-zinc-500 dark:text-zinc-450">
+          <span>
+            Trace:{" "}
+            <Link
+              href={`/?trace=${encodeURIComponent(event.traceId ?? event.id)}`}
+              className="font-mono text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              title="View trace"
             >
-              {formatRelativeTime(event.executedAt)}
-            </span>
-          </>
-        )}
-        {event.source?.connector === "openclaw" && (
-          <>
-            <span className="rounded border border-zinc-400 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:text-zinc-500">
-              OpenClaw{event.source.verified ? " ✓" : ""}
-            </span>
-            {event.trustedIngress && (
+              {traceShort}
+            </Link>
+          </span>
+          <span className="text-zinc-400">·</span>
+          <StatusBadge event={event} />
+          {variant === "executed" && event.executedAt && (
+            <>
+              <span className="text-zinc-400">·</span>
+              <span title={event.executedAt}>{formatRelativeTime(event.executedAt)}</span>
+            </>
+          )}
+          {event.source?.connector === "openclaw" && event.trustedIngress && (
+            <>
+              <span className="text-zinc-400">·</span>
               <span
-                className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                className={
                   event.trustedIngress.ok
-                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-                    : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
-                }`}
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400"
+                }
               >
                 Ingress: {event.trustedIngress.ok ? "passed" : "failed"}
               </span>
-            )}
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => onDetails(event)}
-          className="rounded border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
-        >
-          Details
-        </button>
-        {variant === "pending" && (
+
+      <div
+        className={`mt-4 flex flex-wrap items-center gap-2 ${isPending ? "border-t border-amber-400/30 pt-4 dark:border-amber-500/20" : "mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700"}`}
+      >
+        {isPending && (
           <>
             <button
+              onClick={() => onApprove(event.id)}
+              className="rounded border-2 border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-700"
+            >
+              Approve
+            </button>
+            <button
               onClick={() => onDeny(event.id)}
-              className="rounded border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+              className="rounded border-2 border-red-400/80 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-500/60 dark:text-red-400 dark:hover:bg-red-950/30"
             >
               Reject
             </button>
             <button
-              onClick={() => onApprove(event.id)}
-              className="rounded bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700"
+              onClick={() => onDetails(event)}
+              className="rounded border border-zinc-400 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
-              Approve
+              Details
             </button>
           </>
         )}
-        {variant === "approved" && !event.executed && (
-          <button
-            onClick={() => onDetails(event)}
-            className="rounded border border-blue-300 px-3 py-1.5 text-sm dark:border-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50"
-          >
-            Details / Execute (dry run)
-          </button>
+        {isApproved && (
+          <>
+            <button
+              onClick={() => onDetails(event)}
+              className="rounded border-2 border-blue-500 bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700"
+            >
+              Execute
+            </button>
+            <button
+              onClick={() => onDetails(event)}
+              className="rounded border border-zinc-400 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            >
+              Details
+            </button>
+          </>
         )}
         {variant === "executed" && (
           <button
             onClick={() => onDetails(event)}
-            className="rounded border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+            className="rounded border border-zinc-400 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          >
+            Details
+          </button>
+        )}
+        {variant === "approved" && event.executed && (
+          <button
+            onClick={() => onDetails(event)}
+            className="rounded border border-zinc-400 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
           >
             Details
           </button>
@@ -278,10 +311,10 @@ export default function AgentProposalsFeed({
 
       {pendingApprovals.length > 0 && (
         <>
-          <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
             The agent may propose. Execution authority originates with a human.
           </p>
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {pendingApprovals.map((event) => (
               <ProposalCard
                 key={event.id}

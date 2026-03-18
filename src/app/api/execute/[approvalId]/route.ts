@@ -32,6 +32,7 @@ import {
   reconcileSystemNote,
   appendReconciliationLog,
 } from "@/lib/reconciliation-log";
+import { writeRecoveryRunbook, isRecoveryClass } from "@/lib/recovery";
 
 type Event = {
   id: string;
@@ -214,6 +215,30 @@ export async function POST(
         traceId,
         at: executedAt,
         kind: "reflection.note",
+        approvalId,
+        status: actionStatus,
+        summary: normalized.summary,
+        outputPath,
+      });
+    } else if (isRecoveryClass(normalized.kind)) {
+      outputPath = await writeRecoveryRunbook({
+        approvalId,
+        dateKey,
+        title: normalized.title ?? "(untitled)",
+        recoveryClass: normalized.kind,
+        symptom: normalized.symptom ?? "",
+        suspectedCause: normalized.suspectedCause ?? "",
+        recoveryAction: normalized.recoveryAction ?? "",
+        verificationCheck: normalized.verificationCheck ?? "",
+        fallbackIfFailed: normalized.fallbackIfFailed ?? "",
+        createdAt: executedAt,
+      });
+      executionKind = normalized.kind;
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        traceId,
+        at: executedAt,
+        kind: normalized.kind,
         approvalId,
         status: actionStatus,
         summary: normalized.summary,

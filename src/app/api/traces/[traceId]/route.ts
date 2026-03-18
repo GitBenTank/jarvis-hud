@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 import { readJson, getEventsFilePath, getDateKey } from "@/lib/storage";
 import { readActionLogByTraceId, type ActionLogEntry } from "@/lib/action-log";
+import { readRecoveryVerifications } from "@/lib/recovery-verification";
+import { isRecoveryClass } from "@/lib/recovery-shared";
 import { readPolicyDecisionsByTraceId, type PolicyDecisionEntry } from "@/lib/policy-decision-log";
 import { readReconciliationByTraceId, type ReconciliationEntry } from "@/lib/reconciliation-log";
 import { normalizeAction } from "@/lib/normalize";
@@ -18,7 +20,14 @@ type StoredEvent = {
   createdAt: string;
   executed?: boolean;
   executedAt?: string;
-  source?: { connector: string; verified?: boolean };
+  source?: {
+    connector: string;
+    verified?: boolean;
+    sessionId?: string;
+    agentId?: string;
+    requestId?: string;
+  };
+  correlationId?: string;
 };
 
 function toDateKey(offsetDays: number): string {
@@ -86,9 +95,29 @@ export async function GET(
     const ev = e as StoredEvent & {
       proposalStatus?: string;
       approvedAt?: string;
-      rejectedAt?: string;
       failedAt?: string;
     };
+    const payload = e.payload as Record<string, unknown> | null;
+    const proposedAt =
+      payload && typeof payload.proposedAt === "string" ? payload.proposedAt : undefined;
+
+    const n = normalized as { kind: string; symptom?: string; verificationCheck?: string; fallbackIfFailed?: string };
+    const recovery =
+      n.kind.startsWith("recovery.") && payload
+        ? {
+            class: n.kind,
+            symptom: typeof n.symptom === "string" ? n.symptom : String(payload.symptom ?? ""),
+            verificationCheck:
+              typeof n.verificationCheck === "string"
+                ? n.verificationCheck
+                : String(payload.verificationCheck ?? ""),
+            fallbackIfFailed:
+              typeof n.fallbackIfFailed === "string"
+                ? n.fallbackIfFailed
+                : String(payload.fallbackIfFailed ?? ""),
+          }
+        : undefined;
+
     return {
       id: e.id,
       traceId: e.traceId ?? e.id,
@@ -100,10 +129,13 @@ export async function GET(
       summary: normalized.summary,
       title: normalized.title,
       source: e.source ?? undefined,
+      correlationId: (e as { correlationId?: string }).correlationId ?? undefined,
+      proposedAt,
       proposalStatus: ev.proposalStatus,
       approvedAt: ev.approvedAt,
       rejectedAt: ev.rejectedAt,
       failedAt: ev.failedAt,
+      recovery,
     };
   });
 
@@ -118,11 +150,21 @@ export async function GET(
     )
   );
 
+  const verifications = await readRecoveryVerifications();
+  const actionsWithVerification = matchedActions.map((a) => {
+    const out = { ...a };
+    if (isRecoveryClass(a.kind)) {
+      const v = verifications[a.approvalId];
+      (out as { verificationStatus?: string }).verificationStatus = v?.status ?? "pending";
+    }
+    return out;
+  });
+
   return NextResponse.json({
     traceId: tid,
     dateKey: foundDateKey ?? getDateKey(),
     events,
-    actions: matchedActions,
+    actions: actionsWithVerification,
     policyDecisions: matchedPolicyDecisions,
     reconciliations: matchedReconciliations,
     artifactPaths,

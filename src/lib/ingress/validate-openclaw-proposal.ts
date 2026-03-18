@@ -21,6 +21,7 @@ const ALLOWED_TOP_LEVEL_KEYS = new Set([
   "patch",
   "source",
   "confidence",
+  "correlationId",
 ]);
 
 const BINARY_PATCH_MARKERS = ["GIT binary patch", "literal "];
@@ -140,6 +141,27 @@ export function validateOpenClawProposal(input: {
     };
   }
 
+  if (o.correlationId !== undefined && typeof o.correlationId !== "string") {
+    return {
+      ok: false,
+      code: "bad_request",
+      message: "correlationId must be a string when provided",
+      field: "correlationId",
+    };
+  }
+
+  for (const k of ["sessionId", "agentId", "requestId"]) {
+    const v = srcObj[k];
+    if (v !== undefined && typeof v !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `source.${k} must be a string when provided`,
+        field: `source.${k}`,
+      };
+    }
+  }
+
   if (o.markdown !== undefined && typeof o.markdown === "string") {
     if (o.markdown.length > 20_000) {
       return {
@@ -252,6 +274,34 @@ export function validateOpenClawProposal(input: {
         message: "confidence must be a number 0–1",
         field: "confidence",
       };
+    }
+  }
+
+  if (
+    kind.startsWith("recovery.") &&
+    allowedKinds.includes(kind)
+  ) {
+    const payload =
+      o.payload && typeof o.payload === "object"
+        ? (o.payload as Record<string, unknown>)
+        : {};
+    const required = [
+      "symptom",
+      "suspectedCause",
+      "recoveryAction",
+      "verificationCheck",
+      "fallbackIfFailed",
+    ] as const;
+    for (const field of required) {
+      const v = payload[field];
+      if (typeof v !== "string" || v.trim().length === 0) {
+        return {
+          ok: false,
+          code: "bad_request",
+          message: `recovery kind requires payload.${field} (non-empty string)`,
+          field: `payload.${field}`,
+        };
+      }
     }
   }
 

@@ -13,6 +13,10 @@ export const ALLOWED_KINDS = [
   "code.diff",
   "code.apply",
   "youtube.package",
+  "recovery.heartbeat.restart",
+  "recovery.approvals.cleanup",
+  "recovery.connector.resync",
+  "recovery.monitor.verify",
 ] as const;
 
 export type AllowedKind = (typeof ALLOWED_KINDS)[number];

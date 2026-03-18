@@ -23,6 +23,7 @@ const ALLOWLISTED_TOP_LEVEL_KEYS = new Set([
   "patch",
   "markdown",
   "confidence",
+  "correlationId",
 ]);
 
 export function validateRawBodySize(rawBody: string): ValidationError | null {

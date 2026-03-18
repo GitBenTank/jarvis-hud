@@ -18,6 +18,25 @@ Today Jarvis includes:
 
 Jarvis may evolve toward a multi-controller architecture with focused responsibilities.
 
+```
+Controllers
+────────────
+
+Proposal Controller
+        │
+        ▼
+Approval Controller
+        │
+        ▼
+Execution Controller
+        │
+        ▼
+Reconciliation Controller
+        │
+        ▼
+Trace Assembly Controller
+```
+
 Possible controllers:
 
 - **Execution Controller** — runs approved work and writes receipts

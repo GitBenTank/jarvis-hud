@@ -1,230 +1,205 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useMemo } from "react";
+import { useTraceContext } from "@/context/TraceContext";
+import type { TraceAction, TraceEvent, TracePolicyDecision } from "@/context/TraceContext";
 
-type TimelineEntry = {
+type StageStatus = "pending" | "active" | "done" | "blocked";
+
+type PipelineStage = {
   id: string;
-  at: string;
   label: string;
-  status: "llm" | "agent" | "jarvis" | "approval" | "executed";
+  status: StageStatus;
+  at?: string;
+  detail?: string;
 };
 
-function formatTime(ts: string): string {
-  try {
-    return new Date(ts).toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-  } catch {
-    return ts;
+const STAGE_ORDER = ["proposal", "approval", "policy", "execution", "receipt"] as const;
+
+function buildPipelineStages(
+  events: TraceEvent[],
+  policyDecisions: TracePolicyDecision[] | undefined,
+  actions: TraceAction[]
+): PipelineStage[] {
+  const primaryEvent = events[0];
+  if (!primaryEvent) return [];
+
+  const agent = primaryEvent.source?.connector ?? "agent";
+  const policy = (policyDecisions ?? []).at(-1);
+  const policyDenied = policy?.decision === "deny";
+  const receipt = actions.find((a) => a.approvalId === primaryEvent.id);
+
+  let proposal: PipelineStage = {
+    id: "proposal",
+    label: "Proposal",
+    status: "done",
+    at: primaryEvent.createdAt,
+    detail: `${agent} · ${primaryEvent.kind}`,
+  };
+
+  let approval: PipelineStage;
+  if (primaryEvent.rejectedAt) {
+    approval = { id: "approval", label: "Approval", status: "blocked", at: primaryEvent.rejectedAt, detail: "Rejected" };
+  } else if (primaryEvent.approvedAt || primaryEvent.executed) {
+    approval = {
+      id: "approval",
+      label: "Approval",
+      status: "done",
+      at: primaryEvent.approvedAt ?? primaryEvent.createdAt,
+      detail: "Approved",
+    };
+  } else {
+    approval = { id: "approval", label: "Approval", status: "active", detail: "Awaiting" };
   }
+
+  let policyStage: PipelineStage;
+  if (policy) {
+    policyStage = {
+      id: "policy",
+      label: "Policy",
+      status: policyDenied ? "blocked" : "done",
+      at: policy.timestamp,
+      detail: policy.decision,
+    };
+  } else if (primaryEvent.approvedAt && !primaryEvent.rejectedAt) {
+    policyStage = { id: "policy", label: "Policy", status: "active", detail: "On execute" };
+  } else {
+    policyStage = { id: "policy", label: "Policy", status: "pending", detail: "—" };
+  }
+
+  let execution: PipelineStage;
+  if (policyDenied) {
+    execution = { id: "execution", label: "Execution", status: "pending", detail: "—" };
+  } else if (primaryEvent.failedAt) {
+    execution = { id: "execution", label: "Execution", status: "blocked", at: primaryEvent.failedAt, detail: "Failed" };
+  } else if (primaryEvent.executed) {
+    execution = {
+      id: "execution",
+      label: "Execution",
+      status: "done",
+      at: primaryEvent.executedAt ?? receipt?.at,
+      detail: receipt?.kind ?? "done",
+    };
+  } else if (primaryEvent.approvedAt) {
+    execution = { id: "execution", label: "Execution", status: "active", detail: "Ready" };
+  } else {
+    execution = { id: "execution", label: "Execution", status: "pending", detail: "—" };
+  }
+
+  let receiptStage: PipelineStage;
+  if (receipt) {
+    receiptStage = {
+      id: "receipt",
+      label: "Receipt",
+      status: "done",
+      at: receipt.at,
+      detail: receipt.outputPath?.split("/").slice(-2).join("/") ?? receipt.kind,
+    };
+  } else if (primaryEvent.executed) {
+    receiptStage = { id: "receipt", label: "Receipt", status: "pending", detail: "Writing" };
+  } else {
+    receiptStage = { id: "receipt", label: "Receipt", status: "pending", detail: "—" };
+  }
+
+  return [proposal, approval, policyStage, execution, receiptStage];
 }
 
-const STATUS_DOT: Record<string, string> = {
-  llm: "bg-sky-500",
-  agent: "bg-amber-500",
-  jarvis: "bg-emerald-500",
-  approval: "bg-blue-500",
-  executed: "bg-purple-500",
+function pendingStages(): PipelineStage[] {
+  return STAGE_ORDER.map((id) => ({
+    id,
+    label: id.charAt(0).toUpperCase() + id.slice(1),
+    status: "pending" as StageStatus,
+    detail: "—",
+  }));
+}
+
+const BLOCK_STYLES: Record<StageStatus, string> = {
+  done: "border-emerald-600/50 bg-emerald-950/20 text-emerald-300 dark:border-emerald-500/50 dark:bg-emerald-950/10 dark:text-emerald-400",
+  active: "border-amber-600/50 bg-amber-950/20 text-amber-300 dark:border-amber-500/50 dark:bg-amber-950/10 dark:text-amber-400",
+  blocked: "border-red-600/50 bg-red-950/20 text-red-300 dark:border-red-500/50 dark:bg-red-950/10 dark:text-red-400",
+  pending: "border-zinc-600/50 bg-zinc-900/30 text-zinc-500 dark:border-zinc-600/50 dark:bg-zinc-800/50 dark:text-zinc-500",
 };
 
-type ApprovalLike = {
-  id: string;
-  traceId?: string;
-  createdAt: string;
-  status: string;
-  executed?: boolean;
-  executedAt?: string;
-};
-
-type ActionLike = {
-  approvalId: string;
-  at: string;
-};
+function StageBlock({ stage }: { stage: PipelineStage }) {
+  const style = BLOCK_STYLES[stage.status];
+  return (
+    <div
+      className={`flex min-w-0 flex-col rounded border px-2 py-1.5 ${style}`}
+      aria-label={`${stage.label}: ${stage.status}`}
+    >
+      <span className="text-[10px] font-medium uppercase tracking-wider opacity-90">{stage.label}</span>
+      {stage.detail && stage.detail !== "—" && (
+        <span className="mt-0.5 truncate text-[10px] opacity-80" title={stage.detail}>
+          {stage.detail}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export default function ExecutionTimeline() {
-  const [entries, setEntries] = useState<TimelineEntry[]>([]);
+  const { traceIdFromUrl, traceData, loading } = useTraceContext();
 
-  const buildTimeline = useCallback(
-    (
-      pending: ApprovalLike[],
-      approved: ApprovalLike[],
-      actions: ActionLike[]
-    ): TimelineEntry[] => {
-      const all = [...pending, ...approved];
-      const latest = all.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )[0];
+  const stages = useMemo(() => {
+    if (!traceData?.events?.length) return [];
+    return buildPipelineStages(
+      traceData.events,
+      traceData.policyDecisions,
+      traceData.actions ?? []
+    );
+  }, [traceData]);
 
-      if (!latest) {
-        const base = Date.now() - 60000;
-        return [
-          {
-            id: "1",
-            at: new Date(base).toISOString(),
-            label: "LLM decides action",
-            status: "llm",
-          },
-          {
-            id: "2",
-            at: new Date(base + 1000).toISOString(),
-            label: "OpenClaw proposes",
-            status: "agent",
-          },
-          {
-            id: "3",
-            at: new Date(base + 2000).toISOString(),
-            label: "Jarvis verifies signature",
-            status: "jarvis",
-          },
-          {
-            id: "4",
-            at: new Date(base + 3000).toISOString(),
-            label: "Awaiting approval",
-            status: "approval",
-          },
-        ];
-      }
+  const emptyStages = useMemo(() => pendingStages(), []);
 
-      const created = new Date(latest.createdAt).getTime();
-      const execAction = actions.find((a) => a.approvalId === latest.id);
-      const executedAt = latest.executedAt ?? execAction?.at;
+  const containerClass =
+    "rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900";
 
-      const lines: TimelineEntry[] = [
-        {
-          id: "1",
-          at: latest.createdAt,
-          label: "LLM decides action",
-          status: "llm",
-        },
-        {
-          id: "2",
-          at: latest.createdAt,
-          label: "OpenClaw proposes",
-          status: "agent",
-        },
-        {
-          id: "3",
-          at: latest.createdAt,
-          label: "Jarvis verifies signature",
-          status: "jarvis",
-        },
-        {
-          id: "4",
-          at: latest.createdAt,
-          label: "Awaiting approval",
-          status: "approval",
-        },
-      ];
+  if (loading) {
+    return (
+      <div className={containerClass}>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading pipeline…</p>
+      </div>
+    );
+  }
 
-      if (latest.status === "approved") {
-        lines.push({
-          id: "5",
-          at: new Date(created + 5000).toISOString(),
-          label: "Human approved",
-          status: "approval",
-        });
-      }
-      if (latest.executed && executedAt) {
-        lines.push({
-          id: "6",
-          at: executedAt,
-          label: "Executed",
-          status: "executed",
-        });
-      }
+  if (!traceIdFromUrl || !traceData) {
+    return (
+      <div className={containerClass}>
+        <div className="mb-2 flex flex-wrap gap-2">
+          {emptyStages.map((s) => (
+            <StageBlock key={s.id} stage={s} />
+          ))}
+        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-500">
+          Load a trace to see pipeline state. Click a trace link from{" "}
+          <Link href="/activity" className="underline hover:text-zinc-700 dark:hover:text-zinc-300">
+            Activity
+          </Link>{" "}
+          or a proposal.
+        </p>
+      </div>
+    );
+  }
 
-      return lines;
-    },
-    []
-  );
-
-  const fetchData = useCallback(async () => {
-    try {
-      const [pendingRes, approvedRes, actionsRes] = await Promise.all([
-        fetch("/api/approvals?status=pending"),
-        fetch("/api/approvals?status=approved"),
-        fetch("/api/actions"),
-      ]);
-      const pending = (await pendingRes.json()).approvals ?? [];
-      const approved = (await approvedRes.json()).approvals ?? [];
-      const actions = (await actionsRes.json()).actions ?? [];
-      setEntries(buildTimeline(pending, approved, actions));
-    } catch {
-      const base = Date.now() - 60000;
-      setEntries([
-        {
-          id: "1",
-          at: new Date(base).toISOString(),
-          label: "LLM decides action",
-          status: "llm",
-        },
-        {
-          id: "2",
-          at: new Date(base + 1000).toISOString(),
-          label: "OpenClaw proposes",
-          status: "agent",
-        },
-        {
-          id: "3",
-          at: new Date(base + 2000).toISOString(),
-          label: "Jarvis verifies signature",
-          status: "jarvis",
-        },
-        {
-          id: "4",
-          at: new Date(base + 3000).toISOString(),
-          label: "Awaiting approval",
-          status: "approval",
-        },
-      ]);
-    }
-  }, [buildTimeline]);
-
-  useEffect(() => {
-    fetchData();
-    const id = setInterval(fetchData, 5000);
-    return () => clearInterval(id);
-  }, [fetchData]);
-
-  useEffect(() => {
-    const handler = () => fetchData();
-    window.addEventListener("jarvis-refresh", handler);
-    return () => window.removeEventListener("jarvis-refresh", handler);
-  }, [fetchData]);
+  if (stages.length === 0) {
+    return (
+      <div className={containerClass}>
+        <div className="mb-2 flex flex-wrap gap-2">
+          {emptyStages.map((s) => (
+            <StageBlock key={s.id} stage={s} />
+          ))}
+        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-500">No stages for this trace.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-      <h2 className="mb-3 text-lg font-semibold">Execution Timeline</h2>
-      <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
-        AI proposes → Human approves → Jarvis executes
-      </p>
-      <div className="relative">
-        {entries.map((e, i) => (
-          <div key={`${e.id}-${i}`} className="relative flex gap-3">
-            <div className="flex w-4 shrink-0 flex-col items-center">
-              <div
-                className={`mt-2 h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[e.status] ?? "bg-zinc-400"}`}
-              />
-              {i < entries.length - 1 && (
-                <div
-                  className="mt-0.5 min-h-[1.5rem] w-px flex-1 bg-zinc-300 dark:bg-zinc-600"
-                  aria-hidden
-                />
-              )}
-            </div>
-            <div className="min-w-0 flex-1 pb-4">
-              <span className="tabular-nums text-xs text-zinc-500 dark:text-zinc-400">
-                {formatTime(e.at)}
-              </span>
-              <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300">
-                {e.label}
-              </span>
-            </div>
-          </div>
+    <div className={containerClass}>
+      <div className="flex flex-wrap items-stretch gap-2">
+        {stages.map((s) => (
+          <StageBlock key={s.id} stage={s} />
         ))}
       </div>
     </div>

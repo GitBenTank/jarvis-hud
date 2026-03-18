@@ -7,6 +7,7 @@ import {
   requiresIrreversibleConfirmation,
   getConfirmationPhrase,
 } from "@/lib/risk";
+import { isRecoveryClass } from "@/lib/recovery-shared";
 import AgentProposalsFeed from "./AgentProposalsFeed";
 import Badge from "./Badge";
 
@@ -31,7 +32,11 @@ type Event = {
     receivedAt?: string;
     nonce?: string;
     timestamp?: string;
+    sessionId?: string;
+    agentId?: string;
+    requestId?: string;
   };
+  correlationId?: string;
   trustedIngress?: { ok: boolean; reasons?: string[] };
 };
 
@@ -146,6 +151,9 @@ function getCardSummary(payload: unknown): string {
   if (n.kind === "code.apply") {
     return n.summary || "Code apply (git commit)";
   }
+  if (isRecoveryClass(n.kind)) {
+    return n.summary || `Recovery: ${n.kind}`;
+  }
   return n.summary || "(no summary)";
 }
 
@@ -193,8 +201,10 @@ function DetailModal({
   const isSystemNote = normalized.kind === "system.note";
   const isCodeDiff = normalized.kind === "code.diff";
   const isCodeApply = normalized.kind === "code.apply";
+  const isRecovery = isRecoveryClass(normalized.kind);
   const isYouTube = isPublish && normalized.channel === "youtube";
-  const isExecutable = isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply;
+  const isExecutable =
+    isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply || isRecovery;
   const blockedForEvent = executeError?.approvalId === event.id;
   const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
 
@@ -261,7 +271,33 @@ function DetailModal({
           <LifecycleTimestamps event={event} />
         </dl>
 
-        {(isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply) && (
+        {/* Request metadata — correlationId, source metadata (detailed view only) */}
+        {(event.correlationId ||
+          event.source?.sessionId ||
+          event.source?.agentId ||
+          event.source?.requestId) && (
+          <div className="mt-3 rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs dark:border-zinc-700 dark:bg-zinc-800">
+            <div className="font-medium text-zinc-600 dark:text-zinc-400">Request metadata</div>
+            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-zinc-600 dark:text-zinc-400">
+              {event.correlationId && (
+                <span>
+                  correlationId: <code className="font-mono">{event.correlationId}</code>
+                </span>
+              )}
+              {event.source?.sessionId && (
+                <span>sessionId: <code className="font-mono">{event.source.sessionId}</code></span>
+              )}
+              {event.source?.agentId && (
+                <span>agentId: <code className="font-mono">{event.source.agentId}</code></span>
+              )}
+              {event.source?.requestId && (
+                <span>requestId: <code className="font-mono">{event.source.requestId}</code></span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {(isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply || isRecovery) && (
           <div className="mt-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-800 dark:bg-blue-900/30">
             <h3 className="font-medium">What happens if you approve?</h3>
             <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
@@ -269,20 +305,24 @@ function DetailModal({
                 <strong>Approve</strong> = changes status only (no posting)
               </li>
               <li>
-                {isReflection ? (
+                {isRecovery ? (
+                  <strong>Execute (runbook)</strong>
+                ) : isReflection ? (
                   <strong>Execute</strong>
                 ) : isCodeApply ? (
                   <strong>Execute (git commit)</strong>
                 ) : (
                   <strong>Execute (dry run)</strong>
                 )}{" "}
-                = {isReflection
-                  ? "writes reflection files + action log receipt"
-                  : isCodeApply
-                    ? "modifies working tree + creates local git commit + receipts (no pushing)"
-                    : isCodeDiff
-                      ? "writes local diff bundle + action log receipt, no changes applied"
-                      : "writes artifact to publish-queue + action log, still no posting"}
+                = {isRecovery
+                  ? "writes recovery runbook artifact + action log receipt (no autonomous remediation)"
+                  : isReflection
+                    ? "writes reflection files + action log receipt"
+                    : isCodeApply
+                      ? "modifies working tree + creates local git commit + receipts (no pushing)"
+                      : isCodeDiff
+                        ? "writes local diff bundle + action log receipt, no changes applied"
+                        : "writes artifact to publish-queue + action log, still no posting"}
               </li>
             </ul>
             {isCodeApply && (
@@ -392,6 +432,37 @@ function DetailModal({
               Source: {String((event.payload as Record<string, unknown>)?.sourceKind ?? "unknown")} ·{" "}
               {String((event.payload as Record<string, unknown>)?.sourceApprovalId ?? "")}
             </p>
+          </div>
+        ) : isRecovery ? (
+          <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+            <h3 className="mb-2 flex items-center gap-2 font-medium">
+              Recovery runbook
+              <span className="rounded border border-zinc-400 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                {normalized.kind}
+              </span>
+            </h3>
+            <dl className="space-y-2 text-sm">
+              <div>
+                <dt className="font-medium text-zinc-500">Symptom</dt>
+                <dd className="text-zinc-800 dark:text-zinc-200">{normalized.symptom || "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-zinc-500">Suspected cause</dt>
+                <dd className="text-zinc-800 dark:text-zinc-200">{normalized.suspectedCause || "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-zinc-500">Recovery action</dt>
+                <dd className="text-zinc-800 dark:text-zinc-200">{normalized.recoveryAction || "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-zinc-500">Verification check</dt>
+                <dd className="text-zinc-800 dark:text-zinc-200">{normalized.verificationCheck || "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-zinc-500">Fallback if failed</dt>
+                <dd className="text-zinc-800 dark:text-zinc-200">{normalized.fallbackIfFailed || "—"}</dd>
+              </div>
+            </dl>
           </div>
         ) : normalized.kind === "unknown" ? (
           <div className="mt-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-900/30">
@@ -589,6 +660,19 @@ function DetailModal({
                 </div>
               </>
             )}
+            {isRecovery && (
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  Recovery runbook written. No autonomous remediation. Follow the runbook manually.
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Runbook path:</span>{" "}
+                    <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
+                </div>
+              </>
+            )}
             {executeResult.kind === "youtube.package" && (
               <>
                 <p className="mt-2 text-zinc-600 dark:text-zinc-400">
@@ -666,9 +750,11 @@ function DetailModal({
                     }}
                     className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
                   >
-                    {executeResult.outputPath
-                      ? "Open package in Finder"
-                      : "Open artifact in Finder"}
+                    {isRecovery
+                      ? "Open runbook in Finder"
+                      : executeResult.outputPath
+                        ? "Open package in Finder"
+                        : "Open artifact in Finder"}
                   </button>
                   <button
                     type="button"

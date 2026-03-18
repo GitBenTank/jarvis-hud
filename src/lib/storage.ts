@@ -111,6 +111,27 @@ export function getSystemNoteManifestPath(dateKey: string, approvalId: string): 
   return path.join(getSystemNoteDir(dateKey), `${approvalId}.json`);
 }
 
+export function getRecoveryRunbookDir(dateKey: string): string {
+  return path.join(ROOT, "recovery-runbooks", dateKey);
+}
+
+export function getRecoveryRunbookFilePath(dateKey: string, approvalId: string): string {
+  return path.join(getRecoveryRunbookDir(dateKey), `${approvalId}.md`);
+}
+
+export function getRecoveryRunbookManifestPath(dateKey: string, approvalId: string): string {
+  return path.join(getRecoveryRunbookDir(dateKey), `${approvalId}.json`);
+}
+
+/** Recovery verification status — approvalId → { status, markedAt }. Single file across dates. */
+export function getRecoveryVerificationsPath(): string {
+  return path.join(ROOT, "recovery-verifications.json");
+}
+
+export function getAlfredOrchestratorLogPath(): string {
+  return path.join(ROOT, "logs", "alfred_orchestrator.jsonl");
+}
+
 export function getDateKey(): string {
   const now = new Date();
   const y = now.getFullYear();

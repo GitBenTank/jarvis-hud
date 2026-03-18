@@ -109,7 +109,7 @@ Jarvis sits between AI agents and system execution:
 | `pnpm demo:boot`     | Clean boot with ingress enabled            |
 | `pnpm demo:verify`   | Pre-demo checklist (config, stream)        |
 | `pnpm demo:smoke`    | Ingress smoke + apply smoke                |
-| `pnpm ingress:smoke`| Smoke test for `system.note` ingress       |
+| `pnpm ingress:smoke` | Smoke test for `system.note` ingress       |
 | `pnpm jarvis:doctor` | Preflight (ingress, secret, allowlist)     |
 | `pnpm test:unit`     | Run unit tests                             |
 

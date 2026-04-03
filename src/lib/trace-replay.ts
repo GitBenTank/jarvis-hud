@@ -1,6 +1,17 @@
 /**
  * Trace Replay — reconstruct a trace from stored logs.
  * Enables forensic debugging: rebuild proposal → approval → policy → execution → receipt → reconciliation from disk.
+ *
+ * **Replay contract (deterministic ordering):**
+ * - `proposal` — earliest matching ingress event (proposal envelope). Tie-break uses
+ *   `executedAt ?? approvedAt ?? createdAt` ascending (see `proposalEvent` below).
+ * - `approval` — lifecycle fields from that same event.
+ * - `receipts` — full action-log timeline sorted by `at` (oldest → newest).
+ * - `execution` — summary derived from the **latest** receipt by `at` (strongest execution outcome).
+ * - `policyDecisions` / `reconciliation` — sorted by `timestamp` ascending.
+ *
+ * **Limitation:** only the last 7 calendar days of date buckets are scanned. Older traces
+ * return null from assembly even if artifacts still exist on disk.
  */
 
 import { readJson, getEventsFilePath } from "./storage";
@@ -52,7 +63,7 @@ type StoredEvent = {
 
 /**
  * Assemble a trace replay from action, policy, and reconciliation logs plus events.
- * Searches recent date buckets (7 days), merges by traceId, sorts by timestamp.
+ * Scans the last 7 date buckets, merges by traceId, applies the replay contract above.
  */
 export async function assembleTraceReplay(traceId: string): Promise<TraceReplayResult | null> {
   const tid = traceId.trim();
@@ -87,52 +98,55 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
     return null;
   }
 
-  const primary = events.sort(
+  receipts.sort((a, b) => a.at.localeCompare(b.at));
+  const latestReceipt = receipts.at(-1) ?? null;
+
+  /** Earliest proposal envelope by composite time (not “latest state”). */
+  const proposalEvent = [...events].sort(
     (a, b) =>
       (a.executedAt ?? a.approvedAt ?? a.createdAt ?? "").localeCompare(
         b.executedAt ?? b.approvedAt ?? b.createdAt ?? ""
       )
   )[0];
 
-  const normalized = primary ? normalizeAction(primary.payload) : null;
-  const primaryPayload = primary?.payload as Record<string, unknown> | undefined;
+  const normalized = proposalEvent ? normalizeAction(proposalEvent.payload) : null;
+  const proposalPayload = proposalEvent?.payload as Record<string, unknown> | undefined;
   const proposedAt =
-    primaryPayload && typeof primaryPayload.proposedAt === "string"
-      ? primaryPayload.proposedAt
+    proposalPayload && typeof proposalPayload.proposedAt === "string"
+      ? proposalPayload.proposedAt
       : undefined;
-  const proposal = primary
+  const proposal = proposalEvent
     ? {
-        id: primary.id,
+        id: proposalEvent.id,
         kind: normalized?.kind ?? "unknown",
         summary: normalized?.summary ?? "",
         title: normalized?.title,
-        createdAt: primary.createdAt,
-        source: primary.source,
-        correlationId: primary.correlationId ?? undefined,
+        createdAt: proposalEvent.createdAt,
+        source: proposalEvent.source,
+        correlationId: proposalEvent.correlationId ?? undefined,
         ...(proposedAt ? { proposedAt } : {}),
       }
     : null;
 
-  const approval = primary
+  const approval = proposalEvent
     ? {
-        status: primary.status,
-        approvedAt: primary.approvedAt ?? null,
-        rejectedAt: primary.rejectedAt ?? null,
-        failedAt: primary.failedAt ?? null,
-        executed: primary.executed ?? false,
-        executedAt: primary.executedAt ?? null,
+        status: proposalEvent.status,
+        approvedAt: proposalEvent.approvedAt ?? null,
+        rejectedAt: proposalEvent.rejectedAt ?? null,
+        failedAt: proposalEvent.failedAt ?? null,
+        executed: proposalEvent.executed ?? false,
+        executedAt: proposalEvent.executedAt ?? null,
       }
     : null;
 
-  const execution =
-    receipts.length > 0
-      ? {
-          kind: receipts[0].kind,
-          at: receipts[0].at,
-          status: receipts[0].status,
-          approvalId: receipts[0].approvalId,
-        }
-      : null;
+  const execution = latestReceipt
+    ? {
+        kind: latestReceipt.kind,
+        at: latestReceipt.at,
+        status: latestReceipt.status,
+        approvalId: latestReceipt.approvalId,
+      }
+    : null;
 
   return {
     traceId: tid,

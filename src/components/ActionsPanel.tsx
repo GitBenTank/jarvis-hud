@@ -64,10 +64,26 @@ export default function ActionsPanel() {
     return "executed";
   };
 
-  const outcomeTone = (outcome: "executed" | "blocked" | "failed"): string => {
-    if (outcome === "executed") return "text-emerald-600 dark:text-emerald-400";
-    if (outcome === "blocked") return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
+  const outcomeBadge = (outcome: "executed" | "blocked" | "failed"): { label: string; className: string } => {
+    if (outcome === "executed") {
+      return {
+        label: "EXECUTED",
+        className:
+          "border-emerald-600/60 bg-emerald-100/80 text-emerald-800 dark:border-emerald-500/50 dark:bg-emerald-950/40 dark:text-emerald-400",
+      };
+    }
+    if (outcome === "blocked") {
+      return {
+        label: "BLOCKED",
+        className:
+          "border-amber-600/60 bg-amber-100/80 text-amber-800 dark:border-amber-500/50 dark:bg-amber-950/40 dark:text-amber-400",
+      };
+    }
+    return {
+      label: "FAILED",
+      className:
+        "border-red-600/60 bg-red-100/80 text-red-800 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-400",
+    };
   };
 
   const recoveryVerificationClass = (status: "pending" | "verified" | "failed"): string => {
@@ -136,6 +152,7 @@ export default function ActionsPanel() {
             const runbookPath = action.outputPath ?? action.artifactPath ?? null;
             const vStatus = action.verificationStatus ?? "pending";
             const outcome = outcomeFor(action);
+            const outcomeView = outcomeBadge(outcome);
             const reason = outcome === "executed" ? null : reasonFromMessage(action.summary ?? action.status);
             return (
               <li
@@ -148,6 +165,9 @@ export default function ActionsPanel() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${outcomeView.className}`}>
+                      {outcomeView.label}
+                    </span>
                     {isRecovery && (
                       <span className="rounded border border-amber-600/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/50 dark:text-amber-400">
                         Recovery
@@ -170,26 +190,36 @@ export default function ActionsPanel() {
                   <p className="mt-1 text-xs text-zinc-400">
                     {action.at} · {action.status}
                   </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                    <span className={`font-medium uppercase ${outcomeTone(outcome)}`}>{outcome}</span>
-                    {action.traceId && (
-                      <Link
-                        href={`/?trace=${encodeURIComponent(action.traceId)}`}
-                        className="font-mono text-zinc-500 underline hover:text-zinc-300"
-                      >
-                        trace {action.traceId.slice(0, 8)}…
-                      </Link>
-                    )}
-                  </div>
                   {reason && (
                     <div className="mt-1 rounded border border-amber-300/50 bg-amber-50/40 px-2 py-1 text-xs dark:border-amber-600/40 dark:bg-amber-950/20">
                       <p className="font-medium text-amber-700 dark:text-amber-400">{reason.label}</p>
                       <p className="text-zinc-600 dark:text-zinc-400">{reason.summary}</p>
                     </div>
                   )}
+                  <div className="mt-2">
+                    <p className="text-[10px] uppercase tracking-wider text-zinc-500">Evidence</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                      {action.traceId && (
+                        <Link
+                          href={`/?trace=${encodeURIComponent(action.traceId)}`}
+                          className="rounded border border-zinc-300 px-2 py-0.5 font-medium hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                        >
+                          Open trace
+                        </Link>
+                      )}
+                      {(action.outputPath || action.artifactPath) && (
+                        <span className="rounded border border-zinc-300 px-2 py-0.5 text-zinc-600 dark:border-zinc-600 dark:text-zinc-300">
+                          Artifact
+                        </span>
+                      )}
+                      <span className="rounded border border-zinc-300 px-2 py-0.5 text-zinc-600 dark:border-zinc-600 dark:text-zinc-300">
+                        Log
+                      </span>
+                    </div>
+                  </div>
                   {(action.outputPath || action.artifactPath) && (
                     <div className="mt-2">
-                      <p className="text-[10px] uppercase tracking-wider text-zinc-500">Evidence</p>
+                      <p className="text-[10px] uppercase tracking-wider text-zinc-500">Artifact path</p>
                       <div className="mt-1 flex flex-wrap items-center gap-2">
                         <code className="max-w-full truncate rounded bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800">
                           {action.outputPath ?? action.artifactPath}
@@ -216,6 +246,15 @@ export default function ActionsPanel() {
                         <span className="font-medium text-zinc-500">Rollback:</span>{" "}
                         <code>{action.rollbackCommand ?? "—"}</code>
                       </p>
+                      {action.rollbackCommand && (
+                        <button
+                          type="button"
+                          onClick={() => navigator.clipboard.writeText(action.rollbackCommand ?? "")}
+                          className="mt-1 rounded border border-zinc-300 px-2 py-0.5 text-[10px] hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                        >
+                          Copy rollback
+                        </button>
+                      )}
                     </div>
                   )}
                   {isRecovery && (

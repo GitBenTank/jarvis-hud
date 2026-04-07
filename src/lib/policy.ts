@@ -39,11 +39,18 @@ export type ExecutePolicyResult =
   | { ok: true }
   | { ok: false; status: 400 | 403; reasons: string[]; reasonDetails: ReasonDetail[] };
 
+export type PreflightPolicyResult = {
+  willBlock: boolean;
+  reasons: string[];
+  reasonDetails: ReasonDetail[];
+  notes: string[];
+};
+
 function reasonToSlug(reason: string): string {
   if (reason.toLowerCase().includes("dirty") || reason.includes("DIRTY_WORKTREE")) return "dirty_worktree";
   if (reason.toLowerCase().includes("jarvis_repo_root") || reason.toLowerCase().includes("repo root")) return "repo_root_required";
   if (reason.toLowerCase().includes("step-up") || reason.toLowerCase().includes("re-authenticate")) return "reauthenticate_required";
-  if (reason.toLowerCase().includes("allowlist") || reason.toLowerCase().includes("allowlist")) return "adapter_not_permitted";
+  if (reason.toLowerCase().includes("allowlist")) return "adapter_not_permitted";
   return "policy_denied";
 }
 
@@ -128,4 +135,44 @@ export async function evaluateExecutePolicy(
     });
   }
   return { ok: true };
+}
+
+/**
+ * Read-only preview of execute policy. No logs, no mutations.
+ */
+export function evaluatePreflightPolicy(
+  config: ExecutePolicyConfig
+): PreflightPolicyResult {
+  const reasons: string[] = [];
+  const reasonDetails: ReasonDetail[] = [];
+  const notes: string[] = [];
+
+  if (!isAllowedKind(config.kind)) {
+    reasons.push(
+      `Kind "${config.kind}" is not in the execution allowlist. Allowed: ${ALLOWED_KINDS.join(", ")}.`
+    );
+    reasonDetails.push(reasonFromPolicyReason("adapter_not_permitted"));
+  }
+
+  if (config.authEnabled && !config.stepUpValid) {
+    reasons.push("Step-up required to execute. Re-authenticate before execution.");
+    reasonDetails.push(reasonFromPolicyReason("reauthenticate_required"));
+  }
+
+  if (config.kind === "code.apply" && config.codeApplyBlockReasons?.length) {
+    reasons.push(...config.codeApplyBlockReasons);
+    reasonDetails.push(...config.codeApplyBlockReasons.map((r) => reasonFromMessage(r)));
+  }
+
+  if (config.kind === "code.apply" && !(config.codeApplyBlockReasons?.length)) {
+    notes.push("Local git commit will be created if patch applies cleanly.");
+  }
+  notes.push("Preflight is simulation only. No execution is performed.");
+
+  return {
+    willBlock: reasons.length > 0,
+    reasons,
+    reasonDetails,
+    notes,
+  };
 }

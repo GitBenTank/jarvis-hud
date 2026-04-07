@@ -70,6 +70,19 @@ type ExecuteError = {
   stepUpRequired?: boolean;
 };
 
+type PreflightData = {
+  kind: string;
+  status: "ready" | "will_block";
+  riskLevel: "low" | "medium" | "high";
+  expectedOutputs: string[];
+  preflight: {
+    willBlock: boolean;
+    reasons: string[];
+    reasonDetails: ReasonDetail[];
+    notes: string[];
+  };
+};
+
 function getYoutubeTagCount(payload: unknown): number | null {
   const p = payload as Record<string, unknown>;
   const yt = p?.youtube as Record<string, unknown> | undefined;
@@ -162,6 +175,8 @@ function DetailModal({
   irreversibleConfirmEnabled,
 }: DetailModalProps) {
   const normalized = normalizeAction(event.payload);
+  const [preflight, setPreflight] = useState<PreflightData | null>(null);
+  const [preflightLoading, setPreflightLoading] = useState(false);
   const needsConfirmation =
     irreversibleConfirmEnabled &&
     requiresIrreversibleConfirmation(normalized.kind);
@@ -177,6 +192,31 @@ function DetailModal({
       setConfirmPhrase("");
     });
   }, [event.id]);
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      setPreflightLoading(true);
+      try {
+        const res = await fetch("/api/preflight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ kind: normalized.kind }),
+        });
+        const json = await res.json();
+        if (!cancelled && res.ok) setPreflight(json as PreflightData);
+        if (!cancelled && !res.ok) setPreflight(null);
+      } catch {
+        if (!cancelled) setPreflight(null);
+      } finally {
+        if (!cancelled) setPreflightLoading(false);
+      }
+    };
+    queueMicrotask(run);
+    return () => {
+      cancelled = true;
+    };
+  }, [normalized.kind]);
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
   const isSystemNote = normalized.kind === "system.note";
@@ -322,6 +362,55 @@ function DetailModal({
             )}
           </div>
         )}
+
+        <div className="mt-4 rounded border border-zinc-300 bg-zinc-50 p-3 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+          <h3 className="font-medium">Preflight Analysis</h3>
+          {preflightLoading && (
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Running preflight…</p>
+          )}
+          {!preflightLoading && preflight && (
+            <div className="mt-2 space-y-2">
+              <p className="text-xs">
+                Execution readiness:{" "}
+                <span
+                  className={`rounded px-2 py-0.5 font-semibold uppercase tracking-wider ${
+                    preflight.status === "ready"
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                      : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                  }`}
+                >
+                  {preflight.status === "ready" ? "READY" : "WILL BLOCK"}
+                </span>
+              </p>
+              <p className="text-xs">
+                Risk level:{" "}
+                <span className="font-medium uppercase">
+                  {preflight.riskLevel}
+                </span>
+              </p>
+              {preflight.preflight.reasonDetails.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-zinc-500">Potential blocks</p>
+                  <ul className="mt-1 list-inside list-disc text-xs text-zinc-700 dark:text-zinc-300">
+                    {preflight.preflight.reasonDetails.map((d) => (
+                      <li key={d.code}>
+                        {d.label}: {d.summary}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div>
+                <p className="text-xs font-medium text-zinc-500">Expected output</p>
+                <ul className="mt-1 list-inside list-disc text-xs text-zinc-700 dark:text-zinc-300">
+                  {preflight.expectedOutputs.map((o) => (
+                    <li key={o}>{o}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
 
         {(isCodeDiff || isCodeApply) ? (
           (() => {

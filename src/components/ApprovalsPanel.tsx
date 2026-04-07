@@ -83,6 +83,16 @@ type PreflightData = {
   };
 };
 
+function riskChipClass(level: "low" | "medium" | "high"): string {
+  if (level === "high") {
+    return "border-red-600/60 bg-red-100/80 text-red-800 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300";
+  }
+  if (level === "medium") {
+    return "border-amber-600/60 bg-amber-100/80 text-amber-800 dark:border-amber-500/50 dark:bg-amber-950/40 dark:text-amber-300";
+  }
+  return "border-emerald-600/60 bg-emerald-100/80 text-emerald-800 dark:border-emerald-500/50 dark:bg-emerald-950/40 dark:text-emerald-300";
+}
+
 function getYoutubeTagCount(payload: unknown): number | null {
   const p = payload as Record<string, unknown>;
   const yt = p?.youtube as Record<string, unknown> | undefined;
@@ -370,27 +380,36 @@ function DetailModal({
           )}
           {!preflightLoading && preflight && (
             <div className="mt-2 space-y-2">
-              <p className="text-xs">
-                Execution readiness:{" "}
-                <span
-                  className={`rounded px-2 py-0.5 font-semibold uppercase tracking-wider ${
-                    preflight.status === "ready"
-                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-                      : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-                  }`}
-                >
-                  {preflight.status === "ready" ? "READY" : "WILL BLOCK"}
-                </span>
-              </p>
-              <p className="text-xs">
-                Risk level:{" "}
-                <span className="font-medium uppercase">
-                  {preflight.riskLevel}
-                </span>
-              </p>
-              {preflight.preflight.reasonDetails.length > 0 && (
-                <div>
-                  <p className="text-xs font-medium text-zinc-500">Potential blocks</p>
+              <div
+                className={`rounded border px-3 py-2 ${
+                  preflight.status === "ready"
+                    ? "border-emerald-500/50 bg-emerald-50/70 dark:border-emerald-500/40 dark:bg-emerald-950/20"
+                    : "border-amber-500/50 bg-amber-50/70 dark:border-amber-500/40 dark:bg-amber-950/20"
+                }`}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-wider text-zinc-500">Execution readiness</span>
+                  <span
+                    className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                      preflight.status === "ready"
+                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                        : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                    }`}
+                  >
+                    {preflight.status === "ready" ? "READY" : "WILL BLOCK"}
+                  </span>
+                </div>
+                {preflight.status === "will_block" && preflight.preflight.reasonDetails[0] && (
+                  <p className="mt-1 text-xs text-zinc-700 dark:text-zinc-300">
+                    {preflight.preflight.reasonDetails[0].label}:{" "}
+                    {preflight.preflight.reasonDetails[0].summary}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-zinc-500">Execution Readiness</p>
+                {preflight.preflight.reasonDetails.length > 0 ? (
                   <ul className="mt-1 list-inside list-disc text-xs text-zinc-700 dark:text-zinc-300">
                     {preflight.preflight.reasonDetails.map((d) => (
                       <li key={d.code}>
@@ -398,15 +417,34 @@ function DetailModal({
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
+                ) : (
+                  <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+                    No blockers predicted.
+                  </p>
+                )}
+              </div>
+
               <div>
-                <p className="text-xs font-medium text-zinc-500">Expected output</p>
-                <ul className="mt-1 list-inside list-disc text-xs text-zinc-700 dark:text-zinc-300">
-                  {preflight.expectedOutputs.map((o) => (
-                    <li key={o}>{o}</li>
-                  ))}
-                </ul>
+                <p className="text-xs font-medium text-zinc-500">Operational Impact</p>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-zinc-500">Risk</span>
+                  <span className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${riskChipClass(preflight.riskLevel)}`}>
+                    {preflight.riskLevel}
+                  </span>
+                </div>
+                <div>
+                  <p className="mt-2 text-xs font-medium text-zinc-500">Expected outputs</p>
+                  <ul className="mt-1 list-inside list-disc text-xs text-zinc-700 dark:text-zinc-300">
+                    {preflight.expectedOutputs.map((o) => (
+                      <li key={o}>{o}</li>
+                    ))}
+                  </ul>
+                </div>
+                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  {isCodeApply
+                    ? "Includes local commit metadata and rollback command when commit is created."
+                    : "Execution writes artifact and receipt log entry only."}
+                </p>
               </div>
             </div>
           )}

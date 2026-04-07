@@ -12,6 +12,7 @@ type StatusData = {
   lastExecutionAt: string | null;
   agentLastSeen: string | null;
   latestDecisionSummary: string;
+  latestBlockReason: string | null;
 };
 
 type ResetResult = {
@@ -177,6 +178,7 @@ export default function SystemStatus() {
         executedCount: number;
         agentLastSeen: string | null;
         latestDecisionSummary: string;
+        latestBlockReason: string | null;
       };
 
       if (configData.authEnabled) {
@@ -201,6 +203,7 @@ export default function SystemStatus() {
         lastExecutionAt: posture.lastExecutionAt,
         agentLastSeen: posture.agentLastSeen,
         latestDecisionSummary: posture.latestDecisionSummary,
+        latestBlockReason: posture.latestBlockReason,
       });
       setLastRefreshedAt(Date.now());
     } catch {
@@ -381,6 +384,10 @@ export default function SystemStatus() {
               <div title={data.latestDecisionSummary}>
                 <span className="font-medium text-zinc-500">Latest decision:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.latestDecisionSummary}</span>
+              </div>
+              <div>
+                <span className="font-medium text-zinc-500">Latest block:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">{data.latestBlockReason ?? "—"}</span>
               </div>
             </div>
           </div>

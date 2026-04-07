@@ -7,6 +7,7 @@ import {
   getActionsFilePath,
   getPublishQueueDir,
 } from "./storage";
+import type { ReasonDetail } from "./reason-taxonomy";
 
 /**
  * Action log entry — receipt metadata only.
@@ -32,6 +33,7 @@ export type ActionLogEntry = {
   statsJson?: { filesChangedCount: number; insertions: number; deletions: number } | null;
   repoHeadBefore?: string | null;
   repoHeadAfter?: string | null;
+  reasonDetails?: ReasonDetail[];
 };
 
 export async function appendActionLog(entry: ActionLogEntry): Promise<void> {

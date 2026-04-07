@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 type ActionEntry = {
@@ -95,6 +96,17 @@ export default function ActivityLogPanel() {
                 <span className="font-medium">{action.kind}</span>
                 <span>·</span>
                 <span>{action.status}</span>
+                {action.traceId && (
+                  <>
+                    <span>·</span>
+                    <Link
+                      href={`/?trace=${encodeURIComponent(action.traceId)}`}
+                      className="font-mono underline hover:text-zinc-300"
+                    >
+                      {action.traceId.slice(0, 8)}…
+                    </Link>
+                  </>
+                )}
               </div>
               {action.summary && (
                 <p className="mt-1.5 text-zinc-700 dark:text-zinc-300">{action.summary}</p>

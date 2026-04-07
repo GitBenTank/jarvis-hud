@@ -8,6 +8,7 @@ import { isRecoveryClass } from "@/lib/recovery-shared";
 import { readPolicyDecisionsByTraceId, type PolicyDecisionEntry } from "@/lib/policy-decision-log";
 import { readReconciliationByTraceId, type ReconciliationEntry } from "@/lib/reconciliation-log";
 import { normalizeAction } from "@/lib/normalize";
+import { getReasonDetail, reasonFromPolicyReason, type ReasonDetail } from "@/lib/reason-taxonomy";
 
 type StoredEvent = {
   id: string;
@@ -29,6 +30,189 @@ type StoredEvent = {
   };
   correlationId?: string;
 };
+
+type PipelineStageId =
+  | "proposal"
+  | "approval"
+  | "policy"
+  | "execution"
+  | "receipt"
+  | "reconciliation";
+
+type PipelineStageStatus = "done" | "active" | "pending" | "blocked";
+
+type PipelineStage = {
+  id: PipelineStageId;
+  label: string;
+  status: PipelineStageStatus;
+  timestamp?: string;
+  summary: string;
+  evidence: string[];
+  reason?: ReasonDetail;
+};
+
+function buildPipelineSummary(args: {
+  events: Array<{
+    id: string;
+    kind: string;
+    createdAt: string;
+    approvedAt?: string;
+    rejectedAt?: string;
+    executedAt?: string;
+    executed?: boolean;
+    failedAt?: string;
+    source?: { connector: string };
+  }>;
+  actions: ActionLogEntry[];
+  policyDecisions: PolicyDecisionEntry[];
+  reconciliations: ReconciliationEntry[];
+}): { stages: PipelineStage[]; currentStage: PipelineStageId; blockedReason?: string } {
+  const event = args.events[0];
+  const action = args.actions[0];
+  const policy = args.policyDecisions.at(-1);
+  const reconciliation = args.reconciliations.at(-1);
+
+  if (!event) {
+    return {
+      stages: [],
+      currentStage: "proposal",
+    };
+  }
+
+  const policyDenied = policy?.decision === "deny";
+  const wasRejected = !!event.rejectedAt;
+  const executionFailed = !!event.failedAt;
+  const executed = !!event.executed;
+  const hasReceipt = !!action;
+
+  const stages: PipelineStage[] = [
+    {
+      id: "proposal",
+      label: "Proposal",
+      status: "done",
+      timestamp: event.createdAt,
+      summary: `${event.source?.connector ?? "agent"} proposed ${event.kind}`,
+      evidence: [`event:${event.id}`],
+    },
+    {
+      id: "approval",
+      label: "Approval",
+      status: wasRejected ? "blocked" : event.approvedAt ? "done" : "active",
+      timestamp: event.approvedAt ?? event.rejectedAt,
+      summary: wasRejected
+        ? "Rejected by human"
+        : event.approvedAt
+          ? "Approved by human"
+          : "Awaiting human approval",
+      evidence: [
+        ...(event.approvedAt ? ["approvedAt"] : []),
+        ...(event.rejectedAt ? ["rejectedAt"] : []),
+      ],
+      ...(wasRejected ? { reason: getReasonDetail("APPROVAL_REQUIRED") } : {}),
+    },
+    {
+      id: "policy",
+      label: "Policy",
+      status: policy
+        ? policyDenied
+          ? "blocked"
+          : "done"
+        : event.approvedAt
+          ? "active"
+          : "pending",
+      timestamp: policy?.timestamp,
+      summary: policy
+        ? `${policy.decision.toUpperCase()} · ${policy.rule}`
+        : event.approvedAt
+          ? "Policy checks run on execute"
+          : "Pending approval",
+      evidence: policy ? [`policy:${policy.rule}:${policy.reason}`] : [],
+      ...(policyDenied && policy ? { reason: reasonFromPolicyReason(policy.reason) } : {}),
+    },
+    {
+      id: "execution",
+      label: "Execution",
+      status: policyDenied
+        ? "blocked"
+        : executionFailed
+          ? "blocked"
+          : executed
+            ? "done"
+            : event.approvedAt
+              ? "active"
+              : "pending",
+      timestamp: event.executedAt ?? event.failedAt,
+      summary: policyDenied
+        ? "Blocked by policy"
+        : executionFailed
+          ? "Execution failed"
+          : executed
+            ? "Execution completed"
+            : event.approvedAt
+              ? "Ready to execute"
+              : "Pending approval",
+      evidence: [
+        ...(event.executedAt ? ["executedAt"] : []),
+        ...(event.failedAt ? ["failedAt"] : []),
+      ],
+      ...(executionFailed ? { reason: getReasonDetail("POLICY_DENIED") } : {}),
+    },
+    {
+      id: "receipt",
+      label: "Receipt",
+      status: hasReceipt ? "done" : executed ? "active" : "pending",
+      timestamp: action?.at,
+      summary: hasReceipt
+        ? `Receipt written (${action.kind})`
+        : executed
+          ? "Execution done; receipt pending"
+          : "Awaiting execution",
+      evidence: hasReceipt
+        ? [
+            ...(action.outputPath ? [action.outputPath] : []),
+            ...(action.artifactPath ? [action.artifactPath] : []),
+          ]
+        : [],
+    },
+    {
+      id: "reconciliation",
+      label: "Reconciliation",
+      status: reconciliation
+        ? reconciliation.status === "verified"
+          ? "done"
+          : reconciliation.status === "drift_detected"
+            ? "blocked"
+            : "active"
+        : executed
+          ? "active"
+          : "pending",
+      timestamp: reconciliation?.timestamp,
+      summary: reconciliation
+        ? `${reconciliation.status}: ${reconciliation.reason}`
+        : executed
+          ? "Awaiting reconciliation"
+          : "Not started",
+      evidence: reconciliation ? [reconciliation.reason] : [],
+    },
+  ];
+
+  const currentStage =
+    stages.find((s) => s.status === "active")?.id ??
+    (stages.find((s) => s.status === "blocked")?.id ?? "reconciliation");
+
+  const blockedReason =
+    wasRejected
+      ? "approval_rejected"
+      : policyDenied
+        ? policy?.reason
+        : executionFailed
+          ? "execution_failed"
+          : reconciliation?.status === "drift_detected"
+            ? reconciliation.reason
+            : undefined;
+
+  return { stages, currentStage, blockedReason };
+}
 
 function toDateKey(offsetDays: number): string {
   const d = new Date();
@@ -162,6 +346,13 @@ export async function GET(
     return out;
   });
 
+  const pipeline = buildPipelineSummary({
+    events,
+    actions: actionsWithVerification,
+    policyDecisions: matchedPolicyDecisions,
+    reconciliations: matchedReconciliations,
+  });
+
   return NextResponse.json({
     traceId: tid,
     dateKey: foundDateKey ?? getDateKey(),
@@ -170,5 +361,6 @@ export async function GET(
     policyDecisions: matchedPolicyDecisions,
     reconciliations: matchedReconciliations,
     artifactPaths,
+    pipeline,
   });
 }

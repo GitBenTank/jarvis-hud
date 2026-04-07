@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useSearchParams } from "next/navigation";
+import type { ReasonDetail } from "@/lib/reason-taxonomy";
 
 export type TraceEvent = {
   id: string;
@@ -75,6 +76,22 @@ export type TraceReconciliation = {
   timestamp: string;
 };
 
+export type TracePipelineStage = {
+  id: "proposal" | "approval" | "policy" | "execution" | "receipt" | "reconciliation";
+  label: string;
+  status: "done" | "active" | "pending" | "blocked";
+  timestamp?: string;
+  summary: string;
+  evidence: string[];
+  reason?: ReasonDetail;
+};
+
+export type TracePipeline = {
+  stages: TracePipelineStage[];
+  currentStage: TracePipelineStage["id"];
+  blockedReason?: string;
+};
+
 export type TraceResponse = {
   traceId: string;
   dateKey: string;
@@ -83,9 +100,12 @@ export type TraceResponse = {
   policyDecisions?: TracePolicyDecision[];
   reconciliations?: TraceReconciliation[];
   artifactPaths: string[];
+  pipeline?: TracePipeline;
 };
 
 type TraceContextValue = {
+  activeTraceId: string | null;
+  setActiveTraceId: (traceId: string | null) => void;
   traceIdFromUrl: string | null;
   traceData: TraceResponse | null;
   loading: boolean;
@@ -98,13 +118,14 @@ const TraceContext = createContext<TraceContextValue | null>(null);
 export function TraceProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const traceIdFromUrl = searchParams.get("trace")?.trim() ?? null;
+  const [activeTraceId, setActiveTraceId] = useState<string | null>(null);
 
   const [traceData, setTraceData] = useState<TraceResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchTrace = useCallback(async () => {
-    const tid = traceIdFromUrl;
+    const tid = activeTraceId ?? traceIdFromUrl;
     if (!tid) {
       setTraceData(null);
       setError(null);
@@ -128,6 +149,14 @@ export function TraceProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
+  }, [activeTraceId, traceIdFromUrl]);
+
+  useEffect(() => {
+    if (traceIdFromUrl) {
+      setActiveTraceId(traceIdFromUrl);
+    } else {
+      setActiveTraceId(null);
+    }
   }, [traceIdFromUrl]);
 
   useEffect(() => {
@@ -141,6 +170,8 @@ export function TraceProvider({ children }: { children: ReactNode }) {
   }, [fetchTrace]);
 
   const value: TraceContextValue = {
+    activeTraceId,
+    setActiveTraceId,
     traceIdFromUrl,
     traceData,
     loading,
@@ -157,6 +188,8 @@ export function useTraceContext(): TraceContextValue {
   const ctx = useContext(TraceContext);
   if (!ctx) {
     return {
+      activeTraceId: null,
+      setActiveTraceId: () => {},
       traceIdFromUrl: null,
       traceData: null,
       loading: false,

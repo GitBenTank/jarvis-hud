@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { isRecoveryClass } from "@/lib/recovery-shared";
+import { reasonFromMessage } from "@/lib/reason-taxonomy";
 import Badge from "./Badge";
 
 type ActionEntry = {
@@ -147,6 +148,11 @@ export default function ActionsPanel() {
                   <p className="mt-1 text-xs text-zinc-400">
                     {action.at} · {action.status}
                   </p>
+                  {(action.status === "failed" || action.status === "blocked") && (
+                    <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                      Reason: {reasonFromMessage(action.summary ?? action.status).label}
+                    </p>
+                  )}
                   {isRecovery && (
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-450">

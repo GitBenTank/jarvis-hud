@@ -5,8 +5,13 @@ import { useCallback, useEffect, useState } from "react";
 type StatusData = {
   dateKey: string;
   pendingCount: number;
-  approvedReadyCount: number;
-  actionsCount: number;
+  approvedCount: number;
+  executedCount: number;
+  activeTraceId: string | null;
+  lastProposalAt: string | null;
+  lastExecutionAt: string | null;
+  agentLastSeen: string | null;
+  latestDecisionSummary: string;
 };
 
 type ResetResult = {
@@ -163,6 +168,16 @@ export default function SystemStatus() {
       }
 
       setConfig(configData.jarvisRoot ? configData : null);
+      const posture = configData.runtimePosture as {
+        activeTraceId: string | null;
+        lastProposalAt: string | null;
+        lastExecutionAt: string | null;
+        pendingCount: number;
+        approvedCount: number;
+        executedCount: number;
+        agentLastSeen: string | null;
+        latestDecisionSummary: string;
+      };
 
       if (configData.authEnabled) {
         try {
@@ -176,15 +191,16 @@ export default function SystemStatus() {
         setAuthStatus(null);
       }
 
-      const approvedReady = (approved.approvals ?? []).filter(
-        (e: { executed?: boolean }) => !e.executed
-      ).length;
-
       setData({
         dateKey: pending.dateKey ?? approved.dateKey ?? actions.dateKey ?? "-",
-        pendingCount: (pending.approvals ?? []).length,
-        approvedReadyCount: approvedReady,
-        actionsCount: (actions.actions ?? []).length,
+        pendingCount: posture.pendingCount,
+        approvedCount: posture.approvedCount,
+        executedCount: posture.executedCount,
+        activeTraceId: posture.activeTraceId,
+        lastProposalAt: posture.lastProposalAt,
+        lastExecutionAt: posture.lastExecutionAt,
+        agentLastSeen: posture.agentLastSeen,
+        latestDecisionSummary: posture.latestDecisionSummary,
       });
       setLastRefreshedAt(Date.now());
     } catch {
@@ -318,6 +334,12 @@ export default function SystemStatus() {
                 <span className="font-medium text-zinc-500">Date:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.dateKey}</span>
               </div>
+              <div>
+                <span className="font-medium text-zinc-500">Active trace:</span>{" "}
+                <span className="font-mono text-xs text-zinc-700 dark:text-zinc-300">
+                  {data.activeTraceId ? `${data.activeTraceId.slice(0, 12)}…` : "—"}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -331,12 +353,34 @@ export default function SystemStatus() {
                 <span className="text-zinc-800 dark:text-zinc-200">{data.pendingCount}</span>
               </div>
               <div>
-                <span className="font-medium text-zinc-500">Authorized awaiting:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">{data.approvedReadyCount}</span>
+                <span className="font-medium text-zinc-500">Approved awaiting execution:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">{data.approvedCount}</span>
               </div>
               <div>
-                <span className="font-medium text-zinc-500">Actions today:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">{data.actionsCount}</span>
+                <span className="font-medium text-zinc-500">Executed today:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">{data.executedCount}</span>
+              </div>
+              <div>
+                <span className="font-medium text-zinc-500">Last proposal:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {data.lastProposalAt ? formatFreshness(new Date(data.lastProposalAt).getTime()) : "—"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-zinc-500">Last execution:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {data.lastExecutionAt ? formatFreshness(new Date(data.lastExecutionAt).getTime()) : "—"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-zinc-500">Agent last seen:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {data.agentLastSeen ? formatFreshness(new Date(data.agentLastSeen).getTime()) : "—"}
+                </span>
+              </div>
+              <div title={data.latestDecisionSummary}>
+                <span className="font-medium text-zinc-500">Latest decision:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">{data.latestDecisionSummary}</span>
               </div>
             </div>
           </div>

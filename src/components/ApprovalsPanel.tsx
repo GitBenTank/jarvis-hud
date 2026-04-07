@@ -10,6 +10,7 @@ import {
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import AgentProposalsFeed from "./AgentProposalsFeed";
 import Badge from "./Badge";
+import type { ReasonDetail } from "@/lib/reason-taxonomy";
 
 type Event = {
   id: string;
@@ -65,6 +66,7 @@ type ExecuteError = {
   approvalId: string;
   error: string;
   reasons?: string[];
+  reasonDetails?: ReasonDetail[];
   stepUpRequired?: boolean;
 };
 
@@ -498,6 +500,15 @@ function DetailModal({
                     <li key={r}>{r}</li>
                   ))}
                 </ul>
+                {executeError.reasonDetails && executeError.reasonDetails.length > 0 && (
+                  <div className="mt-2 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
+                    {executeError.reasonDetails.map((d) => (
+                      <p key={d.code}>
+                        {d.label}: {d.summary}
+                      </p>
+                    ))}
+                  </div>
+                )}
                 {isYouTube && youtubeTagCount !== null && (
                   <p className="mt-2 text-zinc-600 dark:text-zinc-400">
                     Tags: {youtubeTagCount} (minimum 8)
@@ -936,6 +947,7 @@ export default function ApprovalsPanel() {
             approvalId: id,
             error: json.error,
             reasons: Array.isArray(json.reasons) ? json.reasons : undefined,
+            reasonDetails: Array.isArray(json.reasonDetails) ? json.reasonDetails : undefined,
           });
         } else if (res.status === 403 && json.code === "STEP_UP_REQUIRED") {
           setExecuteError({
@@ -947,6 +959,7 @@ export default function ApprovalsPanel() {
           setExecuteError({
             approvalId: id,
             error: json.error,
+            reasonDetails: Array.isArray(json.reasonDetails) ? json.reasonDetails : undefined,
           });
         }
       } catch {

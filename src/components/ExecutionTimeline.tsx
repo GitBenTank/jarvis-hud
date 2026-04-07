@@ -3,125 +3,35 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { useTraceContext } from "@/context/TraceContext";
-import type { TraceAction, TraceEvent, TracePolicyDecision } from "@/context/TraceContext";
+import type { TracePipelineStage } from "@/context/TraceContext";
 
-type StageStatus = "pending" | "active" | "done" | "blocked";
+const STAGE_ORDER: TracePipelineStage["id"][] = [
+  "proposal",
+  "approval",
+  "policy",
+  "execution",
+  "receipt",
+  "reconciliation",
+];
 
-type PipelineStage = {
-  id: string;
-  label: string;
-  status: StageStatus;
-  at?: string;
-  detail?: string;
-};
-
-const STAGE_ORDER = ["proposal", "approval", "policy", "execution", "receipt"] as const;
-
-function buildPipelineStages(
-  events: TraceEvent[],
-  policyDecisions: TracePolicyDecision[] | undefined,
-  actions: TraceAction[]
-): PipelineStage[] {
-  const primaryEvent = events[0];
-  if (!primaryEvent) return [];
-
-  const agent = primaryEvent.source?.connector ?? "agent";
-  const policy = (policyDecisions ?? []).at(-1);
-  const policyDenied = policy?.decision === "deny";
-  const receipt = actions.find((a) => a.approvalId === primaryEvent.id);
-
-  const proposal: PipelineStage = {
-    id: "proposal",
-    label: "Proposal",
-    status: "done",
-    at: primaryEvent.createdAt,
-    detail: `${agent} · ${primaryEvent.kind}`,
-  };
-
-  let approval: PipelineStage;
-  if (primaryEvent.rejectedAt) {
-    approval = { id: "approval", label: "Approval", status: "blocked", at: primaryEvent.rejectedAt, detail: "Rejected" };
-  } else if (primaryEvent.approvedAt || primaryEvent.executed) {
-    approval = {
-      id: "approval",
-      label: "Approval",
-      status: "done",
-      at: primaryEvent.approvedAt ?? primaryEvent.createdAt,
-      detail: "Approved",
-    };
-  } else {
-    approval = { id: "approval", label: "Approval", status: "active", detail: "Awaiting" };
-  }
-
-  let policyStage: PipelineStage;
-  if (policy) {
-    policyStage = {
-      id: "policy",
-      label: "Policy",
-      status: policyDenied ? "blocked" : "done",
-      at: policy.timestamp,
-      detail: policy.decision,
-    };
-  } else if (primaryEvent.approvedAt && !primaryEvent.rejectedAt) {
-    policyStage = { id: "policy", label: "Policy", status: "active", detail: "On execute" };
-  } else {
-    policyStage = { id: "policy", label: "Policy", status: "pending", detail: "—" };
-  }
-
-  let execution: PipelineStage;
-  if (policyDenied) {
-    execution = { id: "execution", label: "Execution", status: "pending", detail: "—" };
-  } else if (primaryEvent.failedAt) {
-    execution = { id: "execution", label: "Execution", status: "blocked", at: primaryEvent.failedAt, detail: "Failed" };
-  } else if (primaryEvent.executed) {
-    execution = {
-      id: "execution",
-      label: "Execution",
-      status: "done",
-      at: primaryEvent.executedAt ?? receipt?.at,
-      detail: receipt?.kind ?? "done",
-    };
-  } else if (primaryEvent.approvedAt) {
-    execution = { id: "execution", label: "Execution", status: "active", detail: "Ready" };
-  } else {
-    execution = { id: "execution", label: "Execution", status: "pending", detail: "—" };
-  }
-
-  let receiptStage: PipelineStage;
-  if (receipt) {
-    receiptStage = {
-      id: "receipt",
-      label: "Receipt",
-      status: "done",
-      at: receipt.at,
-      detail: receipt.outputPath?.split("/").slice(-2).join("/") ?? receipt.kind,
-    };
-  } else if (primaryEvent.executed) {
-    receiptStage = { id: "receipt", label: "Receipt", status: "pending", detail: "Writing" };
-  } else {
-    receiptStage = { id: "receipt", label: "Receipt", status: "pending", detail: "—" };
-  }
-
-  return [proposal, approval, policyStage, execution, receiptStage];
-}
-
-function pendingStages(): PipelineStage[] {
+function pendingStages(): TracePipelineStage[] {
   return STAGE_ORDER.map((id) => ({
     id,
     label: id.charAt(0).toUpperCase() + id.slice(1),
-    status: "pending" as StageStatus,
-    detail: "—",
+    status: "pending",
+    summary: "—",
+    evidence: [],
   }));
 }
 
-const BLOCK_STYLES: Record<StageStatus, string> = {
+const BLOCK_STYLES: Record<TracePipelineStage["status"], string> = {
   done: "border-emerald-600/50 bg-emerald-950/20 text-emerald-300 dark:border-emerald-500/50 dark:bg-emerald-950/10 dark:text-emerald-400",
   active: "border-amber-600/50 bg-amber-950/20 text-amber-300 dark:border-amber-500/50 dark:bg-amber-950/10 dark:text-amber-400",
   blocked: "border-red-600/50 bg-red-950/20 text-red-300 dark:border-red-500/50 dark:bg-red-950/10 dark:text-red-400",
   pending: "border-zinc-600/50 bg-zinc-900/30 text-zinc-500 dark:border-zinc-600/50 dark:bg-zinc-800/50 dark:text-zinc-500",
 };
 
-function StageBlock({ stage }: { stage: PipelineStage }) {
+function StageBlock({ stage }: { stage: TracePipelineStage }) {
   const style = BLOCK_STYLES[stage.status];
   return (
     <div
@@ -129,9 +39,14 @@ function StageBlock({ stage }: { stage: PipelineStage }) {
       aria-label={`${stage.label}: ${stage.status}`}
     >
       <span className="text-[10px] font-medium uppercase tracking-wider opacity-90">{stage.label}</span>
-      {stage.detail && stage.detail !== "—" && (
-        <span className="mt-0.5 truncate text-[10px] opacity-80" title={stage.detail}>
-          {stage.detail}
+      {stage.summary && stage.summary !== "—" && (
+        <span className="mt-0.5 truncate text-[10px] opacity-80" title={stage.summary}>
+          {stage.summary}
+        </span>
+      )}
+      {stage.reason && (
+        <span className="mt-0.5 truncate text-[10px] opacity-90" title={stage.reason.summary}>
+          {stage.reason.label}
         </span>
       )}
     </div>
@@ -139,15 +54,10 @@ function StageBlock({ stage }: { stage: PipelineStage }) {
 }
 
 export default function ExecutionTimeline() {
-  const { traceIdFromUrl, traceData, loading } = useTraceContext();
+  const { activeTraceId, traceData, loading } = useTraceContext();
 
   const stages = useMemo(() => {
-    if (!traceData?.events?.length) return [];
-    return buildPipelineStages(
-      traceData.events,
-      traceData.policyDecisions,
-      traceData.actions ?? []
-    );
+    return traceData?.pipeline?.stages ?? [];
   }, [traceData]);
 
   const emptyStages = useMemo(() => pendingStages(), []);
@@ -163,7 +73,7 @@ export default function ExecutionTimeline() {
     );
   }
 
-  if (!traceIdFromUrl || !traceData) {
+  if (!activeTraceId || !traceData) {
     return (
       <div className={containerClass}>
         <div className="mb-2 flex flex-wrap gap-2">

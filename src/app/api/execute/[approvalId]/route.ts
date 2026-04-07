@@ -139,6 +139,7 @@ export async function POST(
         {
           error: policyResult.reasons[0] ?? "Execution blocked by policy",
           reasons: policyResult.reasons,
+          reasonDetails: policyResult.reasonDetails,
         },
         { status: policyResult.status }
       );

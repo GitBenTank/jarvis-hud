@@ -95,9 +95,12 @@ function computeGateState(
 type MissionStripData = {
   agentStatus: "ACTIVE" | "IDLE";
   pendingCount: number;
+  approvedCount: number;
+  executedCount: number;
   oldestPendingMs: number | null;
-  lastTraceId: string | null;
+  activeTraceId: string | null;
   lastReceiptAt: string | null;
+  latestDecisionSummary: string;
   gateState: GateState;
 };
 
@@ -106,14 +109,24 @@ export default function MissionStrip() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [pendingRes, approvedRes, actionsRes] = await Promise.all([
+      const [pendingRes, approvedRes, actionsRes, configRes] = await Promise.all([
         fetch("/api/approvals?status=pending"),
         fetch("/api/approvals?status=approved"),
         fetch("/api/actions"),
+        fetch("/api/config"),
       ]);
       const pending = (await pendingRes.json()).approvals ?? [];
       const approved = (await approvedRes.json()).approvals ?? [];
       const actions = (await actionsRes.json()).actions ?? [];
+      const config = await configRes.json();
+      const posture = config.runtimePosture as {
+        activeTraceId: string | null;
+        pendingCount: number;
+        approvedCount: number;
+        executedCount: number;
+        agentLastSeen: string | null;
+        latestDecisionSummary: string;
+      };
 
       const itemsWithTrace: { traceId: string; at: number }[] = [];
       for (const e of pending as { traceId?: string; id?: string; createdAt?: string }[]) {
@@ -134,13 +147,16 @@ export default function MissionStrip() {
         if (tid) itemsWithTrace.push({ traceId: tid, at });
       }
 
-      const latestTrace = [...itemsWithTrace].sort((a, b) => b.at - a.at)[0];
       const lastActivityAt =
-        itemsWithTrace.length > 0 ? Math.max(...itemsWithTrace.map((i) => i.at)) : 0;
+        posture.agentLastSeen
+          ? new Date(posture.agentLastSeen).getTime()
+          : itemsWithTrace.length > 0
+            ? Math.max(...itemsWithTrace.map((i) => i.at))
+            : 0;
       const minutesSinceActivity =
         lastActivityAt > 0 ? (Date.now() - lastActivityAt) / 60_000 : 999;
       const agentStatus =
-        pending.length > 0 || minutesSinceActivity < 30 ? "ACTIVE" : "IDLE";
+        posture.pendingCount > 0 || minutesSinceActivity < 30 ? "ACTIVE" : "IDLE";
 
       const latestAction = [...(actions as { at?: string }[])]
         .filter((a) => a.at)
@@ -159,10 +175,13 @@ export default function MissionStrip() {
 
       setData({
         agentStatus,
-        pendingCount: pending.length,
+        pendingCount: posture.pendingCount,
+        approvedCount: posture.approvedCount,
+        executedCount: posture.executedCount,
         oldestPendingMs,
-        lastTraceId: latestTrace?.traceId ?? null,
+        activeTraceId: posture.activeTraceId,
         lastReceiptAt: latestAction?.at ?? null,
+        latestDecisionSummary: posture.latestDecisionSummary,
         gateState: computeGateState(pending as Event[], approved as Event[]),
       });
     } catch {
@@ -196,7 +215,7 @@ export default function MissionStrip() {
     );
   }
 
-  const traceShort = data.lastTraceId ? data.lastTraceId.slice(0, 8) : null;
+  const traceShort = data.activeTraceId ? data.activeTraceId.slice(0, 8) : null;
   const hasPending = data.pendingCount > 0;
   const isAmberOrRed = data.gateState === "amber" || data.gateState === "red";
   const traceSecondary = hasPending && traceShort;
@@ -276,7 +295,7 @@ export default function MissionStrip() {
           <span className={traceSecondary ? "text-zinc-600" : ""}>
             Trace:{" "}
             <Link
-              href={`/?trace=${encodeURIComponent(data.lastTraceId!)}`}
+              href={`/?trace=${encodeURIComponent(data.activeTraceId!)}`}
               className={`font-mono underline hover:text-zinc-200 ${
                 traceSecondary ? "text-zinc-500" : "text-zinc-300"
               }`}
@@ -300,6 +319,18 @@ export default function MissionStrip() {
             <span className="text-zinc-600">—</span>
           )}
         </button>
+
+        <span>
+          Approved: <span className="text-zinc-300">{data.approvedCount}</span>
+        </span>
+
+        <span>
+          Executed: <span className="text-zinc-300">{data.executedCount}</span>
+        </span>
+
+        <span title={data.latestDecisionSummary}>
+          Decision: <span className="text-zinc-400">{data.latestDecisionSummary}</span>
+        </span>
 
         <span>
           Mode: <span className="text-zinc-400">DRY RUN</span>

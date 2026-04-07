@@ -24,6 +24,7 @@ import {
 } from "@/lib/ingress-schema";
 import { validateOpenClawProposal } from "@/lib/ingress/validate-openclaw-proposal";
 import { ALLOWED_KINDS } from "@/lib/policy";
+import { getReasonDetail } from "@/lib/reason-taxonomy";
 
 type IngressEvent = {
   id: string;
@@ -70,7 +71,10 @@ type IngressBody = {
 export async function POST(request: NextRequest) {
   try {
     if (!isIngressEnabled()) {
-      return NextResponse.json({ error: "Ingress disabled" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Ingress disabled", reasonDetails: [getReasonDetail("POLICY_DENIED")] },
+        { status: 403 }
+      );
     }
 
     const secret = getIngressSecret();
@@ -185,7 +189,10 @@ export async function POST(request: NextRequest) {
 
     if (!isTimestampInWindow(timestamp)) {
       return NextResponse.json(
-        { error: "Timestamp out of window (max 5 min past, 2 min future)" },
+        {
+          error: "Timestamp out of window (max 5 min past, 2 min future)",
+          reasonDetails: [getReasonDetail("INGRESS_TIMESTAMP_INVALID")],
+        },
         { status: 401 }
       );
     }
@@ -193,7 +200,7 @@ export async function POST(request: NextRequest) {
     const nonceCache = getNonceCache();
     if (nonceCache.has(nonce)) {
       return NextResponse.json(
-        { error: "Nonce replay detected" },
+        { error: "Nonce replay detected", reasonDetails: [getReasonDetail("INGRESS_NONCE_REPLAY")] },
         { status: 409 }
       );
     }
@@ -201,7 +208,7 @@ export async function POST(request: NextRequest) {
     const message = buildSignatureMessage(timestamp, nonce, rawBody);
     if (!verifyHmacSignature(secret, message, signature)) {
       return NextResponse.json(
-        { error: "Invalid signature" },
+        { error: "Invalid signature", reasonDetails: [getReasonDetail("INGRESS_SIGNATURE_INVALID")] },
         { status: 401 }
       );
     }
@@ -211,7 +218,11 @@ export async function POST(request: NextRequest) {
     const allowlist = evaluateTrustedIngress("openclaw");
     if (!allowlist.ok) {
       return NextResponse.json(
-        { error: "Connector not in allowlist", reasons: allowlist.reasons },
+        {
+          error: "Connector not in allowlist",
+          reasons: allowlist.reasons,
+          reasonDetails: [getReasonDetail("CONNECTOR_NOT_ALLOWLISTED")],
+        },
         { status: 403 }
       );
     }

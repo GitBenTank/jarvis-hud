@@ -247,7 +247,13 @@ function formatStatsJson(stats?: { filesChangedCount: number; insertions: number
 export default function TracePanel() {
   const searchParams = useSearchParams();
   const traceFromUrl = searchParams.get("trace")?.trim() ?? "";
-  const { traceIdFromUrl, traceData: contextTraceData, loading: contextLoading, error: contextError } = useTraceContext();
+  const {
+    traceIdFromUrl,
+    setActiveTraceId,
+    traceData: contextTraceData,
+    loading: contextLoading,
+    error: contextError,
+  } = useTraceContext();
   const [traceId, setTraceId] = useState("");
   const [data, setData] = useState<TraceResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -284,6 +290,7 @@ export default function TracePanel() {
   useEffect(() => {
     if (traceFromUrl) {
       setTraceId(traceFromUrl);
+      setActiveTraceId(traceFromUrl);
       document.getElementById("trace-timeline")?.scrollIntoView({ behavior: "smooth" });
       // When trace is in URL, TraceProvider fetches — don't duplicate. Use context data.
       if (traceIdFromUrl !== traceFromUrl) return;
@@ -293,7 +300,7 @@ export default function TracePanel() {
         if (lastId) setExpandedIds(new Set([lastId]));
       }
     }
-  }, [traceFromUrl, traceIdFromUrl, contextTraceData]);
+  }, [traceFromUrl, traceIdFromUrl, contextTraceData, setActiveTraceId]);
 
   // Only fetch when user manually loads a different trace (not from URL)
   useEffect(() => {
@@ -341,6 +348,7 @@ export default function TracePanel() {
       }
       if (out.data) {
         setData(out.data);
+        setActiveTraceId(tid);
         const events = out.data.events ?? [];
         const lastId = events.length > 0 ? events.at(-1)!.id : null;
         if (lastId) setExpandedIds(new Set([lastId]));
@@ -350,7 +358,7 @@ export default function TracePanel() {
     } finally {
       setLoading(false);
     }
-  }, [traceId, viewMode, doFetch]);
+  }, [traceId, viewMode, doFetch, setActiveTraceId]);
 
   const toggleExpand = useCallback((id: string) => {
     setExpandedIds((prev) => {

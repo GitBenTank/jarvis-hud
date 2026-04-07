@@ -10,6 +10,7 @@ import {
 } from "@/lib/storage";
 import { normalizeAction } from "@/lib/normalize";
 import type { ActivityEvent } from "@/lib/activity-types";
+import { buildRuntimePosture } from "@/lib/runtime-posture";
 
 type StoredEvent = {
   id: string;
@@ -114,7 +115,7 @@ function toActivityEvents(
   return out;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const dateKey = getDateKey();
     const events = (await readJson<StoredEvent[]>(getEventsFilePath(dateKey))) ?? [];
@@ -126,7 +127,25 @@ export async function GET() {
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
-    return NextResponse.json(activityEvents);
+    const includePosture =
+      new URL(request.url).searchParams.get("includePosture") === "1";
+    if (!includePosture) {
+      return NextResponse.json(activityEvents);
+    }
+
+    const runtimePosture = buildRuntimePosture({
+      events,
+      actions,
+      authEnabled: false,
+      ingressEnabled: false,
+      safetyOn: true,
+      mode: "dry-run",
+    });
+
+    return NextResponse.json({
+      events: activityEvents,
+      runtimePosture,
+    });
   } catch (err) {
     console.error("[activity/stream]", (err as Error)?.message);
     return NextResponse.json(

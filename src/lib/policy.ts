@@ -5,6 +5,7 @@
  */
 
 import { appendPolicyDecision } from "./policy-decision-log";
+import { reasonFromMessage, reasonFromPolicyReason, type ReasonDetail } from "./reason-taxonomy";
 
 export const ALLOWED_KINDS = [
   "content.publish",
@@ -36,7 +37,7 @@ export type ExecutePolicyConfig = {
 
 export type ExecutePolicyResult =
   | { ok: true }
-  | { ok: false; status: 400 | 403; reasons: string[] };
+  | { ok: false; status: 400 | 403; reasons: string[]; reasonDetails: ReasonDetail[] };
 
 function reasonToSlug(reason: string): string {
   if (reason.toLowerCase().includes("dirty") || reason.includes("DIRTY_WORKTREE")) return "dirty_worktree";
@@ -56,7 +57,12 @@ export async function evaluateExecutePolicy(
     reasons.push(
       `Kind "${config.kind}" is not in the execution allowlist. Allowed: ${ALLOWED_KINDS.join(", ")}.`
     );
-    const result: ExecutePolicyResult = { ok: false, status: 400, reasons };
+    const result: ExecutePolicyResult = {
+      ok: false,
+      status: 400,
+      reasons,
+      reasonDetails: [reasonFromPolicyReason("adapter_not_permitted")],
+    };
     if (config.traceId) {
       await appendPolicyDecision({
         traceId: config.traceId,
@@ -71,7 +77,12 @@ export async function evaluateExecutePolicy(
 
   if (config.authEnabled && !config.stepUpValid) {
     reasons.push("Step-up required to execute. Re-authenticate before execution.");
-    const result: ExecutePolicyResult = { ok: false, status: 403, reasons };
+    const result: ExecutePolicyResult = {
+      ok: false,
+      status: 403,
+      reasons,
+      reasonDetails: [reasonFromPolicyReason("reauthenticate_required")],
+    };
     if (config.traceId) {
       await appendPolicyDecision({
         traceId: config.traceId,
@@ -86,7 +97,12 @@ export async function evaluateExecutePolicy(
 
   if (config.kind === "code.apply" && config.codeApplyBlockReasons?.length) {
     const blockReasons = config.codeApplyBlockReasons;
-    const result: ExecutePolicyResult = { ok: false, status: 400, reasons: blockReasons };
+    const result: ExecutePolicyResult = {
+      ok: false,
+      status: 400,
+      reasons: blockReasons,
+      reasonDetails: blockReasons.map((r) => reasonFromMessage(r)),
+    };
     if (config.traceId) {
       const reason = reasonToSlug(blockReasons[0] ?? "");
       await appendPolicyDecision({

@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 type StatusStripData = {
-  dateKey: string;
+  dateKey: string | null;
   pendingCount: number;
-  approvedReadyCount: number;
-  actionsCount: number;
+  approvedCount: number;
+  executedCount: number;
   lastProposalAt: string | null;
-  lastTraceId: string | null;
+  activeTraceId: string | null;
+  agentLastSeen: string | null;
+  latestDecisionSummary: string;
   agentStatus: "ACTIVE" | "IDLE";
 };
 
@@ -34,62 +36,34 @@ export default function StatusStrip() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const [pendingRes, approvedRes, actionsRes] = await Promise.all([
-        fetch("/api/approvals?status=pending"),
-        fetch("/api/approvals?status=approved"),
-        fetch("/api/actions"),
-      ]);
-      const pendingJson = await pendingRes.json();
-      const approvedJson = await approvedRes.json();
-      const actionsJson = await actionsRes.json();
+      const configRes = await fetch("/api/config");
+      const config = await configRes.json();
+      const posture = config.runtimePosture as {
+        activeTraceId: string | null;
+        lastProposalAt: string | null;
+        pendingCount: number;
+        approvedCount: number;
+        executedCount: number;
+        agentLastSeen: string | null;
+        latestDecisionSummary: string;
+      };
 
-      const pending = pendingJson.approvals ?? [];
-      const approved = approvedJson.approvals ?? [];
-      const actions = actionsJson.actions ?? [];
-      const dateKey = pendingJson.dateKey ?? approvedJson.dateKey ?? actionsJson.dateKey ?? "-";
-
-      const approvedReady = approved.filter(
-        (e: { executed?: boolean }) => !e.executed
-      ).length;
-
-      const allItems = [...pending, ...approved] as { createdAt?: string; traceId?: string; id?: string; executedAt?: string }[];
-      const latestProposal = [...allItems].sort(
-        (a, b) =>
-          new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
-      )[0];
-
-      const itemsWithTrace: { traceId: string; at: number }[] = [];
-      for (const e of pending as { traceId?: string; id?: string; createdAt?: string }[]) {
-        const tid = e.traceId ?? e.id;
-        const at = e.createdAt ? new Date(e.createdAt).getTime() : 0;
-        if (tid) itemsWithTrace.push({ traceId: String(tid), at });
-      }
-      for (const e of approved as { traceId?: string; id?: string; createdAt?: string; executedAt?: string }[]) {
-        const tid = e.traceId ?? e.id;
-        const at = (e.executedAt ?? e.createdAt)
-          ? new Date(e.executedAt ?? e.createdAt ?? 0).getTime()
-          : 0;
-        if (tid) itemsWithTrace.push({ traceId: String(tid), at });
-      }
-      for (const a of actions as { traceId?: string; at?: string }[]) {
-        const tid = a.traceId ?? "";
-        const at = a.at ? new Date(a.at).getTime() : 0;
-        if (tid) itemsWithTrace.push({ traceId: tid, at });
-      }
-      const latestTrace = [...itemsWithTrace].sort((a, b) => b.at - a.at)[0];
-
-      const lastActivityAt = itemsWithTrace.length > 0 ? Math.max(...itemsWithTrace.map((i) => i.at)) : 0;
+      const lastActivityAt = posture.agentLastSeen
+        ? new Date(posture.agentLastSeen).getTime()
+        : 0;
       const minutesSinceActivity = lastActivityAt > 0 ? (Date.now() - lastActivityAt) / 60_000 : 999;
       const agentStatus =
-        pending.length > 0 || minutesSinceActivity < 30 ? "ACTIVE" : "IDLE";
+        posture.pendingCount > 0 || minutesSinceActivity < 30 ? "ACTIVE" : "IDLE";
 
       setData({
-        dateKey: typeof dateKey === "string" ? dateKey : "-",
-        pendingCount: pending.length,
-        approvedReadyCount: approvedReady,
-        actionsCount: actions.length,
-        lastProposalAt: latestProposal?.createdAt ?? null,
-        lastTraceId: latestTrace?.traceId ?? null,
+        dateKey: typeof config.serverTime === "string" ? config.serverTime.slice(0, 10) : null,
+        pendingCount: posture.pendingCount,
+        approvedCount: posture.approvedCount,
+        executedCount: posture.executedCount,
+        lastProposalAt: posture.lastProposalAt,
+        activeTraceId: posture.activeTraceId,
+        agentLastSeen: posture.agentLastSeen,
+        latestDecisionSummary: posture.latestDecisionSummary,
         agentStatus,
       });
     } catch {
@@ -119,7 +93,7 @@ export default function StatusStrip() {
     );
   }
 
-  const traceShort = data.lastTraceId ? data.lastTraceId.slice(0, 8) : null;
+  const traceShort = data.activeTraceId ? data.activeTraceId.slice(0, 8) : null;
 
   return (
     <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-2">
@@ -128,10 +102,10 @@ export default function StatusStrip() {
           Pending: <span className="font-medium text-zinc-300">{data.pendingCount}</span>
         </span>
         <span>
-          Ready: <span className="font-medium text-zinc-300">{data.approvedReadyCount}</span>
+          Approved: <span className="font-medium text-zinc-300">{data.approvedCount}</span>
         </span>
         <span>
-          Receipts: <span className="font-medium text-zinc-300">{data.actionsCount}</span>
+          Executed: <span className="font-medium text-zinc-300">{data.executedCount}</span>
         </span>
         <span>
           Agent:{" "}
@@ -144,20 +118,26 @@ export default function StatusStrip() {
           </span>
         </span>
         <span>
-          Last: {data.lastProposalAt ? formatTimeAgo(data.lastProposalAt) : "—"}
+          Last proposal: {data.lastProposalAt ? formatTimeAgo(data.lastProposalAt) : "—"}
+        </span>
+        <span>
+          Last seen: {data.agentLastSeen ? formatTimeAgo(data.agentLastSeen) : "—"}
         </span>
         {traceShort && (
           <span>
             Trace:{" "}
             <Link
-              href={`/?trace=${encodeURIComponent(data.lastTraceId!)}`}
+              href={`/?trace=${encodeURIComponent(data.activeTraceId!)}`}
               className="font-mono text-zinc-300 underline hover:text-zinc-200"
             >
               {traceShort}
             </Link>
           </span>
         )}
-        <span className="text-zinc-500">{data.dateKey}</span>
+        <span title={data.latestDecisionSummary}>
+          Decision: <span className="text-zinc-300">{data.latestDecisionSummary}</span>
+        </span>
+        <span className="text-zinc-500">{data.dateKey ?? "-"}</span>
       </div>
     </div>
   );

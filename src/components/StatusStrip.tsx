@@ -135,7 +135,7 @@ export default function StatusStrip() {
           </span>
         )}
         <span title={data.latestDecisionSummary}>
-          Decision: <span className="text-zinc-300">{data.latestDecisionSummary}</span>
+          Latest decision: <span className="text-zinc-300">{data.latestDecisionSummary}</span>
         </span>
         <span className="text-zinc-500">{data.dateKey ?? "-"}</span>
       </div>

@@ -17,14 +17,14 @@ type PreflightBody = {
 
 function expectedOutputs(kind: string): string[] {
   if (kind === "code.apply") {
-    return ["Code apply bundle", "Action log receipt", "Rollback command (if commit created)"];
+    return ["Artifact", "Receipt log entry", "Rollback command (if commit is created)"];
   }
-  if (kind === "code.diff") return ["Code diff bundle", "Action log receipt"];
-  if (kind === "system.note") return ["System note artifact", "Action log receipt"];
-  if (kind.startsWith("recovery.")) return ["Recovery runbook", "Action log receipt"];
-  if (kind === "reflection.note") return ["Reflection artifact", "Action log receipt"];
-  if (kind === "youtube.package") return ["YouTube package artifact", "Action log receipt"];
-  return ["Action artifact", "Action log receipt"];
+  if (kind === "code.diff") return ["Artifact", "Receipt log entry"];
+  if (kind === "system.note") return ["Artifact", "Receipt log entry"];
+  if (kind.startsWith("recovery.")) return ["Artifact", "Receipt log entry"];
+  if (kind === "reflection.note") return ["Artifact", "Receipt log entry"];
+  if (kind === "youtube.package") return ["Artifact", "Receipt log entry"];
+  return ["Artifact", "Receipt log entry"];
 }
 
 export async function POST(request: NextRequest) {

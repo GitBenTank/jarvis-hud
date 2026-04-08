@@ -443,7 +443,7 @@ function DetailModal({
                 <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                   {isCodeApply
                     ? "Includes local commit metadata and rollback command when commit is created."
-                    : "Execution writes artifact and receipt log entry only."}
+                    : "Execution writes Artifact and Receipt log entry only."}
                 </p>
               </div>
             </div>
@@ -760,7 +760,7 @@ function DetailModal({
               <>
                 <p className="mt-2 text-zinc-600 dark:text-zinc-400">
                   {executeResult.noChangesApplied
-                    ? "Receipt written. No changes were staged; no commit was created."
+                    ? "Receipt recorded. No changes were staged; no commit was created."
                     : "Working tree modified and local commit created. No pushing."}
                 </p>
                 <div className="mt-2 space-y-1 text-sm">
@@ -780,7 +780,7 @@ function DetailModal({
             {isRecovery && (
               <>
                 <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-                  Recovery runbook written. No autonomous remediation. Follow the runbook manually.
+                  Recovery runbook recorded. No autonomous remediation. Follow the runbook manually.
                 </p>
                 <div className="mt-2 space-y-1 text-sm">
                   <div>
@@ -823,7 +823,7 @@ function DetailModal({
               </>
             )}
             <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
-              Receipts written to action log.
+              Receipts recorded in action log.
             </p>
             {executeResult.kind === "youtube.package" && (
               <p className="text-xs text-zinc-600 dark:text-zinc-400">

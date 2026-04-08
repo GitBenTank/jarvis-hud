@@ -91,7 +91,7 @@ function buildPipelineSummary(args: {
       label: "Proposal",
       status: "done",
       timestamp: event.createdAt,
-      summary: `${event.source?.connector ?? "agent"} proposed ${event.kind}`,
+      summary: "Proposal received",
       evidence: [`event:${event.id}`],
     },
     {
@@ -100,10 +100,10 @@ function buildPipelineSummary(args: {
       status: wasRejected ? "blocked" : event.approvedAt ? "done" : "active",
       timestamp: event.approvedAt ?? event.rejectedAt,
       summary: wasRejected
-        ? "Rejected by human"
+        ? "Rejected by operator"
         : event.approvedAt
-          ? "Approved by human"
-          : "Awaiting human approval",
+          ? "Approved by operator"
+          : "Waiting for approval",
       evidence: [
         ...(event.approvedAt ? ["approvedAt"] : []),
         ...(event.rejectedAt ? ["rejectedAt"] : []),
@@ -122,10 +122,12 @@ function buildPipelineSummary(args: {
           : "pending",
       timestamp: policy?.timestamp,
       summary: policy
-        ? `${policy.decision.toUpperCase()} · ${policy.rule}`
+        ? policyDenied
+          ? `Policy blocked (${policy.rule})`
+          : `Policy allowed (${policy.rule})`
         : event.approvedAt
-          ? "Policy checks run on execute"
-          : "Pending approval",
+          ? "Policy check pending"
+          : "Waiting for approval",
       evidence: policy ? [`policy:${policy.rule}:${policy.reason}`] : [],
       ...(policyDenied && policy ? { reason: reasonFromPolicyReason(policy.reason) } : {}),
     },
@@ -143,14 +145,14 @@ function buildPipelineSummary(args: {
               : "pending",
       timestamp: event.executedAt ?? event.failedAt,
       summary: policyDenied
-        ? "Blocked by policy"
+        ? "Policy blocked"
         : executionFailed
           ? "Execution failed"
           : executed
             ? "Execution completed"
             : event.approvedAt
-              ? "Ready to execute"
-              : "Pending approval",
+              ? "Execution queued"
+              : "Waiting for approval",
       evidence: [
         ...(event.executedAt ? ["executedAt"] : []),
         ...(event.failedAt ? ["failedAt"] : []),
@@ -163,10 +165,10 @@ function buildPipelineSummary(args: {
       status: hasReceipt ? "done" : executed ? "active" : "pending",
       timestamp: action?.at,
       summary: hasReceipt
-        ? `Receipt written (${action.kind})`
+        ? "Receipt recorded"
         : executed
-          ? "Execution done; receipt pending"
-          : "Awaiting execution",
+          ? "Receipt pending"
+          : "Waiting for execution",
       evidence: hasReceipt
         ? [
             ...(action.outputPath ? [action.outputPath] : []),

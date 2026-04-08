@@ -137,14 +137,14 @@ export default function ActionsPanel() {
         <>
           <p className="text-sm text-zinc-500">No executed actions yet.</p>
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Every execution produces an artifact and an auditable log entry.
+            Every execution records an artifact and a receipt log entry.
           </p>
         </>
       )}
       {actions.length > 0 && (
         <>
           <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-            Every execution produces an artifact and an auditable log entry.
+            Every execution records an artifact and a receipt log entry.
           </p>
           <ul className="space-y-2">
           {actions.map((action) => {

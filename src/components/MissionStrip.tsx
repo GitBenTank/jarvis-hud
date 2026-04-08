@@ -329,7 +329,7 @@ export default function MissionStrip() {
         </span>
 
         <span title={data.latestDecisionSummary}>
-          Decision: <span className="text-zinc-400">{data.latestDecisionSummary}</span>
+          Latest decision: <span className="text-zinc-400">{data.latestDecisionSummary}</span>
         </span>
 
         <span>

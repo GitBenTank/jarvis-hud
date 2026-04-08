@@ -526,7 +526,7 @@ export default function TracePanel() {
           icon: "○",
           iconClass: "text-amber-500",
           state: "pending",
-          lines: ["Awaiting human approval", "—"],
+          lines: ["Waiting for approval", "—"],
         },
       });
     }
@@ -540,7 +540,7 @@ export default function TracePanel() {
           icon: pd.decision === "allow" ? "✓" : "✗",
           iconClass: pd.decision === "allow" ? "text-emerald-500" : "text-red-500",
           state: "done",
-          lines: [`Decision: ${pd.decision.toUpperCase()}`, `Rule: ${pd.rule}`, `Time: ${formatTime(pd.timestamp)}`],
+          lines: [`Policy: ${pd.decision.toUpperCase()}`, `Rule: ${pd.rule}`, `Time: ${formatTime(pd.timestamp)}`],
         },
       });
     } else if (approved) {
@@ -633,7 +633,7 @@ export default function TracePanel() {
           icon: "✓",
           iconClass: "text-emerald-500",
           state: "done",
-          lines: ["Artifact written", logPath],
+          lines: ["Receipt recorded", logPath],
         },
       });
     } else if (executed) {

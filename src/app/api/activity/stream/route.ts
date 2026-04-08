@@ -81,138 +81,168 @@ async function readPolicyDecisionsChronological(dateKey: string): Promise<Policy
   }
 }
 
-function toActivityEvents(
-  events: StoredEvent[],
-  actions: ActionLogEntry[],
-  policyDecisions: PolicyDecisionEntry[]
-): ActivityEvent[] {
-  const out: ActivityEvent[] = [];
+type EventContext = {
+  traceId: string;
+  approvalId: string;
+  timestamp: string;
+  kind?: string;
+  connector: string;
+  agent: string;
+  sourceVerified: boolean;
+  approvedAt?: string;
+  rejectedAt?: string;
+  executedAt?: string;
+  status?: string;
+};
 
-  for (const e of events) {
-    const traceId = e.traceId ?? e.id;
-    const agent = e.agent ?? "openclaw";
-    const kind = e.payload ? normalizeAction(e.payload).kind : undefined;
-    const connector = (e as { source?: { connector?: string; verified?: boolean } }).source?.connector ?? agent;
-    const sourceVerified = !!(e as { source?: { verified?: boolean } }).source?.verified;
-    const baseId = `${traceId}-${e.id}`;
+function toEventContext(e: StoredEvent): EventContext {
+  const traceId = e.traceId ?? e.id;
+  const agent = e.agent ?? "openclaw";
+  const kind = e.payload ? normalizeAction(e.payload).kind : undefined;
+  const source = e as { source?: { connector?: string; verified?: boolean } };
+  return {
+    traceId,
+    approvalId: e.id,
+    timestamp: e.createdAt ?? new Date().toISOString(),
+    kind,
+    connector: source.source?.connector ?? agent,
+    agent,
+    sourceVerified: !!source.source?.verified,
+    approvedAt: e.approvedAt,
+    rejectedAt: (e as { rejectedAt?: string }).rejectedAt,
+    executedAt: e.executedAt,
+    status: e.status,
+  };
+}
 
-    out.push({
-      id: `${baseId}-proposal`,
-      traceId,
-      timestamp: e.createdAt ?? new Date().toISOString(),
-      actor: agent,
+function mapProposalEvents(ctx: EventContext): ActivityEvent[] {
+  return [
+    {
+      id: `${ctx.traceId}-${ctx.approvalId}-proposal`,
+      traceId: ctx.traceId,
+      timestamp: ctx.timestamp,
+      actor: ctx.agent,
       type: "proposal_received",
       status: "done",
       verb: "Proposed",
       label: "Proposal received",
-      summary: `${connector} proposed ${kind ?? "action"}.`,
-      approvalId: e.id,
-      kind,
-    });
+      summary: `${ctx.connector} proposed ${ctx.kind ?? "action"}.`,
+      approvalId: ctx.approvalId,
+      kind: ctx.kind,
+    },
+  ];
+}
 
-    if (sourceVerified) {
-      out.push({
-        id: `${baseId}-ingress-verified`,
-        traceId,
-        timestamp: e.createdAt ?? new Date().toISOString(),
-        actor: "jarvis",
-        type: "ingress_verified",
-        status: "done",
-        verb: "Recorded",
-        label: "Ingress verified",
-        summary: `Jarvis verified ingress for ${connector}.`,
-        approvalId: e.id,
-        kind,
-      });
-    }
+function mapIngressEvents(ctx: EventContext): ActivityEvent[] {
+  if (!ctx.sourceVerified) return [];
+  return [
+    {
+      id: `${ctx.traceId}-${ctx.approvalId}-ingress-verified`,
+      traceId: ctx.traceId,
+      timestamp: ctx.timestamp,
+      actor: "jarvis",
+      type: "ingress_verified",
+      status: "done",
+      verb: "Recorded",
+      label: "Ingress verified",
+      summary: `Jarvis verified ingress for ${ctx.connector}.`,
+      approvalId: ctx.approvalId,
+      kind: ctx.kind,
+    },
+  ];
+}
 
-    if (e.status === "pending" && !e.approvedAt && !e.executedAt) {
-      out.push({
-        id: `${baseId}-awaiting-approval`,
-        traceId,
-        timestamp: e.createdAt ?? new Date().toISOString(),
-        actor: "jarvis",
-        type: "awaiting_approval",
-        status: "active",
-        verb: "Waiting",
-        label: "Awaiting approval",
-        summary: "Waiting for explicit human approval before execution.",
-        reason: getReasonDetail("APPROVAL_REQUIRED"),
-        approvalId: e.id,
-        kind,
-      });
-    }
-
-    if (e.approvedAt) {
-      out.push({
-        id: `${baseId}-approved`,
-        traceId,
-        timestamp: e.approvedAt,
-        actor: "human",
-        type: "approved",
-        status: "approved",
-        verb: "Approved",
-        label: "Approved",
-        summary: "Operator approved proposal for execution.",
-        approvalId: e.id,
-        kind,
-      });
-    }
-
-    const rejectedAt = (e as { rejectedAt?: string }).rejectedAt;
-    if (rejectedAt) {
-      out.push({
-        id: `${baseId}-rejected`,
-        traceId,
-        timestamp: rejectedAt,
-        actor: "human",
-        type: "rejected",
-        status: "blocked",
-        verb: "Blocked",
-        label: "Rejected",
-        summary: "Operator rejected proposal.",
-        reason: getReasonDetail("APPROVAL_REQUIRED"),
-        approvalId: e.id,
-        kind,
-      });
-    }
-
-    if (e.approvedAt && !e.executedAt) {
-      out.push({
-        id: `${baseId}-execution-started`,
-        traceId,
-        timestamp: e.approvedAt,
-        actor: "jarvis",
-        type: "execution_started",
-        status: "active",
-        verb: "Waiting",
-        label: "Execution started",
-        summary: "Jarvis queued execution after approval.",
-        approvalId: e.id,
-        kind,
-      });
-    }
-
-    if (e.executedAt) {
-      out.push({
-        id: `${baseId}-execution-completed`,
-        traceId,
-        timestamp: e.executedAt,
-        actor: "jarvis",
-        type: "execution_completed",
-        status: "success",
-        verb: "Executed",
-        label: "Execution completed",
-        summary: `Execution completed for ${kind ?? "action"}.`,
-        approvalId: e.id,
-        kind,
-      });
-    }
-  }
-
-  for (const p of policyDecisions) {
-    const denied = p.decision === "deny";
+function mapApprovalEvents(ctx: EventContext): ActivityEvent[] {
+  const out: ActivityEvent[] = [];
+  if (ctx.status === "pending" && !ctx.approvedAt && !ctx.executedAt) {
     out.push({
+      id: `${ctx.traceId}-${ctx.approvalId}-awaiting-approval`,
+      traceId: ctx.traceId,
+      timestamp: ctx.timestamp,
+      actor: "jarvis",
+      type: "awaiting_approval",
+      status: "active",
+      verb: "Waiting",
+      label: "Awaiting approval",
+      summary: "Waiting for explicit human approval before execution.",
+      reason: getReasonDetail("APPROVAL_REQUIRED"),
+      approvalId: ctx.approvalId,
+      kind: ctx.kind,
+    });
+  }
+  if (ctx.approvedAt) {
+    out.push({
+      id: `${ctx.traceId}-${ctx.approvalId}-approved`,
+      traceId: ctx.traceId,
+      timestamp: ctx.approvedAt,
+      actor: "human",
+      type: "approved",
+      status: "approved",
+      verb: "Approved",
+      label: "Approved",
+      summary: "Operator approved proposal for execution.",
+      approvalId: ctx.approvalId,
+      kind: ctx.kind,
+    });
+  }
+  if (ctx.rejectedAt) {
+    out.push({
+      id: `${ctx.traceId}-${ctx.approvalId}-rejected`,
+      traceId: ctx.traceId,
+      timestamp: ctx.rejectedAt,
+      actor: "human",
+      type: "rejected",
+      status: "blocked",
+      verb: "Blocked",
+      label: "Rejected",
+      summary: "Operator rejected proposal.",
+      reason: getReasonDetail("APPROVAL_REQUIRED"),
+      approvalId: ctx.approvalId,
+      kind: ctx.kind,
+    });
+  }
+  return out;
+}
+
+function mapExecutionEvents(ctx: EventContext): ActivityEvent[] {
+  const out: ActivityEvent[] = [];
+  if (ctx.approvedAt && !ctx.executedAt) {
+    out.push({
+      id: `${ctx.traceId}-${ctx.approvalId}-execution-started`,
+      traceId: ctx.traceId,
+      timestamp: ctx.approvedAt,
+      actor: "jarvis",
+      type: "execution_started",
+      status: "active",
+      verb: "Waiting",
+      label: "Execution started",
+      summary: "Jarvis queued execution after approval.",
+      approvalId: ctx.approvalId,
+      kind: ctx.kind,
+    });
+  }
+  if (ctx.executedAt) {
+    out.push({
+      id: `${ctx.traceId}-${ctx.approvalId}-execution-completed`,
+      traceId: ctx.traceId,
+      timestamp: ctx.executedAt,
+      actor: "jarvis",
+      type: "execution_completed",
+      status: "success",
+      verb: "Executed",
+      label: "Execution completed",
+      summary: `Execution completed for ${ctx.kind ?? "action"}.`,
+      approvalId: ctx.approvalId,
+      kind: ctx.kind,
+    });
+  }
+  return out;
+}
+
+function mapPolicyEvents(policyDecisions: PolicyDecisionEntry[]): ActivityEvent[] {
+  return policyDecisions.map((p) => {
+    const denied = p.decision === "deny";
+    return {
       id: `${p.traceId}-${p.timestamp}-${p.decision}`,
       traceId: p.traceId,
       timestamp: p.timestamp,
@@ -225,13 +255,15 @@ function toActivityEvents(
         ? `Policy blocked execution (${p.rule}).`
         : `Policy allowed execution (${p.rule}).`,
       reason: denied ? reasonFromPolicyReason(p.reason) : undefined,
-    });
-  }
+    };
+  });
+}
 
+function mapReceiptEvents(actions: ActionLogEntry[]): ActivityEvent[] {
+  const out: ActivityEvent[] = [];
   for (const a of actions) {
     const traceId = a.traceId ?? "";
     if (!traceId) continue;
-
     const blocked = a.status === "blocked";
     const failed = a.status === "failed";
     const firstReason = a.reasonDetails?.[0];
@@ -243,13 +275,12 @@ function toActivityEvents(
       type: "receipt_written",
       status: a.status,
       verb: "Recorded",
-      label: "Receipt written",
+      label: "Receipt recorded",
       summary: a.summary || `Receipt recorded for ${a.kind}.`,
       reason: firstReason,
       approvalId: a.approvalId,
       kind: a.kind,
     });
-
     if (blocked || failed) {
       out.push({
         id: `${traceId}-${a.id}-execution-${a.status}`,
@@ -269,8 +300,34 @@ function toActivityEvents(
       });
     }
   }
-
   return out;
+}
+
+function mergeAndSortActivityEvents(eventGroups: ActivityEvent[][]): ActivityEvent[] {
+  return eventGroups.flat().sort((a, b) => {
+    return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+  });
+}
+
+function toActivityEvents(
+  events: StoredEvent[],
+  actions: ActionLogEntry[],
+  policyDecisions: PolicyDecisionEntry[]
+): ActivityEvent[] {
+  const streamEvents = events.flatMap((e) => {
+    const ctx = toEventContext(e);
+    return [
+      ...mapProposalEvents(ctx),
+      ...mapIngressEvents(ctx),
+      ...mapApprovalEvents(ctx),
+      ...mapExecutionEvents(ctx),
+    ];
+  });
+  return mergeAndSortActivityEvents([
+    streamEvents,
+    mapPolicyEvents(policyDecisions),
+    mapReceiptEvents(actions),
+  ]);
 }
 
 export async function GET(request: Request) {
@@ -281,10 +338,6 @@ export async function GET(request: Request) {
     const policyDecisions = await readPolicyDecisionsChronological(dateKey);
 
     const activityEvents = toActivityEvents(events, actions, policyDecisions);
-    activityEvents.sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
 
     const includePosture =
       new URL(request.url).searchParams.get("includePosture") === "1";

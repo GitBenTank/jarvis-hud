@@ -11,7 +11,9 @@ export type IngressAllowlistResult = {
 };
 
 export function isIngressEnabled(): boolean {
-  return process.env.JARVIS_INGRESS_OPENCLAW_ENABLED === "true";
+  const val = process.env.JARVIS_INGRESS_OPENCLAW_ENABLED;
+  console.log("INGRESS ENABLED ENV:", val);
+  return (val || "").trim().toLowerCase() === "true";
 }
 
 export function getIngressSecret(): string | null {

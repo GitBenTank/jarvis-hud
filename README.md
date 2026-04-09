@@ -150,6 +150,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [OpenClaw integration](docs/openclaw-integration-verification.md)
 - [Demo runbook](DEMO.md)
 - [Environment variables](docs/setup/env.md)
+- [Audit export (Phase 3)](docs/audit-export.md)
 - [GitHub About / social copy](docs/marketing/social-copy.md)
 - [Security reporting](SECURITY.md)
 

@@ -12,7 +12,7 @@ Thanks for your interest in contributing.
 
 ## Guidelines
 
-- Preserve the project's thesis: agents propose, humans approve, execution is traceable
+- Preserve the project's thesis: agents propose, humans approve, execution is separate, every action leaves proof (receipt + artifact + trace)
 - Follow existing code style and patterns
 - Add tests for new behavior where appropriate
 - Do not commit secrets; use `env.example` as reference for env vars

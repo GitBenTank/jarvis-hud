@@ -2,13 +2,15 @@
 
 **Repo:** https://github.com/GitBenTank/jarvis-hud
 
+Copy the blocks below into **GitHub → Settings → General** (Description + Topics). Wording matches **Thesis Lock**: agents propose, humans approve, execution is separate, every action leaves proof.
+
 ---
 
 ## GitHub Repo Settings
 
 **Description** (Settings → General → Description):
 
-> Jarvis HUD — An AI control plane for verifiable automation. Agents propose actions, humans approve them, and the system executes them with receipts and traceability.
+> Jarvis HUD — Control plane for local agents: agents propose, humans approve, execution is a separate step, every action leaves proof (receipt + artifact + trace). OpenClaw ingress optional. Demo-ready; see README.
 
 **Topics** (Settings → General → Topics):
 
@@ -34,8 +36,8 @@ agent-frameworks
 
 When pinning Jarvis HUD to your GitHub profile, use one of these:
 
-**Recommended:**
-> Jarvis HUD — An AI control plane for verifiable automation. Agents propose actions, humans approve them, and the system executes them with receipts and a traceable lifecycle.
+**Recommended (thesis-aligned):**
+> Jarvis HUD — Agents propose, humans approve, execution is separate, every action leaves proof. Local-first control plane for governed agent automation.
 
 **Shorter:**
 > Jarvis HUD — A control plane for AI agents. Propose → approve → execute → trace.
@@ -112,4 +114,4 @@ What it does:
 
 Stack: Next.js 16, React 19, TypeScript, pnpm
 
-Run: `pnpm install && pnpm dev` → http://127.0.0.1:3000
+Dev: `pnpm dev` → http://127.0.0.1:3000 · Demo boot: `pnpm demo:boot` → http://127.0.0.1:3001 (see README)

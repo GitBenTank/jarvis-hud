@@ -22,6 +22,10 @@ export type ProposalEvent = {
   failedAt?: string;
   source?: { connector: string; verified?: boolean };
   trustedIngress?: { ok: boolean };
+  /** OpenClaw builder agent; optional metadata. */
+  builder?: string;
+  provider?: string;
+  model?: string;
 };
 
 function formatRelativeTime(iso: string): string {
@@ -147,6 +151,42 @@ function ProposalCard({
               Recovery
             </span>
           )}
+          {event.source?.connector === "openclaw" && event.agent?.trim() ? (
+            <>
+              <span className="text-zinc-400">|</span>
+              <span className="text-zinc-500 dark:text-zinc-400">
+                <span className="font-medium text-zinc-600 dark:text-zinc-500">Coordinator:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">{event.agent}</span>
+              </span>
+            </>
+          ) : null}
+          {event.builder?.trim() ? (
+            <>
+              <span className="text-zinc-400">|</span>
+              <span className="text-zinc-500 dark:text-zinc-400">
+                <span className="font-medium text-zinc-600 dark:text-zinc-500">Builder:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">{event.builder.trim()}</span>
+              </span>
+            </>
+          ) : null}
+          {event.provider?.trim() ? (
+            <>
+              <span className="text-zinc-400">|</span>
+              <span className="text-zinc-500 dark:text-zinc-400">
+                <span className="font-medium text-zinc-600 dark:text-zinc-500">Provider:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">{event.provider.trim()}</span>
+              </span>
+            </>
+          ) : null}
+          {event.model?.trim() ? (
+            <>
+              <span className="text-zinc-400">|</span>
+              <span className="truncate font-mono text-zinc-600 dark:text-zinc-400" title={event.model.trim()}>
+                <span className="font-medium text-zinc-600 dark:text-zinc-500">Model:</span>{" "}
+                {event.model.trim()}
+              </span>
+            </>
+          ) : null}
         </div>
 
         <p className={`font-medium text-zinc-800 dark:text-zinc-200 ${isPending || isRecovery ? "text-base" : "text-sm"}`}>

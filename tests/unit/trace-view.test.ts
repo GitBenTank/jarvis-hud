@@ -132,4 +132,50 @@ describe("GET /api/traces/[traceId]", () => {
     const json = await response.json();
     expect(json.error).toContain("traceId");
   });
+
+  it("returns agent, builder, provider, and model on trace events when present on disk", async () => {
+    const { getDateKey, getEventsFilePath, readJson, writeJson } = await import("@/lib/storage");
+    const traceId = "trace-agent-builder-test";
+    const dateKey = getDateKey();
+    const filePath = getEventsFilePath(dateKey);
+    const ev = {
+      id: "evt-ab-1",
+      traceId,
+      type: "proposed_action",
+      agent: "alfred",
+      builder: "forge",
+      provider: "openai",
+      model: "openai/gpt-4o",
+      payload: {
+        kind: "system.note",
+        title: "Demo",
+        summary: "Hello",
+        note: "x",
+      },
+      requiresApproval: true,
+      status: "pending",
+      createdAt: "2026-04-02T12:00:00.000Z",
+      actorId: "alfred",
+      actorType: "agent",
+      actorLabel: "alfred",
+    };
+    const prior = await readJson<Record<string, unknown>[]>(filePath);
+    await writeJson(filePath, [...(prior ?? []), ev]);
+
+    const { GET } = await import("@/app/api/traces/[traceId]/route");
+    const response = await GET(
+      new Request(`http://localhost/api/traces/${traceId}`),
+      { params: Promise.resolve({ traceId }) }
+    );
+
+    expect(response.status).toBe(200);
+    const json = (await response.json()) as {
+      events: Array<{ agent?: string; builder?: string; provider?: string; model?: string }>;
+    };
+    expect(json.events).toHaveLength(1);
+    expect(json.events[0].agent).toBe("alfred");
+    expect(json.events[0].builder).toBe("forge");
+    expect(json.events[0].provider).toBe("openai");
+    expect(json.events[0].model).toBe("openai/gpt-4o");
+  });
 });

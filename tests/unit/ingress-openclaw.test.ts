@@ -190,6 +190,59 @@ describe("POST /api/ingress/openclaw", () => {
     expect(ev.actorLabel).toBe("OpenClaw");
   });
 
+  it("preserves optional agent, builder, provider, model and derives proposer actor from agent", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");
+
+    const body = {
+      ...VALID_BODY,
+      agent: "alfred",
+      builder: "forge",
+      provider: "openai",
+      model: "openai/gpt-4o",
+    };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+
+    const dateKey = getDateKey();
+    const filePath = getEventsFilePath(dateKey);
+    const events = await readJson<unknown[]>(filePath);
+    const written = (events ?? []).find(
+      (e: unknown) =>
+        typeof e === "object" && e !== null && (e as { id?: string }).id === json.id
+    ) as Record<string, unknown>;
+    expect(written.agent).toBe("alfred");
+    expect(written.builder).toBe("forge");
+    expect(written.provider).toBe("openai");
+    expect(written.model).toBe("openai/gpt-4o");
+    expect(written.actorId).toBe("alfred");
+    expect(written.actorLabel).toBe("alfred");
+    const pl = written.payload as Record<string, unknown>;
+    expect(pl.agent).toBeUndefined();
+    expect(pl.builder).toBeUndefined();
+    expect(pl.provider).toBeUndefined();
+    expect(pl.model).toBeUndefined();
+  });
+
+  it("returns 400 when agent is not a string", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const body = { ...VALID_BODY, agent: 123 };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 when provider is not a string", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const body = { ...VALID_BODY, provider: true };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(400);
+  });
+
   it("returns 403 when connector not in allowlist", async () => {
     process.env.JARVIS_INGRESS_ALLOWLIST_CONNECTORS = "other-connector";
     const { POST } = await import("@/app/api/ingress/openclaw/route");

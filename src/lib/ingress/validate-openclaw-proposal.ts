@@ -22,7 +22,17 @@ const ALLOWED_TOP_LEVEL_KEYS = new Set([
   "source",
   "confidence",
   "correlationId",
+  /** OpenClaw coordinator / builder / LLM labels (metadata only; optional strings). */
+  "agent",
+  "builder",
+  "provider",
+  "model",
 ]);
+
+/** Max length for optional coordinator, builder, provider strings. */
+const AGENT_METADATA_MAX_LEN = 64;
+/** Max length for optional model id string (e.g. `openai/gpt-4o`). */
+const MODEL_METADATA_MAX_LEN = 128;
 
 const BINARY_PATCH_MARKERS = ["GIT binary patch", "literal "];
 const VALID_PATCH_MARKERS = ["diff --git"];
@@ -148,6 +158,82 @@ export function validateOpenClawProposal(input: {
       message: "correlationId must be a string when provided",
       field: "correlationId",
     };
+  }
+
+  if (o.agent !== undefined) {
+    if (typeof o.agent !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "agent must be a string when provided",
+        field: "agent",
+      };
+    }
+    if (o.agent.length > AGENT_METADATA_MAX_LEN) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `agent must be ≤ ${AGENT_METADATA_MAX_LEN} chars`,
+        field: "agent",
+      };
+    }
+  }
+
+  if (o.builder !== undefined) {
+    if (typeof o.builder !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "builder must be a string when provided",
+        field: "builder",
+      };
+    }
+    if (o.builder.length > AGENT_METADATA_MAX_LEN) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `builder must be ≤ ${AGENT_METADATA_MAX_LEN} chars`,
+        field: "builder",
+      };
+    }
+  }
+
+  if (o.provider !== undefined) {
+    if (typeof o.provider !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "provider must be a string when provided",
+        field: "provider",
+      };
+    }
+    if (o.provider.length > AGENT_METADATA_MAX_LEN) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `provider must be ≤ ${AGENT_METADATA_MAX_LEN} chars`,
+        field: "provider",
+      };
+    }
+  }
+
+  if (o.model !== undefined) {
+    if (typeof o.model !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "model must be a string when provided",
+        field: "model",
+      };
+    }
+    if (o.model.length > MODEL_METADATA_MAX_LEN) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `model must be ≤ ${MODEL_METADATA_MAX_LEN} chars`,
+        field: "model",
+      };
+    }
   }
 
   for (const k of ["sessionId", "agentId", "requestId"]) {

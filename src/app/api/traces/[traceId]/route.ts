@@ -46,6 +46,12 @@ type StoredEvent = {
   approvedAt?: string;
   rejectedAt?: string;
   failedAt?: string;
+  /** OpenClaw builder agent label (metadata only). */
+  builder?: string;
+  /** LLM provider (metadata only). */
+  provider?: string;
+  /** Model id (metadata only). */
+  model?: string;
 };
 
 type PipelineStageId =
@@ -344,6 +350,9 @@ export async function GET(
       executionActorId: e.executionActorId,
       executionActorType: e.executionActorType,
       executionActorLabel: e.executionActorLabel,
+      builder: e.builder,
+      provider: e.provider,
+      model: e.model,
     };
   });
 

@@ -294,4 +294,112 @@ describe("validateOpenClawProposal", () => {
     });
     expect(r.ok).toBe(false);
   });
+
+  it("accepts optional agent and builder strings", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      agent: "alfred",
+      builder: "forge",
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects non-string agent", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      agent: 1,
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("agent");
+  });
+
+  it("rejects agent longer than 64 chars", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      agent: "x".repeat(65),
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("agent");
+  });
+
+  it("accepts optional provider and model strings", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      provider: "openai",
+      model: "openai/gpt-4o",
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects non-string model", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      model: ["x"],
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("model");
+  });
+
+  it("rejects model longer than 128 chars", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      model: "x".repeat(129),
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("model");
+  });
 });

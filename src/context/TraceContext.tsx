@@ -54,6 +54,10 @@ export type TraceEvent = {
   executionActorId?: string;
   executionActorType?: "human" | "agent";
   executionActorLabel?: string;
+  /** OpenClaw builder agent (e.g. forge); metadata only. */
+  builder?: string;
+  provider?: string;
+  model?: string;
 };
 
 export type TraceAction = {

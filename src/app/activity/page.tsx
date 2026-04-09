@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import ActivityGraph from "@/components/ActivityGraph";
+import OpenClawHealthBadge from "@/components/OpenClawHealthBadge";
 import TracePanel from "@/components/TracePanel";
 
 export default function ActivityPage() {
@@ -18,6 +19,7 @@ export default function ActivityPage() {
             ← Dashboard
           </Link>
         </div>
+        <OpenClawHealthBadge />
         <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
           <div className="border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">
             <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">

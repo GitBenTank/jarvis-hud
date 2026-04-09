@@ -54,6 +54,9 @@ type StoredEvent = {
     requestId?: string;
   };
   correlationId?: string;
+  builder?: string;
+  provider?: string;
+  model?: string;
 } & Partial<ActorFieldsOnEvent>;
 
 /**
@@ -120,6 +123,9 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
         source: proposalEvent.source,
         correlationId: proposalEvent.correlationId ?? undefined,
         agent: proposalEvent.agent,
+        ...(proposalEvent.builder ? { builder: proposalEvent.builder } : {}),
+        ...(proposalEvent.provider ? { provider: proposalEvent.provider } : {}),
+        ...(proposalEvent.model ? { model: proposalEvent.model } : {}),
         ...(proposalEvent.actorId
           ? {
               actorId: proposalEvent.actorId,

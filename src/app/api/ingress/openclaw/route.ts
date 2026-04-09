@@ -25,7 +25,7 @@ import {
 import { validateOpenClawProposal } from "@/lib/ingress/validate-openclaw-proposal";
 import { ALLOWED_KINDS } from "@/lib/policy";
 import { getReasonDetail } from "@/lib/reason-taxonomy";
-import { ACTOR_OPENCLAW } from "@/lib/actor-identity";
+import { ACTOR_OPENCLAW, agentActorFromAgentField } from "@/lib/actor-identity";
 
 type IngressEvent = {
   id: string;
@@ -55,6 +55,12 @@ type IngressEvent = {
   actorId: string;
   actorType: "human" | "agent";
   actorLabel?: string;
+  /** Specialist that drafted the proposal (OpenClaw metadata only). */
+  builder?: string;
+  /** LLM provider label (e.g. openai); metadata only. */
+  provider?: string;
+  /** Model id string; metadata only. */
+  model?: string;
 };
 
 type IngressBody = {
@@ -70,6 +76,12 @@ type IngressBody = {
     requestId?: string;
   };
   correlationId?: string;
+  /** Coordinator agent name (e.g. alfred); optional. Stored as event `agent` when set. */
+  agent?: string;
+  /** Builder agent name (e.g. forge); optional. */
+  builder?: string;
+  provider?: string;
+  model?: string;
 };
 
 export async function POST(request: NextRequest) {
@@ -251,6 +263,10 @@ export async function POST(request: NextRequest) {
       "approvedAt",
       "traceId",
       "id",
+      "agent",
+      "builder",
+      "provider",
+      "model",
     ];
     const rawPayload =
       body.payload && typeof body.payload === "object" ? body.payload : {};
@@ -296,11 +312,33 @@ export async function POST(request: NextRequest) {
     const bodySource = (body.source && typeof body.source === "object"
       ? body.source
       : {}) as Record<string, unknown>;
+
+    const coordinatorName =
+      typeof body.agent === "string" && body.agent.trim()
+        ? body.agent.trim()
+        : "";
+    const builderName =
+      typeof body.builder === "string" && body.builder.trim()
+        ? body.builder.trim()
+        : undefined;
+    const providerName =
+      typeof body.provider === "string" && body.provider.trim()
+        ? body.provider.trim()
+        : undefined;
+    const modelName =
+      typeof body.model === "string" && body.model.trim()
+        ? body.model.trim()
+        : undefined;
+
+    const proposerActor = coordinatorName
+      ? agentActorFromAgentField(coordinatorName)
+      : ACTOR_OPENCLAW;
+
     const event: IngressEvent = {
       id,
       traceId,
       type: "proposed_action",
-      agent: "openclaw",
+      agent: coordinatorName || "openclaw",
       payload,
       requiresApproval: true,
       status: "pending",
@@ -312,6 +350,9 @@ export async function POST(request: NextRequest) {
       ...(typeof body.correlationId === "string" && body.correlationId.trim()
         ? { correlationId: body.correlationId.trim() }
         : {}),
+      ...(builderName ? { builder: builderName } : {}),
+      ...(providerName ? { provider: providerName } : {}),
+      ...(modelName ? { model: modelName } : {}),
       source: {
         connector: "openclaw",
         receivedAt,
@@ -323,9 +364,9 @@ export async function POST(request: NextRequest) {
         ...(typeof bodySource.requestId === "string" ? { requestId: bodySource.requestId } : {}),
       },
       trustedIngress: { ok: true, reasons: [] },
-      actorId: ACTOR_OPENCLAW.actorId,
-      actorType: ACTOR_OPENCLAW.actorType,
-      actorLabel: ACTOR_OPENCLAW.actorLabel,
+      actorId: proposerActor.actorId,
+      actorType: proposerActor.actorType,
+      actorLabel: proposerActor.actorLabel,
     };
 
     const dateKey = getDateKey();

@@ -39,6 +39,10 @@ type Event = {
   };
   correlationId?: string;
   trustedIngress?: { ok: boolean; reasons?: string[] };
+  /** OpenClaw builder agent label (e.g. forge); optional metadata. */
+  builder?: string;
+  provider?: string;
+  model?: string;
 };
 
 type ApprovalsResponse = {
@@ -296,9 +300,27 @@ function DetailModal({
             </dd>
           </div>
           <div>
-            <dt className="font-medium text-zinc-500">Agent</dt>
+            <dt className="font-medium text-zinc-500">Coordinator</dt>
             <dd>{event.agent}</dd>
           </div>
+          {event.builder?.trim() ? (
+            <div>
+              <dt className="font-medium text-zinc-500">Builder</dt>
+              <dd>{event.builder.trim()}</dd>
+            </div>
+          ) : null}
+          {event.provider?.trim() ? (
+            <div>
+              <dt className="font-medium text-zinc-500">Provider</dt>
+              <dd>{event.provider.trim()}</dd>
+            </div>
+          ) : null}
+          {event.model?.trim() ? (
+            <div>
+              <dt className="font-medium text-zinc-500">Model</dt>
+              <dd className="break-all font-mono text-xs">{event.model.trim()}</dd>
+            </div>
+          ) : null}
           <LifecycleTimestamps event={event} />
         </dl>
 

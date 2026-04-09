@@ -52,6 +52,9 @@ type TraceEvent = {
   executionActorId?: string;
   executionActorType?: "human" | "agent";
   executionActorLabel?: string;
+  builder?: string;
+  provider?: string;
+  model?: string;
 };
 
 type TraceAction = {
@@ -122,6 +125,9 @@ type TraceReplayResult = {
     actorId?: string;
     actorType?: "human" | "agent";
     actorLabel?: string;
+    builder?: string;
+    provider?: string;
+    model?: string;
   } | null;
   approval: {
     status: string;
@@ -192,6 +198,9 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
       executionActorId: approval.executionActorId,
       executionActorType: approval.executionActorType,
       executionActorLabel: approval.executionActorLabel,
+      builder: proposal.builder,
+      provider: proposal.provider,
+      model: proposal.model,
     });
   }
 
@@ -607,33 +616,31 @@ export default function TracePanel() {
 
   const actorSummary = useMemo(() => {
     if (!primaryEvent) return null;
-    const proposer =
+    const coordinator =
       primaryEvent.actorLabel ??
       primaryEvent.actorId ??
       primaryEvent.agent ??
       primaryEvent.source?.connector ??
       "—";
-    let approver = "—";
-    if (primaryEvent.rejectedAt) {
-      approver =
-        primaryEvent.rejectionActorLabel ??
+    const builder = primaryEvent.builder?.trim() ? primaryEvent.builder : "—";
+    const provider = primaryEvent.provider?.trim() ? primaryEvent.provider : "—";
+    const model = primaryEvent.model?.trim() ? primaryEvent.model : "—";
+    const approver = primaryEvent.rejectedAt
+      ? (primaryEvent.rejectionActorLabel ??
         primaryEvent.rejectionActorId ??
-        "—";
-    } else if (primaryEvent.approvedAt || primaryEvent.executed) {
-      approver =
-        primaryEvent.approvalActorLabel ??
-        primaryEvent.approvalActorId ??
-        "—";
-    } else {
-      approver = "(pending approval)";
-    }
+        "—")
+      : primaryEvent.approvedAt || primaryEvent.executed
+        ? (primaryEvent.approvalActorLabel ??
+          primaryEvent.approvalActorId ??
+          "—")
+        : "(pending approval)";
     const executor =
       primaryReceipt?.actors?.executor?.actorLabel ??
       primaryReceipt?.actors?.executor?.actorId ??
       primaryEvent.executionActorLabel ??
       primaryEvent.executionActorId ??
       (primaryEvent.executed ? "—" : "(after execute)");
-    return { proposer, approver, executor };
+    return { coordinator, builder, provider, model, approver, executor };
   }, [primaryEvent, primaryReceipt]);
 
   type StageId = "proposal" | "approval" | "policy" | "execution" | "receipt" | "reconciliation";
@@ -641,12 +648,24 @@ export default function TracePanel() {
   const lifecycleSteps = useMemo(() => {
     const steps: { id: string; label: string; icon: string; iconClass: string; lines: string[]; state: "done" | "missing" | "pending" }[] = [];
     if (!primaryEvent) return steps;
-    const proposerDisplay =
+    const coordinatorDisplay =
       primaryEvent.actorLabel ??
       primaryEvent.actorId ??
       primaryEvent.source?.connector ??
       primaryEvent.agent ??
       "agent";
+    const builderLine =
+      primaryEvent.builder?.trim() ?
+        `Builder: ${primaryEvent.builder.trim()}`
+      : null;
+    const providerLine =
+      primaryEvent.provider?.trim() ?
+        `Provider: ${primaryEvent.provider.trim()}`
+      : null;
+    const modelLine =
+      primaryEvent.model?.trim() ?
+        `Model: ${primaryEvent.model.trim()}`
+      : null;
     const kind = primaryEvent.kind ?? "—";
     const pd = primaryPolicy;
     const executed = primaryEvent.executed || !!primaryEvent.failedAt;
@@ -664,7 +683,10 @@ export default function TracePanel() {
         iconClass: "text-emerald-500",
         state: "done",
         lines: [
-          `Proposer: ${proposerDisplay}${primaryEvent.actorType ? ` (${primaryEvent.actorType})` : ""}`,
+          `Coordinator: ${coordinatorDisplay}${primaryEvent.actorType ? ` (${primaryEvent.actorType})` : ""}`,
+          ...(builderLine ? [builderLine] : []),
+          ...(providerLine ? [providerLine] : []),
+          ...(modelLine ? [modelLine] : []),
           `Kind: ${kind}`,
           `Time: ${formatTime(primaryEvent.createdAt)}`,
         ],
@@ -1080,13 +1102,37 @@ export default function TracePanel() {
                 </div>
               </div>
               {actorSummary && (
-                <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-1 gap-2 border-t border-zinc-200 pt-2 dark:border-zinc-600 sm:grid-cols-3">
+                <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-1 gap-2 border-t border-zinc-200 pt-2 dark:border-zinc-600 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
                     <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                      Proposer
+                      Coordinator
                     </div>
                     <div className="mt-0.5 text-xs text-zinc-800 dark:text-zinc-200">
-                      {actorSummary.proposer}
+                      {actorSummary.coordinator}
+                    </div>
+                  </div>
+                  <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                      Builder
+                    </div>
+                    <div className="mt-0.5 text-xs text-zinc-800 dark:text-zinc-200">
+                      {actorSummary.builder}
+                    </div>
+                  </div>
+                  <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                      Provider
+                    </div>
+                    <div className="mt-0.5 text-xs text-zinc-800 dark:text-zinc-200">
+                      {actorSummary.provider}
+                    </div>
+                  </div>
+                  <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                      Model
+                    </div>
+                    <div className="mt-0.5 truncate text-xs text-zinc-800 dark:text-zinc-200" title={actorSummary.model}>
+                      {actorSummary.model}
                     </div>
                   </div>
                   <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">

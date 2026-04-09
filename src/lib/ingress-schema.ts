@@ -24,7 +24,14 @@ const ALLOWLISTED_TOP_LEVEL_KEYS = new Set([
   "markdown",
   "confidence",
   "correlationId",
+  "agent",
+  "builder",
+  "provider",
+  "model",
 ]);
+
+const AGENT_METADATA_MAX_LEN = 64;
+const MODEL_METADATA_MAX_LEN = 128;
 
 export function validateRawBodySize(rawBody: string): ValidationError | null {
   const bytes = Buffer.byteLength(rawBody, "utf8");
@@ -86,6 +93,70 @@ export function validateIngressBody(
         code: "INVALID_SOURCE",
         message: "source.connector must be 'openclaw'",
         field: "source.connector",
+      });
+    }
+  }
+
+  if (o.agent !== undefined) {
+    if (typeof o.agent !== "string") {
+      errors.push({
+        code: "INVALID_FIELD",
+        message: "agent must be a string when provided",
+        field: "agent",
+      });
+    } else if (o.agent.length > AGENT_METADATA_MAX_LEN) {
+      errors.push({
+        code: "FIELD_TOO_LONG",
+        message: `agent must be ≤ ${AGENT_METADATA_MAX_LEN} chars`,
+        field: "agent",
+      });
+    }
+  }
+
+  if (o.builder !== undefined) {
+    if (typeof o.builder !== "string") {
+      errors.push({
+        code: "INVALID_FIELD",
+        message: "builder must be a string when provided",
+        field: "builder",
+      });
+    } else if (o.builder.length > AGENT_METADATA_MAX_LEN) {
+      errors.push({
+        code: "FIELD_TOO_LONG",
+        message: `builder must be ≤ ${AGENT_METADATA_MAX_LEN} chars`,
+        field: "builder",
+      });
+    }
+  }
+
+  if (o.provider !== undefined) {
+    if (typeof o.provider !== "string") {
+      errors.push({
+        code: "INVALID_FIELD",
+        message: "provider must be a string when provided",
+        field: "provider",
+      });
+    } else if (o.provider.length > AGENT_METADATA_MAX_LEN) {
+      errors.push({
+        code: "FIELD_TOO_LONG",
+        message: `provider must be ≤ ${AGENT_METADATA_MAX_LEN} chars`,
+        field: "provider",
+      });
+    }
+  }
+
+  if (o.model !== undefined) {
+    if (typeof o.model !== "string") {
+      errors.push({
+        code: "INVALID_FIELD",
+        message: "model must be a string when provided",
+        field: "model",
+      });
+    } else if (o.model.length > MODEL_METADATA_MAX_LEN) {
+      errors.push({
+        code: "FIELD_TOO_LONG",
+        message: `model must be ≤ ${MODEL_METADATA_MAX_LEN} chars`,
+        field: "model",
       });
     }
   }

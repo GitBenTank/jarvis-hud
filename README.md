@@ -97,6 +97,7 @@ Jarvis sits between AI agents and system execution:
 | Execution | `POST /api/execute/[approvalId]` | Policy gate → adapters |
 | Trace     | `GET /api/traces/[traceId]`      | Reconstruct session      |
 | Trace     | `GET /api/traces/recent`        | Recent trace ids (disk)  |
+| Connectors | `GET /api/connectors/openclaw/health` | OpenClaw trust signal (disk + env) |
 
 → [Control plane architecture](docs/architecture/control-plane.md)
 
@@ -149,11 +150,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [Security model](docs/architecture/security-model.md)
 - [Policy decision logs](docs/architecture/policy-decision-logs.md)
 - [OpenClaw integration](docs/openclaw-integration-verification.md)
+- [OpenClaw coordinator / builder metadata](docs/openclaw-agent-identity.md)
 - [Demo runbook](DEMO.md)
 - [Environment variables](docs/setup/env.md)
 - [Audit export (Phase 3)](docs/audit-export.md)
 - [Execution scope / blast radius (Phase 4)](docs/execution-scope.md)
 - [Traces & deep links (Phase 5)](docs/traces.md)
+- [OpenClaw connector health](docs/connectors.md)
+- [Live demo reliability checklist](docs/live-demo-reliability-checklist.md)
 - [GitHub About / social copy](docs/marketing/social-copy.md)
 - [Security reporting](SECURITY.md)
 

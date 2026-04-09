@@ -25,6 +25,7 @@ import {
 import { validateOpenClawProposal } from "@/lib/ingress/validate-openclaw-proposal";
 import { ALLOWED_KINDS } from "@/lib/policy";
 import { getReasonDetail } from "@/lib/reason-taxonomy";
+import { ACTOR_OPENCLAW } from "@/lib/actor-identity";
 
 type IngressEvent = {
   id: string;
@@ -51,6 +52,9 @@ type IngressEvent = {
     requestId?: string;
   };
   trustedIngress: { ok: boolean; reasons: string[] };
+  actorId: string;
+  actorType: "human" | "agent";
+  actorLabel?: string;
 };
 
 type IngressBody = {
@@ -319,6 +323,9 @@ export async function POST(request: NextRequest) {
         ...(typeof bodySource.requestId === "string" ? { requestId: bodySource.requestId } : {}),
       },
       trustedIngress: { ok: true, reasons: [] },
+      actorId: ACTOR_OPENCLAW.actorId,
+      actorType: ACTOR_OPENCLAW.actorType,
+      actorLabel: ACTOR_OPENCLAW.actorLabel,
     };
 
     const dateKey = getDateKey();

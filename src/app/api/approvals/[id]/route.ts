@@ -7,6 +7,7 @@ import {
   readJson,
   writeJson,
 } from "@/lib/storage";
+import { ACTOR_LOCAL_USER } from "@/lib/actor-identity";
 
 type Event = {
   id: string;
@@ -23,6 +24,15 @@ type Event = {
   approvedAt?: string;
   rejectedAt?: string;
   failedAt?: string;
+  actorId?: string;
+  actorType?: "human" | "agent";
+  actorLabel?: string;
+  approvalActorId?: string;
+  approvalActorType?: "human" | "agent";
+  approvalActorLabel?: string;
+  rejectionActorId?: string;
+  rejectionActorType?: "human" | "agent";
+  rejectionActorLabel?: string;
 };
 
 type ApprovalBody = { action: "approve" | "deny" };
@@ -87,8 +97,20 @@ export async function POST(
       ...event,
       status: newStatus,
       ...(body.action === "approve"
-        ? { proposalStatus: "approved" as const, approvedAt: now }
-        : { proposalStatus: "rejected" as const, rejectedAt: now }),
+        ? {
+            proposalStatus: "approved" as const,
+            approvedAt: now,
+            approvalActorId: ACTOR_LOCAL_USER.actorId,
+            approvalActorType: ACTOR_LOCAL_USER.actorType,
+            approvalActorLabel: ACTOR_LOCAL_USER.actorLabel,
+          }
+        : {
+            proposalStatus: "rejected" as const,
+            rejectedAt: now,
+            rejectionActorId: ACTOR_LOCAL_USER.actorId,
+            rejectionActorType: ACTOR_LOCAL_USER.actorType,
+            rejectionActorLabel: ACTOR_LOCAL_USER.actorLabel,
+          }),
     };
     events[index] = updated;
     await writeJson(filePath, events);

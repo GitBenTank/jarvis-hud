@@ -7,6 +7,7 @@ import {
   readJson,
   writeJson,
 } from "@/lib/storage";
+import { agentActorFromAgentField } from "@/lib/actor-identity";
 
 type Event = {
   id: string;
@@ -17,6 +18,9 @@ type Event = {
   requiresApproval?: boolean;
   status: "pending" | "approved" | "denied";
   createdAt: string;
+  actorId: string;
+  actorType: "human" | "agent";
+  actorLabel?: string;
 };
 
 type DraftContentBody = {
@@ -108,6 +112,7 @@ export async function POST(request: NextRequest) {
         if (Object.keys(yt).length > 0) payload.youtube = yt;
       }
     }
+    const proposer = agentActorFromAgentField("drafts-ui");
     const event: Event = {
       id: crypto.randomUUID(),
       traceId: crypto.randomUUID(),
@@ -117,6 +122,9 @@ export async function POST(request: NextRequest) {
       requiresApproval: true,
       status: "pending",
       createdAt: new Date().toISOString(),
+      actorId: proposer.actorId,
+      actorType: proposer.actorType,
+      actorLabel: proposer.actorLabel,
     };
 
     const dateKey = getDateKey();

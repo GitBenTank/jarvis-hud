@@ -7,11 +7,13 @@ import {
   normalizeProposalLifecycle,
   type ProposalLifecycleEvent,
 } from "@/lib/proposal-lifecycle";
+import type { ReceiptActors } from "@/lib/actor-identity";
 
 type TraceEvent = {
   id: string;
   traceId?: string;
   kind: string;
+  agent?: string;
   status: string;
   createdAt: string;
   executedAt?: string;
@@ -37,6 +39,18 @@ type TraceEvent = {
   approvedAt?: string;
   rejectedAt?: string;
   failedAt?: string;
+  actorId?: string;
+  actorType?: "human" | "agent";
+  actorLabel?: string;
+  approvalActorId?: string;
+  approvalActorType?: "human" | "agent";
+  approvalActorLabel?: string;
+  rejectionActorId?: string;
+  rejectionActorType?: "human" | "agent";
+  rejectionActorLabel?: string;
+  executionActorId?: string;
+  executionActorType?: "human" | "agent";
+  executionActorLabel?: string;
 };
 
 type TraceAction = {
@@ -56,6 +70,7 @@ type TraceAction = {
   statsJson?: { filesChangedCount: number; insertions: number; deletions: number } | null;
   repoHeadBefore?: string | null;
   repoHeadAfter?: string | null;
+  actors?: ReceiptActors;
 };
 
 type TracePolicyDecision = {
@@ -93,6 +108,7 @@ type TraceReplayResult = {
     summary: string;
     title?: string;
     createdAt: string;
+    agent?: string;
     source?: {
       connector: string;
       verified?: boolean;
@@ -102,6 +118,9 @@ type TraceReplayResult = {
     };
     correlationId?: string;
     proposedAt?: string;
+    actorId?: string;
+    actorType?: "human" | "agent";
+    actorLabel?: string;
   } | null;
   approval: {
     status: string;
@@ -110,6 +129,15 @@ type TraceReplayResult = {
     failedAt?: string | null;
     executed?: boolean;
     executedAt?: string | null;
+    approvalActorId?: string;
+    approvalActorType?: "human" | "agent";
+    approvalActorLabel?: string;
+    rejectionActorId?: string;
+    rejectionActorType?: "human" | "agent";
+    rejectionActorLabel?: string;
+    executionActorId?: string;
+    executionActorType?: "human" | "agent";
+    executionActorLabel?: string;
   } | null;
   policyDecisions: TracePolicyDecision[];
   execution: Record<string, unknown> | null;
@@ -137,6 +165,7 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
       id: proposal.id,
       traceId: tid,
       kind: proposal.kind,
+      agent: proposal.agent,
       status: approval.status,
       createdAt: proposal.createdAt,
       executedAt: approval.executedAt ?? undefined,
@@ -150,6 +179,18 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
       approvedAt: approval.approvedAt ?? undefined,
       rejectedAt: approval.rejectedAt ?? undefined,
       failedAt: approval.failedAt ?? undefined,
+      actorId: proposal.actorId,
+      actorType: proposal.actorType,
+      actorLabel: proposal.actorLabel,
+      approvalActorId: approval.approvalActorId,
+      approvalActorType: approval.approvalActorType,
+      approvalActorLabel: approval.approvalActorLabel,
+      rejectionActorId: approval.rejectionActorId,
+      rejectionActorType: approval.rejectionActorType,
+      rejectionActorLabel: approval.rejectionActorLabel,
+      executionActorId: approval.executionActorId,
+      executionActorType: approval.executionActorType,
+      executionActorLabel: approval.executionActorLabel,
     });
   }
 
@@ -472,7 +513,12 @@ export default function TracePanel() {
   const lifecycleSteps = useMemo(() => {
     const steps: { id: string; label: string; icon: string; iconClass: string; lines: string[]; state: "done" | "missing" | "pending" }[] = [];
     if (!primaryEvent) return steps;
-    const agent = primaryEvent.source?.connector ?? "agent";
+    const proposerDisplay =
+      primaryEvent.actorLabel ??
+      primaryEvent.actorId ??
+      primaryEvent.source?.connector ??
+      primaryEvent.agent ??
+      "agent";
     const kind = primaryEvent.kind ?? "—";
     const pd = primaryPolicy;
     const executed = primaryEvent.executed || !!primaryEvent.failedAt;
@@ -489,7 +535,11 @@ export default function TracePanel() {
         icon: "●",
         iconClass: "text-emerald-500",
         state: "done",
-        lines: [`Agent: ${agent}`, `Kind: ${kind}`, `Time: ${formatTime(primaryEvent.createdAt)}`],
+        lines: [
+          `Proposer: ${proposerDisplay}${primaryEvent.actorType ? ` (${primaryEvent.actorType})` : ""}`,
+          `Kind: ${kind}`,
+          `Time: ${formatTime(primaryEvent.createdAt)}`,
+        ],
       },
     });
 
@@ -502,7 +552,10 @@ export default function TracePanel() {
           icon: "✗",
           iconClass: "text-red-500",
           state: "done",
-          lines: ["Rejected", `Time: ${formatTime(primaryEvent.rejectedAt)}`],
+          lines: [
+            `Rejected by: ${primaryEvent.rejectionActorLabel ?? primaryEvent.rejectionActorId ?? "Human"}`,
+            `Time: ${formatTime(primaryEvent.rejectedAt)}`,
+          ],
         },
       });
     } else if (approved) {
@@ -514,7 +567,10 @@ export default function TracePanel() {
           icon: "✓",
           iconClass: "text-emerald-500",
           state: "done",
-          lines: ["Approved by: Human", `Time: ${formatTime(primaryEvent.approvedAt ?? primaryEvent.createdAt)}`],
+          lines: [
+            `Approved by: ${primaryEvent.approvalActorLabel ?? primaryEvent.approvalActorId ?? "Human"}`,
+            `Time: ${formatTime(primaryEvent.approvedAt ?? primaryEvent.createdAt)}`,
+          ],
         },
       });
     } else {
@@ -584,6 +640,12 @@ export default function TracePanel() {
     } else if (executed) {
       const path = primaryReceipt?.outputPath ?? primaryReceipt?.artifactPath ?? "";
       const logPath = path ? path.split("/").slice(-2).join("/") : "—";
+      const execActor =
+        primaryReceipt?.actors?.executor?.actorLabel ??
+        primaryReceipt?.actors?.executor?.actorId ??
+        primaryEvent.executionActorLabel ??
+        primaryEvent.executionActorId ??
+        "—";
       stageDefs.push({
         id: "execution",
         step: {
@@ -592,7 +654,12 @@ export default function TracePanel() {
           icon: "✓",
           iconClass: "text-emerald-500",
           state: "done",
-          lines: [`Adapter: ${primaryReceipt?.kind ?? primaryEvent.kind ?? "—"}`, `Time: ${formatTime(primaryEvent.executedAt)}`, logPath],
+          lines: [
+            `Executor: ${execActor}`,
+            `Adapter: ${primaryReceipt?.kind ?? primaryEvent.kind ?? "—"}`,
+            `Time: ${formatTime(primaryEvent.executedAt)}`,
+            logPath,
+          ],
         },
       });
     } else if (approved && pd?.decision !== "deny") {
@@ -625,6 +692,22 @@ export default function TracePanel() {
       const rec = primaryReceipt ?? dataSource?.actions?.find((a) => a.approvalId === primaryEvent.id);
       const path = rec?.outputPath ?? rec?.artifactPath ?? "";
       const logPath = path ? path.split("/").slice(-2).join("/") : `actions/${dataSource?.dateKey ?? ""}.jsonl`;
+      const actorLines: string[] = [];
+      if (rec?.actors?.proposer) {
+        actorLines.push(
+          `Proposer: ${rec.actors.proposer.actorLabel ?? rec.actors.proposer.actorId}`
+        );
+      }
+      if (rec?.actors?.approver) {
+        actorLines.push(
+          `Approver: ${rec.actors.approver.actorLabel ?? rec.actors.approver.actorId}`
+        );
+      }
+      if (rec?.actors?.executor) {
+        actorLines.push(
+          `Executor: ${rec.actors.executor.actorLabel ?? rec.actors.executor.actorId}`
+        );
+      }
       stageDefs.push({
         id: "receipt",
         step: {
@@ -633,7 +716,7 @@ export default function TracePanel() {
           icon: "✓",
           iconClass: "text-emerald-500",
           state: "done",
-          lines: ["Receipt recorded", logPath],
+          lines: ["Receipt recorded", ...actorLines, logPath],
         },
       });
     } else if (executed) {

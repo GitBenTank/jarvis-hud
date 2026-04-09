@@ -8,6 +8,7 @@ import {
   getPublishQueueDir,
 } from "./storage";
 import type { ReasonDetail } from "./reason-taxonomy";
+import type { ReceiptActors } from "./actor-identity";
 
 /**
  * Action log entry — receipt metadata only.
@@ -34,6 +35,8 @@ export type ActionLogEntry = {
   repoHeadBefore?: string | null;
   repoHeadAfter?: string | null;
   reasonDetails?: ReasonDetail[];
+  /** Proposer, approver, executor for this receipt (Phase 1 identity). */
+  actors?: ReceiptActors;
 };
 
 export async function appendActionLog(entry: ActionLogEntry): Promise<void> {

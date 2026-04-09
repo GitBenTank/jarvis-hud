@@ -166,7 +166,10 @@ describe("POST /api/ingress/openclaw", () => {
     const filePath = getEventsFilePath(dateKey);
     const events = await readJson<unknown[]>(filePath);
     expect(events).not.toBeNull();
-    const written = (events ?? []).find((e: { id?: string }) => e.id === json.id);
+    const written = (events ?? []).find(
+      (e: unknown) =>
+        typeof e === "object" && e !== null && (e as { id?: string }).id === json.id
+    );
     expect(written).toBeDefined();
 
     const ev = written as Record<string, unknown>;
@@ -182,6 +185,9 @@ describe("POST /api/ingress/openclaw", () => {
     expect(ev.trustedIngress).toBeDefined();
     const ti = ev.trustedIngress as Record<string, unknown>;
     expect(ti.ok).toBe(true);
+    expect(ev.actorId).toBe("openclaw");
+    expect(ev.actorType).toBe("agent");
+    expect(ev.actorLabel).toBe("OpenClaw");
   });
 
   it("returns 403 when connector not in allowlist", async () => {
@@ -261,7 +267,10 @@ describe("POST /api/ingress/openclaw", () => {
     const dateKey = getDateKey();
     const filePath = getEventsFilePath(dateKey);
     const events = await readJson<unknown[]>(filePath);
-    const written = (events ?? []).find((e: { id?: string }) => e.id === json.id) as Record<string, unknown>;
+    const written = (events ?? []).find(
+      (e: unknown) =>
+        typeof e === "object" && e !== null && (e as { id?: string }).id === json.id
+    ) as Record<string, unknown>;
     expect(written).toBeDefined();
     const code = written?.payload as Record<string, unknown>;
     const payloadCode = code?.code as Record<string, unknown> | undefined;

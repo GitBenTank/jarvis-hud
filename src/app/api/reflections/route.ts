@@ -7,6 +7,7 @@ import {
   readJson,
   writeJson,
 } from "@/lib/storage";
+import { agentActorFromAgentField } from "@/lib/actor-identity";
 
 type Event = {
   id: string;
@@ -17,6 +18,9 @@ type Event = {
   requiresApproval?: boolean;
   status: "pending" | "approved" | "denied";
   createdAt: string;
+  actorId: string;
+  actorType: "human" | "agent";
+  actorLabel?: string;
 };
 
 type ReflectionBody = {
@@ -49,6 +53,7 @@ export async function POST(request: NextRequest) {
     const id = crypto.randomUUID();
     const createdAt = new Date().toISOString();
 
+    const proposer = agentActorFromAgentField("reflection-ui");
     const event: Event = {
       id,
       traceId: crypto.randomUUID(),
@@ -65,6 +70,9 @@ export async function POST(request: NextRequest) {
       requiresApproval: true,
       status: "pending",
       createdAt,
+      actorId: proposer.actorId,
+      actorType: proposer.actorType,
+      actorLabel: proposer.actorLabel,
     };
 
     const dateKey = getDateKey();

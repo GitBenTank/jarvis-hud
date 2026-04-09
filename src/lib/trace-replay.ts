@@ -19,6 +19,7 @@ import { readActionLogByTraceId, type ActionLogEntry } from "./action-log";
 import { readPolicyDecisionsByTraceId, type PolicyDecisionEntry } from "./policy-decision-log";
 import { readReconciliationByTraceId, type ReconciliationEntry } from "./reconciliation-log";
 import { normalizeAction } from "./normalize";
+import type { ActorFieldsOnEvent } from "./actor-identity";
 
 function toDateKey(offsetDays: number): string {
   const d = new Date();
@@ -51,6 +52,7 @@ type StoredEvent = {
   approvedAt?: string;
   rejectedAt?: string;
   failedAt?: string;
+  agent?: string;
   source?: {
     connector: string;
     verified?: boolean;
@@ -59,7 +61,7 @@ type StoredEvent = {
     requestId?: string;
   };
   correlationId?: string;
-};
+} & Partial<ActorFieldsOnEvent>;
 
 /**
  * Assemble a trace replay from action, policy, and reconciliation logs plus events.
@@ -124,6 +126,14 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
         createdAt: proposalEvent.createdAt,
         source: proposalEvent.source,
         correlationId: proposalEvent.correlationId ?? undefined,
+        agent: proposalEvent.agent,
+        ...(proposalEvent.actorId
+          ? {
+              actorId: proposalEvent.actorId,
+              actorType: proposalEvent.actorType,
+              actorLabel: proposalEvent.actorLabel,
+            }
+          : {}),
         ...(proposedAt ? { proposedAt } : {}),
       }
     : null;
@@ -136,6 +146,27 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
         failedAt: proposalEvent.failedAt ?? null,
         executed: proposalEvent.executed ?? false,
         executedAt: proposalEvent.executedAt ?? null,
+        ...(proposalEvent.approvalActorId
+          ? {
+              approvalActorId: proposalEvent.approvalActorId,
+              approvalActorType: proposalEvent.approvalActorType,
+              approvalActorLabel: proposalEvent.approvalActorLabel,
+            }
+          : {}),
+        ...(proposalEvent.rejectionActorId
+          ? {
+              rejectionActorId: proposalEvent.rejectionActorId,
+              rejectionActorType: proposalEvent.rejectionActorType,
+              rejectionActorLabel: proposalEvent.rejectionActorLabel,
+            }
+          : {}),
+        ...(proposalEvent.executionActorId
+          ? {
+              executionActorId: proposalEvent.executionActorId,
+              executionActorType: proposalEvent.executionActorType,
+              executionActorLabel: proposalEvent.executionActorLabel,
+            }
+          : {}),
       }
     : null;
 
@@ -145,6 +176,7 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
         at: latestReceipt.at,
         status: latestReceipt.status,
         approvalId: latestReceipt.approvalId,
+        ...(latestReceipt.actors ? { actors: latestReceipt.actors } : {}),
       }
     : null;
 

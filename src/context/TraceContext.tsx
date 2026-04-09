@@ -10,11 +10,13 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ReasonDetail } from "@/lib/reason-taxonomy";
+import type { ReceiptActors } from "@/lib/actor-identity";
 
 export type TraceEvent = {
   id: string;
   traceId?: string;
   kind: string;
+  agent?: string;
   status: string;
   createdAt: string;
   executedAt?: string;
@@ -40,6 +42,18 @@ export type TraceEvent = {
     verificationCheck: string;
     fallbackIfFailed: string;
   };
+  actorId?: string;
+  actorType?: "human" | "agent";
+  actorLabel?: string;
+  approvalActorId?: string;
+  approvalActorType?: "human" | "agent";
+  approvalActorLabel?: string;
+  rejectionActorId?: string;
+  rejectionActorType?: "human" | "agent";
+  rejectionActorLabel?: string;
+  executionActorId?: string;
+  executionActorType?: "human" | "agent";
+  executionActorLabel?: string;
 };
 
 export type TraceAction = {
@@ -59,6 +73,7 @@ export type TraceAction = {
   statsJson?: { filesChangedCount: number; insertions: number; deletions: number } | null;
   repoHeadBefore?: string | null;
   repoHeadAfter?: string | null;
+  actors?: ReceiptActors;
 };
 
 export type TracePolicyDecision = {

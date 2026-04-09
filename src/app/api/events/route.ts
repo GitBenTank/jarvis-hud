@@ -7,6 +7,7 @@ import {
   readJson,
   writeJson,
 } from "@/lib/storage";
+import { agentActorFromAgentField } from "@/lib/actor-identity";
 
 type Event = {
   id: string;
@@ -17,6 +18,9 @@ type Event = {
   requiresApproval?: boolean;
   status: "pending" | "approved" | "denied";
   createdAt: string;
+  actorId: string;
+  actorType: "human" | "agent";
+  actorLabel?: string;
 };
 
 type EventInput = {
@@ -64,6 +68,7 @@ export async function POST(request: NextRequest) {
     const status =
       body.requiresApproval === true ? "pending" : "approved";
 
+    const proposer = agentActorFromAgentField(body.agent);
     const event: Event = {
       id: crypto.randomUUID(),
       traceId: crypto.randomUUID(),
@@ -73,6 +78,9 @@ export async function POST(request: NextRequest) {
       requiresApproval: body.requiresApproval,
       status,
       createdAt: new Date().toISOString(),
+      actorId: proposer.actorId,
+      actorType: proposer.actorType,
+      actorLabel: proposer.actorLabel,
     };
 
     const dateKey = getDateKey();

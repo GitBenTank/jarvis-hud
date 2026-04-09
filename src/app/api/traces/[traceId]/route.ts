@@ -29,6 +29,22 @@ type StoredEvent = {
     requestId?: string;
   };
   correlationId?: string;
+  actorId?: string;
+  actorType?: "human" | "agent";
+  actorLabel?: string;
+  approvalActorId?: string;
+  approvalActorType?: "human" | "agent";
+  approvalActorLabel?: string;
+  rejectionActorId?: string;
+  rejectionActorType?: "human" | "agent";
+  rejectionActorLabel?: string;
+  executionActorId?: string;
+  executionActorType?: "human" | "agent";
+  executionActorLabel?: string;
+  proposalStatus?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  failedAt?: string;
 };
 
 type PipelineStageId =
@@ -309,6 +325,7 @@ export async function GET(
       id: e.id,
       traceId: e.traceId ?? e.id,
       kind: normalized.kind,
+      agent: e.agent,
       status: e.status,
       createdAt: e.createdAt,
       executedAt: e.executedAt ?? undefined,
@@ -323,6 +340,18 @@ export async function GET(
       rejectedAt: ev.rejectedAt,
       failedAt: ev.failedAt,
       recovery,
+      actorId: e.actorId,
+      actorType: e.actorType,
+      actorLabel: e.actorLabel,
+      approvalActorId: e.approvalActorId,
+      approvalActorType: e.approvalActorType,
+      approvalActorLabel: e.approvalActorLabel,
+      rejectionActorId: e.rejectionActorId,
+      rejectionActorType: e.rejectionActorType,
+      rejectionActorLabel: e.rejectionActorLabel,
+      executionActorId: e.executionActorId,
+      executionActorType: e.executionActorType,
+      executionActorLabel: e.executionActorLabel,
     };
   });
 

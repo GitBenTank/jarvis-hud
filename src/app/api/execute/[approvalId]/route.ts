@@ -33,6 +33,11 @@ import {
   appendReconciliationLog,
 } from "@/lib/reconciliation-log";
 import { writeRecoveryRunbook, isRecoveryClass } from "@/lib/recovery";
+import {
+  ACTOR_LOCAL_USER,
+  buildReceiptActorsFromEvent,
+  warnIfActorChainIncomplete,
+} from "@/lib/actor-identity";
 
 type Event = {
   id: string;
@@ -48,6 +53,18 @@ type Event = {
   proposalStatus?: string;
   approvedAt?: string;
   failedAt?: string;
+  actorId?: string;
+  actorType?: "human" | "agent";
+  actorLabel?: string;
+  approvalActorId?: string;
+  approvalActorType?: "human" | "agent";
+  approvalActorLabel?: string;
+  rejectionActorId?: string;
+  rejectionActorType?: "human" | "agent";
+  rejectionActorLabel?: string;
+  executionActorId?: string;
+  executionActorType?: "human" | "agent";
+  executionActorLabel?: string;
 };
 
 export async function POST(
@@ -145,6 +162,18 @@ export async function POST(
       );
     }
 
+    const preExecActors = buildReceiptActorsFromEvent(event);
+    warnIfActorChainIncomplete("execution", preExecActors, {
+      expectApprover: event.status === "approved",
+    });
+
+    const receiptActors = buildReceiptActorsFromEvent({
+      ...event,
+      executionActorId: ACTOR_LOCAL_USER.actorId,
+      executionActorType: ACTOR_LOCAL_USER.actorType,
+      executionActorLabel: ACTOR_LOCAL_USER.actorLabel,
+    });
+
     events[index] = { ...event, proposalStatus: "executing" };
     await writeJson(filePath, events);
 
@@ -186,6 +215,7 @@ export async function POST(
         status: actionStatus,
         summary: normalized.summary,
         outputPath,
+        actors: receiptActors,
       });
       const reconciliation = await reconcileSystemNote({
         traceId,
@@ -220,6 +250,7 @@ export async function POST(
         status: actionStatus,
         summary: normalized.summary,
         outputPath,
+        actors: receiptActors,
       });
     } else if (isRecoveryClass(normalized.kind)) {
       outputPath = await writeRecoveryRunbook({
@@ -244,6 +275,7 @@ export async function POST(
         status: actionStatus,
         summary: normalized.summary,
         outputPath,
+        actors: receiptActors,
       });
     } else if (normalized.kind === "code.apply") {
       const p = event.payload as Record<string, unknown>;
@@ -305,6 +337,7 @@ export async function POST(
         statsJson: result.statsJson,
         repoHeadBefore: result.repoHeadBefore,
         repoHeadAfter: result.repoHeadAfter,
+        actors: receiptActors,
       });
     } else if (normalized.kind === "code.diff") {
       const p = event.payload as Record<string, unknown>;
@@ -351,6 +384,7 @@ export async function POST(
         status: actionStatus,
         summary: normalized.summary,
         outputPath,
+        actors: receiptActors,
       });
     } else if (channel === "youtube") {
       const youtubePayload = (event.payload as Record<string, unknown>)?.youtube as Record<string, unknown> | undefined;
@@ -391,6 +425,7 @@ export async function POST(
         status: actionStatus,
         summary: normalized.summary,
         outputPath,
+        actors: receiptActors,
       });
     } else {
       artifactPath = await writePublishArtifact(approvalId, {
@@ -409,14 +444,23 @@ export async function POST(
         status: "written",
         summary: normalized.summary,
         artifactPath,
+        actors: receiptActors,
       });
     }
+
+    warnIfActorChainIncomplete("receipt", receiptActors, {
+      expectApprover: true,
+      expectExecutor: true,
+    });
 
     const updated: Event = {
       ...event,
       executed: true,
       executedAt,
       proposalStatus: "executed",
+      executionActorId: ACTOR_LOCAL_USER.actorId,
+      executionActorType: ACTOR_LOCAL_USER.actorType,
+      executionActorLabel: ACTOR_LOCAL_USER.actorLabel,
     };
     events[index] = updated;
     await writeJson(filePath, events);

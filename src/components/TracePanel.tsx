@@ -3,9 +3,6 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTraceContext } from "@/context/TraceContext";
-import ExecutionTrace from "@/components/ExecutionTrace";
-import { buildExecutionTraceView } from "@/lib/execution-trace-view";
-import type { TraceReplayResult as ServerTraceReplayResult } from "@/lib/trace-replay";
 import {
   normalizeProposalLifecycle,
   type ProposalLifecycleEvent,
@@ -263,8 +260,6 @@ export default function TracePanel() {
   const [loading, setLoading] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"live" | "replay">("live");
-  /** Same shape as `assembleTraceReplay` — fetched from `/replay` for the story strip */
-  const [replayPayload, setReplayPayload] = useState<ServerTraceReplayResult | null>(null);
 
   // Use shared trace data when URL has ?trace= and context has it (avoids duplicate fetch)
   const dataSource = traceFromUrl && traceIdFromUrl === traceFromUrl && contextTraceData
@@ -276,39 +271,6 @@ export default function TracePanel() {
   const errorState = traceFromUrl && traceIdFromUrl === traceFromUrl
     ? contextError
     : error;
-
-  const activeTraceIdForReplay = dataSource?.traceId ?? "";
-
-  useEffect(() => {
-    const tid = activeTraceIdForReplay.trim();
-    if (!tid) {
-      setReplayPayload(null);
-      return;
-    }
-    setReplayPayload(null);
-    let cancelled = false;
-    void fetch(`/api/traces/${encodeURIComponent(tid)}/replay`)
-      .then(async (res) => {
-        if (!res.ok) return null;
-        return (await res.json()) as ServerTraceReplayResult;
-      })
-      .then((json) => {
-        if (cancelled) return;
-        if (json?.traceId) setReplayPayload(json);
-        else setReplayPayload(null);
-      })
-      .catch(() => {
-        if (!cancelled) setReplayPayload(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [activeTraceIdForReplay]);
-
-  const executionTraceView = useMemo(
-    () => buildExecutionTraceView(replayPayload),
-    [replayPayload]
-  );
 
   const doFetch = useCallback(
     async (tid: string, mode: "live" | "replay") => {
@@ -822,7 +784,6 @@ export default function TracePanel() {
       )}
       {dataSource && (
         <div className="space-y-4">
-          <ExecutionTrace view={executionTraceView} />
           {/* Trace control record — forensic identity block */}
           <div className="rounded border-2 border-zinc-300 bg-zinc-50 px-4 py-3 dark:border-zinc-600 dark:bg-zinc-800/80">
             <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-450">

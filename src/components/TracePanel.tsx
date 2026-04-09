@@ -1,12 +1,13 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTraceContext } from "@/context/TraceContext";
 import {
   normalizeProposalLifecycle,
   type ProposalLifecycleEvent,
 } from "@/lib/proposal-lifecycle";
+import { TRACE_SCAN_DAY_WINDOW } from "@/lib/trace-constants";
 import type { ReceiptActors } from "@/lib/actor-identity";
 
 type TraceEvent = {
@@ -285,7 +286,14 @@ function formatStatsJson(stats?: { filesChangedCount: number; insertions: number
   return parts.join(" changed, ") || "—";
 }
 
+type RecentTraceRow = {
+  traceId: string;
+  lastActivityAt: string;
+  summary: string;
+};
+
 export default function TracePanel() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const traceFromUrl = searchParams.get("trace")?.trim() ?? "";
   const {
@@ -301,6 +309,38 @@ export default function TracePanel() {
   const [loading, setLoading] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"live" | "replay">("live");
+  const [recentTraces, setRecentTraces] = useState<RecentTraceRow[]>([]);
+  const [recentLoading, setRecentLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRecentLoading(true);
+    fetch("/api/traces/recent?limit=20")
+      .then((res) => res.json())
+      .then((json: { traces?: RecentTraceRow[] }) => {
+        if (!cancelled && Array.isArray(json.traces)) {
+          setRecentTraces(json.traces);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setRecentTraces([]);
+      })
+      .finally(() => {
+        if (!cancelled) setRecentLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const openTraceDeepLink = useCallback(
+    (tid: string) => {
+      const t = tid.trim();
+      if (!t) return;
+      router.push(`/activity?trace=${encodeURIComponent(t)}`);
+    },
+    [router]
+  );
 
   // Use shared trace data when URL has ?trace= and context has it (avoids duplicate fetch)
   const dataSource = traceFromUrl && traceIdFromUrl === traceFromUrl && contextTraceData
@@ -370,6 +410,19 @@ export default function TracePanel() {
   const copy = useCallback((text: string) => {
     if (text && text !== "—") navigator.clipboard.writeText(text);
   }, []);
+
+  const copyTraceDeepLink = useCallback(
+    (tid: string) => {
+      if (!tid.trim()) return;
+      const origin =
+        typeof globalThis.location !== "undefined"
+          ? globalThis.location.origin
+          : "";
+      const url = `${origin}/activity?trace=${encodeURIComponent(tid.trim())}`;
+      navigator.clipboard.writeText(url);
+    },
+    []
+  );
 
   const fetchTrace = useCallback(async () => {
     const tid = traceId.trim();
@@ -507,6 +560,81 @@ export default function TracePanel() {
     const actions = dataSource?.actions ?? [];
     return actions.some((a) => a.approvalId === primaryEvent.id);
   }, [dataSource?.actions, primaryEvent]);
+
+  /** Single-line lifecycle for operators: propose → approve → execute → receipt (with times). */
+  const endToEndSequence = useMemo(() => {
+    if (!primaryEvent) return null;
+    const parts: string[] = [];
+    const pAt = primaryEvent.proposedAt ?? primaryEvent.createdAt;
+    parts.push(`Proposed · ${formatTime(pAt)}`);
+    if (primaryEvent.rejectedAt) {
+      parts.push(`Rejected · ${formatTime(primaryEvent.rejectedAt)}`);
+      return parts.join(" → ");
+    }
+    if (primaryEvent.approvedAt) {
+      parts.push(`Approved · ${formatTime(primaryEvent.approvedAt)}`);
+    } else if (primaryEvent.status === "approved" || primaryEvent.executed) {
+      parts.push("Approved");
+    } else {
+      parts.push("Approved (pending)");
+    }
+    if (primaryEvent.failedAt) {
+      parts.push(`Execute failed · ${formatTime(primaryEvent.failedAt)}`);
+      return parts.join(" → ");
+    }
+    if (primaryEvent.executedAt) {
+      parts.push(`Executed · ${formatTime(primaryEvent.executedAt)}`);
+    } else if (
+      primaryEvent.approvedAt &&
+      primaryPolicy?.decision !== "deny"
+    ) {
+      parts.push("Executed (pending)");
+    }
+    if (primaryEvent.executed) {
+      if (hasReceiptForPrimary && primaryReceipt?.at) {
+        parts.push(`Receipt · ${formatTime(primaryReceipt.at)}`);
+      } else {
+        parts.push("Receipt (pending or missing)");
+      }
+    }
+    return parts.join(" → ");
+  }, [
+    primaryEvent,
+    primaryPolicy,
+    hasReceiptForPrimary,
+    primaryReceipt,
+  ]);
+
+  const actorSummary = useMemo(() => {
+    if (!primaryEvent) return null;
+    const proposer =
+      primaryEvent.actorLabel ??
+      primaryEvent.actorId ??
+      primaryEvent.agent ??
+      primaryEvent.source?.connector ??
+      "—";
+    let approver = "—";
+    if (primaryEvent.rejectedAt) {
+      approver =
+        primaryEvent.rejectionActorLabel ??
+        primaryEvent.rejectionActorId ??
+        "—";
+    } else if (primaryEvent.approvedAt || primaryEvent.executed) {
+      approver =
+        primaryEvent.approvalActorLabel ??
+        primaryEvent.approvalActorId ??
+        "—";
+    } else {
+      approver = "(pending approval)";
+    }
+    const executor =
+      primaryReceipt?.actors?.executor?.actorLabel ??
+      primaryReceipt?.actors?.executor?.actorId ??
+      primaryEvent.executionActorLabel ??
+      primaryEvent.executionActorId ??
+      (primaryEvent.executed ? "—" : "(after execute)");
+    return { proposer, approver, executor };
+  }, [primaryEvent, primaryReceipt]);
 
   type StageId = "proposal" | "approval" | "policy" | "execution" | "receipt" | "reconciliation";
 
@@ -814,8 +942,66 @@ export default function TracePanel() {
     >
       <h2 className="mb-3 text-lg font-semibold">Activity Timeline</h2>
       <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
-        Reconstruct a trace end-to-end. Read-only. No automation.
+        Reconstruct a trace end-to-end. Read-only. No automation. Open directly:{" "}
+        <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">
+          /activity?trace=&lt;traceId&gt;
+        </code>
       </p>
+      <div className="mb-3 rounded border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/60">
+        <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+            Recent traces
+          </span>
+          <span className="text-[10px] text-zinc-500 dark:text-zinc-450">
+            Last {TRACE_SCAN_DAY_WINDOW} days
+          </span>
+        </div>
+        {recentLoading ? (
+          <p className="text-xs text-zinc-500">Loading…</p>
+        ) : recentTraces.length === 0 ? (
+          <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+            No recent traces found. Create an action or open{" "}
+            <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">
+              /activity?trace=&lt;id&gt;
+            </code>
+            .
+          </p>
+        ) : (
+          <>
+            <ul className="max-h-44 space-y-0.5 overflow-y-auto">
+              {recentTraces.map((row) => (
+                <li key={row.traceId}>
+                  <button
+                    type="button"
+                    onClick={() => openTraceDeepLink(row.traceId)}
+                    className="w-full rounded border border-transparent px-1.5 py-1.5 text-left transition-colors hover:border-zinc-300 hover:bg-white dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
+                  >
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <code className="font-mono text-[11px] text-zinc-800 dark:text-zinc-200">
+                        {row.traceId.length > 12
+                          ? `${row.traceId.slice(0, 8)}…${row.traceId.slice(-4)}`
+                          : row.traceId}
+                      </code>
+                      <span className="text-[10px] text-zinc-500">
+                        {formatTime(row.lastActivityAt)}
+                      </span>
+                    </div>
+                    {row.summary ? (
+                      <div className="mt-0.5 truncate text-[11px] text-zinc-600 dark:text-zinc-400">
+                        {row.summary}
+                      </div>
+                    ) : null}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[10px] text-zinc-500 dark:text-zinc-450">
+              Showing traces from the last {TRACE_SCAN_DAY_WINDOW} days (events
+              + receipts on disk).
+            </p>
+          </>
+        )}
+      </div>
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex rounded border border-zinc-200 dark:border-zinc-700 p-0.5">
           <button
@@ -882,10 +1068,45 @@ export default function TracePanel() {
                     onClick={() => copy(dataSource.traceId)}
                     className="rounded border border-zinc-300 px-1.5 py-0.5 text-[10px] hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
                   >
-                    Copy
+                    Copy ID
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => copyTraceDeepLink(dataSource.traceId)}
+                    className="rounded border border-zinc-300 px-1.5 py-0.5 text-[10px] hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
+                  >
+                    Copy link
                   </button>
                 </div>
               </div>
+              {actorSummary && (
+                <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-1 gap-2 border-t border-zinc-200 pt-2 dark:border-zinc-600 sm:grid-cols-3">
+                  <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                      Proposer
+                    </div>
+                    <div className="mt-0.5 text-xs text-zinc-800 dark:text-zinc-200">
+                      {actorSummary.proposer}
+                    </div>
+                  </div>
+                  <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                      Approver
+                    </div>
+                    <div className="mt-0.5 text-xs text-zinc-800 dark:text-zinc-200">
+                      {actorSummary.approver}
+                    </div>
+                  </div>
+                  <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                      Executor
+                    </div>
+                    <div className="mt-0.5 text-xs text-zinc-800 dark:text-zinc-200">
+                      {actorSummary.executor}
+                    </div>
+                  </div>
+                </div>
+              )}
               {primaryEvent?.correlationId && (
                 <div className="rounded border border-zinc-200 bg-white/60 px-2.5 py-2 dark:border-zinc-600 dark:bg-zinc-900/60">
                   <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Correlation ID</div>
@@ -1147,6 +1368,17 @@ export default function TracePanel() {
             </div>
           )}
 
+          {endToEndSequence && (
+            <div className="rounded border border-zinc-200 bg-zinc-50/90 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                Lifecycle (chronological)
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-800 dark:text-zinc-200">
+                {endToEndSequence}
+              </p>
+            </div>
+          )}
+
           {traceHealth && (
             <div className="flex flex-wrap gap-3 rounded border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800">
               <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
@@ -1168,8 +1400,11 @@ export default function TracePanel() {
           {lifecycleSteps.length > 0 && (
             <div>
               <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                Control-plane lifecycle
+                Control-plane detail
               </h3>
+              <p className="mb-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+                Proposal → approval → policy → execution → receipt → reconciliation
+              </p>
               <div className="space-y-0 rounded border border-zinc-300 dark:border-zinc-600 overflow-hidden">
                 {lifecycleSteps.map((step, idx) => {
                   const state = (step as { state?: "done" | "missing" | "pending" }).state ?? "done";

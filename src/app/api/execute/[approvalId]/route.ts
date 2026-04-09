@@ -25,7 +25,14 @@ import {
   writeCodeApplyBundle,
   CodeApplyError,
   getCodeApplyBlockReasons,
+  getRepoRoot,
 } from "@/lib/code-apply";
+import {
+  collectExecutionScopeTargets,
+  loadExecutionAllowedRoots,
+  validateExecutionScopeTargets,
+  logExecutionScopeEvent,
+} from "@/lib/execution-scope";
 import { normalizeAction } from "@/lib/normalize";
 import { evaluateExecutePolicy } from "@/lib/policy";
 import {
@@ -161,6 +168,43 @@ export async function POST(
         },
         { status: policyResult.status }
       );
+    }
+
+    const allowedExecRoots = loadExecutionAllowedRoots();
+    if (allowedExecRoots.length > 0) {
+      const scopeTargets = collectExecutionScopeTargets({
+        kind: normalized.kind,
+        channel: normalized.channel,
+        dateKey,
+        approvalId,
+        payload: eventRecord.payload,
+        repoRoot: getRepoRoot(),
+      });
+      const scopeResult = validateExecutionScopeTargets(
+        scopeTargets,
+        allowedExecRoots
+      );
+      if (!scopeResult.ok) {
+        logExecutionScopeEvent({
+          level: "warn",
+          code: scopeResult.code,
+          approvalId,
+          traceId,
+          kind: normalized.kind,
+          targetPath: scopeResult.targetPath,
+          reason: scopeResult.reason,
+        });
+        const status = scopeResult.code === "invalid_target_path" ? 400 : 403;
+        return NextResponse.json(
+          {
+            error: scopeResult.reason,
+            code: scopeResult.code,
+            label: scopeResult.label,
+            targetPath: scopeResult.targetPath,
+          },
+          { status }
+        );
+      }
     }
 
     const receiptActors = buildReceiptActorsFromEvent({

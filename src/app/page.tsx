@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import ActionsPanel from "@/components/ActionsPanel";
-import TraceProviderWrapper from "@/components/TraceProviderWrapper";
 import ActivityLogPanel from "@/components/ActivityLogPanel";
 import AgentActivityPanel from "@/components/AgentActivityPanel";
 import DraftsPanel from "@/components/DraftsPanel";
@@ -57,32 +56,30 @@ export default function Home() {
           </p>
         </div>
 
-        <TraceProviderWrapper>
-          {/* Operations Row — proposals + pipeline (control-plane focus) */}
-          <div id="operations-row" className="mb-6">
-            <OperationsRow />
-          </div>
+        {/* Operations Row — proposals + pipeline (control-plane focus) */}
+        <div id="operations-row" className="mb-6">
+          <OperationsRow />
+        </div>
 
-          {/* Executed Actions (Receipts) */}
-          <div id="actions-panel" className="mb-6">
-            <ActionsPanel />
-          </div>
+        {/* Executed Actions (Receipts) */}
+        <div id="actions-panel" className="mb-6">
+          <ActionsPanel />
+        </div>
 
-          {/* Draft / Submit form */}
-          <div className="mb-6">
-            <DraftsPanel />
-          </div>
+        {/* Draft / Submit form */}
+        <div className="mb-6">
+          <DraftsPanel />
+        </div>
 
-          {/* Informational panels */}
-          <div className="space-y-6">
-            <ActivityLogPanel />
-            <AgentActivityPanel />
-            <ResearchNotesPanel />
-            <Suspense fallback={<div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">Activity Timeline…</div>}>
-              <TracePanel />
-            </Suspense>
-          </div>
-        </TraceProviderWrapper>
+        {/* Informational panels */}
+        <div className="space-y-6">
+          <ActivityLogPanel />
+          <AgentActivityPanel />
+          <ResearchNotesPanel />
+          <Suspense fallback={<div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">Activity Timeline…</div>}>
+            <TracePanel />
+          </Suspense>
+        </div>
       </main>
     </div>
   );

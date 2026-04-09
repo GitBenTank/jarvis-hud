@@ -132,7 +132,9 @@ const TraceContext = createContext<TraceContextValue | null>(null);
 
 export function TraceProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
-  const traceIdFromUrl = searchParams.get("trace")?.trim() ?? null;
+  const traceParam = searchParams.get("trace");
+  const traceIdFromUrl =
+    traceParam && traceParam.trim() ? traceParam.trim() : null;
   const [activeTraceId, setActiveTraceId] = useState<string | null>(null);
 
   const [traceData, setTraceData] = useState<TraceResponse | null>(null);

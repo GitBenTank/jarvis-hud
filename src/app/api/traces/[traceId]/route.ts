@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 import { readJson, getEventsFilePath, getDateKey } from "@/lib/storage";
+import { listTraceScanDateKeys } from "@/lib/trace-scan";
 import { readActionLogByTraceId, type ActionLogEntry } from "@/lib/action-log";
 import { readRecoveryVerifications } from "@/lib/recovery-verification";
 import { isRecoveryClass } from "@/lib/recovery-shared";
@@ -232,15 +233,6 @@ function buildPipelineSummary(args: {
   return { stages, currentStage, blockedReason };
 }
 
-function toDateKey(offsetDays: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - offsetDays);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ traceId: string }> }
@@ -254,7 +246,7 @@ export async function GET(
   }
 
   const tid = traceId.trim();
-  const dateKeys = Array.from({ length: 7 }, (_, i) => toDateKey(i));
+  const dateKeys = listTraceScanDateKeys();
 
   let foundDateKey: string | null = null;
   const matchedEvents: StoredEvent[] = [];

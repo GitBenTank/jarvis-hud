@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import ActivityGraph from "@/components/ActivityGraph";
+import TracePanel from "@/components/TracePanel";
 
 export default function ActivityPage() {
   return (
@@ -23,6 +25,17 @@ export default function ActivityPage() {
             </span>
           </div>
           <ActivityGraph />
+        </div>
+        <div className="mt-6">
+          <Suspense
+            fallback={
+              <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                Activity Timeline…
+              </div>
+            }
+          >
+            <TracePanel />
+          </Suspense>
         </div>
       </main>
     </div>

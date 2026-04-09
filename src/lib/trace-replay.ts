@@ -10,25 +10,18 @@
  * - `execution` — summary derived from the **latest** receipt by `at` (strongest execution outcome).
  * - `policyDecisions` / `reconciliation` — sorted by `timestamp` ascending.
  *
- * **Limitation:** only the last 7 calendar days of date buckets are scanned. Older traces
- * return null from assembly even if artifacts still exist on disk.
+ * **Limitation:** only the last `TRACE_SCAN_DAY_WINDOW` calendar days of date buckets are
+ * scanned (`trace-scan.ts`). Older traces return null from assembly even if artifacts still
+ * exist on disk.
  */
 
 import { readJson, getEventsFilePath } from "./storage";
+import { listTraceScanDateKeys } from "./trace-scan";
 import { readActionLogByTraceId, type ActionLogEntry } from "./action-log";
 import { readPolicyDecisionsByTraceId, type PolicyDecisionEntry } from "./policy-decision-log";
 import { readReconciliationByTraceId, type ReconciliationEntry } from "./reconciliation-log";
 import { normalizeAction } from "./normalize";
 import type { ActorFieldsOnEvent } from "./actor-identity";
-
-function toDateKey(offsetDays: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - offsetDays);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
 
 export type TraceReplayResult = {
   traceId: string;
@@ -65,11 +58,11 @@ type StoredEvent = {
 
 /**
  * Assemble a trace replay from action, policy, and reconciliation logs plus events.
- * Scans the last 7 date buckets, merges by traceId, applies the replay contract above.
+ * Scans the configured day window, merges by traceId, applies the replay contract above.
  */
 export async function assembleTraceReplay(traceId: string): Promise<TraceReplayResult | null> {
   const tid = traceId.trim();
-  const dateKeys = Array.from({ length: 7 }, (_, i) => toDateKey(i));
+  const dateKeys = listTraceScanDateKeys();
 
   let foundDateKey: string | null = null;
   const events: StoredEvent[] = [];

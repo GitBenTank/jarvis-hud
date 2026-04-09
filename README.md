@@ -96,6 +96,7 @@ Jarvis sits between AI agents and system execution:
 | Approval  | `GET/POST /api/approvals`        | List / approve / deny    |
 | Execution | `POST /api/execute/[approvalId]` | Policy gate → adapters |
 | Trace     | `GET /api/traces/[traceId]`      | Reconstruct session      |
+| Trace     | `GET /api/traces/recent`        | Recent trace ids (disk)  |
 
 → [Control plane architecture](docs/architecture/control-plane.md)
 
@@ -151,6 +152,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [Demo runbook](DEMO.md)
 - [Environment variables](docs/setup/env.md)
 - [Audit export (Phase 3)](docs/audit-export.md)
+- [Execution scope / blast radius (Phase 4)](docs/execution-scope.md)
+- [Traces & deep links (Phase 5)](docs/traces.md)
 - [GitHub About / social copy](docs/marketing/social-copy.md)
 - [Security reporting](SECURITY.md)
 

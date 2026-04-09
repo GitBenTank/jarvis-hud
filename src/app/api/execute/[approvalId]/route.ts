@@ -38,6 +38,10 @@ import {
   buildReceiptActorsFromEvent,
   warnIfActorChainIncomplete,
 } from "@/lib/actor-identity";
+import {
+  validateExecutionPreconditions,
+  logExecutionGateFailure,
+} from "@/lib/execution-gate";
 
 type Event = {
   id: string;
@@ -104,44 +108,41 @@ export async function POST(
     const events = await readJson<Event[]>(filePath);
 
     if (!events) {
+      logExecutionGateFailure({
+        code: "events_unavailable",
+        approvalId,
+        detail: "events file missing or unreadable",
+      });
       return NextResponse.json(
-        { error: "Events not found" },
+        {
+          error: "Events store not available",
+          code: "events_unavailable",
+        },
         { status: 404 }
       );
     }
 
     const index = events.findIndex((e) => e.id === approvalId);
-    if (index === -1) {
+    const event = index === -1 ? null : events[index];
+
+    const gate = validateExecutionPreconditions({ event: event ?? undefined, approvalId });
+    if (!gate.ok) {
+      logExecutionGateFailure({
+        code: gate.code,
+        approvalId,
+        traceId: event?.traceId ?? event?.id,
+        detail: gate.message,
+      });
       return NextResponse.json(
-        { error: "Event not found" },
-        { status: 404 }
+        { error: gate.message, code: gate.code },
+        { status: gate.status }
       );
     }
 
-    const event = events[index];
-    if (event.status !== "approved") {
-      return NextResponse.json(
-        { error: "Event is not approved" },
-        { status: 400 }
-      );
-    }
+    const traceId = gate.traceId;
+    const eventRecord = events[index];
 
-    if (event.requiresApproval !== true) {
-      return NextResponse.json(
-        { error: "Event did not require approval; execution blocked" },
-        { status: 400 }
-      );
-    }
-
-    if (event.executed === true) {
-      return NextResponse.json(
-        { error: "Already executed" },
-        { status: 409 }
-      );
-    }
-
-    const normalized = normalizeAction(event.payload);
-    const traceId = event.traceId ?? event.id;
+    const normalized = normalizeAction(eventRecord.payload);
     const codeApplyBlockReasons =
       normalized.kind === "code.apply" ? getCodeApplyBlockReasons() : undefined;
     const policyResult = await evaluateExecutePolicy({
@@ -162,19 +163,14 @@ export async function POST(
       );
     }
 
-    const preExecActors = buildReceiptActorsFromEvent(event);
-    warnIfActorChainIncomplete("execution", preExecActors, {
-      expectApprover: event.status === "approved",
-    });
-
     const receiptActors = buildReceiptActorsFromEvent({
-      ...event,
+      ...eventRecord,
       executionActorId: ACTOR_LOCAL_USER.actorId,
       executionActorType: ACTOR_LOCAL_USER.actorType,
       executionActorLabel: ACTOR_LOCAL_USER.actorLabel,
     });
 
-    events[index] = { ...event, proposalStatus: "executing" };
+    events[index] = { ...eventRecord, proposalStatus: "executing" };
     await writeJson(filePath, events);
 
     const executedAt = new Date().toISOString();
@@ -228,7 +224,7 @@ export async function POST(
       });
       await appendReconciliationLog(reconciliation);
     } else if (normalized.kind === "reflection.note") {
-      const p = event.payload as Record<string, unknown>;
+      const p = eventRecord.payload as Record<string, unknown>;
       const sourceKind = String(p.sourceKind ?? "unknown");
       const sourceApprovalId = String(p.sourceApprovalId ?? "");
       const sourceOutputPath = String(p.sourceOutputPath ?? "");
@@ -278,7 +274,7 @@ export async function POST(
         actors: receiptActors,
       });
     } else if (normalized.kind === "code.apply") {
-      const p = event.payload as Record<string, unknown>;
+      const p = eventRecord.payload as Record<string, unknown>;
       const codePayload = p?.code as Record<string, unknown> | undefined;
       const diffText =
         (typeof codePayload?.diffText === "string" ? codePayload.diffText : "") ||
@@ -340,7 +336,7 @@ export async function POST(
         actors: receiptActors,
       });
     } else if (normalized.kind === "code.diff") {
-      const p = event.payload as Record<string, unknown>;
+      const p = eventRecord.payload as Record<string, unknown>;
       const codePayload = p?.code as Record<string, unknown> | undefined;
       outputPath = await writeCodeDiffBundle({
         approvalId,
@@ -387,7 +383,7 @@ export async function POST(
         actors: receiptActors,
       });
     } else if (channel === "youtube") {
-      const youtubePayload = (event.payload as Record<string, unknown>)?.youtube as Record<string, unknown> | undefined;
+      const youtubePayload = (eventRecord.payload as Record<string, unknown>)?.youtube as Record<string, unknown> | undefined;
       const youtubeInput = {
         approvalId,
         dateKey,
@@ -454,7 +450,7 @@ export async function POST(
     });
 
     const updated: Event = {
-      ...event,
+      ...eventRecord,
       executed: true,
       executedAt,
       proposalStatus: "executed",

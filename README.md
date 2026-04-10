@@ -34,8 +34,8 @@ Control plane at a glance (click through for architecture detail):
 
 | Mode | Command | Default URL | Notes |
 |------|---------|-------------|--------|
-| **Normal development** | `pnpm dev` | **http://127.0.0.1:3000** | Override with `PORT=3001 pnpm dev`, etc. |
-| **Demo / ingress rehearsal** | `pnpm demo:boot` | **http://127.0.0.1:3001** | Loads `scripts/demo-env.sh`: OpenClaw ingress **on**, shared **secret**, `PORT=3001`. |
+| **Normal development** | `pnpm dev` | **http://localhost:3000** | Override with `PORT=3001 pnpm dev`, etc. |
+| **Demo / ingress rehearsal** | `pnpm demo:boot` | **http://localhost:3001** | Loads `scripts/demo-env.sh`: OpenClaw ingress **on**, shared **secret**, `PORT=3001`. |
 
 Use the **same** base URL and secret on the **OpenClaw** side as on Jarvis, or signed ingress will fail (usually **401**). Details: [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md).
 
@@ -63,7 +63,7 @@ cp env.example .env.local   # optional; see docs/setup/env.md
 pnpm dev
 ```
 
-Open **http://127.0.0.1:3000**. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
+Open **http://localhost:3000**. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
 
 ---
 
@@ -151,6 +151,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [Policy decision logs](docs/architecture/policy-decision-logs.md)
 - [OpenClaw integration](docs/openclaw-integration-verification.md)
 - [OpenClaw coordinator / builder metadata](docs/openclaw-agent-identity.md)
+- [Local verification: OpenClaw + Jarvis (command checklist)](docs/local-verification-openclaw-jarvis.md)
+- [Submit proposal JSON (`pnpm jarvis:submit`)](docs/jarvis-proposal-submit.md)
 - [Demo runbook](DEMO.md)
 - [Environment variables](docs/setup/env.md)
 - [Audit export (Phase 3)](docs/audit-export.md)

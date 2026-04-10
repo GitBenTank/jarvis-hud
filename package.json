@@ -15,6 +15,7 @@
     "test:unit": "vitest run",
     "demo:proof": "node scripts/demo-proof.mjs",
     "ingress:smoke": "node scripts/ingress-smoke.mjs",
+    "jarvis:submit": "tsx scripts/jarvis-submit.ts",
     "jarvis:smoke:apply": "node scripts/ingress-smoke-apply.mjs",
     "jarvis:doctor": "node scripts/jarvis-doctor.mjs",
     "demo:boot": "bash scripts/demo-boot.sh",
@@ -37,6 +38,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.0.18"
   }

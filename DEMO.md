@@ -39,7 +39,7 @@ source scripts/demo-env.sh
 pnpm dev
 ```
 
-**Expected:** `Local: http://127.0.0.1:3001` (demo-env uses PORT=3001)
+**Expected:** `Local: http://localhost:3001` (demo-env uses PORT=3001)
 
 ---
 
@@ -55,7 +55,7 @@ pnpm demo:verify
 **Good:** `OK: config + stream reachable`
 
 Output also prints:
-- `BASE_URL=http://127.0.0.1:<PORT>`
+- `BASE_URL=http://localhost:<PORT>`
 - `JARVIS_ROOT=<path>`
 
 ---
@@ -93,8 +93,8 @@ Use this traceId to select the trace in `/activity` → Replay.
 ## One command: Open demo pages
 
 ```bash
-open http://127.0.0.1:3001
-open http://127.0.0.1:3001/activity
+open http://localhost:3001
+open http://localhost:3001/activity
 ```
 
 (Use 3000 if you overrode `PORT` in demo-env.)
@@ -135,7 +135,7 @@ If you can do that twice in a row, you're demo-proof.
 cd ~/Documents/jarvis-hud
 pnpm demo:boot
 ```
-Wait for "Ready" / "Local: http://127.0.0.1:3001".
+Wait for "Ready" / "Local: http://localhost:3001".
 
 **Terminal 2 — Verify + create proposals:**
 ```bash
@@ -146,7 +146,7 @@ pnpm demo:smoke
 Expected: verify prints ✅; stage prints ✅ for each smoke. Note the traceId from smoke output.
 
 **Browser:**
-1. Open http://127.0.0.1:3001 and http://127.0.0.1:3001/activity (two tabs)
+1. Open http://localhost:3001 and http://localhost:3001/activity (two tabs)
 2. **Approvals** panel: see pending proposal(s)
 3. **Approve** the `code.apply` proposal
 4. For `code.apply`: check "I understand..." + type `APPLY`
@@ -207,5 +207,5 @@ read -s JARVIS_INGRESS_OPENCLAW_SECRET
 export JARVIS_INGRESS_OPENCLAW_SECRET
 export JARVIS_INGRESS_OPENCLAW_ENABLED=true
 export JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw
-export JARVIS_HUD_BASE_URL="http://127.0.0.1:3001"
+export JARVIS_HUD_BASE_URL="http://localhost:3001"
 ```

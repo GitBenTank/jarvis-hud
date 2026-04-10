@@ -1,0 +1,10 @@
+{
+  "agent": "alfred",
+  "builder": "forge",
+  "provider": "openai",
+  "model": "openai/gpt-4o",
+  "proposal": {
+    "kind": "system.note",
+    "content": "OpenClaw to Jarvis pipeline is now live."
+  }
+}

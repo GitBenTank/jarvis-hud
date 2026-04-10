@@ -10,15 +10,10 @@
  * Sends a tiny unified diff that would add a comment line (does not execute).
  */
 
-import { createHmac, randomUUID } from "node:crypto";
+import { postOpenClawIngress } from "./lib/openclaw-ingress-fetch.mjs";
 
-const BASE = process.env.JARVIS_HUD_BASE_URL ?? "http://127.0.0.1:3000";
+const BASE = process.env.JARVIS_HUD_BASE_URL ?? "http://localhost:3000";
 const SECRET = process.env.JARVIS_INGRESS_OPENCLAW_SECRET;
-
-function sign(secret, timestamp, nonce, rawBody) {
-  const message = `${timestamp}.${nonce}.${rawBody}`;
-  return createHmac("sha256", secret).update(message, "utf8").digest("hex");
-}
 
 const TINY_PATCH = `diff --git a/README.md b/README.md
 index 1234567..abcdefg 100644
@@ -44,21 +39,7 @@ async function main() {
     source: { connector: "openclaw" },
   };
 
-  const rawBody = JSON.stringify(body);
-  const timestamp = String(Date.now());
-  const nonce = randomUUID();
-  const signature = sign(SECRET, timestamp, nonce, rawBody);
-
-  const res = await fetch(`${BASE}/api/ingress/openclaw`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Jarvis-Timestamp": timestamp,
-      "X-Jarvis-Nonce": nonce,
-      "X-Jarvis-Signature": signature,
-    },
-    body: rawBody,
-  });
+  const res = await postOpenClawIngress(BASE, SECRET, body);
 
   const text = await res.text();
   let json;

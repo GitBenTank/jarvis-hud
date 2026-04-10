@@ -43,3 +43,6 @@ next-env.d.ts
 
 # cloned sibling repos (not part of this project)
 openclaw/
+
+# Local OpenClaw agent state (API keys; never commit)
+.openclaw-dev/

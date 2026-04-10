@@ -114,4 +114,4 @@ What it does:
 
 Stack: Next.js 16, React 19, TypeScript, pnpm
 
-Dev: `pnpm dev` → http://127.0.0.1:3000 · Demo boot: `pnpm demo:boot` → http://127.0.0.1:3001 (see README)
+Dev: `pnpm dev` → http://localhost:3000 · Demo boot: `pnpm demo:boot` → http://localhost:3001 (see README)

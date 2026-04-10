@@ -50,7 +50,7 @@ No new persistence format is introduced; this is a **bundle of existing files**.
 ## Example
 
 ```bash
-curl -sS "http://127.0.0.1:3000/api/audit/export?start=2026-04-01&end=2026-04-09" | jq '.summary'
+curl -sS "http://localhost:3000/api/audit/export?start=2026-04-01&end=2026-04-09" | jq '.summary'
 ```
 
 ## Purpose

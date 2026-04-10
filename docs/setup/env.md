@@ -43,7 +43,7 @@ Jarvis HUD configuration is driven by environment variables. Never commit secret
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `JARVIS_HUD_BASE_URL` | No | Base URL for scripts (default: `http://127.0.0.1:3000`) |
+| `JARVIS_HUD_BASE_URL` | No | Base URL for scripts (default: `http://localhost:3000`) |
 | `JARVIS_LOG_POLLING` | No | `"1"` to enable server-side log polling |
 | `PORT` | No | Used by `pnpm dev:port` (default: 3000) |
 
@@ -55,6 +55,6 @@ Use `dev:port` when running with ingress to avoid port collisions:
 
 ```bash
 PORT=3001 pnpm dev:port   # with JARVIS_INGRESS_* env set
-JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" pnpm ingress:smoke
+JARVIS_HUD_BASE_URL="http://localhost:3001" pnpm ingress:smoke
 pnpm jarvis:doctor       # preflight before demos
 ```

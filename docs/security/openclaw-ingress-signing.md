@@ -19,7 +19,7 @@ PORT=3001 pnpm dev:port
 
 # Terminal 2: smoke (point at same port)
 JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-minimum" \
-JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" \
+JARVIS_HUD_BASE_URL="http://localhost:3001" \
 pnpm ingress:smoke
 ```
 

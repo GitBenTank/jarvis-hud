@@ -38,7 +38,7 @@ From the **jarvis-hud** repo root:
 pnpm demo:boot
 ```
 
-- [ ] Dev server reaches **Ready** / shows **Local: `http://127.0.0.1:3001`** (or your `PORT`)
+- [ ] Dev server reaches **Ready** / shows **Local: `http://localhost:3001`** (or your `PORT`)
 - [ ] No fatal compile errors in the terminal
 
 `demo:boot` sources [scripts/demo-env.sh](../scripts/demo-env.sh): ingress **on**, demo secret (≥32 chars), allowlist `openclaw`, `JARVIS_HUD_BASE_URL` aligned with `PORT`.
@@ -64,7 +64,7 @@ Checks performed: `GET /api/config` → 200, `GET /api/activity/stream` → 200 
 
 ## Browser — Operator ritual: runtime alive (before you “do” the demo)
 
-Open **`{BASE_URL}/activity`** (e.g. `http://127.0.0.1:3001/activity`).
+Open **`{BASE_URL}/activity`** (e.g. `http://localhost:3001/activity`).
 
 **Say:** *Before I do anything, I check whether my runtime connector is alive.*
 

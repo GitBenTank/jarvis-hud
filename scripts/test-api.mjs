@@ -1,13 +1,13 @@
 /**
  * Integration tests for /api/approvals, /api/events, /api/drafts, /api/execute, /api/actions.
  * Run with: node scripts/test-api.mjs
- * Requires dev server on http://127.0.0.1:3000
+ * Requires dev server on http://localhost:3000
  */
 
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-const BASE = "http://127.0.0.1:3000";
+const BASE = "http://localhost:3000";
 
 describe("POST /api/events", () => {
   test("creates pending event when requiresApproval=true", async () => {

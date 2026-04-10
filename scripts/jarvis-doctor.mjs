@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * Preflight check for Jarvis HUD (ingress, config, port).
- * Usage: JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" pnpm jarvis:doctor
+ * Usage: JARVIS_HUD_BASE_URL="http://localhost:3001" pnpm jarvis:doctor
  */
-const BASE = process.env.JARVIS_HUD_BASE_URL ?? "http://127.0.0.1:3000";
+const BASE = process.env.JARVIS_HUD_BASE_URL ?? "http://localhost:3000";
 const ingressEnabled = process.env.JARVIS_INGRESS_OPENCLAW_ENABLED === "true";
 const secret = process.env.JARVIS_INGRESS_OPENCLAW_SECRET;
 const allowlistRaw = process.env.JARVIS_INGRESS_ALLOWLIST_CONNECTORS ?? "";

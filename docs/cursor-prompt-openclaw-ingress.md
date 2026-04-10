@@ -18,7 +18,7 @@
 
 | Variable | Default | Notes |
 |----------|--------|------|
-| `JARVIS_BASE_URL` | `http://127.0.0.1:3001` | Prefer 3001 to match Jarvis `dev:port` workflow |
+| `JARVIS_BASE_URL` | `http://localhost:3001` | Prefer 3001 to match Jarvis `dev:port` workflow |
 | `JARVIS_INGRESS_OPENCLAW_SECRET` | (required) | Min 32 chars |
 | `JARVIS_PREFLIGHT` | `true` | Set to `"false"` to skip preflight |
 
@@ -177,7 +177,7 @@ Mirror `skills/github/SKILL.md` style:
 
 Create: `scripts/jarvis-ingress-smoke.mjs`
 
-- Read: `JARVIS_BASE_URL` (default `http://127.0.0.1:3001`), `JARVIS_INGRESS_OPENCLAW_SECRET`
+- Read: `JARVIS_BASE_URL` (default `http://localhost:3001`), `JARVIS_INGRESS_OPENCLAW_SECRET`
 - Send one `system.note`
 - Log **only**: `ok`, `id`, `traceId`, `status`, `baseUrl` — **no secrets, no raw body, no response body**
 

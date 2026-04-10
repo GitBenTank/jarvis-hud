@@ -10,14 +10,14 @@
 
 ```bash
 cd ~/Documents/jarvis-hud
-pnpm demo:boot      # wait for "Local: http://127.0.0.1:3001"
+pnpm demo:boot      # wait for "Local: http://localhost:3001"
 pnpm demo:smoke     # creates pending proposal, prints traceId
 ```
 
 **Layout:**
 - **Left:** Terminal (Jarvis logs or smoke output)
-- **Right:** Browser — Jarvis UI at http://127.0.0.1:3001
-- **Activity tab** ready: http://127.0.0.1:3001/activity
+- **Right:** Browser — Jarvis UI at http://localhost:3001
+- **Activity tab** ready: http://localhost:3001/activity
 
 ---
 

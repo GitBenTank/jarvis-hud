@@ -51,7 +51,7 @@ From the OpenClaw repo, set env vars (use same secret as Jarvis):
 cd openclaw   # or path to your OpenClaw repo
 source scripts/demo-env.sh   # if OpenClaw has it
 # Or inline:
-export JARVIS_BASE_URL="http://127.0.0.1:3001"
+export JARVIS_BASE_URL="http://localhost:3001"
 export JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars"
 ```
 
@@ -88,7 +88,7 @@ That proves the proposal reached Jarvis. Capture this moment.
 
 ### 6 — Browser: Jarvis dashboard
 
-Open: http://127.0.0.1:3001
+Open: http://localhost:3001
 
 Show:
 

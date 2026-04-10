@@ -134,4 +134,4 @@ The control plane enforces:
 - [Agent Execution Model](../security/agent-execution-model.md) — security constraints
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md) — rationale for authority boundary
 - [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md) — policy gate, kind allowlist, step-up
-- [OpenClaw Integration Verification](../openclaw-integration-verification.md) — ingress, env, troubleshooting
+- [OpenClaw Integration Verification](../openclaw-integration-verification.md) — ingress, env, OpenClaw `~/.openclaw` vs `~/.openclaw-dev` / LaunchAgent, troubleshooting

@@ -4,6 +4,27 @@ This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress 
 
 **Verified:** OpenClaw → Jarvis ingress → approval → execution → receipt flow is working. Smoke test (`pnpm jarvis:smoke` from OpenClaw) produces pending proposals; human approves and executes in Jarvis UI; receipts written to `~/jarvis/actions/YYYY-MM-DD.jsonl`.
 
+## OpenClaw config directory (macOS gateway / dashboard)
+
+**Important:** A **LaunchAgent-installed** OpenClaw gateway (e.g. Homebrew + `gateway install`) runs with the **default state directory** **`~/.openclaw`** unless you set **`OPENCLAW_STATE_DIR`** in the agent’s plist. It does **not** automatically use **`~/.openclaw-dev`**.
+
+- Mixing **`OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"`** in terminal commands with a service that still reads **`~/.openclaw`** causes confusing failures: e.g. **connection refused** on the dashboard port (gateway never bound because config was invalid for the process that launchd kept restarting) or **token mismatch** (dashboard URL generated from a different `openclaw.json` than the running gateway).
+- The config the service actually reads must include **`gateway.mode`** (e.g. **`"local"`**). Newer OpenClaw builds refuse to start the gateway without it.
+
+**Pick one model and stay consistent:**
+
+1. **Service = default state** — Background gateway uses **`~/.openclaw`**. Use **`openclaw dashboard`** without `OPENCLAW_STATE_DIR` so the URL matches the listener. Reserve **`~/.openclaw-dev`** for manual dev runs only (e.g. `OPENCLAW_STATE_DIR=... pnpm gateway:dev` from your fork).
+2. **Service = dev state** — Set **`OPENCLAW_STATE_DIR`** to **`~/.openclaw-dev`** in the LaunchAgent environment, reload the agent, and always generate dashboard URLs with that same env.
+
+**Optional shell helpers** (make the split explicit; adjust the `openclaw` command if yours is not on `PATH`):
+
+```bash
+alias oc-dev='OPENCLAW_STATE_DIR="$HOME/.openclaw-dev" openclaw'
+alias oc-prod='env -u OPENCLAW_STATE_DIR openclaw'
+```
+
+**Security:** Avoid long-lived API keys or ingress secrets in the LaunchAgent plist; prefer env files or the keychain, and rotate anything that was ever embedded in plist or shared URLs.
+
 ## Demo flow (video prep)
 
 **Secret lock:** Source `scripts/demo-env.sh` in both terminals so nothing can drift.

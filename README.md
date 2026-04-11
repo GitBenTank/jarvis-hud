@@ -216,7 +216,23 @@ Jarvis sits between AI agents and system execution:
 
 ## Screenshots
 
-_Add 2–4 sanitized UI screenshots here (e.g. Approvals queue, execute + receipt, trace view). Prefer files under `docs/marketing/` and reference them with relative paths._
+Captured from the **local dev UI** in **dark mode** (empty queue, **dry run** — illustrative only; regenerate with `pnpm screenshots:readme` while `pnpm dev` is running on port **3000**).
+
+### Mission, authority, and safety gate
+
+![Mission strip, execution authority banner, safety gate, and execution boundary copy](docs/marketing/readme-01-mission-boundary.png)
+
+### Agent proposals and execution pipeline
+
+![Pending proposals panel and execution pipeline (proposal → approval → receipt)](docs/marketing/readme-02-operations.png)
+
+### Executed actions (receipts)
+
+![Receipts panel for completed executions](docs/marketing/readme-03-receipts.png)
+
+### Activity timeline and trace
+
+![Trace / activity timeline with replay-oriented controls](docs/marketing/readme-04-activity-trace.png)
 
 ---
 

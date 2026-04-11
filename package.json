@@ -20,7 +20,8 @@
     "jarvis:doctor": "node scripts/jarvis-doctor.mjs",
     "demo:boot": "bash scripts/demo-boot.sh",
     "demo:verify": "bash scripts/demo-verify.sh",
-    "demo:smoke": "bash scripts/demo-smoke.sh"
+    "demo:smoke": "bash scripts/demo-smoke.sh",
+    "screenshots:readme": "node scripts/capture-readme-screenshots.mjs"
   },
   "dependencies": {
     "dagre": "^0.8.5",
@@ -37,6 +38,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "playwright-core": "1.51.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5",

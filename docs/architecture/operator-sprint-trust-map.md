@@ -181,8 +181,8 @@ Use **`TracePanel`** + **`GET /api/traces/[traceId]`** (and activity/replay as n
 
 | Trace id | Checklist item | Observed | Likely source | Recommended fix | Severity |
 |----------|----------------|----------|---------------|-----------------|----------|
-| *TBD — policy deny* | What policy said; blocked path reason | **Control-plane** Policy stage shows `ALLOW`/`DENY`, **rule id**, and time but **not** `reason` in the main lifecycle lines (`lifecycleSteps` policy branch). **Trace health** row shows policy as `ALLOW`/`DENY` only — no deny text at a glance. | `src/components/TracePanel.tsx` (~749, ~1428–1442) | Add `Reason: …` (or first line of `pd.reason`) to the Policy lifecycle step **always** when `pd` exists. Mirror the same line next to **Status: BLOCKED** / Policy in the trace health strip. | High |
-| *TBD — single policy* | What policy said | **Policy Decisions** block (with human-readable reason) renders only when `policyDecisions.length > 1`. A **single** allow/deny hides that entire section — operators rely on the weaker lifecycle row above. | `TracePanel.tsx` (~1492–1493) | Show one decision in the same “Policy decisions / why” pattern when `length === 1`, or merge into lifecycle so reason is never gated on count. | High |
+| *TBD — verify in QA* | What policy said; blocked path reason | **Mitigated (code):** Policy lifecycle includes **Effect**, **Rule**, **Reason** (persisted log text). Trace health strip shows deny/block reason in red (full wrap) or allow reason truncated with `title`. Re-verify with a real deny trace id. | `src/components/TracePanel.tsx` — `lifecycleSteps` policy branch, `policyHealthSecondaryLine`, trace health row | Close after QA attaches trace id. | — |
+| *TBD — verify in QA* | What policy said | **Mitigated (code):** “Policy decision(s)” block renders when `policyDecisions.length >= 1` (single decision no longer hidden). | `TracePanel.tsx` | Close after QA on one-decision trace. | — |
 | *TBD — execute failure* | What actually ran; blocked/deny parity | Execution stage for `failedAt` is only **“Failed”** + timestamp — no **execute error / reasonDetails** string if the event or action log carries it. Checklist asks UI to match logged API reason. | `TracePanel.tsx` (~778–788); event payload from execute path | Plumb failure reason from persisted event/action (if present) into the Execution stage and timeline; fall back to “see action log” only if truly absent. | Med |
 | *TBD — any approved path* | Who approved | Approver column and approval stage fall back to **“Human”** when `approvalActorLabel` / `approvalActorId` missing — reads as identity, not uncertainty. | `TracePanel.tsx` (~721, ~633–635); persistence on approve | If unknown, show **“Unknown (check audit)”** or omit label; ensure `POST` approve/execute paths persist actor fields consistently (`src/app/api/approvals/...`, events merge in trace route). | Med |
 | *TBD — system.note success* | What was produced; where proof lives | Non-file kinds may leave **artifact/receipt paths empty**; UI can look “empty” without explaining that **the note content is the proposal/event payload**. | `TracePanel.tsx` receipt/artifact sections | For kinds without paths, add an explicit **“Output: in-event note”** (or similar) and surface `summary`/payload snippet so “produced” is legible. | Med |
@@ -194,7 +194,14 @@ Use **`TracePanel`** + **`GET /api/traces/[traceId]`** (and activity/replay as n
 2. One **policy deny** or ingress/execute block with a **known logged reason**.
 3. One **older or noisy** trace (multi-event or missing actor fields), if available.
 
-After the sweep, replace *TBD* trace ids, add rows, or mark gaps **closed** with PR links.
+After the sweep, replace *TBD* trace ids, add rows, or mark gaps **closed** with PR links. **Not more design first** — validate mitigated rows with real ids, then file/fix what still fails.
+
+**Recommended fix order for remaining gaps** (trust impact)
+
+1. Execute failure text — parity with logged/API reason (`failedAt` / action log).
+2. Approver fallback — avoid fake **“Human”**; persist or label unknown honestly.
+3. Multi-event primary — selection rule + microcopy (or explicit primary proposal).
+4. `system.note` output copy — explicit in-event output when no file paths (polish after 1–3).
 
 ---
 

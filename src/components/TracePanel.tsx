@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTraceContext } from "@/context/TraceContext";
 import {
   normalizeProposalLifecycle,
@@ -240,8 +240,35 @@ function policyEffectLabel(decision: "allow" | "deny"): string {
 }
 
 function policyReasonDisplay(reason: string | undefined): string {
-  const t = reason?.trim() ?? "";
-  return t ? t : "—";
+  const t = reason?.trim();
+  if (t) return t;
+  return "—";
+}
+
+function policyHealthSecondaryLine(
+  pd: TracePolicyDecision,
+  traceStatus: string,
+): ReactNode {
+  const blocked = pd.decision === "deny" || traceStatus === "BLOCKED";
+  const reason = pd.reason?.trim() ?? "";
+  if (blocked) {
+    return (
+      <span className="mt-0.5 block whitespace-pre-wrap break-words font-normal text-red-800 dark:text-red-200/90">
+        {reason || "—"}
+      </span>
+    );
+  }
+  if (reason) {
+    return (
+      <span
+        className="mt-0.5 block truncate font-normal text-zinc-500 dark:text-zinc-400"
+        title={reason}
+      >
+        {reason}
+      </span>
+    );
+  }
+  return null;
 }
 
 function statusStyles(status: string): { badge: string; dot: string } {
@@ -1445,8 +1472,9 @@ export default function TracePanel() {
               <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Status: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.status}</span>
               </span>
-              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+              <span className="min-w-0 max-w-full flex-[1_1_14rem] text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Policy: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.policy}</span>
+                {primaryPolicy ? policyHealthSecondaryLine(primaryPolicy, traceHealth.status) : null}
               </span>
               <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Execution: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.execution}</span>
@@ -1504,14 +1532,14 @@ export default function TracePanel() {
             </div>
           )}
 
-          {/* Policy Decisions (legacy / multiple) — show only if multiple decisions */}
-          {(dataSource.policyDecisions?.length ?? 0) > 1 && (
+          {/* Policy decisions from log — one or more (single decision must still show reason) */}
+          {(dataSource.policyDecisions?.length ?? 0) >= 1 && (
             <div className="rounded border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
               <h3 className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Policy Decisions
+                Policy {dataSource.policyDecisions!.length === 1 ? "decision" : "decisions"}
               </h3>
               <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-                Why execution was allowed or blocked
+                Why execution was allowed or blocked (same text as policy log)
               </p>
               <div className="space-y-2">
                 {dataSource.policyDecisions!.map((pd, i) => (

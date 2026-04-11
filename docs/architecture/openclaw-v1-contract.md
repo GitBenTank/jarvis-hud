@@ -52,6 +52,7 @@ Node callers do not send session cookies; when `JARVIS_AUTH_ENABLED=true`, `step
 3. **Alfred reads posture before submission** — use `preflightTrustPostureForKind` or equivalent; attach `messages` to logs or advisory text.
 4. **Forge** — uses posture as **shaping context** only; never claims approved / executed / recorded.
 5. **system.note** — first happy-path kind: submit → approve → execute → receipt → trace.
+   - In-repo loop demo: `pnpm demo:system-note` (`scripts/demos/system-note-runner.ts`) prints draft → normalize → validate → trust preflight → submit. Use `--no-submit` without a running server; `--scenario=*` to exercise local blocks and trust aborts.
 6. **Inspect** approval UI, receipt, trace for one run.
 7. **Promote to code.diff** — still dry-run oriented in adapters.
 8. **code.apply last** — only when `trustPosture.codeApplyBlockReasons` is empty (or operator explicitly overrides); never assert success from the agent layer.

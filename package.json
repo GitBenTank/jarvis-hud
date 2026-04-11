@@ -16,12 +16,13 @@
     "demo:proof": "node scripts/demo-proof.mjs",
     "ingress:smoke": "node scripts/ingress-smoke.mjs",
     "jarvis:submit": "tsx scripts/jarvis-submit.ts",
+    "demo:system-note": "tsx scripts/demos/system-note-runner.ts",
     "jarvis:smoke:apply": "node scripts/ingress-smoke-apply.mjs",
     "jarvis:doctor": "node scripts/jarvis-doctor.mjs",
     "demo:boot": "bash scripts/demo-boot.sh",
     "demo:verify": "bash scripts/demo-verify.sh",
     "demo:smoke": "bash scripts/demo-smoke.sh",
-    "screenshots:readme": "node scripts/capture-readme-screenshots.mjs"
+    "screenshots:readme": "node scripts/readme-screenshots.mjs"
   },
   "dependencies": {
     "dagre": "^0.8.5",

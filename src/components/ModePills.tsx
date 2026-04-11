@@ -21,10 +21,29 @@ export default function ModePills() {
   const [scopeEnforced, setScopeEnforced] = useState<boolean | null>(null);
 
   const fetchConfig = useCallback(async () => {
+    const clearUnknown = () => {
+      setAuthEnabled(null);
+      setSafetyConfirmOn(null);
+      setIngressValidationOn(null);
+      setExecutionLabel(null);
+      setStepUpValid(null);
+      setScopeEnforced(null);
+    };
+
     try {
       const res = await fetch("/api/config", { credentials: "include" });
-      const json = await res.json();
-      setAuthEnabled(json.authEnabled === true);
+      let json: Record<string, unknown>;
+      try {
+        json = (await res.json()) as Record<string, unknown>;
+      } catch {
+        clearUnknown();
+        return;
+      }
+      if (!res.ok) {
+        clearUnknown();
+        return;
+      }
+      setAuthEnabled(typeof json.authEnabled === "boolean" ? json.authEnabled : null);
       setSafetyConfirmOn(
         typeof json.irreversibleConfirmEnabled === "boolean"
           ? json.irreversibleConfirmEnabled
@@ -50,12 +69,7 @@ export default function ModePills() {
         typeof tp?.executionScopeEnforced === "boolean" ? tp.executionScopeEnforced : null
       );
     } catch {
-      setAuthEnabled(false);
-      setSafetyConfirmOn(null);
-      setIngressValidationOn(null);
-      setExecutionLabel(null);
-      setStepUpValid(null);
-      setScopeEnforced(null);
+      clearUnknown();
     }
   }, []);
 

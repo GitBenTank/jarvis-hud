@@ -208,7 +208,10 @@ Jarvis sits between AI agents and system execution:
 | `pnpm demo:smoke`    | Ingress + apply smoke tests          |
 | `pnpm ingress:smoke` | `system.note` ingress smoke          |
 | `pnpm jarvis:doctor` | Preflight (ingress, secret, allowlist) |
+| `pnpm jarvis:submit` | Normalize + signed POST from a JSON file |
+| `pnpm demo:system-note` | End-to-end **truth loop** demo: draft → normalize → validate → trust preflight → submit (`--no-submit`, `--scenario=*`; see `scripts/demos/system-note-runner.ts`) |
 | `pnpm test:unit`     | Unit tests                           |
+| `pnpm screenshots:readme` | Regenerate README screenshots (OpenClaw → approval → receipt; seeds `.readme-screenshots-jarvis/`, starts Next on **3099**) |
 
 **Environment:** `env.example` → `.env.local`. OpenClaw: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, `JARVIS_INGRESS_OPENCLAW_SECRET` (≥32 chars), `JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw`. See [docs/setup/env.md](docs/setup/env.md).
 
@@ -216,23 +219,23 @@ Jarvis sits between AI agents and system execution:
 
 ## Screenshots
 
-Captured from the **local dev UI** in **dark mode** (empty queue, **dry run** — illustrative only). The first image is a **top crop** of the HUD; the others are **panel crops** so each section reads clearly on GitHub (regenerate with `pnpm screenshots:readme` while `pnpm dev` is on port **3000**).
+**Story:** OpenClaw **connector trust** on Activity → **signed proposal** in the queue → **human approval** gate (detail modal) → **execution receipt** (artifact + log). Images are **synthetic demo data** (seeded workspace, dry run); regenerate with **`pnpm screenshots:readme`** (starts its own Next server on port **3099** with `playwright-core` + Chrome). Requires **macOS/Chrome** or set `PW_CHANNEL` / `README_SCREENSHOT_SKIP_SERVER` as documented in `scripts/readme-screenshots.mjs`.
 
-### Mission, authority, and safety gate
+### 1 — OpenClaw connector + activity graph
 
-![Mission strip, execution authority banner, safety gate, and execution boundary copy](docs/marketing/readme-01-mission-boundary.png)
+![Activity: OpenClaw health and control-plane graph](docs/marketing/readme-01-openclaw-activity.png)
 
-### Agent proposals and execution pipeline
+### 2 — Proposal landed (ingress → pending)
 
-![Pending proposals panel and execution pipeline (proposal → approval → receipt)](docs/marketing/readme-02-operations.png)
+![Pending proposal sourced from OpenClaw with trusted ingress](docs/marketing/readme-02-openclaw-pending.png)
 
-### Executed actions (receipts)
+### 3 — Human approval gate
 
-![Receipts panel for completed executions](docs/marketing/readme-03-receipts.png)
+![Detail modal: approve / deny before execution](docs/marketing/readme-03-human-approval.png)
 
-### Activity timeline and trace
+### 4 — Execution receipt
 
-![Trace / activity timeline with replay-oriented controls](docs/marketing/readme-04-activity-trace.png)
+![Executed actions panel with receipt line and evidence links](docs/marketing/readme-04-execution-receipt.png)
 
 ---
 

@@ -50,6 +50,9 @@ auth-profiles.json
 # Local Jarvis workspace at repo root only (default JARVIS_ROOT is ~/jarvis)
 /jarvis/
 
+# Ephemeral data for pnpm screenshots:readme (OpenClaw → approval → receipt demo)
+.readme-screenshots-jarvis/
+
 # vercel
 .vercel
 

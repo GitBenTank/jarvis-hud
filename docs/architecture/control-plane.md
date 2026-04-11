@@ -128,6 +128,8 @@ The control plane enforces:
 
 ## See Also
 
+- [Operator sprint — trust strip & repo map](operator-sprint-trust-map.md) — trust-strip contract, enforced vs inferred signals, substrate gaps, implementation order
+- [OpenClaw ↔ Jarvis trust contract](openclaw-jarvis-trust-contract.md) — canonical `GET /api/config` posture, honesty tags, Alfred/Forge rules
 - [Controller Runtime](controller-runtime.md) — controller responsibilities, runtime loop, and future multi-controller architecture
 -  [Agent Trust Model](agent-trust-model.md) — agents are proposers, not actors
 - [Security Model](security-model.md) — boundaries, defense in depth

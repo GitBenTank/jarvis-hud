@@ -1,4 +1,8 @@
 import { normalizeAction } from "@/lib/normalize";
+import {
+  buildExecutionCapabilities,
+  type ExecutionCapabilities,
+} from "@/lib/execution-surface";
 
 export type RuntimePosture = {
   activeTraceId: string | null;
@@ -13,7 +17,8 @@ export type RuntimePosture = {
   authEnabled: boolean;
   ingressEnabled: boolean;
   safetyOn: boolean;
-  mode: "dry-run" | "live";
+  /** Ground truth for dry-run vs live execute paths (no global "HUD is dry-run" lie). */
+  executionCapabilities: ExecutionCapabilities;
 };
 
 type StoredEvent = {
@@ -46,7 +51,6 @@ export function buildRuntimePosture(args: {
   authEnabled: boolean;
   ingressEnabled: boolean;
   safetyOn: boolean;
-  mode?: "dry-run" | "live";
   policyDecisions?: PolicyDecisionEntry[];
 }): RuntimePosture {
   const { events, actions } = args;
@@ -104,6 +108,6 @@ export function buildRuntimePosture(args: {
     authEnabled: args.authEnabled,
     ingressEnabled: args.ingressEnabled,
     safetyOn: args.safetyOn,
-    mode: args.mode ?? "dry-run",
+    executionCapabilities: buildExecutionCapabilities(),
   };
 }

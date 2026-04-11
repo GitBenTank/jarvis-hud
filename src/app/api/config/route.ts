@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 import { promises as fs } from "node:fs";
@@ -10,14 +10,24 @@ import {
   getPolicyDecisionsFilePath,
   readJson,
 } from "@/lib/storage";
-import { isAuthEnabled, AuthConfigError } from "@/lib/auth";
-import { isCodeApplyAvailable } from "@/lib/code-apply";
+import {
+  isAuthEnabled,
+  AuthConfigError,
+  getSessionFromCookie,
+  isStepUpValid,
+} from "@/lib/auth";
+import { isCodeApplyAvailable, getCodeApplyBlockReasons } from "@/lib/code-apply";
 import {
   isIngressEnabled,
   getIngressSecret,
   getConnectorAllowlist,
 } from "@/lib/ingress-openclaw";
 import { buildRuntimePosture } from "@/lib/runtime-posture";
+import { loadExecutionAllowedRoots } from "@/lib/execution-scope";
+import {
+  buildExecutionCapabilities,
+  executionCapabilitiesShortLabel,
+} from "@/lib/execution-surface";
 
 type ActionLogEntry = {
   traceId?: string;
@@ -52,7 +62,7 @@ async function readPolicyDecisions(dateKey: string): Promise<Array<{ decision?: 
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const allowlist = getConnectorAllowlist();
     const openclawAllowed = allowlist.has("openclaw");
@@ -64,6 +74,16 @@ export async function GET() {
       process.env.JARVIS_INGRESS_OPENCLAW_VALIDATE !== "false";
     const ingressOpenclawEnabled =
       isIngressEnabled() && getIngressSecret() !== null;
+    const authEnabled = isAuthEnabled();
+    let stepUpValid: boolean | null = null;
+    if (authEnabled) {
+      const session = getSessionFromCookie(request.headers.get("cookie"));
+      stepUpValid = session !== null && isStepUpValid(session);
+    }
+    const executionScopeEnforced = loadExecutionAllowedRoots().length > 0;
+    const codeApplyBlockReasons = getCodeApplyBlockReasons();
+    const executionCapabilities = buildExecutionCapabilities();
+
     const dateKey = getDateKey();
     const events =
       (await readJson<
@@ -84,15 +104,14 @@ export async function GET() {
       events,
       actions,
       policyDecisions,
-      authEnabled: isAuthEnabled(),
+      authEnabled,
       ingressEnabled: ingressOpenclawEnabled,
       safetyOn: irreversibleConfirmEnabled && ingressValidationEnabled,
-      mode: "dry-run",
     });
 
     return NextResponse.json({
       jarvisRoot: getJarvisRoot(),
-      authEnabled: isAuthEnabled(),
+      authEnabled,
       irreversibleConfirmEnabled,
       ingressValidationEnabled,
       codeApplyAvailable: isCodeApplyAvailable(),
@@ -100,6 +119,14 @@ export async function GET() {
       connectorAllowlist: [...allowlist],
       openclawAllowed,
       serverTime: new Date().toISOString(),
+      /** Canonical operator posture: same fields agents should use (GET /api/config + cookies for step-up). */
+      trustPosture: {
+        stepUpValid,
+        executionScopeEnforced,
+        codeApplyBlockReasons,
+        executionCapabilities,
+        executionSurfaceLabel: executionCapabilitiesShortLabel(executionCapabilities),
+      },
       runtimePosture,
     });
   } catch (err) {

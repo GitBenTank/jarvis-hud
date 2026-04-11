@@ -2,18 +2,27 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-type ModePillsProps = Readonly<{
-  executionMode?: "DRY RUN" | "LIVE";
-}>;
+function tri(v: boolean | null, on: string, off: string): string {
+  if (v === null) return "…";
+  return v ? on : off;
+}
 
-export default function ModePills({ executionMode = "DRY RUN" }: ModePillsProps) {
+function stepUpPill(stepUpValid: boolean | null): string {
+  if (stepUpValid === null) return "…";
+  return stepUpValid ? "OK" : "REQUIRED";
+}
+
+export default function ModePills() {
   const [authEnabled, setAuthEnabled] = useState<boolean | null>(null);
   const [safetyConfirmOn, setSafetyConfirmOn] = useState<boolean | null>(null);
   const [ingressValidationOn, setIngressValidationOn] = useState<boolean | null>(null);
+  const [executionLabel, setExecutionLabel] = useState<string | null>(null);
+  const [stepUpValid, setStepUpValid] = useState<boolean | null>(null);
+  const [scopeEnforced, setScopeEnforced] = useState<boolean | null>(null);
 
   const fetchConfig = useCallback(async () => {
     try {
-      const res = await fetch("/api/config");
+      const res = await fetch("/api/config", { credentials: "include" });
       const json = await res.json();
       setAuthEnabled(json.authEnabled === true);
       setSafetyConfirmOn(
@@ -26,10 +35,27 @@ export default function ModePills({ executionMode = "DRY RUN" }: ModePillsProps)
           ? json.ingressValidationEnabled
           : null
       );
+      const tp = json.trustPosture as
+        | {
+            executionSurfaceLabel?: string;
+            stepUpValid?: boolean | null;
+            executionScopeEnforced?: boolean;
+          }
+        | undefined;
+      setExecutionLabel(
+        typeof tp?.executionSurfaceLabel === "string" ? tp.executionSurfaceLabel : null
+      );
+      setStepUpValid(typeof tp?.stepUpValid === "boolean" ? tp.stepUpValid : null);
+      setScopeEnforced(
+        typeof tp?.executionScopeEnforced === "boolean" ? tp.executionScopeEnforced : null
+      );
     } catch {
       setAuthEnabled(false);
       setSafetyConfirmOn(null);
       setIngressValidationOn(null);
+      setExecutionLabel(null);
+      setStepUpValid(null);
+      setScopeEnforced(null);
     }
   }, []);
 
@@ -42,17 +68,28 @@ export default function ModePills({ executionMode = "DRY RUN" }: ModePillsProps)
   return (
     <div className="flex shrink-0 items-center gap-2 px-4 py-1.5 sm:pr-4">
       <div className="flex flex-wrap gap-2">
-        <span className="rounded border border-zinc-700 bg-zinc-900/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
-          Execution: {executionMode}
+        <span
+          className="rounded border border-zinc-700 bg-zinc-900/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400"
+          title="From Jarvis execute path: dryRun false only for code.apply"
+        >
+          Execute: {executionLabel ?? "…"}
         </span>
         <span className="rounded border border-zinc-700 bg-zinc-900/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
-          Auth: {authEnabled === null ? "…" : authEnabled ? "ON" : "OFF"}
+          Auth: {tri(authEnabled, "ON", "OFF")}
+        </span>
+        {authEnabled === true ? (
+          <span className="rounded border border-zinc-700 bg-zinc-900/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
+            Step-up: {stepUpPill(stepUpValid)}
+          </span>
+        ) : null}
+        <span className="rounded border border-zinc-700 bg-zinc-900/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
+          Scope: {tri(scopeEnforced, "ENFORCED", "OFF")}
         </span>
         <span className="rounded border border-zinc-700 bg-zinc-900/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
-          Safety: {safetyConfirmOn === null ? "…" : safetyConfirmOn ? "ON" : "OFF"}
+          Safety: {tri(safetyConfirmOn, "ON", "OFF")}
         </span>
         <span className="rounded border border-zinc-700 bg-zinc-900/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
-          Ingress Validation: {ingressValidationOn === null ? "…" : ingressValidationOn ? "ON" : "OFF"}
+          Ingress Validation: {tri(ingressValidationOn, "ON", "OFF")}
         </span>
       </div>
     </div>

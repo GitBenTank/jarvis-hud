@@ -351,7 +351,6 @@ export async function GET(request: Request) {
       authEnabled: false,
       ingressEnabled: false,
       safetyOn: true,
-      mode: "dry-run",
     });
 
     return NextResponse.json({

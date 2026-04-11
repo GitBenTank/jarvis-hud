@@ -79,16 +79,28 @@ related:
 | Policy at execute | Allowlist, step-up, code.apply preflight | `src/lib/policy.ts`, `src/app/api/execute/[approvalId]/route.ts` |
 | Execution gate | Approval chain | `src/lib/execution-gate.ts` |
 | Existing HUD hints | Counts, agent idle | `src/components/StatusStrip.tsx` |
-| Mode / safety hints | Auth, safety confirm, ingress validation flags | `src/components/ModePills.tsx` |
+| **Trust / boundary strip (glanceable)** | Ingress, connector, auth, apply, optional block reason; `trustPosture` pills when keys valid | `src/components/TrustPostureStrip.tsx` — mounted **above** `MissionStrip` on `src/app/page.tsx` |
+| **Transitional env toggles** | Safety confirm + ingress validation (not duplicated on strip) | `src/components/ModePills.tsx` (dark bar next to `ExecutionAuthorityBanner`) |
 | Safety gate state | Risk-based green/amber/red | `src/components/SafetyGatePanel.tsx` |
 
-**Recommended UI structure:** add `src/components/TrustPostureStrip.tsx` (client) fed by `GET /api/config` (+ small extensions above). Keep `StatusStrip` for **throughput** (pending/approved/executed/trace link); strip handles **boundary posture** to avoid one mega-component.
+**UI structure (shipped):** `TrustPostureStrip` is the primary **boundary posture** surface; `StatusStrip` stays **throughput**; `ModePills` avoids duplicating trust signals already on the strip.
 
-**First implementation order (theme 1):**
+**Implementation status (theme 1):**
 
-1. ~~Extend `GET /api/config` with honest fields~~ — done: `trustPosture` (`stepUpValid`, `executionScopeEnforced`, `codeApplyBlockReasons`, `executionCapabilities`); `runtimePosture.executionCapabilities` replaces removed `mode`.
-2. Implement `TrustPostureStrip` wired on `src/app/page.tsx` **above** or **merged with** the existing authority/mode row.
-3. ~~Align `ModePills`~~ — partial: `ModePills` now reads `trustPosture` with `credentials: "include"` (execute surface, step-up, scope).
+1. ~~Extend `GET /api/config` with honest fields~~ — done: `trustPosture` (`stepUpValid`, `executionScopeEnforced`, `codeApplyBlockReasons`, `executionCapabilities`, `executionSurfaceLabel`); `runtimePosture` includes `latestBlockReason`, `executionCapabilities`.
+2. ~~`TrustPostureStrip` on home~~ — done: first operational block under the page header, above `MissionStrip` and the proposals row.
+3. ~~`ModePills` alignment~~ — done: only **Safety** and **Ingress validation**; execute/auth/step-up/scope live on `TrustPostureStrip`.
+
+### Suggested manual QA — `TrustPostureStrip`
+
+Run the home page with `GET /api/config` succeeding and exercise:
+
+- **Ingress** off (env/secret) vs on; **Connector** off allowlist vs on.
+- **Auth** off (expect **Step-up: N/A** when `trustPosture` loads) vs on.
+- **Auth** on without step-up cookie vs with valid step-up (expect **Required** vs **Valid**).
+- **Apply** blocked vs available; when blocked, confirm **Apply detail** tooltip lists `codeApplyBlockReasons` only if the array is non-empty.
+- **Malformed / missing `trustPosture`:** strip should omit trust-bundle pills, not invent values (V1A top-level pills still follow strict `typeof` checks).
+- **`runtimePosture.latestBlockReason`:** present (policy deny reason) vs absent — **Block** chip appears only for a non-empty string.
 
 ---
 
@@ -129,7 +141,60 @@ related:
 | UI | `src/components/TracePanel.tsx`, `src/context/TraceContext.tsx` |
 | Policy on trace | Policy decisions merged in trace route; `TracePanel` policy sections |
 
-**Direction:** narrative ordering is already partly there; tighten labels to match governance story: proposal → verified → approved → policy → executed → artifacts (map to existing event types in route + panel).
+**Direction:** narrative ordering is already partly there; tighten labels to match governance story: proposal → verified → approved → policy → executed → artifacts (map to existing event types in route + panel). Implementation and manual QA should satisfy the checklist below (not an ADR — an operator-facing acceptance contract).
+
+### Trace legibility checklist (operator UX acceptance)
+
+Use **`TracePanel`** + **`GET /api/traces/[traceId]`** (and activity/replay as needed). Without reading code or external narration, an operator should be able to answer:
+
+- [ ] **Who proposed** — actor/agent/source for the originating proposal event.
+- [ ] **Who approved** — human (or system) approval identity when an approval step exists.
+- [ ] **What policy said** — allow/deny and rule or summary tied to logged policy decisions for this trace.
+- [ ] **What actually ran** — executed action kinds / adapter outcome, not confused with proposal-only state.
+- [ ] **What was produced** — artifacts, file changes, or explicit “nothing executed” when applicable.
+- [ ] **Where the proof lives** — paths, trace id, receipt/log pointers the operator can follow (e.g. artifact paths, links to the same trace).
+
+**Blocked, denied, or aborted paths**
+
+- [ ] The **reason shown in the UI** matches the **reason recorded** by the API / persisted logs / policy decision for that trace (same rule id or same human-readable line — no generic “failed” when a specific deny reason exists).
+
+**How to use this doc**
+
+- Treat unchecked items as **backlog** for `TracePanel`, trace API payload shape, and labels — implement until the checklist passes on representative traces (happy path, policy deny, execute error).
+
+### Trace legibility — gap list (issue-ready)
+
+**Method:** Initial pass = **static review** of `TracePanel` + `GET /api/traces/[traceId]` response shape vs the checklist (not yet validated against 2–3 live traces). When you QA, add a **Trace id** column or prefix each row with the real id.
+
+**Suggested issue row shape**
+
+| Field | Purpose |
+|-------|---------|
+| **Trace id** | Real uuid from QA (or scenario label until then). |
+| **Checklist item** | Which bullet from the checklist fails. |
+| **Observed** | What the operator sees vs what they need. |
+| **Source** | File(s) or API field. |
+| **Fix** | One concrete change. |
+| **Severity** | P0–P3 or High/Med/Low. |
+
+**Initial gaps (fill `Trace id` during QA)**
+
+| Trace id | Checklist item | Observed | Likely source | Recommended fix | Severity |
+|----------|----------------|----------|---------------|-----------------|----------|
+| *TBD — policy deny* | What policy said; blocked path reason | **Control-plane** Policy stage shows `ALLOW`/`DENY`, **rule id**, and time but **not** `reason` in the main lifecycle lines (`lifecycleSteps` policy branch). **Trace health** row shows policy as `ALLOW`/`DENY` only — no deny text at a glance. | `src/components/TracePanel.tsx` (~749, ~1428–1442) | Add `Reason: …` (or first line of `pd.reason`) to the Policy lifecycle step **always** when `pd` exists. Mirror the same line next to **Status: BLOCKED** / Policy in the trace health strip. | High |
+| *TBD — single policy* | What policy said | **Policy Decisions** block (with human-readable reason) renders only when `policyDecisions.length > 1`. A **single** allow/deny hides that entire section — operators rely on the weaker lifecycle row above. | `TracePanel.tsx` (~1492–1493) | Show one decision in the same “Policy decisions / why” pattern when `length === 1`, or merge into lifecycle so reason is never gated on count. | High |
+| *TBD — execute failure* | What actually ran; blocked/deny parity | Execution stage for `failedAt` is only **“Failed”** + timestamp — no **execute error / reasonDetails** string if the event or action log carries it. Checklist asks UI to match logged API reason. | `TracePanel.tsx` (~778–788); event payload from execute path | Plumb failure reason from persisted event/action (if present) into the Execution stage and timeline; fall back to “see action log” only if truly absent. | Med |
+| *TBD — any approved path* | Who approved | Approver column and approval stage fall back to **“Human”** when `approvalActorLabel` / `approvalActorId` missing — reads as identity, not uncertainty. | `TracePanel.tsx` (~721, ~633–635); persistence on approve | If unknown, show **“Unknown (check audit)”** or omit label; ensure `POST` approve/execute paths persist actor fields consistently (`src/app/api/approvals/...`, events merge in trace route). | Med |
+| *TBD — system.note success* | What was produced; where proof lives | Non-file kinds may leave **artifact/receipt paths empty**; UI can look “empty” without explaining that **the note content is the proposal/event payload**. | `TracePanel.tsx` receipt/artifact sections | For kinds without paths, add an explicit **“Output: in-event note”** (or similar) and surface `summary`/payload snippet so “produced” is legible. | Med |
+| *TBD — multi-event trace* | Who proposed / ordering | **Primary** trace row is `sortedEvents[0]` (earliest by time heuristic). Messy traces with retriggers may not match operator mental model of “the” proposal. | `TracePanel.tsx` `sortedEvents`, `primaryEvent` | Document selection rule in UI microcopy; consider pinning “primary proposal” explicitly when multiple proposal-shaped events exist. | Low |
+
+**QA sweep to run next**
+
+1. One successful **`system.note`** (happy path).
+2. One **policy deny** or ingress/execute block with a **known logged reason**.
+3. One **older or noisy** trace (multi-event or missing actor fields), if available.
+
+After the sweep, replace *TBD* trace ids, add rows, or mark gaps **closed** with PR links.
 
 ---
 
@@ -138,8 +203,8 @@ related:
 | Topic | Location | Note |
 |-------|----------|------|
 | Demo seed / drafts | `src/components/DraftsPanel.tsx` (`DEMO_SEED`) | Label as demo path in UI |
-| Global dry-run lie | `src/app/api/config/route.ts` (`mode: "dry-run"`) | Fix as part of theme 1 |
-| Per-adapter dry run | `src/app/api/execute/[approvalId]/route.ts`, `src/lib/normalize.ts` | Document in UI: “Live writes: code.apply only” until more kinds go live |
+| Global HUD “mode” | Removed | Do not resurrect a single `mode: "dry-run"` on `GET /api/config`; use `executionCapabilities` + `trustPosture.executionSurfaceLabel` (`src/lib/execution-surface.ts`, strip **Execute** pill). |
+| Per-adapter dry run | `src/app/api/execute/[approvalId]/route.ts`, `src/lib/normalize.ts` | Execute response `dryRun`; strip summarizes surface from config |
 | System status / archive demo | `src/components/SystemStatus.tsx`, `src/app/api/proof-path/route.ts` | Keep explicit “demo data” language |
 
 ---

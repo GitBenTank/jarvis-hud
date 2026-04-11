@@ -235,6 +235,15 @@ function formatTime(ts?: string): string {
   }
 }
 
+function policyEffectLabel(decision: "allow" | "deny"): string {
+  return decision === "allow" ? "Execution allowed" : "Execution blocked";
+}
+
+function policyReasonDisplay(reason: string | undefined): string {
+  const t = reason?.trim() ?? "";
+  return t ? t : "—";
+}
+
 function statusStyles(status: string): { badge: string; dot: string } {
   const s = status.toLowerCase();
   if (s === "executed" || s === "written") {
@@ -746,7 +755,13 @@ export default function TracePanel() {
           icon: pd.decision === "allow" ? "✓" : "✗",
           iconClass: pd.decision === "allow" ? "text-emerald-500" : "text-red-500",
           state: "done",
-          lines: [`Policy: ${pd.decision.toUpperCase()}`, `Rule: ${pd.rule}`, `Time: ${formatTime(pd.timestamp)}`],
+          lines: [
+            `Effect: ${policyEffectLabel(pd.decision)}`,
+            `Policy: ${pd.decision.toUpperCase()}`,
+            `Rule: ${pd.rule}`,
+            `Reason: ${policyReasonDisplay(pd.reason)}`,
+            `Time: ${formatTime(pd.timestamp)}`,
+          ],
         },
       });
     } else if (approved) {

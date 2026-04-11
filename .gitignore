@@ -33,6 +33,22 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# Tracked template (not .env*)
+!env.example
+
+# logs and local diagnostics
+logs/
+*.log
+
+# OpenClaw / agent local state (never commit)
+.openclaw/
+
+# Auth profiles if ever copied into the repo
+auth-profiles.json
+**/auth-profiles.json
+
+# Local Jarvis workspace at repo root only (default JARVIS_ROOT is ~/jarvis)
+/jarvis/
 
 # vercel
 .vercel

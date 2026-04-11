@@ -1,6 +1,10 @@
 # Jarvis HUD
 
-> **Status:** Active development — **demo-ready** for local use and **OpenClaw-signed ingress** (see [Investor / demo path](#investor--demo-path) below).
+**Control plane for governed AI execution.**
+
+Jarvis HUD sits between **AI agents** (e.g. [OpenClaw](https://github.com/openclaw/openclaw)) and **real-world actions**. Agents **propose**. Humans (or explicit policy) **approve**. The system **executes** only after that gate. **Every step leaves receipts and traces.**
+
+> **Status:** Active development — **demo-ready** locally with **OpenClaw-signed ingress** ([Investor / demo path](#investor--demo-path)).
 
 ![Version](https://img.shields.io/badge/version-v0.1-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
@@ -8,15 +12,93 @@
 ![Architecture](https://img.shields.io/badge/architecture-control--plane-purple)
 ![Stack](https://img.shields.io/badge/stack-TypeScript%20%2B%20Next.js-blue)
 
-## Who it’s for, what it is, why it matters
+## Why this exists
 
-**Who it’s for:** Developers and operators who run **local agents with real permissions** (files, tools, execution) and need a **human gate** before anything runs.
+Modern agents are powerful, but **power without authority boundaries is reckless**. Jarvis HUD makes the lifecycle explicit: **propose → approve → execute → receipt → trace**, so automation stays **observable** and accountable.
 
-**What it is:** A **Next.js control plane** between agents and execution. Agents submit **proposals**; **humans approve or reject**; **execution is a separate step** after approval. **Every executed action leaves proof**: a **receipt** (action log) plus **artifacts** where adapters write them, tied together with a **`traceId`**.
+Pair a **capability layer** (OpenClaw: research, drafts, skills, tools) with an **authority layer** (Jarvis: queue, policy, execution, audit).
 
-**Why it matters:** The gap is not model intelligence — it is **runtime control**. Jarvis makes the lifecycle explicit: **propose → approve → execute → receipt → trace**, so automation stays **observable and deniable** (in the good sense: you can show *what* happened and *who* said go).
+## Core thesis
 
-**Thesis lock (non-negotiable):** Agents may propose anything; **execution requires explicit human approval**; **approval is not execution**; **the model is not a trusted principal**; **autonomy in thinking, authority in action**. Full narrative: [docs/strategy/jarvis-hud-video-thesis.md](docs/strategy/jarvis-hud-video-thesis.md) · [ADR: Thesis Lock](docs/decisions/0001-thesis-lock.md).
+- **Approval is not execution** — two different steps.
+- **Agents propose; they do not commit** high-stakes effects on their own.
+- **The model is not a trusted principal** — humans and policy remain in charge.
+- **Every action produces proof** — receipts, artifacts, and replayable **traces**.
+- **Autonomy in thinking. Authority in action.**
+
+Full narrative: [docs/strategy/jarvis-hud-video-thesis.md](docs/strategy/jarvis-hud-video-thesis.md) · [ADR: Thesis Lock](docs/decisions/0001-thesis-lock.md).
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Agents / OpenClaw] --> B[Proposal / Ingress]
+    B --> C[Jarvis HUD queue]
+    C --> D{Approved?}
+    D -->|No| E[Rejected / logged]
+    D -->|Yes| F[Execute]
+    F --> G[Receipts]
+    F --> H[Artifacts]
+    F --> I[Trace timeline]
+```
+
+### OpenClaw vs Jarvis HUD
+
+```mermaid
+flowchart TB
+    subgraph OC[OpenClaw — capability layer]
+        O1[Research and drafts]
+        O2[Notes and plans]
+        O3[Skills and tools]
+        O4[Branch-local prep]
+    end
+    subgraph JV[Jarvis HUD — authority layer]
+        J1[Approval queue]
+        J2[Policy checks]
+        J3[Governed execution]
+        J4[Receipts and traces]
+    end
+    O1 --> J1
+    O2 --> J1
+    O3 --> J1
+    O4 --> J1
+```
+
+### Proposal lifecycle
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant I as Ingress
+    participant H as Jarvis HUD
+    participant P as Human or policy
+    participant E as Executor
+    participant R as Receipts
+
+    A->>I: Submit proposal
+    I->>H: Create pending item
+    H->>P: Await approval
+    P-->>H: Approve or reject
+    H->>E: Execute approved action
+    E->>R: Write receipts and traces
+```
+
+### What crosses the boundary
+
+| Typically **gated in Jarvis** (examples) | Typically **local to OpenClaw** (examples) |
+|------------------------------------------|--------------------------------------------|
+| Outbound sends, posting, publishing | Drafts and ideation |
+| Payments and purchases | Research and summaries |
+| Deploys and risky infra changes | Internal notes |
+| Irreversible commitments | Tool prep on a branch |
+
+Exact **kinds** and **policy** depend on your configuration — see [execution scope](docs/execution-scope.md) and [decisions](docs/decisions/).
+
+## Who it’s for
+
+**Who:** Developers and operators who run **local agents with real permissions** (files, tools, execution) and need a **human gate** before real-world effects.
+
+**What:** A **Next.js** control plane with HMAC-signed **OpenClaw** ingress, policy-gated execution, and durable receipts under **`JARVIS_ROOT`** (default `~/jarvis`).
 
 ---
 
@@ -63,7 +145,7 @@ cp env.example .env.local   # optional; see docs/setup/env.md
 pnpm dev
 ```
 
-Open **http://localhost:3000**. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
+Open **http://localhost:3000**. For a **production-style** build: `pnpm build && pnpm start`. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
 
 ---
 
@@ -80,7 +162,7 @@ Agent → Proposal → Approval → Execution → Receipt → Trace
 
 ---
 
-## Architecture
+## HTTP surface
 
 Jarvis sits between AI agents and system execution:
 
@@ -129,6 +211,27 @@ Jarvis sits between AI agents and system execution:
 | `pnpm test:unit`     | Unit tests                           |
 
 **Environment:** `env.example` → `.env.local`. OpenClaw: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, `JARVIS_INGRESS_OPENCLAW_SECRET` (≥32 chars), `JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw`. See [docs/setup/env.md](docs/setup/env.md).
+
+---
+
+## Screenshots
+
+_Add 2–4 sanitized UI screenshots here (e.g. Approvals queue, execute + receipt, trace view). Prefer files under `docs/marketing/` and reference them with relative paths._
+
+---
+
+## Status
+
+**Current focus:** OpenClaw **signed ingress** → Jarvis HUD **pending approval** → **governed execution** with receipts and traces. See [DEMO.md](DEMO.md) and [OpenClaw integration verification](docs/openclaw-integration-verification.md).
+
+---
+
+## Roadmap
+
+- Richer approval policies and execution scopes by action kind
+- Receipt and trace UX (viewer, exports)
+- Audit export and multi-agent orchestration patterns
+- Connector and health surfaces for integrated agents
 
 ---
 

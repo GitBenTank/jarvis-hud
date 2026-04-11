@@ -216,7 +216,7 @@ Jarvis sits between AI agents and system execution:
 
 ## Screenshots
 
-Captured from the **local dev UI** in **dark mode** (empty queue, **dry run** — illustrative only; regenerate with `pnpm screenshots:readme` while `pnpm dev` is running on port **3000**).
+Captured from the **local dev UI** in **dark mode** (empty queue, **dry run** — illustrative only). The first image is a **top crop** of the HUD; the others are **panel crops** so each section reads clearly on GitHub (regenerate with `pnpm screenshots:readme` while `pnpm dev` is on port **3000**).
 
 ### Mission, authority, and safety gate
 

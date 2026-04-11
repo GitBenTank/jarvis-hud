@@ -186,7 +186,7 @@ Use **`TracePanel`** + **`GET /api/traces/[traceId]`** (and activity/replay as n
 | *TBD — execute failure* | What actually ran; blocked/deny parity | Execution stage for `failedAt` is only **“Failed”** + timestamp — no **execute error / reasonDetails** string if the event or action log carries it. Checklist asks UI to match logged API reason. | `TracePanel.tsx` (~778–788); event payload from execute path | Plumb failure reason from persisted event/action (if present) into the Execution stage and timeline; fall back to “see action log” only if truly absent. | Med |
 | *TBD — any approved path* | Who approved | Approver column and approval stage fall back to **“Human”** when `approvalActorLabel` / `approvalActorId` missing — reads as identity, not uncertainty. | `TracePanel.tsx` (~721, ~633–635); persistence on approve | If unknown, show **“Unknown (check audit)”** or omit label; ensure `POST` approve/execute paths persist actor fields consistently (`src/app/api/approvals/...`, events merge in trace route). | Med |
 | *TBD — system.note success* | What was produced; where proof lives | Non-file kinds may leave **artifact/receipt paths empty**; UI can look “empty” without explaining that **the note content is the proposal/event payload**. | `TracePanel.tsx` receipt/artifact sections | For kinds without paths, add an explicit **“Output: in-event note”** (or similar) and surface `summary`/payload snippet so “produced” is legible. | Med |
-| *TBD — multi-event trace* | Who proposed / ordering | **Primary** trace row is `sortedEvents[0]` (earliest by time heuristic). Messy traces with retriggers may not match operator mental model of “the” proposal. | `TracePanel.tsx` `sortedEvents`, `primaryEvent` | Document selection rule in UI microcopy; consider pinning “primary proposal” explicitly when multiple proposal-shaped events exist. | Low |
+| *TBD — multi-event trace* | Who proposed / ordering | **Primary** trace row is `sortedEvents[0]` (earliest by time heuristic). Messy traces with retriggers may not match operator mental model of “the” proposal. | `TracePanel.tsx` `sortedEvents`, `primaryEvent` | **First:** one-line UI that states the selection rule (no new controls). **Only if QA still fails:** consider explicit primary / picker — avoid scope balloon. | Low |
 
 **QA sweep to run next**
 
@@ -200,8 +200,19 @@ After the sweep, replace *TBD* trace ids, add rows, or mark gaps **closed** with
 
 1. Execute failure text — parity with logged/API reason (`failedAt` / action log).
 2. Approver fallback — avoid fake **“Human”**; persist or label unknown honestly.
-3. Multi-event primary — selection rule + microcopy (or explicit primary proposal).
+3. Multi-event primary — **visible rule first** (microcopy); proposal picking / pinning only if still confusing after QA.
 4. `system.note` output copy — explicit in-event output when no file paths (polish after 1–3).
+
+### Trace gaps — implementation checklist (A → D)
+
+For whoever implements; order **A → B → C → D**. Each row: likely files, data risk, smallest first change, regression watch.
+
+| Ticket | Likely files | Data / API gap? | Easiest first change | Regression risks |
+|--------|--------------|-----------------|----------------------|------------------|
+| **A** Execute failure text | `TracePanel.tsx` (Execution lifecycle ~`failedAt`, timeline rows); possibly `src/app/api/traces/[traceId]/route.ts` if failure text not on `events` / `actions` JSON | Failure message may exist only on execute HTTP response today, not persisted on the event or action log line | Inspect disk shape for `failedAt` traces; add one optional string field to trace API **only if** the log already has it; else UI line “No failure detail recorded” | Showing stale or generic text; dumping huge errors — truncate / single-line summary |
+| **B** Approver honesty | `TracePanel.tsx` (`actorSummary`, approval lifecycle lines ~`Approved by`); if ids stay empty, `src/app/api/approvals/` routes that write events | `approvalActorLabel` / `approvalActorId` may not be set on approve | Replace fallback **“Human”** with **“Unknown”** + short hint (display-only, one file) | None if only copy change; persistence follow-up is a second PR |
+| **C** Multi-event primary | `TracePanel.tsx` (`sortedEvents`, `primaryEvent`, header / control-plane intro) | None for microcopy-only | Add **one sentence** near trace summary: primary row = **earliest** event by `executedAt ?? createdAt`, then tie-break `createdAt` (same as `sortedEvents[0]` today) | Do **not** change sort order in the same PR as microcopy unless deliberate — avoids silent behavior change |
+| **D** `system.note` output | `TracePanel.tsx` (receipt / “produced” area); `normalize` / event `summary` already on trace | Payload may hold note body; avoid shipping secrets | If `kind === "system.note"` (or no paths) and `summary` present, show **Output:** truncated line + expand or `title` | Large payloads — cap length; don’t render raw JSON for all kinds |
 
 ---
 

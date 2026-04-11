@@ -38,6 +38,55 @@ export type SubmitProposalOptions = {
   abortIfCodeApplyLikelyBlocked?: boolean;
 };
 
+type TrustPreflightOutcome =
+  | { kind: "skip" }
+  | { kind: "abort"; result: SubmitResult }
+  | { kind: "ok"; messages: string[] };
+
+async function runTrustPreflight(
+  kind: string,
+  options: SubmitProposalOptions | undefined
+): Promise<TrustPreflightOutcome> {
+  if (!options?.trustPreflight || !kind) return { kind: "skip" };
+
+  const ev = await preflightTrustPostureForKind(kind);
+  for (const line of ev.messages) {
+    console.warn("[jarvis] trust posture:", line);
+  }
+  if (!ev.fetchOk || !ev.parseOk) {
+    console.warn(
+      "[jarvis] trust preflight incomplete — review messages before relying on submission outcome."
+    );
+  }
+  if (options.abortIfIngressLikelyRejected && ev.ingressLikelyRejected) {
+    return {
+      kind: "abort",
+      result: {
+        status: 0,
+        bodyText: JSON.stringify({
+          error: "Aborted: Jarvis ingress likely rejected (trust preflight)",
+          trustPreflightMessages: ev.messages,
+        }),
+        trustPreflightMessages: ev.messages,
+      },
+    };
+  }
+  if (options.abortIfCodeApplyLikelyBlocked && ev.codeApplyLikelyBlockedAtExecute) {
+    return {
+      kind: "abort",
+      result: {
+        status: 0,
+        bodyText: JSON.stringify({
+          error: "Aborted: code.apply likely blocked at execute (trust preflight)",
+          trustPreflightMessages: ev.messages,
+        }),
+        trustPreflightMessages: ev.messages,
+      },
+    };
+  }
+  return { kind: "ok", messages: ev.messages };
+}
+
 /**
  * POST `body` to `${JARVIS_BASE_URL}/api/ingress/openclaw` (with JARVIS_HUD_BASE_URL fallback).
  * If JARVIS_INGRESS_OPENCLAW_SECRET exists and length ≥ 32, adds signing headers; otherwise logs and sends unsigned JSON only.
@@ -49,38 +98,13 @@ export async function submitProposal(
   const kind = typeof body.kind === "string" ? body.kind : "";
   let trustPreflightMessages: string[] | undefined;
 
-  if (options?.trustPreflight && kind) {
-    const ev = await preflightTrustPostureForKind(kind);
-    trustPreflightMessages = ev.messages;
-    for (const line of ev.messages) {
-      console.warn("[jarvis] trust posture:", line);
-    }
-    if (!ev.fetchOk || !ev.parseOk) {
-      console.warn(
-        "[jarvis] trust preflight incomplete — review messages before relying on submission outcome."
-      );
-    }
-    if (options.abortIfIngressLikelyRejected && ev.ingressLikelyRejected) {
-      return {
-        status: 0,
-        bodyText: JSON.stringify({
-          error: "Aborted: Jarvis ingress likely rejected (trust preflight)",
-          trustPreflightMessages: ev.messages,
-        }),
-        trustPreflightMessages: ev.messages,
-      };
-    }
-    if (options.abortIfCodeApplyLikelyBlocked && ev.codeApplyLikelyBlockedAtExecute) {
-      return {
-        status: 0,
-        bodyText: JSON.stringify({
-          error: "Aborted: code.apply likely blocked at execute (trust preflight)",
-          trustPreflightMessages: ev.messages,
-        }),
-        trustPreflightMessages: ev.messages,
-      };
-    }
+  if (options?.trustPreflight && !kind) {
+    console.warn("[jarvis] trustPreflight set but body.kind is missing; skipping posture fetch");
   }
+
+  const preflight = await runTrustPreflight(kind, options);
+  if (preflight.kind === "abort") return preflight.result;
+  if (preflight.kind === "ok") trustPreflightMessages = preflight.messages;
 
   const url = `${baseUrl()}/api/ingress/openclaw`;
   const rawBody = JSON.stringify(body);

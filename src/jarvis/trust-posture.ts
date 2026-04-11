@@ -41,7 +41,7 @@ function baseUrl(): string {
   const raw =
     process.env.JARVIS_BASE_URL ??
     process.env.JARVIS_HUD_BASE_URL ??
-    "http://127.0.0.1:3000";
+    "http://localhost:3000";
   return raw.replace(/\/$/, "");
 }
 

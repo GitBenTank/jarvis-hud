@@ -3,6 +3,7 @@ title: "Operator sprint — trust strip & repo map"
 status: "draft"
 category: architecture
 related:
+  - openclaw-v1-contract.md
   - ../strategy/jarvis-hud-video-thesis.md
   - control-plane.md
   - ../decisions/0001-thesis-lock.md

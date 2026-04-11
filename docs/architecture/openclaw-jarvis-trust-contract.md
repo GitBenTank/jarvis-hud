@@ -3,6 +3,7 @@ title: "OpenClaw ↔ Jarvis trust contract"
 status: "living-document"
 category: architecture
 related:
+  - openclaw-v1-contract.md
   - operator-sprint-trust-map.md
   - ../strategy/jarvis-hud-video-thesis.md
   - ../security/trusted-ingress.md
@@ -28,6 +29,14 @@ Any posture signal used in UI or agent copy MUST be classified as:
 | **unknown** | Missing data or fetch failed | “Unknown”, spinner, or error state |
 
 Only **enforced_and_surfaced** may use **authoritative** language.
+
+---
+
+## Mandatory pre-submission posture (OpenClaw V1)
+
+**Alfred MUST** fetch and evaluate `GET /api/config` before submitting proposals that enter the executable approval path, then **downgrade or narrate uncertainty** when posture is unknown or blocking — not invent substitute truth.
+
+Full ordering, abort flags, and in-repo helpers: [OpenClaw V1 contract](./openclaw-v1-contract.md). Reference implementation: `src/jarvis/trust-posture.ts`, `submitProposal(..., { trustPreflight: true })`.
 
 ---
 
@@ -92,6 +101,7 @@ Only **enforced_and_surfaced** may use **authoritative** language.
 
 ## See also
 
+- [OpenClaw V1 contract](./openclaw-v1-contract.md)
 - [Operator sprint — trust map & strip contract](./operator-sprint-trust-map.md)
 - [Trusted ingress](../security/trusted-ingress.md)
 - [Thesis Lock](../strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift)

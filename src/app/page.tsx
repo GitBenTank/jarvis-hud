@@ -8,6 +8,7 @@ import ExecutionAuthorityBanner from "@/components/ExecutionAuthorityBanner";
 import MissionStrip from "@/components/MissionStrip";
 import ModePills from "@/components/ModePills";
 import OperationsRow from "@/components/OperationsRow";
+import TrustPostureStrip from "@/components/TrustPostureStrip";
 import ResearchNotesPanel from "@/components/ResearchNotesPanel";
 import SafetyGatePanel from "@/components/SafetyGatePanel";
 import StatusStrip from "@/components/StatusStrip";
@@ -34,6 +35,7 @@ export default function Home() {
             About
           </Link>
         </div>
+        <TrustPostureStrip />
         <MissionStrip />
         <div className="flex flex-col border-b border-zinc-700 bg-zinc-900 sm:flex-row sm:items-center sm:gap-4">
           <ExecutionAuthorityBanner />

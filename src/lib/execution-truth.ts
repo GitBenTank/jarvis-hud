@@ -110,7 +110,7 @@ export function deriveTraceExecutionOutcome(input: {
       reasonCode: "approval-rejected",
       reason: "approval-rejected: operator rejected before execution",
       stage: "execution",
-      headline: "Execution did not run — operator rejected the proposal",
+      headline: "Rejected — execution did not run",
       transitionLine: "proposed → approval → rejected (execution never authorized)",
     };
   }
@@ -132,10 +132,10 @@ export function deriveTraceExecutionOutcome(input: {
       reasonCode: null,
       reason: "completed: receipt and execution recorded",
       stage: "execution",
-      headline: "Execution completed successfully",
+      headline: "Executed successfully",
       transitionLine: event.executedAt
-        ? `approved → executing → completed · ${event.executedAt}`
-        : "approved → executing → completed",
+        ? `approved → executing → executed successfully · ${event.executedAt}`
+        : "approved → executing → executed successfully",
     };
   }
 
@@ -164,8 +164,8 @@ export function deriveTraceExecutionOutcome(input: {
       reasonCode: code,
       reason: detail,
       stage: "execution",
-      headline: "Execution blocked by policy",
-      transitionLine: "approved → executing → blocked (policy)",
+      headline: "Execution blocked (policy)",
+      transitionLine: "approved → executing → execution blocked (policy)",
     };
   }
 
@@ -173,9 +173,9 @@ export function deriveTraceExecutionOutcome(input: {
   return {
     status: "pending",
     reasonCode: null,
-    reason: "pending: approved, awaiting explicit execute",
+    reason: "awaiting execution (use Execute when ready)",
     stage: "execution",
-    headline: "Approved — execution not started",
-    transitionLine: "approved → execution pending (use Execute to run adapters)",
+    headline: "Awaiting execution",
+    transitionLine: "approved → awaiting execution → Execute",
   };
 }

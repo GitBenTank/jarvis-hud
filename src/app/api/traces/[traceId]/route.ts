@@ -138,7 +138,7 @@ function buildApprovalPipelineStage(
     summary = "Approved by operator";
   } else {
     status = "active";
-    summary = "Waiting for approval";
+    summary = "Awaiting approval";
   }
   return {
     id: "approval",
@@ -174,7 +174,7 @@ function buildPolicyPipelineStage(
     summary = "Policy check pending";
   } else {
     status = "pending";
-    summary = "Waiting for approval";
+    summary = "Awaiting approval";
   }
   return {
     id: "policy",
@@ -203,13 +203,13 @@ function buildExecutionPipelineStage(
     summary = "Execution failed (runtime)";
   } else if (executed) {
     status = "done";
-    summary = "Execution completed";
+    summary = "Executed successfully";
   } else if (event.approvedAt) {
     status = "active";
-    summary = "Execution queued";
+    summary = "Awaiting execution";
   } else {
     status = "pending";
-    summary = "Waiting for approval";
+    summary = "Awaiting approval";
   }
   return {
     id: "execution",
@@ -240,7 +240,7 @@ function buildReceiptPipelineStage(
     summary = "Receipt pending";
   } else {
     status = "pending";
-    summary = "Waiting for execution";
+    summary = "Awaiting execution";
   }
   const evidence: string[] =
     hasReceipt && action

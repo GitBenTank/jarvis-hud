@@ -159,7 +159,7 @@ function LifecycleTimestamps({ event }: { event: Event }) {
       )}
       {n.executedAt && (
         <div>
-          <dt className="font-medium text-zinc-500">Executed</dt>
+          <dt className="font-medium text-zinc-500">Executed successfully</dt>
           <dd>{n.executedAt}</dd>
         </div>
       )}
@@ -746,7 +746,7 @@ function DetailModal({
             <div className="rounded border border-zinc-300 bg-zinc-50/80 py-2 px-3 text-sm dark:border-zinc-600 dark:bg-zinc-800/80">
               <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution boundary</p>
               <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                Approve changed status only. Execute writes artifacts + receipts.
+                Approval records human consent. Execute writes artifacts and receipts.
               </p>
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -788,7 +788,7 @@ function DetailModal({
 
         {executeResult && executeResult.approvalId === event.id && (
           <div className="mt-4 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-800 dark:bg-emerald-900/30">
-            <p className="font-medium">Executed</p>
+            <p className="font-medium">Executed successfully</p>
             <p className="mt-1 flex items-center gap-2">
               {executeResult.kind !== "code.apply" && (
                 <Badge variant="dry_run">DRY RUN</Badge>

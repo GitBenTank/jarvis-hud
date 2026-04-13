@@ -53,9 +53,9 @@ function SnapshotPresenceBadge({
   return (
     <span
       className="shrink-0 rounded border border-zinc-300 bg-zinc-100/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800/80 dark:text-zinc-400"
-      aria-label="No approval-time snapshot"
+      aria-label="No approval-time snapshot recorded"
     >
-      No snapshot
+      No snapshot recorded
     </span>
   );
 }
@@ -85,9 +85,7 @@ export default function ApprovalTimePreflightSnapshotSection({ snapshot, loading
       ) : null}
 
       {!isLoading && !snap ? (
-        <p className="mt-1.5 text-zinc-600 dark:text-zinc-400">
-          No approval-time snapshot recorded.
-        </p>
+        <p className="mt-1.5 text-zinc-600 dark:text-zinc-400">No snapshot recorded</p>
       ) : null}
 
       {!isLoading && snap ? (

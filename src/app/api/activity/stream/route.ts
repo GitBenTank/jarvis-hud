@@ -230,8 +230,8 @@ function mapExecutionEvents(ctx: EventContext): ActivityEvent[] {
       type: "execution_completed",
       status: "success",
       verb: "Executed",
-      label: "Execution completed",
-      summary: `Execution completed for ${ctx.kind ?? "action"}.`,
+      label: "Executed successfully",
+      summary: `Executed successfully (${ctx.kind ?? "action"}).`,
       approvalId: ctx.approvalId,
       kind: ctx.kind,
     });

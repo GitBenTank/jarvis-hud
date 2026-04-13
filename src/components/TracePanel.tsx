@@ -699,7 +699,7 @@ export default function TracePanel() {
     } else if (primaryEvent.status === "approved" || primaryEvent.executed) {
       parts.push("Approved");
     } else {
-      parts.push("Approved (pending)");
+      parts.push("Awaiting approval");
     }
     if (
       primaryPolicy?.decision === "deny" &&
@@ -714,12 +714,12 @@ export default function TracePanel() {
       return parts.join(" → ");
     }
     if (primaryEvent.executedAt) {
-      parts.push(`Executed · ${formatTime(primaryEvent.executedAt)}`);
+      parts.push(`Executed successfully · ${formatTime(primaryEvent.executedAt)}`);
     } else if (
       primaryEvent.approvedAt &&
       primaryPolicy?.decision !== "deny"
     ) {
-      parts.push("Executed (pending)");
+      parts.push("Awaiting execution");
     }
     if (primaryEvent.executed) {
       if (hasReceiptForPrimary && primaryReceipt?.at) {
@@ -866,7 +866,7 @@ export default function TracePanel() {
           icon: "○",
           iconClass: "text-amber-500",
           state: "pending",
-          lines: ["Waiting for approval", "—"],
+          lines: ["Awaiting approval", "—"],
         },
       });
     }

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildDecisionReplayLine,
   firstPreflightBlockerLine,
+  PREFLIGHT_BLOCKS_EXECUTION_FALLBACK,
 } from "@/lib/decision-replay";
 
 describe("firstPreflightBlockerLine", () => {
@@ -35,6 +36,14 @@ describe("firstPreflightBlockerLine", () => {
         },
       })
     ).toBe("JARVIS_REPO_ROOT unset");
+  });
+
+  it("falls back to canonical vocabulary when reasons and details are empty", () => {
+    expect(
+      firstPreflightBlockerLine({
+        preflight: { willBlock: true, reasons: [], reasonDetails: [] },
+      })
+    ).toBe(PREFLIGHT_BLOCKS_EXECUTION_FALLBACK);
   });
 });
 
@@ -76,7 +85,7 @@ describe("buildDecisionReplayLine", () => {
           },
         },
       })
-    ).toBe("Alfred proposed code.apply → approved by Local user → approved, awaiting execution");
+    ).toBe("Alfred proposed code.apply → approved by Local user → awaiting execution");
   });
 
   it("execution blocked from preflight willBlock", () => {
@@ -158,6 +167,23 @@ describe("buildDecisionReplayLine", () => {
     ).toBe("Alfred proposed code.apply → approved by Local user → execution failed");
   });
 
+  it("awaiting execution when executionOutcome is pending (trace)", () => {
+    expect(
+      buildDecisionReplayLine({
+        proposerLabel: "Alfred",
+        kind: "code.apply",
+        eventStatus: "approved",
+        approvalActorLabel: "Local user",
+        preflight: undefined,
+        executionOutcome: {
+          status: "pending",
+          reason: "awaiting execution (use Execute when ready)",
+          reasonCode: null,
+        },
+      })
+    ).toBe("Alfred proposed code.apply → approved by Local user → awaiting execution");
+  });
+
   it("uses executionOutcome blocked when no preflight", () => {
     expect(
       buildDecisionReplayLine({
@@ -173,6 +199,21 @@ describe("buildDecisionReplayLine", () => {
       })
     ).toBe(
       "Alfred proposed code.apply → approved by Local user → execution blocked (policy-denied: step-up required)"
+    );
+  });
+
+  it("awaiting execution when trace preflight omitted and no execution outcome", () => {
+    expect(
+      buildDecisionReplayLine({
+        proposerLabel: "Alfred",
+        kind: "code.apply",
+        eventStatus: "approved",
+        approvalActorLabel: "Local user",
+        preflight: undefined,
+        executionOutcome: null,
+      })
+    ).toBe(
+      "Alfred proposed code.apply → approved by Local user → awaiting execution (readiness unknown)"
     );
   });
 });

@@ -14,13 +14,19 @@ export type PreflightSnapshot = {
   };
 };
 
+/**
+ * When `willBlock` is true but no structured reason was returned — state only; details live in Safety & readiness.
+ * Exported for drift-guard tests (`tests/unit/operator-ui-vocabulary.test.ts`).
+ */
+export const PREFLIGHT_BLOCKS_EXECUTION_FALLBACK = "Preflight will block execution";
+
 /** First human-readable blocker line from a preflight payload (reasonDetails win over raw reasons). */
 export function firstPreflightBlockerLine(preflight: PreflightSnapshot): string {
   const d = preflight.preflight.reasonDetails[0];
   if (d) return `${d.label}: ${d.summary}`;
   const r = preflight.preflight.reasons[0];
   if (typeof r === "string" && r.trim()) return r.trim();
-  return "Preflight will block execute — see Safety & readiness for details.";
+  return PREFLIGHT_BLOCKS_EXECUTION_FALLBACK;
 }
 
 export type DecisionReplayPreflightPhase = {
@@ -99,7 +105,7 @@ export function buildDecisionReplayLine(input: BuildDecisionReplayLineInput): st
   }
 
   if (input.preflight?.data) {
-    return `${head} → approved by ${approver} → approved, awaiting execution`;
+    return `${head} → approved by ${approver} → awaiting execution`;
   }
 
   const eo = input.executionOutcome;
@@ -110,8 +116,8 @@ export function buildDecisionReplayLine(input: BuildDecisionReplayLineInput): st
     return `${head} → rejected`;
   }
   if (eo?.status === "pending") {
-    return `${head} → approved by ${approver} → approved, awaiting execution`;
+    return `${head} → approved by ${approver} → awaiting execution`;
   }
 
-  return `${head} → approved by ${approver} → execution readiness unknown (see Safety & readiness)`;
+  return `${head} → approved by ${approver} → awaiting execution (readiness unknown)`;
 }

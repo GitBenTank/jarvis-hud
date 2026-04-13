@@ -97,6 +97,20 @@ describe("deriveTraceExecutionOutcome", () => {
     });
     expect(o.status).toBe("not_applicable");
     expect(o.reasonCode).toBe("approval-rejected");
+    expect(o.headline).toBe("Rejected — execution did not run");
+  });
+
+  it("pending when approved but not executed and policy allows", () => {
+    const o = deriveTraceExecutionOutcome({
+      event: {
+        ...baseEvent,
+        approvedAt: "2026-01-01T00:01:00.000Z",
+        executed: false,
+      },
+      policy: { decision: "allow", rule: "kind.allowlist", reason: "ok" },
+    });
+    expect(o.status).toBe("pending");
+    expect(o.headline).toBe("Awaiting execution");
   });
 
   it("ignores action when approvalId mismatches event", () => {

@@ -31,3 +31,17 @@ export function getRiskLevel(kind: string): RiskLevel {
   if (kind === "code.diff" || kind.startsWith("recovery.")) return "medium";
   return "low";
 }
+
+/**
+ * Operator-facing line for approval UI (aligned with getRiskLevel tiers).
+ */
+export function describeRiskNarrative(kind: string): string {
+  const level = getRiskLevel(kind);
+  if (level === "high") {
+    return "High risk: modifies repository state (working tree and may create a local commit).";
+  }
+  if (level === "medium") {
+    return "Medium risk: modifies stored state (artifacts, receipts, or local files).";
+  }
+  return "Low risk: note or local artifact only; no git repository mutation.";
+}

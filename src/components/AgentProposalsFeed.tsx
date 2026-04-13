@@ -4,6 +4,7 @@ import Link from "next/link";
 import { normalizeAction } from "@/lib/normalize";
 import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
 import { isRecoveryClass } from "@/lib/recovery-shared";
+import { requiresIrreversibleConfirmation } from "@/lib/risk";
 import Badge from "./Badge";
 
 export type ProposalEvent = {
@@ -94,6 +95,8 @@ type AgentProposalsFeedProps = Readonly<{
   onApprove: (id: string) => void;
   onDeny: (id: string) => void;
   onRefresh: () => void;
+  /** When true, kinds that require typed confirmation must use Details (not quick Approve). */
+  irreversibleConfirmEnabled: boolean;
 }>;
 
 function ProposalCard({
@@ -102,14 +105,18 @@ function ProposalCard({
   onDetails,
   onApprove,
   onDeny,
+  irreversibleConfirmEnabled,
 }: {
   event: ProposalEvent;
   variant: "pending" | "approved" | "executed";
   onDetails: (e: ProposalEvent) => void;
   onApprove: (id: string) => void;
   onDeny: (id: string) => void;
+  irreversibleConfirmEnabled: boolean;
 }) {
   const normalized = normalizeAction(event.payload);
+  const requireDetailsToApprove =
+    irreversibleConfirmEnabled && requiresIrreversibleConfirmation(normalized.kind);
   const isRecovery = isRecoveryClass(normalized.kind);
   const traceShort = event.traceId?.slice(0, 8) ?? event.id.slice(0, 8);
   const sourceLabel = event.source?.connector ?? event.agent;
@@ -234,25 +241,43 @@ function ProposalCard({
       >
         {isPending && (
           <>
+            {requireDetailsToApprove ? (
+              <button
+                type="button"
+                onClick={() => onDetails(event)}
+                className="rounded border-2 border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-700"
+              >
+                Review to approve
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onApprove(event.id)}
+                className="rounded border-2 border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-700"
+              >
+                Approve
+              </button>
+            )}
             <button
-              onClick={() => onApprove(event.id)}
-              className="rounded border-2 border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-700"
-            >
-              Approve
-            </button>
-            <button
+              type="button"
               onClick={() => onDeny(event.id)}
               className="rounded border-2 border-red-400/80 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-500/60 dark:text-red-400 dark:hover:bg-red-950/30"
             >
               Reject
             </button>
             <button
+              type="button"
               onClick={() => onDetails(event)}
               className="rounded border border-zinc-400 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               Details
             </button>
           </>
+        )}
+        {isPending && requireDetailsToApprove && (
+          <p className="mt-2 w-full text-[11px] text-amber-800 dark:text-amber-300/90">
+            This kind requires opening <strong>Details</strong> to review safety, preflight, and type the confirmation phrase before you can approve.
+          </p>
         )}
         {isApproved && (
           <>
@@ -301,6 +326,7 @@ export default function AgentProposalsFeed({
   onApprove,
   onDeny,
   onRefresh,
+  irreversibleConfirmEnabled,
 }: AgentProposalsFeedProps) {
   const hasNothingToShow =
     pendingApprovals.length === 0 && approvedNotExecuted.length === 0;
@@ -344,6 +370,7 @@ export default function AgentProposalsFeed({
               onDetails={onDetails}
               onApprove={onApprove}
               onDeny={onDeny}
+              irreversibleConfirmEnabled={irreversibleConfirmEnabled}
             />
           </ul>
         </>
@@ -363,6 +390,7 @@ export default function AgentProposalsFeed({
                 onDetails={onDetails}
                 onApprove={onApprove}
                 onDeny={onDeny}
+                irreversibleConfirmEnabled={irreversibleConfirmEnabled}
               />
             ))}
           </ul>
@@ -381,6 +409,7 @@ export default function AgentProposalsFeed({
                 onDetails={onDetails}
                 onApprove={onApprove}
                 onDeny={onDeny}
+                irreversibleConfirmEnabled={irreversibleConfirmEnabled}
               />
             ))}
           </ul>

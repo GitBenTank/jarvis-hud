@@ -171,11 +171,15 @@ describe("GET /api/traces/[traceId]", () => {
     expect(response.status).toBe(200);
     const json = (await response.json()) as {
       events: Array<{ agent?: string; builder?: string; provider?: string; model?: string }>;
+      executionOutcome?: { status: string; reasonCode: string | null; stage: string; reason: string };
     };
     expect(json.events).toHaveLength(1);
     expect(json.events[0].agent).toBe("alfred");
     expect(json.events[0].builder).toBe("forge");
     expect(json.events[0].provider).toBe("openai");
     expect(json.events[0].model).toBe("openai/gpt-4o");
+    expect(json.executionOutcome?.stage).toBe("execution");
+    expect(json.executionOutcome?.status).toBe("blocked");
+    expect(json.executionOutcome?.reasonCode).toBe("missing-approval");
   });
 });

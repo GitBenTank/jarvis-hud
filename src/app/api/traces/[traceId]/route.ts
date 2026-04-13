@@ -10,6 +10,7 @@ import { readPolicyDecisionsByTraceId, type PolicyDecisionEntry } from "@/lib/po
 import { readReconciliationByTraceId, type ReconciliationEntry } from "@/lib/reconciliation-log";
 import { normalizeAction } from "@/lib/normalize";
 import { getReasonDetail, reasonFromPolicyReason, type ReasonDetail } from "@/lib/reason-taxonomy";
+import { deriveTraceExecutionOutcome, sortEventsForPrimaryEvent } from "@/lib/execution-truth";
 
 type StoredEvent = {
   id: string;
@@ -197,7 +198,7 @@ function buildExecutionPipelineStage(
     summary = "Policy blocked";
   } else if (executionFailed) {
     status = "blocked";
-    summary = "Execution failed";
+    summary = "Execution failed (runtime)";
   } else if (executed) {
     status = "done";
     summary = "Execution completed";
@@ -218,7 +219,7 @@ function buildExecutionPipelineStage(
       ...(event.executedAt ? ["executedAt"] : []),
       ...(event.failedAt ? ["failedAt"] : []),
     ],
-    ...(executionFailed ? { reason: getReasonDetail("POLICY_DENIED") } : {}),
+    ...(executionFailed ? { reason: getReasonDetail("EXECUTION_FAILED") } : {}),
   };
 }
 
@@ -483,12 +484,26 @@ export async function GET(
     return out;
   });
 
+  const eventsSortedForPrimary = sortEventsForPrimaryEvent(events);
   const pipeline = buildPipelineSummary({
-    events,
+    events: eventsSortedForPrimary,
     actions: actionsWithVerification,
     policyDecisions: matchedPolicyDecisions,
     reconciliations: matchedReconciliations,
   });
+
+  const primaryEventForOutcome = eventsSortedForPrimary[0];
+  const policyForOutcome = matchedPolicyDecisions.at(-1);
+  const actionForOutcome = primaryEventForOutcome
+    ? actionsWithVerification.find((a) => a.approvalId === primaryEventForOutcome.id) ?? null
+    : null;
+  const executionOutcome = primaryEventForOutcome
+    ? deriveTraceExecutionOutcome({
+        event: primaryEventForOutcome,
+        policy: policyForOutcome ?? null,
+        action: actionForOutcome,
+      })
+    : undefined;
 
   return NextResponse.json({
     traceId: tid,
@@ -499,5 +514,6 @@ export async function GET(
     reconciliations: matchedReconciliations,
     artifactPaths,
     pipeline,
+    executionOutcome,
   });
 }

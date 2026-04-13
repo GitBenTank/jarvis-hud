@@ -6,6 +6,7 @@ import {
   getRiskTier,
   requiresIrreversibleConfirmation,
   getConfirmationPhrase,
+  describeRiskNarrative,
 } from "@/lib/risk-tier";
 
 describe("getRiskTier", () => {
@@ -38,6 +39,14 @@ describe("requiresIrreversibleConfirmation", () => {
     expect(requiresIrreversibleConfirmation("system.note")).toBe(false);
     expect(requiresIrreversibleConfirmation("reflection.note")).toBe(false);
     expect(requiresIrreversibleConfirmation("code.diff")).toBe(false);
+  });
+});
+
+describe("describeRiskNarrative", () => {
+  it("matches high / medium / low tiers", () => {
+    expect(describeRiskNarrative("code.apply")).toContain("High risk");
+    expect(describeRiskNarrative("code.diff")).toContain("Medium risk");
+    expect(describeRiskNarrative("system.note")).toContain("Low risk");
   });
 });
 

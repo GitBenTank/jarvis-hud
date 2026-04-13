@@ -9,4 +9,5 @@ export {
   riskTierForKind,
   requiresIrreversibleConfirmation,
   getConfirmationPhrase,
+  describeRiskNarrative,
 } from "./risk";

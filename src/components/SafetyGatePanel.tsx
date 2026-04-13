@@ -69,10 +69,10 @@ export default function SafetyGatePanel() {
         nextStep = "No action required";
       } else if (anyHighNeedsConfirm || highestTier === "HIGH" || highestTier === "CRITICAL") {
         setGateState("red");
-        setMessage("HIGH RISK requires typed confirmation");
+        setMessage("HIGH RISK — typed confirmation at approval (Details)");
         nextStep = anyHighNeedsConfirm
-          ? "Type APPLY → Execute"
-          : "Approve → Type APPLY → Execute";
+          ? "Open Details → type APPLY → Approve → Execute"
+          : "Details → type APPLY to approve → Execute";
       } else {
         setGateState("amber");
         setMessage(`Pending approval (${count})`);

@@ -8,7 +8,8 @@ export type BlockReasonCode =
   | "INGRESS_TIMESTAMP_INVALID"
   | "INGRESS_NONCE_REPLAY"
   | "APPROVAL_REQUIRED"
-  | "POLICY_DENIED";
+  | "POLICY_DENIED"
+  | "EXECUTION_FAILED";
 
 export type ReasonDetail = {
   code: BlockReasonCode;
@@ -88,6 +89,13 @@ const REASONS: Record<BlockReasonCode, ReasonDetail> = {
     summary: "Execution blocked by policy.",
     severity: "warning",
     source: "policy",
+  },
+  EXECUTION_FAILED: {
+    code: "EXECUTION_FAILED",
+    label: "Execution failed",
+    summary: "Adapter or runtime error after execute was attempted.",
+    severity: "critical",
+    source: "execution",
   },
 };
 

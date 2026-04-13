@@ -9,6 +9,7 @@ import {
 } from "@/lib/risk";
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import AgentProposalsFeed from "./AgentProposalsFeed";
+import ApprovalSafetySection from "./ApprovalSafetySection";
 import Badge from "./Badge";
 import type { ReasonDetail } from "@/lib/reason-taxonomy";
 
@@ -86,16 +87,6 @@ type PreflightData = {
     notes: string[];
   };
 };
-
-function riskChipClass(level: "low" | "medium" | "high"): string {
-  if (level === "high") {
-    return "border-red-600/60 bg-red-100/80 text-red-800 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300";
-  }
-  if (level === "medium") {
-    return "border-amber-600/60 bg-amber-100/80 text-amber-800 dark:border-amber-500/50 dark:bg-amber-950/40 dark:text-amber-300";
-  }
-  return "border-emerald-600/60 bg-emerald-100/80 text-emerald-800 dark:border-emerald-500/50 dark:bg-emerald-950/40 dark:text-emerald-300";
-}
 
 function getYoutubeTagCount(payload: unknown): number | null {
   const p = payload as Record<string, unknown>;
@@ -191,14 +182,16 @@ function DetailModal({
   const normalized = normalizeAction(event.payload);
   const [preflight, setPreflight] = useState<PreflightData | null>(null);
   const [preflightLoading, setPreflightLoading] = useState(false);
-  const needsConfirmation =
+  const needsTypedApprovalGate =
     irreversibleConfirmEnabled &&
-    requiresIrreversibleConfirmation(normalized.kind);
+    requiresIrreversibleConfirmation(normalized.kind) &&
+    event.status === "pending";
   const [confirmCheckbox, setConfirmCheckbox] = useState(false);
   const [confirmPhrase, setConfirmPhrase] = useState("");
   const phrase = getConfirmationPhrase(normalized.kind);
-  const isConfirmed =
-    !needsConfirmation || (confirmCheckbox && confirmPhrase.trim() === phrase);
+  const approvalReady =
+    !needsTypedApprovalGate || (confirmCheckbox && confirmPhrase.trim() === phrase);
+  const executeWillBlock = preflight?.preflight.willBlock === true;
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -350,6 +343,20 @@ function DetailModal({
           </div>
         )}
 
+        <div className="mt-4">
+          <ApprovalSafetySection
+            kind={normalized.kind}
+            preflight={preflight}
+            preflightLoading={preflightLoading}
+            showTypedApprovalGate={needsTypedApprovalGate}
+            phrase={phrase}
+            confirmCheckbox={confirmCheckbox}
+            onConfirmCheckbox={setConfirmCheckbox}
+            confirmPhrase={confirmPhrase}
+            onConfirmPhrase={setConfirmPhrase}
+          />
+        </div>
+
         {(isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply || isRecovery) && (
           <div className="mt-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-800 dark:bg-blue-900/30">
             <h3 className="font-medium">What happens if you approve?</h3>
@@ -394,83 +401,6 @@ function DetailModal({
             )}
           </div>
         )}
-
-        <div className="mt-4 rounded border border-zinc-300 bg-zinc-50 p-3 text-sm dark:border-zinc-700 dark:bg-zinc-800">
-          <h3 className="font-medium">Preflight Analysis</h3>
-          {preflightLoading && (
-            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Running preflight…</p>
-          )}
-          {!preflightLoading && preflight && (
-            <div className="mt-2 space-y-2">
-              <div
-                className={`rounded border px-3 py-2 ${
-                  preflight.status === "ready"
-                    ? "border-emerald-500/50 bg-emerald-50/70 dark:border-emerald-500/40 dark:bg-emerald-950/20"
-                    : "border-amber-500/50 bg-amber-50/70 dark:border-amber-500/40 dark:bg-amber-950/20"
-                }`}
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[10px] uppercase tracking-wider text-zinc-500">Execution readiness</span>
-                  <span
-                    className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                      preflight.status === "ready"
-                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-                        : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-                    }`}
-                  >
-                    {preflight.status === "ready" ? "READY" : "WILL BLOCK"}
-                  </span>
-                </div>
-                {preflight.status === "will_block" && preflight.preflight.reasonDetails[0] && (
-                  <p className="mt-1 text-xs text-zinc-700 dark:text-zinc-300">
-                    {preflight.preflight.reasonDetails[0].label}:{" "}
-                    {preflight.preflight.reasonDetails[0].summary}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-zinc-500">Execution Readiness</p>
-                {preflight.preflight.reasonDetails.length > 0 ? (
-                  <ul className="mt-1 list-inside list-disc text-xs text-zinc-700 dark:text-zinc-300">
-                    {preflight.preflight.reasonDetails.map((d) => (
-                      <li key={d.code}>
-                        {d.label}: {d.summary}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-                    No blockers predicted.
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-zinc-500">Operational Impact</p>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-zinc-500">Risk</span>
-                  <span className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${riskChipClass(preflight.riskLevel)}`}>
-                    {preflight.riskLevel}
-                  </span>
-                </div>
-                <div>
-                  <p className="mt-2 text-xs font-medium text-zinc-500">Expected outputs</p>
-                  <ul className="mt-1 list-inside list-disc text-xs text-zinc-700 dark:text-zinc-300">
-                    {preflight.expectedOutputs.map((o) => (
-                      <li key={o}>{o}</li>
-                    ))}
-                  </ul>
-                </div>
-                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  {isCodeApply
-                    ? "Includes local commit metadata and rollback command when commit is created."
-                    : "Execution writes Artifact and Receipt log entry only."}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
 
         {(isCodeDiff || isCodeApply) ? (
           (() => {
@@ -613,19 +543,29 @@ function DetailModal({
         </div>
 
         {event.status === "pending" && (
-          <div className="mt-6 flex gap-2">
-            <button
-              onClick={() => onDeny(event.id)}
-              className="rounded bg-zinc-200 px-4 py-2 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-            >
-              Deny
-            </button>
-            <button
-              onClick={() => onApprove(event.id)}
-              className="rounded bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
-            >
-              Approve
-            </button>
+          <div className="mt-6 space-y-2">
+            {!approvalReady && needsTypedApprovalGate && (
+              <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+                Complete the typed confirmation in Safety & readiness above to enable Approve.
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => onDeny(event.id)}
+                className="rounded bg-zinc-200 px-4 py-2 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+              >
+                Deny
+              </button>
+              <button
+                type="button"
+                onClick={() => onApprove(event.id)}
+                disabled={!approvalReady}
+                className="rounded bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Approve
+              </button>
+            </div>
           </div>
         )}
 
@@ -670,70 +610,33 @@ function DetailModal({
 
         {event.status === "approved" && !event.executed && isExecutable && (
           <div className="mt-6 space-y-3">
-            {needsConfirmation && (
-              <div className="space-y-3">
-                <div className="rounded border border-red-400 bg-red-50/80 py-2 px-3 text-sm dark:border-red-600 dark:bg-red-950/40">
-                  <p className="font-semibold text-red-900 dark:text-red-200">
-                    HIGH RISK — typed confirmation required
-                  </p>
-                </div>
-                <div className="rounded border border-amber-300 bg-amber-50/80 py-3 px-4 text-sm dark:border-amber-600 dark:bg-amber-950/30">
-                  <p className="font-medium text-amber-900 dark:text-amber-200">
-                    Irreversible action confirmation
-                  </p>
-                  <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
-                    This will modify the repo. Confirm both steps before executing.
-                  </p>
-                  <label className="mt-3 flex cursor-pointer items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={confirmCheckbox}
-                      onChange={(e) => setConfirmCheckbox(e.target.checked)}
-                      className="rounded border-zinc-400"
-                    />
-                    <span>I understand this will modify the repo</span>
-                  </label>
-                  <div className="mt-2">
-                    <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
-                      This is a CRITICAL action. Type {phrase} to enable execution.
-                    </p>
-                    <label className="mt-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                      Type {phrase} to confirm:
-                    </label>
-                    <input
-                      type="text"
-                      value={confirmPhrase}
-                      onChange={(e) => setConfirmPhrase(e.target.value)}
-                      placeholder={phrase}
-                      className={`mt-1 w-full rounded border px-3 py-2 text-sm font-mono dark:bg-zinc-800 dark:text-zinc-200 ${
-                        confirmPhrase.length > 0 && confirmPhrase.trim() !== phrase
-                          ? "border-red-500 bg-red-50 dark:border-red-600 dark:bg-red-950/30"
-                          : "border-zinc-300 bg-white dark:border-zinc-600"
-                      }`}
-                    />
-                    {confirmPhrase.length > 0 && confirmPhrase.trim() !== phrase && (
-                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                        Must match exactly: {phrase}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
+            {irreversibleConfirmEnabled && requiresIrreversibleConfirmation(normalized.kind) && (
+              <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                You already completed typed approval confirmation for this kind. Execute still respects live policy and
+                preflight above.
+              </p>
             )}
             <div className="rounded border border-zinc-300 bg-zinc-50/80 py-2 px-3 text-sm dark:border-zinc-600 dark:bg-zinc-800/80">
-              <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution Boundary</p>
+              <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution boundary</p>
               <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                Approve changes status. Execute writes artifacts + receipts.
+                Approve changed status only. Execute writes artifacts + receipts.
               </p>
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Execute writes local artifacts + receipts only. It does not post.
             </p>
-            <div className="flex items-center gap-2">
+            {executeWillBlock && (
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                Execute is disabled while preflight reports <strong>will block</strong> — fix the issue shown in Safety
+                &amp; readiness, then refresh or reopen this proposal.
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
               <button
+                type="button"
                 onClick={() => onExecute(event.id)}
-                disabled={executeLoading || !isConfirmed}
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                disabled={executeLoading || executeWillBlock}
+                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {executeLoading
                   ? "Executing…"
@@ -1168,6 +1071,7 @@ export default function ApprovalsPanel() {
         onApprove={handleApprove}
         onDeny={handleDeny}
         onRefresh={fetchApprovals}
+        irreversibleConfirmEnabled={irreversibleConfirmEnabled}
       />
 
       {detailEvent && (

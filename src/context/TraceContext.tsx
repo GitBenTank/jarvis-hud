@@ -11,6 +11,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import type { ReasonDetail } from "@/lib/reason-taxonomy";
 import type { ReceiptActors } from "@/lib/actor-identity";
+import type { TraceExecutionOutcome } from "@/lib/execution-truth";
 
 export type TraceEvent = {
   id: string;
@@ -120,6 +121,8 @@ export type TraceResponse = {
   reconciliations?: TraceReconciliation[];
   artifactPaths: string[];
   pipeline?: TracePipeline;
+  /** Derived execution posture for operators; client may re-derive if absent. */
+  executionOutcome?: TraceExecutionOutcome;
 };
 
 type TraceContextValue = {

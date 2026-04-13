@@ -9,6 +9,10 @@ import {
 } from "@/lib/proposal-lifecycle";
 import { TRACE_SCAN_DAY_WINDOW } from "@/lib/trace-constants";
 import type { ReceiptActors } from "@/lib/actor-identity";
+import {
+  deriveTraceExecutionOutcome,
+  type TraceExecutionOutcome,
+} from "@/lib/execution-truth";
 
 type TraceEvent = {
   id: string;
@@ -100,6 +104,7 @@ type TraceResponse = {
   policyDecisions?: TracePolicyDecision[];
   reconciliations?: TraceReconciliation[];
   artifactPaths: string[];
+  executionOutcome?: TraceExecutionOutcome;
 };
 
 /** Replay API response — reconstructs trace from action, policy, reconciliation logs */
@@ -210,6 +215,19 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
     if (r.artifactPath && !artifactPaths.includes(r.artifactPath)) artifactPaths.push(r.artifactPath);
   }
 
+  const primary = events[0];
+  const lastPolicy = policyDecisions?.at(-1);
+  const actionForPrimary = primary
+    ? receipts.find((a) => a.approvalId === primary.id) ?? null
+    : null;
+  const executionOutcome = primary
+    ? deriveTraceExecutionOutcome({
+        event: primary,
+        policy: lastPolicy ?? null,
+        action: actionForPrimary,
+      })
+    : undefined;
+
   return {
     traceId: tid,
     dateKey,
@@ -218,6 +236,7 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
     policyDecisions,
     reconciliations: reconciliation,
     artifactPaths,
+    executionOutcome,
   };
 }
 
@@ -576,16 +595,44 @@ export default function TracePanel() {
     return rec.at(-1);
   }, [dataSource?.reconciliations]);
 
-  const traceHealth = useMemo(() => {
+  const executionOutcome = useMemo((): TraceExecutionOutcome | null => {
     if (!primaryEvent) return null;
-    const policyDeny = primaryPolicy?.decision === "deny";
-    const execFailed = !!primaryEvent.failedAt;
-    const executed = !!primaryEvent.executed;
-    let status: string;
-    if (policyDeny) status = "BLOCKED";
-    else if (execFailed) status = "FAILED";
-    else if (executed) status = "VERIFIED";
-    else status = "PENDING";
+    const fromApi = dataSource?.executionOutcome;
+    if (fromApi) return fromApi;
+    const act =
+      primaryReceipt && primaryReceipt.approvalId === primaryEvent.id
+        ? primaryReceipt
+        : null;
+    return deriveTraceExecutionOutcome({
+      event: primaryEvent,
+      policy: primaryPolicy ?? null,
+      action: act,
+    });
+  }, [dataSource?.executionOutcome, primaryEvent, primaryPolicy, primaryReceipt]);
+
+  const traceHealth = useMemo(() => {
+    if (!primaryEvent || !executionOutcome) return null;
+    const eo = executionOutcome;
+    const status =
+      eo.status === "completed"
+        ? "COMPLETED"
+        : eo.status === "failed"
+          ? "FAILED"
+          : eo.status === "blocked"
+            ? "BLOCKED"
+            : eo.status === "pending"
+              ? "PENDING"
+              : "NO_EXEC";
+    const execution =
+      eo.status === "completed"
+        ? "COMPLETED"
+        : eo.status === "failed"
+          ? "FAILED"
+          : eo.status === "blocked"
+            ? "BLOCKED"
+            : eo.status === "pending"
+              ? "PENDING"
+              : "N/A";
     const reconciliation =
       primaryReconciliation?.status === "verified"
         ? "VERIFIED"
@@ -595,10 +642,11 @@ export default function TracePanel() {
     return {
       status,
       policy: primaryPolicy ? primaryPolicy.decision.toUpperCase() : "—",
-      execution: policyDeny ? "—" : execFailed ? "FAILED" : executed ? "SUCCESS" : "PENDING",
+      execution,
+      executionReason: eo.reason,
       reconciliation,
     };
-  }, [primaryEvent, primaryPolicy, primaryReconciliation]);
+  }, [primaryEvent, primaryPolicy, primaryReconciliation, executionOutcome]);
 
   const hasReceiptForPrimary = useMemo(() => {
     if (!primaryEvent) return false;
@@ -622,6 +670,14 @@ export default function TracePanel() {
       parts.push("Approved");
     } else {
       parts.push("Approved (pending)");
+    }
+    if (
+      primaryPolicy?.decision === "deny" &&
+      !primaryEvent.executed &&
+      !primaryEvent.failedAt
+    ) {
+      parts.push(`Policy blocked execution · ${formatTime(primaryPolicy.timestamp)}`);
+      return parts.join(" → ");
     }
     if (primaryEvent.failedAt) {
       parts.push(`Execute failed · ${formatTime(primaryEvent.failedAt)}`);
@@ -707,8 +763,20 @@ export default function TracePanel() {
     const executed = primaryEvent.executed || !!primaryEvent.failedAt;
     const approved = !!primaryEvent.approvedAt || primaryEvent.status === "approved" || primaryEvent.executed;
     const rejected = !!primaryEvent.rejectedAt;
+    const eo = executionOutcome;
 
-    const stageDefs: { id: StageId; step: { id: string; label: string; icon: string; iconClass: string; lines: string[]; state: "done" | "missing" | "pending" } }[] = [];
+    const stageDefs: {
+      id: StageId;
+      step: {
+        id: string;
+        label: string;
+        icon: string;
+        iconClass: string;
+        lines: string[];
+        state: "done" | "missing" | "pending";
+        rowAccent?: "success" | "policy-block" | "failed" | "pending" | "neutral";
+      };
+    }[] = [];
 
     stageDefs.push({
       id: "proposal",
@@ -817,16 +885,100 @@ export default function TracePanel() {
       });
     }
 
-    if (primaryEvent.failedAt) {
+    if (eo) {
+      if (eo.status === "completed") {
+        const path = primaryReceipt?.outputPath ?? primaryReceipt?.artifactPath ?? "";
+        const logPath = path ? path.split("/").slice(-2).join("/") : "—";
+        const execActor =
+          primaryReceipt?.actors?.executor?.actorLabel ??
+          primaryReceipt?.actors?.executor?.actorId ??
+          primaryEvent.executionActorLabel ??
+          primaryEvent.executionActorId ??
+          "—";
+        stageDefs.push({
+          id: "execution",
+          step: {
+            id: "execution",
+            label: "Execution",
+            icon: "✓",
+            iconClass: "text-emerald-600",
+            state: "done",
+            rowAccent: "success",
+            lines: [
+              eo.headline,
+              eo.reason,
+              eo.transitionLine,
+              `Executor: ${execActor}`,
+              `Adapter: ${primaryReceipt?.kind ?? primaryEvent.kind ?? "—"}`,
+              `Time: ${formatTime(primaryEvent.executedAt)}`,
+              logPath,
+            ],
+          },
+        });
+      } else if (eo.status === "failed") {
+        stageDefs.push({
+          id: "execution",
+          step: {
+            id: "execution",
+            label: "Execution",
+            icon: "✗",
+            iconClass: "text-red-600",
+            state: "done",
+            rowAccent: "failed",
+            lines: [eo.headline, eo.reason, eo.transitionLine],
+          },
+        });
+      } else if (eo.status === "blocked") {
+        stageDefs.push({
+          id: "execution",
+          step: {
+            id: "execution",
+            label: "Execution",
+            icon: "✗",
+            iconClass: "text-red-600",
+            state: "done",
+            rowAccent: "policy-block",
+            lines: [eo.headline, eo.reason, eo.transitionLine],
+          },
+        });
+      } else if (eo.status === "pending") {
+        stageDefs.push({
+          id: "execution",
+          step: {
+            id: "execution",
+            label: "Execution",
+            icon: "○",
+            iconClass: "text-amber-500",
+            state: "pending",
+            rowAccent: "pending",
+            lines: [eo.headline, eo.reason, eo.transitionLine],
+          },
+        });
+      } else {
+        stageDefs.push({
+          id: "execution",
+          step: {
+            id: "execution",
+            label: "Execution",
+            icon: "—",
+            iconClass: "text-zinc-400",
+            state: "missing",
+            rowAccent: "neutral",
+            lines: [eo.headline, eo.reason, eo.transitionLine],
+          },
+        });
+      }
+    } else if (primaryEvent.failedAt) {
       stageDefs.push({
         id: "execution",
         step: {
           id: "execution",
           label: "Execution",
-          icon: "⚠",
-          iconClass: "text-amber-500",
+          icon: "✗",
+          iconClass: "text-red-600",
           state: "done",
-          lines: ["Failed", `Time: ${formatTime(primaryEvent.failedAt)}`],
+          rowAccent: "failed",
+          lines: ["Execution failed", `Time: ${formatTime(primaryEvent.failedAt)}`],
         },
       });
     } else if (executed) {
@@ -846,6 +998,7 @@ export default function TracePanel() {
           icon: "✓",
           iconClass: "text-emerald-500",
           state: "done",
+          rowAccent: "success",
           lines: [
             `Executor: ${execActor}`,
             `Adapter: ${primaryReceipt?.kind ?? primaryEvent.kind ?? "—"}`,
@@ -984,7 +1137,16 @@ export default function TracePanel() {
     }
 
     return stageDefs.map((d) => d.step);
-  }, [primaryEvent, primaryPolicy, primaryReconciliation, primaryReceipt, dataSource?.dateKey, dataSource?.actions, hasReceiptForPrimary]);
+  }, [
+    primaryEvent,
+    primaryPolicy,
+    primaryReconciliation,
+    primaryReceipt,
+    dataSource?.dateKey,
+    dataSource?.actions,
+    hasReceiptForPrimary,
+    executionOutcome,
+  ]);
 
   const getLinkedReceipts = useCallback(
     (eventId: string) => {
@@ -1456,6 +1618,40 @@ export default function TracePanel() {
             </div>
           )}
 
+          {executionOutcome && (
+            <div
+              className={
+                executionOutcome.status === "completed"
+                  ? "rounded border border-emerald-200 border-l-4 border-l-emerald-600 bg-emerald-50/90 px-3 py-2 dark:border-emerald-900/50 dark:border-l-emerald-500 dark:bg-emerald-950/35"
+                  : executionOutcome.status === "failed"
+                    ? "rounded border border-red-200 border-l-4 border-l-red-700 bg-red-50/95 px-3 py-2 dark:border-red-900/50 dark:border-l-red-500 dark:bg-red-950/40"
+                    : executionOutcome.status === "blocked"
+                      ? "rounded border border-amber-200 border-l-4 border-l-amber-600 bg-amber-50/95 px-3 py-2 dark:border-amber-900/50 dark:border-l-amber-500 dark:bg-amber-950/35"
+                      : executionOutcome.status === "pending"
+                        ? "rounded border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50/70 px-3 py-2 dark:border-amber-900/40 dark:border-l-amber-500 dark:bg-amber-950/25"
+                        : "rounded border border-zinc-200 border-l-4 border-l-zinc-500 bg-zinc-100/90 px-3 py-2 dark:border-zinc-700 dark:border-l-zinc-500 dark:bg-zinc-900/50"
+              }
+            >
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
+                Execution truth · {executionOutcome.status} · {executionOutcome.stage}
+              </div>
+              <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                {executionOutcome.headline}
+              </p>
+              <p className="mt-1 font-mono text-xs leading-snug text-zinc-800 dark:text-zinc-200">
+                {executionOutcome.reason}
+              </p>
+              {executionOutcome.reasonCode ? (
+                <p className="mt-1 text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
+                  Reason code: <span className="font-mono">{executionOutcome.reasonCode}</span>
+                </p>
+              ) : null}
+              <p className="mt-1 text-[11px] text-zinc-600 dark:text-zinc-400">
+                {executionOutcome.transitionLine}
+              </p>
+            </div>
+          )}
+
           {endToEndSequence && (
             <div className="rounded border border-zinc-200 bg-zinc-50/90 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
               <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
@@ -1476,8 +1672,11 @@ export default function TracePanel() {
                 Policy: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.policy}</span>
                 {primaryPolicy ? policyHealthSecondaryLine(primaryPolicy, traceHealth.status) : null}
               </span>
-              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+              <span className="min-w-0 max-w-full flex-[1_1_16rem] text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Execution: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.execution}</span>
+                <span className="mt-0.5 block font-mono text-[11px] font-normal text-zinc-700 dark:text-zinc-300">
+                  {traceHealth.executionReason}
+                </span>
               </span>
               <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 Reconciliation: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{traceHealth.reconciliation}</span>
@@ -1497,12 +1696,23 @@ export default function TracePanel() {
               <div className="space-y-0 rounded border border-zinc-300 dark:border-zinc-600 overflow-hidden">
                 {lifecycleSteps.map((step, idx) => {
                   const state = (step as { state?: "done" | "missing" | "pending" }).state ?? "done";
+                  const rowAccent = (step as { rowAccent?: string }).rowAccent;
                   const rowBg =
-                    state === "missing"
-                      ? "bg-zinc-100/60 dark:bg-zinc-800/40"
-                      : state === "pending"
-                        ? "bg-amber-50/30 dark:bg-amber-950/20"
-                        : "";
+                    rowAccent === "success"
+                      ? "border-l-4 border-l-emerald-600 bg-emerald-50/50 dark:border-l-emerald-500 dark:bg-emerald-950/25"
+                      : rowAccent === "policy-block"
+                        ? "border-l-4 border-l-amber-600 bg-amber-50/60 dark:border-l-amber-500 dark:bg-amber-950/30"
+                        : rowAccent === "failed"
+                          ? "border-l-4 border-l-red-700 bg-red-50/70 dark:border-l-red-500 dark:bg-red-950/35"
+                          : rowAccent === "pending"
+                            ? "border-l-4 border-l-amber-500 bg-amber-50/40 dark:border-l-amber-500 dark:bg-amber-950/20"
+                            : rowAccent === "neutral"
+                              ? "border-l-4 border-l-zinc-500 bg-zinc-100/50 dark:border-l-zinc-500 dark:bg-zinc-900/35"
+                              : state === "missing"
+                                ? "bg-zinc-100/60 dark:bg-zinc-800/40"
+                                : state === "pending"
+                                  ? "bg-amber-50/30 dark:bg-amber-950/20"
+                                  : "";
                   return (
                     <div
                       key={step.id}

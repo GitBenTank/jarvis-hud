@@ -107,6 +107,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "other" },
     };
     const r = validateOpenClawProposal({
@@ -147,6 +148,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       _injection: "malicious",
     };
@@ -227,6 +229,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "x".repeat(501),
+      payload: { note: "n" },
       source: { connector: "openclaw" },
     };
     const r = validateOpenClawProposal({
@@ -247,6 +250,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "x".repeat(121),
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
     };
     const r = validateOpenClawProposal({
@@ -266,6 +270,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       confidence: 0.9,
     };
@@ -283,6 +288,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       confidence: 1.5,
     };
@@ -300,6 +306,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       agent: "alfred",
       builder: "forge",
@@ -318,6 +325,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       agent: 1,
     };
@@ -336,6 +344,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       agent: "x".repeat(65),
     };
@@ -354,6 +363,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       provider: "openai",
       model: "openai/gpt-4o",
@@ -372,6 +382,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       model: ["x"],
     };
@@ -390,6 +401,7 @@ describe("validateOpenClawProposal", () => {
       kind: "system.note",
       title: "T",
       summary: "S",
+      payload: { note: "n" },
       source: { connector: "openclaw" },
       model: "x".repeat(129),
     };
@@ -401,5 +413,76 @@ describe("validateOpenClawProposal", () => {
     });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.field).toBe("model");
+  });
+
+  it("rejects system.note without payload", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("payload");
+  });
+
+  it("rejects system.note with empty payload.note", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      payload: { note: "   " },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("payload.note");
+  });
+
+  it("rejects source.agentId longer than 128 chars", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      payload: { note: "n" },
+      source: { connector: "openclaw", agentId: "x".repeat(129) },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("source.agentId");
+  });
+
+  it("builder does not satisfy system.note without note", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      builder: "forge",
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("payload");
   });
 });

@@ -75,7 +75,9 @@ After ingress, treat as **canonical for UI and trace**:
 
 ## 4. `builder` / `agent` / `source.agentId` — clear or ambiguous?
 
-**Ambiguous on the stored record without external convention** — the sample shows **two different identity stories**:
+**Normative contract (v1):** [OpenClaw proposal identity & v1 contract](./openclaw-proposal-identity-and-contract.md) — field meanings, wire vs stored minimums, and the **missing-`agent` fallback** (`source.agentId` then `unknown-proposer`).
+
+**Ambiguous on older stored rows without that convention** — the sample shows **two different identity stories**:
 
 1. **Coordinator-forward path:** `agent` is a human-readable coordinator (e.g. `"alfred"`), often matches **`actorId`** / **`actorLabel`** and, when sent, **`source.agentId`** (e.g. all `"alfred"` on recent demo rows).
 2. **Default path:** `agent` is **`"openclaw"`** (fallback when the body omits `agent`), while **`source.agentId`** may still be set to an **opaque connector id** (e.g. **`"main"`**). Here **`agent` ≠ `source.agentId`** on **9/11** events that had both fields set; equality held on **2/11** (the coordinator-forward cases).

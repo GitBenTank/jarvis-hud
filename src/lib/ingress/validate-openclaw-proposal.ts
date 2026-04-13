@@ -33,6 +33,10 @@ const ALLOWED_TOP_LEVEL_KEYS = new Set([
 const AGENT_METADATA_MAX_LEN = 64;
 /** Max length for optional model id string (e.g. `openai/gpt-4o`). */
 const MODEL_METADATA_MAX_LEN = 128;
+/** Max length for `source.agentId` (upstream runtime identity). */
+const SOURCE_AGENT_ID_MAX_LEN = 128;
+/** Max length for `payload.note` on `system.note`. */
+const SYSTEM_NOTE_MAX_LEN = 50_000;
 
 const BINARY_PATCH_MARKERS = ["GIT binary patch", "literal "];
 const VALID_PATCH_MARKERS = ["diff --git"];
@@ -236,7 +240,7 @@ export function validateOpenClawProposal(input: {
     }
   }
 
-  for (const k of ["sessionId", "agentId", "requestId"]) {
+  for (const k of ["sessionId", "requestId"] as const) {
     const v = srcObj[k];
     if (v !== undefined && typeof v !== "string") {
       return {
@@ -244,6 +248,34 @@ export function validateOpenClawProposal(input: {
         code: "bad_request",
         message: `source.${k} must be a string when provided`,
         field: `source.${k}`,
+      };
+    }
+    if (typeof v === "string" && v.length > AGENT_METADATA_MAX_LEN) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `source.${k} must be ≤ ${AGENT_METADATA_MAX_LEN} chars`,
+        field: `source.${k}`,
+      };
+    }
+  }
+
+  const sourceAgentId = srcObj.agentId;
+  if (sourceAgentId !== undefined) {
+    if (typeof sourceAgentId !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "source.agentId must be a string when provided",
+        field: "source.agentId",
+      };
+    }
+    if (sourceAgentId.length > SOURCE_AGENT_ID_MAX_LEN) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `source.agentId must be ≤ ${SOURCE_AGENT_ID_MAX_LEN} chars`,
+        field: "source.agentId",
       };
     }
   }
@@ -347,6 +379,35 @@ export function validateOpenClawProposal(input: {
         message:
           "code.apply/code.diff requires patch (top-level) or payload.code.diffText",
         field: "patch",
+      };
+    }
+  }
+
+  if (kind === "system.note") {
+    const payload = o.payload;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "system.note requires payload (object)",
+        field: "payload",
+      };
+    }
+    const note = (payload as Record<string, unknown>).note;
+    if (typeof note !== "string" || !note.trim()) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "system.note requires payload.note (non-empty string)",
+        field: "payload.note",
+      };
+    }
+    if (note.length > SYSTEM_NOTE_MAX_LEN) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `payload.note must be ≤ ${SYSTEM_NOTE_MAX_LEN} chars`,
+        field: "payload.note",
       };
     }
   }

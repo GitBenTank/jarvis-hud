@@ -25,7 +25,8 @@ import {
 import { validateOpenClawProposal } from "@/lib/ingress/validate-openclaw-proposal";
 import { ALLOWED_KINDS } from "@/lib/policy";
 import { getReasonDetail } from "@/lib/reason-taxonomy";
-import { ACTOR_OPENCLAW, agentActorFromAgentField } from "@/lib/actor-identity";
+import { agentActorFromAgentField } from "@/lib/actor-identity";
+import { resolveOpenClawLogicalAgent } from "@/lib/ingress/openclaw-proposal-identity";
 
 type IngressEvent = {
   id: string;
@@ -76,7 +77,10 @@ type IngressBody = {
     requestId?: string;
   };
   correlationId?: string;
-  /** Coordinator agent name (e.g. alfred); optional. Stored as event `agent` when set. */
+  /**
+   * Logical proposing agent label for Jarvis UI (coordinator / operator-facing name).
+   * If omitted, ingress uses {@link resolveOpenClawLogicalAgent} (`source.agentId` then sentinel).
+   */
   agent?: string;
   /** Builder agent name (e.g. forge); optional. */
   builder?: string;
@@ -313,10 +317,17 @@ export async function POST(request: NextRequest) {
       ? body.source
       : {}) as Record<string, unknown>;
 
-    const coordinatorName =
-      typeof body.agent === "string" && body.agent.trim()
-        ? body.agent.trim()
-        : "";
+    const sourceAgentIdStr =
+      typeof bodySource.agentId === "string" && bodySource.agentId.trim()
+        ? bodySource.agentId.trim()
+        : undefined;
+
+    /**
+     * Logical proposer for UI + actor derivation — never a silent `"openclaw"` default.
+     * See `resolveOpenClawLogicalAgent` in `@/lib/ingress/openclaw-proposal-identity`.
+     */
+    const logicalAgent = resolveOpenClawLogicalAgent(body.agent, sourceAgentIdStr);
+
     const builderName =
       typeof body.builder === "string" && body.builder.trim()
         ? body.builder.trim()
@@ -330,15 +341,13 @@ export async function POST(request: NextRequest) {
         ? body.model.trim()
         : undefined;
 
-    const proposerActor = coordinatorName
-      ? agentActorFromAgentField(coordinatorName)
-      : ACTOR_OPENCLAW;
+    const proposerActor = agentActorFromAgentField(logicalAgent);
 
     const event: IngressEvent = {
       id,
       traceId,
       type: "proposed_action",
-      agent: coordinatorName || "openclaw",
+      agent: logicalAgent,
       payload,
       requiresApproval: true,
       status: "pending",
@@ -360,7 +369,7 @@ export async function POST(request: NextRequest) {
         nonce,
         timestamp,
         ...(typeof bodySource.sessionId === "string" ? { sessionId: bodySource.sessionId } : {}),
-        ...(typeof bodySource.agentId === "string" ? { agentId: bodySource.agentId } : {}),
+        ...(sourceAgentIdStr ? { agentId: sourceAgentIdStr } : {}),
         ...(typeof bodySource.requestId === "string" ? { requestId: bodySource.requestId } : {}),
       },
       trustedIngress: { ok: true, reasons: [] },

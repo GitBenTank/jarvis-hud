@@ -13,6 +13,7 @@ const RAW_BODY_MAX_BYTES = 1024 * 1024; // 1 MB
 const TITLE_MAX_CHARS = 120;
 const SUMMARY_MAX_CHARS = 2000;
 const PATCH_MAX_BYTES = 1024 * 1024; // 1 MB
+const SYSTEM_NOTE_PAYLOAD_MAX_CHARS = 50_000;
 
 const ALLOWLISTED_TOP_LEVEL_KEYS = new Set([
   "kind",
@@ -239,6 +240,32 @@ export function validateIngressBody(
       message: "system.note must not include patch",
       field: "patch",
     });
+  }
+
+  if (kind === "system.note") {
+    const payload = o.payload;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      errors.push({
+        code: "MISSING_FIELD",
+        message: "system.note requires payload (object)",
+        field: "payload",
+      });
+    } else {
+      const note = (payload as Record<string, unknown>).note;
+      if (typeof note !== "string" || !note.trim()) {
+        errors.push({
+          code: "MISSING_FIELD",
+          message: "system.note requires payload.note (non-empty string)",
+          field: "payload.note",
+        });
+      } else if (note.length > SYSTEM_NOTE_PAYLOAD_MAX_CHARS) {
+        errors.push({
+          code: "FIELD_TOO_LONG",
+          message: `payload.note must be ≤ ${SYSTEM_NOTE_PAYLOAD_MAX_CHARS} chars`,
+          field: "payload.note",
+        });
+      }
+    }
   }
 
   if (errors.length > 0) {

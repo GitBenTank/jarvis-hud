@@ -6,6 +6,7 @@ import os from "node:os";
 import { createHmac } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { OPENCLAW_INGRESS_UNKNOWN_PROPOSER_AGENT } from "@/lib/ingress/openclaw-proposal-identity";
 
 // Set JARVIS_ROOT before any @/lib imports that use storage
 const TEST_ROOT = path.join(os.tmpdir(), `jarvis-ingress-test-${Date.now()}`);
@@ -17,7 +18,7 @@ const VALID_BODY = {
   title: "Test note",
   summary: "Test summary",
   payload: { note: "body" },
-  source: { connector: "openclaw" },
+  source: { connector: "openclaw" as const },
 };
 
 function sign(secret: string, timestamp: string, nonce: string, rawBody: string): string {
@@ -185,9 +186,15 @@ describe("POST /api/ingress/openclaw", () => {
     expect(ev.trustedIngress).toBeDefined();
     const ti = ev.trustedIngress as Record<string, unknown>;
     expect(ti.ok).toBe(true);
-    expect(ev.actorId).toBe("openclaw");
+    expect(ev.agent).toBe(OPENCLAW_INGRESS_UNKNOWN_PROPOSER_AGENT);
+    expect(ev.actorId).toBe(OPENCLAW_INGRESS_UNKNOWN_PROPOSER_AGENT);
     expect(ev.actorType).toBe("agent");
-    expect(ev.actorLabel).toBe("OpenClaw");
+    expect(ev.actorLabel).toBe(OPENCLAW_INGRESS_UNKNOWN_PROPOSER_AGENT);
+    const pl = ev.payload as Record<string, unknown>;
+    expect(pl.kind).toBe("system.note");
+    expect(pl.title).toBe("Test note");
+    expect(pl.summary).toBe("Test summary");
+    expect(pl.note).toBe("body");
   });
 
   it("preserves optional agent, builder, provider, model and derives proposer actor from agent", async () => {
@@ -225,6 +232,57 @@ describe("POST /api/ingress/openclaw", () => {
     expect(pl.builder).toBeUndefined();
     expect(pl.provider).toBeUndefined();
     expect(pl.model).toBeUndefined();
+  });
+
+  it("uses source.agentId as logical agent when body.agent omitted", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");
+
+    const body = {
+      ...VALID_BODY,
+      source: { connector: "openclaw" as const, agentId: "main-runtime" },
+    };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+
+    const dateKey = getDateKey();
+    const filePath = getEventsFilePath(dateKey);
+    const events = await readJson<unknown[]>(filePath);
+    const written = (events ?? []).find(
+      (e: unknown) =>
+        typeof e === "object" && e !== null && (e as { id?: string }).id === json.id
+    ) as Record<string, unknown>;
+    expect(written.agent).toBe("main-runtime");
+    expect((written.source as Record<string, unknown>).agentId).toBe("main-runtime");
+    expect(written.actorId).toBe("main-runtime");
+  });
+
+  it("does not use builder as logical agent when body.agent omitted", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");
+
+    const body = {
+      ...VALID_BODY,
+      builder: "forge",
+      source: { connector: "openclaw" as const, agentId: "upstream-1" },
+    };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+
+    const dateKey = getDateKey();
+    const filePath = getEventsFilePath(dateKey);
+    const events = await readJson<unknown[]>(filePath);
+    const written = (events ?? []).find(
+      (e: unknown) =>
+        typeof e === "object" && e !== null && (e as { id?: string }).id === json.id
+    ) as Record<string, unknown>;
+    expect(written.agent).toBe("upstream-1");
+    expect(written.builder).toBe("forge");
+    expect(written.actorId).toBe("upstream-1");
   });
 
   it("returns 400 when agent is not a string", async () => {

@@ -73,5 +73,6 @@ Forge must not claim approval, policy outcome, execution, or receipt state — o
 
 ## See also
 
+- [OpenClaw proposal identity & v1 contract](./openclaw-proposal-identity-and-contract.md) — `agent`, `builder`, `source.agentId`, wire vs stored minimums
 - [OpenClaw ↔ Jarvis trust contract](./openclaw-jarvis-trust-contract.md) — honesty tags, role matrix
 - [OpenClaw ingress signing](../security/openclaw-ingress-signing.md)

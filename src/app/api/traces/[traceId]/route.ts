@@ -11,6 +11,8 @@ import { readReconciliationByTraceId, type ReconciliationEntry } from "@/lib/rec
 import { normalizeAction } from "@/lib/normalize";
 import { getReasonDetail, reasonFromPolicyReason, type ReasonDetail } from "@/lib/reason-taxonomy";
 import { deriveTraceExecutionOutcome, sortEventsForPrimaryEvent } from "@/lib/execution-truth";
+import { findApprovalPreflightSnapshot } from "@/lib/approval-preflight-snapshot-store";
+import type { ApprovalPreflightSnapshotRecord } from "@/lib/approval-preflight-snapshot-shared";
 
 type StoredEvent = {
   id: string;
@@ -505,6 +507,14 @@ export async function GET(
       })
     : undefined;
 
+  let approvalPreflightSnapshot: ApprovalPreflightSnapshotRecord | null = null;
+  if (primaryEventForOutcome) {
+    approvalPreflightSnapshot = await findApprovalPreflightSnapshot(
+      primaryEventForOutcome.id,
+      foundDateKey
+    );
+  }
+
   return NextResponse.json({
     traceId: tid,
     dateKey: foundDateKey ?? getDateKey(),
@@ -515,5 +525,6 @@ export async function GET(
     artifactPaths,
     pipeline,
     executionOutcome,
+    approvalPreflightSnapshot,
   });
 }

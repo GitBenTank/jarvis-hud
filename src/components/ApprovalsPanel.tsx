@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { normalizeAction } from "@/lib/normalize";
 import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
 import {
@@ -10,7 +10,14 @@ import {
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import AgentProposalsFeed from "./AgentProposalsFeed";
 import ApprovalSafetySection from "./ApprovalSafetySection";
+import ApprovalTimePreflightSnapshotSection from "./ApprovalTimePreflightSnapshotSection";
 import Badge from "./Badge";
+import {
+  buildApprovalPreflightSnapshotWire,
+  type ApprovalPreflightSnapshotRecord,
+  type ApprovalPreflightSnapshotWire,
+} from "@/lib/approval-preflight-snapshot-shared";
+import { buildDecisionReplayLine, firstPreflightBlockerLine } from "@/lib/decision-replay";
 import type { ReasonDetail } from "@/lib/reason-taxonomy";
 
 type Event = {
@@ -40,6 +47,12 @@ type Event = {
   };
   correlationId?: string;
   trustedIngress?: { ok: boolean; reasons?: string[] };
+  approvalActorId?: string;
+  approvalActorType?: "human" | "agent";
+  approvalActorLabel?: string;
+  rejectionActorId?: string;
+  rejectionActorType?: "human" | "agent";
+  rejectionActorLabel?: string;
   /** OpenClaw builder agent label (e.g. forge); optional metadata. */
   builder?: string;
   provider?: string;
@@ -157,7 +170,7 @@ function LifecycleTimestamps({ event }: { event: Event }) {
 type DetailModalProps = Readonly<{
   event: Event;
   onClose: () => void;
-  onApprove: (id: string) => void;
+  onApprove: (id: string, approvalPreflightSnapshotWire?: ApprovalPreflightSnapshotWire) => void;
   onDeny: (id: string) => void;
   onExecute: (id: string) => void;
   onCreateReflection?: (result: ExecuteResult) => void;
@@ -165,6 +178,8 @@ type DetailModalProps = Readonly<{
   executeError: ExecuteError | null;
   executeLoading: boolean;
   irreversibleConfirmEnabled: boolean;
+  /** Events list date key (speeds snapshot lookup). */
+  listDateKey: string;
 }>;
 
 function DetailModal({
@@ -178,10 +193,14 @@ function DetailModal({
   executeError,
   executeLoading,
   irreversibleConfirmEnabled,
+  listDateKey,
 }: DetailModalProps) {
   const normalized = normalizeAction(event.payload);
   const [preflight, setPreflight] = useState<PreflightData | null>(null);
   const [preflightLoading, setPreflightLoading] = useState(false);
+  const [persistedSnapshot, setPersistedSnapshot] =
+    useState<ApprovalPreflightSnapshotRecord | null>(null);
+  const [persistedSnapshotLoading, setPersistedSnapshotLoading] = useState(false);
   const needsTypedApprovalGate =
     irreversibleConfirmEnabled &&
     requiresIrreversibleConfirmation(normalized.kind) &&
@@ -192,6 +211,47 @@ function DetailModal({
   const approvalReady =
     !needsTypedApprovalGate || (confirmCheckbox && confirmPhrase.trim() === phrase);
   const executeWillBlock = preflight?.preflight.willBlock === true;
+  const executeDisabledByReadiness = preflightLoading || executeWillBlock;
+  const executeButtonDisabled = executeLoading || executeDisabledByReadiness;
+
+  const decisionReplayLine = useMemo(
+    () =>
+      buildDecisionReplayLine({
+        proposerLabel: event.agent?.trim() || "Unknown proposer",
+        kind: normalized.kind,
+        eventStatus: event.status,
+        rejectedAt: event.rejectedAt,
+        approvedAt: event.approvedAt,
+        executed: event.executed === true,
+        failedAt: event.failedAt,
+        approvalActorLabel: event.approvalActorLabel,
+        approvalActorId: event.approvalActorId,
+        rejectionActorLabel: event.rejectionActorLabel,
+        rejectionActorId: event.rejectionActorId,
+        sessionExecuteSucceeded:
+          executeResult?.ok === true && executeResult.approvalId === event.id,
+        preflight: { loading: preflightLoading, data: preflight },
+        executionOutcome: null,
+      }),
+    [
+      event.agent,
+      event.status,
+      event.rejectedAt,
+      event.approvedAt,
+      event.executed,
+      event.failedAt,
+      event.approvalActorLabel,
+      event.approvalActorId,
+      event.rejectionActorLabel,
+      event.rejectionActorId,
+      event.id,
+      normalized.kind,
+      executeResult?.ok,
+      executeResult?.approvalId,
+      preflightLoading,
+      preflight,
+    ]
+  );
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -199,6 +259,38 @@ function DetailModal({
       setConfirmPhrase("");
     });
   }, [event.id]);
+
+  const showPersistedApprovalSnapshot =
+    event.requiresApproval === true && event.status !== "pending";
+
+  useEffect(() => {
+    if (!showPersistedApprovalSnapshot) {
+      setPersistedSnapshot(null);
+      setPersistedSnapshotLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setPersistedSnapshotLoading(true);
+    const q =
+      listDateKey.trim() !== ""
+        ? `?dateKey=${encodeURIComponent(listDateKey)}`
+        : "";
+    fetch(`/api/approvals/${event.id}/preflight-snapshot${q}`)
+      .then((r) => r.json())
+      .then((j: { snapshot?: ApprovalPreflightSnapshotRecord | null }) => {
+        if (!cancelled) setPersistedSnapshot(j.snapshot ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setPersistedSnapshot(null);
+      })
+      .finally(() => {
+        if (!cancelled) setPersistedSnapshotLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [event.id, listDateKey, showPersistedApprovalSnapshot]);
+
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
@@ -236,6 +328,15 @@ function DetailModal({
   const blockedForEvent = executeError?.approvalId === event.id;
   const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
 
+  const executeButtonLabel = (() => {
+    if (executeLoading) return "Executing…";
+    if (executeWillBlock) return "Execution blocked — fix preflight issues";
+    if (preflightLoading) return "Checking execution readiness…";
+    if (isReflection) return "Execute";
+    if (isCodeApply) return "Execute (git commit)";
+    return "Execute (dry run)";
+  })();
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -261,6 +362,23 @@ function DetailModal({
             ×
           </button>
         </div>
+
+        <p
+          className="mb-3 rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-zinc-600 dark:bg-zinc-900/50 dark:text-zinc-200"
+          aria-live="polite"
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+            Decision replay ·
+          </span>{" "}
+          {decisionReplayLine}
+        </p>
+
+        {showPersistedApprovalSnapshot ? (
+          <ApprovalTimePreflightSnapshotSection
+            snapshot={persistedSnapshot}
+            loading={persistedSnapshotLoading}
+          />
+        ) : null}
 
         <dl className="space-y-2 text-sm">
           <div>
@@ -559,7 +677,16 @@ function DetailModal({
               </button>
               <button
                 type="button"
-                onClick={() => onApprove(event.id)}
+                onClick={() =>
+                  onApprove(
+                    event.id,
+                    buildApprovalPreflightSnapshotWire({
+                      kind: normalized.kind,
+                      preflight,
+                      preflightLoading,
+                    })
+                  )
+                }
                 disabled={!approvalReady}
                 className="rounded bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -625,27 +752,26 @@ function DetailModal({
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Execute writes local artifacts + receipts only. It does not post.
             </p>
-            {executeWillBlock && (
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                Execute is disabled while preflight reports <strong>will block</strong> — fix the issue shown in Safety
-                &amp; readiness, then refresh or reopen this proposal.
-              </p>
-            )}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:gap-3">
               <button
                 type="button"
                 onClick={() => onExecute(event.id)}
-                disabled={executeLoading || executeWillBlock}
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={executeButtonDisabled}
+                className="shrink-0 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {executeLoading
-                  ? "Executing…"
-                  : isReflection
-                    ? "Execute"
-                    : isCodeApply
-                      ? "Execute (git commit)"
-                      : "Execute (dry run)"}
+                {executeButtonLabel}
               </button>
+              {preflightLoading && (
+                <p className="min-w-0 flex-1 text-sm text-zinc-600 dark:text-zinc-400">
+                  Preflight is running — Execute stays disabled until readiness is known.
+                </p>
+              )}
+              {executeWillBlock && preflight && (
+                <p className="min-w-0 flex-1 text-sm text-amber-900 dark:text-amber-200">
+                  <span className="font-medium">Execution blocked.</span>{" "}
+                  {firstPreflightBlockerLine(preflight)}
+                </p>
+              )}
               {isPublish && <Badge variant="dry_run">DRY RUN</Badge>}
             </div>
           </div>
@@ -936,12 +1062,16 @@ export default function ApprovalsPanel() {
   }, [fetchApprovals]);
 
   const handleApprove = useCallback(
-    async (id: string) => {
+    async (id: string, approvalPreflightSnapshotWire?: ApprovalPreflightSnapshotWire) => {
       try {
+        const body: Record<string, unknown> = { action: "approve" };
+        if (approvalPreflightSnapshotWire !== undefined) {
+          body.approvalPreflightSnapshot = approvalPreflightSnapshotWire;
+        }
         const res = await fetch(`/api/approvals/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "approve" }),
+          body: JSON.stringify(body),
         });
         if (res.ok) {
           const updated = await res.json();
@@ -1090,6 +1220,7 @@ export default function ApprovalsPanel() {
           executeError={executeError}
           executeLoading={executeLoading}
           irreversibleConfirmEnabled={irreversibleConfirmEnabled}
+          listDateKey={data?.dateKey ?? approvedData?.dateKey ?? ""}
         />
       )}
     </>

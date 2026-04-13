@@ -9,10 +9,13 @@ import {
 } from "@/lib/proposal-lifecycle";
 import { TRACE_SCAN_DAY_WINDOW } from "@/lib/trace-constants";
 import type { ReceiptActors } from "@/lib/actor-identity";
+import ApprovalTimePreflightSnapshotSection from "./ApprovalTimePreflightSnapshotSection";
+import { buildDecisionReplayLine } from "@/lib/decision-replay";
 import {
   deriveTraceExecutionOutcome,
   type TraceExecutionOutcome,
 } from "@/lib/execution-truth";
+import type { ApprovalPreflightSnapshotRecord } from "@/lib/approval-preflight-snapshot-shared";
 
 type TraceEvent = {
   id: string;
@@ -105,6 +108,7 @@ type TraceResponse = {
   reconciliations?: TraceReconciliation[];
   artifactPaths: string[];
   executionOutcome?: TraceExecutionOutcome;
+  approvalPreflightSnapshot?: ApprovalPreflightSnapshotRecord | null;
 };
 
 /** Replay API response — reconstructs trace from action, policy, reconciliation logs */
@@ -237,6 +241,7 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
     reconciliations: reconciliation,
     artifactPaths,
     executionOutcome,
+    approvalPreflightSnapshot: null,
   };
 }
 
@@ -609,6 +614,31 @@ export default function TracePanel() {
       action: act,
     });
   }, [dataSource?.executionOutcome, primaryEvent, primaryPolicy, primaryReceipt]);
+
+  const decisionReplayLine = useMemo(() => {
+    if (!primaryEvent) return null;
+    const denied = !!primaryEvent.rejectedAt || primaryEvent.status === "denied";
+    const pending = !denied && primaryEvent.status === "pending";
+    return buildDecisionReplayLine({
+      proposerLabel:
+        primaryEvent.actorLabel?.trim() ||
+        primaryEvent.actorId?.trim() ||
+        primaryEvent.agent?.trim() ||
+        "Unknown proposer",
+      kind: primaryEvent.kind,
+      eventStatus: denied ? "denied" : pending ? "pending" : "approved",
+      rejectedAt: primaryEvent.rejectedAt,
+      approvedAt: primaryEvent.approvedAt,
+      executed: primaryEvent.executed === true,
+      failedAt: primaryEvent.failedAt,
+      approvalActorLabel: primaryEvent.approvalActorLabel,
+      approvalActorId: primaryEvent.approvalActorId,
+      rejectionActorLabel: primaryEvent.rejectionActorLabel,
+      rejectionActorId: primaryEvent.rejectionActorId,
+      sessionExecuteSucceeded: false,
+      executionOutcome,
+    });
+  }, [primaryEvent, executionOutcome]);
 
   const traceHealth = useMemo(() => {
     if (!primaryEvent || !executionOutcome) return null;
@@ -1617,6 +1647,24 @@ export default function TracePanel() {
               )}
             </div>
           )}
+
+          {decisionReplayLine && (
+            <div className="rounded border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900/40">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                Decision replay
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-800 dark:text-zinc-200">
+                {decisionReplayLine}
+              </p>
+            </div>
+          )}
+
+          {dataSource ? (
+            <ApprovalTimePreflightSnapshotSection
+              snapshot={dataSource.approvalPreflightSnapshot ?? null}
+              loading={false}
+            />
+          ) : null}
 
           {executionOutcome && (
             <div

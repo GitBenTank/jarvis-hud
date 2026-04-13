@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { randomUUID } from "node:crypto";
 import {
   getDateKey,
   getEventsFilePath,
@@ -8,6 +9,12 @@ import {
   writeJson,
 } from "@/lib/storage";
 import { ACTOR_LOCAL_USER } from "@/lib/actor-identity";
+import { normalizeAction } from "@/lib/normalize";
+import {
+  validateApprovalPreflightSnapshotWire,
+  type ApprovalPreflightSnapshotWire,
+} from "@/lib/approval-preflight-snapshot-shared";
+import { appendApprovalPreflightSnapshot } from "@/lib/approval-preflight-snapshot-store";
 
 type Event = {
   id: string;
@@ -35,7 +42,7 @@ type Event = {
   rejectionActorLabel?: string;
 };
 
-type ApprovalBody = { action: "approve" | "deny" };
+type ApprovalBody = { action: "approve" | "deny"; approvalPreflightSnapshot?: unknown };
 
 function isApprovalBody(body: unknown): body is ApprovalBody {
   if (!body || typeof body !== "object") return false;
@@ -50,7 +57,7 @@ export async function POST(
   try {
     const { id } = await params;
 
-    const body = await request.json();
+    const body = (await request.json()) as unknown;
     if (!isApprovalBody(body)) {
       return NextResponse.json(
         { error: "Invalid body: action must be 'approve' or 'deny'" },
@@ -92,10 +99,23 @@ export async function POST(
     }
 
     const now = new Date().toISOString();
-    const newStatus = body.action === "approve" ? "approved" : "denied";
+
+    let snapshotWire: ApprovalPreflightSnapshotWire | null = null;
+    if (body.action === "approve" && Object.hasOwn(body, "approvalPreflightSnapshot")) {
+      const expectedKind = normalizeAction(event.payload).kind;
+      const v = validateApprovalPreflightSnapshotWire(
+        body.approvalPreflightSnapshot,
+        expectedKind
+      );
+      if (!v.ok) {
+        return NextResponse.json({ error: v.error }, { status: 400 });
+      }
+      snapshotWire = v.wire;
+    }
+
     const updated: Event = {
       ...event,
-      status: newStatus,
+      status: body.action === "approve" ? "approved" : "denied",
       ...(body.action === "approve"
         ? {
             proposalStatus: "approved" as const,
@@ -114,6 +134,16 @@ export async function POST(
     };
     events[index] = updated;
     await writeJson(filePath, events);
+
+    if (snapshotWire) {
+      await appendApprovalPreflightSnapshot(dateKey, {
+        ...snapshotWire,
+        id: randomUUID(),
+        approvalId: id,
+        traceId: event.traceId ?? event.id,
+        capturedAt: now,
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (err: unknown) {

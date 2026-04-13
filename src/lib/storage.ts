@@ -71,6 +71,11 @@ export function getPolicyDecisionsFilePath(dateKey: string): string {
   return path.join(ROOT, "policy-decisions", `${dateKey}.jsonl`);
 }
 
+/** Append-only approval-time preflight snapshots (one line per approval, keyed by approvalId). */
+export function getApprovalPreflightSnapshotPath(dateKey: string): string {
+  return path.join(ROOT, "approval-preflight", `${dateKey}.jsonl`);
+}
+
 export function getReconciliationFilePath(dateKey: string): string {
   return path.join(ROOT, "reconciliation", `${dateKey}.jsonl`);
 }

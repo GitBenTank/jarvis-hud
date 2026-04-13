@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import type { ReasonDetail } from "@/lib/reason-taxonomy";
 import type { ReceiptActors } from "@/lib/actor-identity";
 import type { TraceExecutionOutcome } from "@/lib/execution-truth";
+import type { ApprovalPreflightSnapshotRecord } from "@/lib/approval-preflight-snapshot-shared";
 
 export type TraceEvent = {
   id: string;
@@ -123,6 +124,8 @@ export type TraceResponse = {
   pipeline?: TracePipeline;
   /** Derived execution posture for operators; client may re-derive if absent. */
   executionOutcome?: TraceExecutionOutcome;
+  /** Persisted approval-time preflight; absent on older traces. */
+  approvalPreflightSnapshot?: ApprovalPreflightSnapshotRecord | null;
 };
 
 type TraceContextValue = {

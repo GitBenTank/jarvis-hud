@@ -1,5 +1,6 @@
 "use client";
 
+import { firstPreflightBlockerLine } from "@/lib/decision-replay";
 import { describeRiskNarrative, getRiskLevel, type RiskLevel } from "@/lib/risk";
 import type { ReasonDetail } from "@/lib/reason-taxonomy";
 
@@ -46,11 +47,7 @@ function readinessCopy(
     };
   }
   if (preflight.status === "will_block") {
-    const d = preflight.preflight.reasonDetails[0];
-    const firstReason = preflight.preflight.reasons[0];
-    const blocker = d
-      ? `${d.label}: ${d.summary}`
-      : firstReason ?? "Policy or environment will block execute.";
+    const blocker = firstPreflightBlockerLine(preflight);
     return {
       label: "Will block",
       chip: "will_block",

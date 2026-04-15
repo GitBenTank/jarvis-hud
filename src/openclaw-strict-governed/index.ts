@@ -1,0 +1,26 @@
+/**
+ * OpenClaw strict-governed reference implementation (first slice).
+ * Thesis: governed repo mutations go only through Jarvis after approve + execute.
+ *
+ * @see docs/architecture/openclaw-strict-mode-enforcement.md
+ * @see docs/trust-boundary.md
+ */
+
+export {
+  strictGovernedModeEnabled,
+  assertGovernedMutationAllowed,
+  assertNoUnsafeGovernedToolsInStrictMode,
+  GovernanceBlockError,
+  GOVERNANCE_BLOCK_MESSAGE,
+  StrictModeViolationError,
+} from "./enforcement";
+export { getGovernedRepoRoot, resolveUnderGovernedRoot } from "./governed-paths";
+export { submitOpenClawIngress, type SubmitOpenClawIngressResult } from "./jarvisClient";
+export { createStrictGovernedRegistry, type StrictGovernedRegistry } from "./registry";
+export { readGovernedFile } from "./tools/readGovernedFile";
+export { proposeCodeApply } from "./tools/proposeCodeApply";
+export { applyPatchDirect } from "./tools/applyPatchDirect";
+export type {
+  ToolClassification,
+  StrictGovernedToolName,
+} from "./types";

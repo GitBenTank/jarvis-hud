@@ -5,6 +5,7 @@ category: architecture
 related:
   - strategy/jarvis-hud-video-thesis.md
   - architecture/control-plane.md
+  - architecture/openclaw-strict-mode-enforcement.md
   - architecture/openclaw-jarvis-trust-contract.md
   - architecture/openclaw-proposal-identity-and-contract.md
   - security/openclaw-ingress-signing.md
@@ -99,6 +100,8 @@ Honesty and posture rules for agents vs substrate: [OpenClaw ↔ Jarvis trust co
 
 Strict mode is enforced **mechanically** via tool-level constraints in OpenClaw. Mutation-capable tools (for example file writes, shell execution, and code changes) are **not** directly accessible to agents; instead, effects are routed through Jarvis as proposals, which still require **explicit human approval** and **explicit execution** in the HUD. This enforcement is implemented at the **capability** layer (tool registration, gateway policy, skills), not via prompt instructions.
 
+Spec: [OpenClaw strict mode — capability-layer enforcement](architecture/openclaw-strict-mode-enforcement.md).
+
 **Result:** Trace and receipts align with **complete** governed execution truth; strongest trust posture.
 
 ### Hybrid mode (optional)
@@ -171,6 +174,7 @@ Items that strengthen enterprise **proof** but are not asserted as current guara
 ## See also
 
 - [Control plane architecture](architecture/control-plane.md)
+- [OpenClaw strict mode enforcement](architecture/openclaw-strict-mode-enforcement.md)
 - [OpenClaw ↔ Jarvis trust contract](architecture/openclaw-jarvis-trust-contract.md)
 - [OpenClaw V1 — Jarvis integration contract](architecture/openclaw-v1-contract.md)
 - [Thesis Lock](strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift)

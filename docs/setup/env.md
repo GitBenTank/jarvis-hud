@@ -39,6 +39,17 @@ Jarvis HUD configuration is driven by environment variables. Never commit secret
 
 ---
 
+## OpenClaw strict-governed client (reference slice)
+
+Used by `src/openclaw-strict-governed` when wiring OpenClaw-style tools. Same ingress secret and base URL as above.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENCLAW_STRICT_GOVERNED` | No | Set to `"true"` to block **direct** governed-repo mutation tools; use `proposeCodeApply` (Jarvis ingress) instead. |
+| `OPENCLAW_GOVERNED_REPO_ROOT` | For read/write tools | Governed git repo path for `readGovernedFile` / path checks. Falls back to `JARVIS_REPO_ROOT` if unset. |
+
+---
+
 ## Other
 
 | Variable | Required | Description |

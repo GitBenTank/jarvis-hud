@@ -94,7 +94,7 @@ describe("POST /api/approvals/[id] approvalPreflightSnapshot", () => {
   });
 
   it("approve without snapshot does not create approval-preflight file line requirement", async () => {
-    const { getDateKey, getEventsFilePath, writeJson, readJson } = await import("@/lib/storage");
+    const { getDateKey, getEventsFilePath, writeJson } = await import("@/lib/storage");
     const dateKey = getDateKey();
     const approvalId = "evt-no-snap";
     const pending = {

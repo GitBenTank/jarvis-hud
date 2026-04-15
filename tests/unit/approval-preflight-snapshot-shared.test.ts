@@ -45,8 +45,6 @@ describe("buildApprovalPreflightSnapshotWire", () => {
               code: "REPO_ROOT_MISSING",
               label: "Repo root missing",
               summary: "JARVIS_REPO_ROOT is missing or invalid",
-              severity: "critical",
-              source: "policy",
             },
           ],
           notes: [],

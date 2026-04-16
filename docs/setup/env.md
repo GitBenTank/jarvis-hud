@@ -2,6 +2,8 @@
 
 Jarvis HUD configuration is driven by environment variables. Never commit secrets to the repo. Use `.env.local` (git-ignored) for local overrides.
 
+**Ports and base URLs:** Standard dev often uses **:3000**; demo / ingress rehearsal often uses **:3001**. The running Next.js process is the authority — align `JARVIS_HUD_BASE_URL`, OpenClaw, and scripts to the **live** origin. See [Local dev truth map](local-dev-truth-map.md).
+
 ---
 
 ## Storage
@@ -54,9 +56,9 @@ Used by `src/openclaw-strict-governed` when wiring OpenClaw-style tools. Same in
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `JARVIS_HUD_BASE_URL` | No | Base URL for scripts (default: `http://localhost:3000`) |
+| `JARVIS_HUD_BASE_URL` | No | Base URL for scripts (default: `http://localhost:3000`). Must match the **listening** dev server (see [Local dev truth map](local-dev-truth-map.md)). When set, `GET /api/config` includes `jarvisHudBaseUrl`; the HUD shows a non-blocking warning if that URL’s origin differs from where you opened the app. |
 | `JARVIS_LOG_POLLING` | No | `"1"` to enable server-side log polling |
-| `PORT` | No | Used by `pnpm dev:port` (default: 3000) |
+| `PORT` | No | Binds the dev server when using `pnpm dev:port` / `demo:boot` (often **3001** for demos; **3000** for plain `pnpm dev`). Not magic — match your running process. |
 
 ---
 

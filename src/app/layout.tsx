@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TraceProviderWrapper from "@/components/TraceProviderWrapper";
+import HudOriginMismatchBanner from "@/components/HudOriginMismatchBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TraceProviderWrapper>{children}</TraceProviderWrapper>
+        <TraceProviderWrapper>
+          <HudOriginMismatchBanner />
+          {children}
+        </TraceProviderWrapper>
       </body>
     </html>
   );

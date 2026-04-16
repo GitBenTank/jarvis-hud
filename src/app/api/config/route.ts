@@ -49,6 +49,22 @@ async function readActionLog(dateKey: string): Promise<ActionLogEntry[]> {
   }
 }
 
+/**
+ * Exposes configured `JARVIS_HUD_BASE_URL` for client-side comparison with `window.location`.
+ * Not a secret; helps operators catch port / origin drift in local dev.
+ */
+function getJarvisHudBaseUrlConfigured(): string | null {
+  const raw = process.env.JARVIS_HUD_BASE_URL?.trim();
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    return u.href.replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
 async function readPolicyDecisions(dateKey: string): Promise<Array<{ decision?: "allow" | "deny"; reason?: string; timestamp?: string }>> {
   try {
     const content = await fs.readFile(getPolicyDecisionsFilePath(dateKey), "utf-8");
@@ -111,6 +127,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       jarvisRoot: getJarvisRoot(),
+      jarvisHudBaseUrl: getJarvisHudBaseUrlConfigured(),
       authEnabled,
       irreversibleConfirmEnabled,
       ingressValidationEnabled,

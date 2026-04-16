@@ -1,5 +1,7 @@
 # Local verification: OpenClaw → Jarvis HUD
 
+Before running this checklist, ensure your local environment follows the [Local dev truth map](setup/local-dev-truth-map.md): **one canonical Jarvis origin per session** (standard dev is often `:3000`, demo / ingress rehearsal often `:3001`). Verification against the wrong port wastes time.
+
 Tight pass to confirm **OpenClaw is the live variable** and Jarvis is structurally correct. Run in order. Adjust paths if your OpenClaw checkout is not `~/Documents/openclaw`.
 
 **Ports:** Jarvis is often `http://localhost:3000` (`pnpm dev`) or `http://localhost:3001` (`pnpm demo:boot`). Replace `JARVIS_URL` below with whichever you use. OpenClaw must use the **same** base URL and **`JARVIS_INGRESS_OPENCLAW_SECRET`** as Jarvis for signed ingress.

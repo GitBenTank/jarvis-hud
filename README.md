@@ -112,14 +112,47 @@ Control plane at a glance (click through for architecture detail):
 
 ---
 
-## Ports: normal dev vs demo boot
+## Local development
 
-| Mode | Command | Default URL | Notes |
-|------|---------|-------------|--------|
-| **Normal development** | `pnpm dev` | **http://localhost:3000** | Override with `PORT=3001 pnpm dev`, etc. |
-| **Demo / ingress rehearsal** | `pnpm demo:boot` | **http://localhost:3001** | Loads `scripts/demo-env.sh`: OpenClaw ingress **on**, shared **secret**, `PORT=3001`. |
+This repo supports **two intentional** local launch modes. Neither is wrong; drift happens when the browser, OpenClaw, and env disagree about **which origin is live**.
 
-Use the **same** base URL and secret on the **OpenClaw** side as on Jarvis, or signed ingress will fail (usually **401**). Details: [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md).
+### Standard dev
+
+```bash
+pnpm dev
+```
+
+- **Expected URL:** http://localhost:3000
+
+### Demo / ingress mode
+
+```bash
+PORT=3001 pnpm dev:port
+# or
+pnpm demo:boot
+```
+
+- **Expected URL:** http://localhost:3001 (`demo:boot` loads `scripts/demo-env.sh`: ingress **on**, shared **secret**, `PORT=3001`.)
+
+### Source of truth
+
+The **running Jarvis process** (listening port) is the authority. If config and runtime disagree: **runtime wins.**
+
+### Quick reset (when things feel off)
+
+```bash
+curl -sS http://localhost:3000/api/config || true
+curl -sS http://localhost:3001/api/config || true
+```
+
+Whichever returns JSON is your current Jarvis origin. Align the browser, OpenClaw, env vars, and scripts to **that** origin.
+
+### Docs
+
+- **Local dev truth map** — [docs/setup/local-dev-truth-map.md](docs/setup/local-dev-truth-map.md)
+- **OpenClaw verification** — [docs/local-verification-openclaw-jarvis.md](docs/local-verification-openclaw-jarvis.md)
+
+Use the **same** base URL and ingress **secret** on the OpenClaw side as on Jarvis, or signed ingress will fail (usually **401**). Details: [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md).
 
 ---
 
@@ -194,6 +227,13 @@ Jarvis sits between AI agents and system execution:
 - **OpenClaw ingress** — HMAC-signed proposals when enabled (`docs/setup/env.md`).
 - **Bounded adapters** — e.g. `system.note`, `code.diff`, `code.apply`, `youtube.package`, recovery classes.
 - **Trace timeline** — Reconstruct proposal → outcome for audit and demo.
+
+### Operator safeguards (local dev)
+
+- **Origin mismatch detection** — When `JARVIS_HUD_BASE_URL` is set, the HUD warns if its origin does not match where you opened the app (`GET /api/config` exposes `jarvisHudBaseUrl` for comparison).
+- **Mismatch-only signal** — No banner when unset or aligned; avoids noise.
+- **Facts-first** — **Viewed** vs **Configured** origins at a glance.
+- **Runtime-first rule** — Copy tells operators to align OpenClaw and scripts to the **viewed** origin. Full map: [docs/setup/local-dev-truth-map.md](docs/setup/local-dev-truth-map.md).
 
 ---
 
@@ -277,6 +317,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [Submit proposal JSON (`pnpm jarvis:submit`)](docs/jarvis-proposal-submit.md)
 - [Demo runbook](DEMO.md)
 - [Environment variables](docs/setup/env.md)
+- [Local dev truth map (ports / `JARVIS_HUD_BASE_URL`)](docs/setup/local-dev-truth-map.md)
 - [Audit export (Phase 3)](docs/audit-export.md)
 - [Execution scope / blast radius (Phase 4)](docs/execution-scope.md)
 - [Traces & deep links (Phase 5)](docs/traces.md)

@@ -6,6 +6,8 @@ This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress 
 
 ## OpenClaw config directory (macOS gateway / dashboard)
 
+**Dashboard setup (step-by-step):** [OpenClaw Control UI setup](setup/openclaw-control-ui.md) — includes **version alignment** when the CLI warns the config was written by a newer OpenClaw.
+
 **Important:** A **LaunchAgent-installed** OpenClaw gateway (e.g. Homebrew + `gateway install`) runs with the **default state directory** **`~/.openclaw`** unless you set **`OPENCLAW_STATE_DIR`** in the agent’s plist. It does **not** automatically use **`~/.openclaw-dev`**.
 
 - Mixing **`OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"`** in terminal commands with a service that still reads **`~/.openclaw`** causes confusing failures: e.g. **connection refused** on the dashboard port (gateway never bound because config was invalid for the process that launchd kept restarting) or **token mismatch** (dashboard URL generated from a different `openclaw.json` than the running gateway).

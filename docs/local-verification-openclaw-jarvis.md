@@ -36,6 +36,8 @@ pnpm gateway:dev
 
 ## 2. OpenClaw UI
 
+Step-by-step (state dir, `openclaw dashboard`, Jarvis `OPENCLAW_CONTROL_UI_URL`): [OpenClaw Control UI setup](setup/openclaw-control-ui.md).
+
 Open the OpenClaw control UI in the browser. On **Overview**, confirm the **gateway token** matches `gateway.auth.token` in the config you edited (so chat is authenticated).
 
 Chat: `hello`

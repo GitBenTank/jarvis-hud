@@ -1857,58 +1857,60 @@ export default function TracePanel() {
                     )}
                   </div>
 
-                  {/* Event content */}
+                  {/* Event content — card shell is a div so copy control can be a sibling <button> (no nested buttons). */}
                   <div className="min-w-0 flex-1 pb-4">
-                    <button
-                      type="button"
-                      onClick={() => toggleExpand(event.id)}
-                      className="w-full rounded border border-zinc-200 bg-zinc-50 p-3 text-left hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-750"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`rounded px-2 py-0.5 text-xs font-medium ${badge}`}
-                        >
-                          {lifecycle.proposalStatus}
-                        </span>
-                        <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
-                          {event.kind}
-                        </span>
-                        {event.source?.connector && (
+                    <div className="overflow-hidden rounded border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(event.id)}
+                        aria-expanded={isExpanded}
+                        className="w-full p-3 text-left hover:bg-zinc-100 dark:hover:bg-zinc-750"
+                      >
+                        <div className="flex items-center gap-2">
                           <span
-                            className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-500 dark:text-zinc-400"
-                            title="Source connector"
+                            className={`rounded px-2 py-0.5 text-xs font-medium ${badge}`}
                           >
-                            {event.source.connector}
-                            {event.source.verified ? " (verified)" : ""}
+                            {lifecycle.proposalStatus}
                           </span>
-                        )}
-                        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                          {event.title ?? event.summary ?? "(untitled)"}
-                        </span>
-                        <span className="ml-auto text-zinc-400">
-                          {isExpanded ? "▼" : "▶"}
-                        </span>
-                      </div>
-                      <div className="mt-1 flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span>Created {formatTime(event.createdAt)}</span>
-                        {event.executedAt && (
-                          <span>Executed {formatTime(event.executedAt)}</span>
-                        )}
-                        <span title={event.id}>
-                          {event.id.slice(0, 8)}…
-                        </span>
+                          <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                            {event.kind}
+                          </span>
+                          {event.source?.connector && (
+                            <span
+                              className="rounded border border-zinc-400 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-500 dark:text-zinc-400"
+                              title="Source connector"
+                            >
+                              {event.source.connector}
+                              {event.source.verified ? " (verified)" : ""}
+                            </span>
+                          )}
+                          <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                            {event.title ?? event.summary ?? "(untitled)"}
+                          </span>
+                          <span className="ml-auto text-zinc-400" aria-hidden>
+                            {isExpanded ? "▼" : "▶"}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
+                          <span>Created {formatTime(event.createdAt)}</span>
+                          {event.executedAt && (
+                            <span>Executed {formatTime(event.executedAt)}</span>
+                          )}
+                          <span title={event.id}>
+                            {event.id.slice(0, 8)}…
+                          </span>
+                        </div>
+                      </button>
+                      <div className="flex items-center justify-end border-t border-zinc-200 px-3 py-1.5 dark:border-zinc-600">
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copy(event.id);
-                          }}
-                          className="rounded border px-1.5 py-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                          onClick={() => copy(event.id)}
+                          className="rounded border border-zinc-300 px-1.5 py-0.5 text-xs text-zinc-700 hover:bg-zinc-200 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
                         >
                           Copy approvalId
                         </button>
                       </div>
-                    </button>
+                    </div>
 
                     {isExpanded && (
                       <div className="mt-2 ml-1 space-y-3 border-l-2 border-zinc-200 pl-4 dark:border-zinc-700">

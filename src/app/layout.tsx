@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TraceProviderWrapper from "@/components/TraceProviderWrapper";
 import HudOriginMismatchBanner from "@/components/HudOriginMismatchBanner";
+import HudIntegrationReadinessBanner from "@/components/HudIntegrationReadinessBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <TraceProviderWrapper>
           <HudOriginMismatchBanner />
+          <HudIntegrationReadinessBanner />
           {children}
         </TraceProviderWrapper>
       </body>

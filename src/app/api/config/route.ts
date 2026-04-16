@@ -28,6 +28,7 @@ import {
   buildExecutionCapabilities,
   executionCapabilitiesShortLabel,
 } from "@/lib/execution-surface";
+import { computeIntegrationIssues } from "@/lib/integration-readiness";
 
 type ActionLogEntry = {
   traceId?: string;
@@ -141,6 +142,8 @@ export async function GET(request: NextRequest) {
       safetyOn: irreversibleConfirmEnabled && ingressValidationEnabled,
     });
 
+    const integrationIssues = await computeIntegrationIssues();
+
     return NextResponse.json({
       jarvisRoot: getJarvisRoot(),
       jarvisHudBaseUrl: getJarvisHudBaseUrlConfigured(),
@@ -162,6 +165,7 @@ export async function GET(request: NextRequest) {
         executionSurfaceLabel: executionCapabilitiesShortLabel(executionCapabilities),
       },
       runtimePosture,
+      integrationIssues,
     });
   } catch (err) {
     if (err instanceof AuthConfigError) {

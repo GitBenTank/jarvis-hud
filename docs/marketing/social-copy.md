@@ -87,6 +87,54 @@ https://github.com/GitBenTank/jarvis-hud
 
 ---
 
+## LinkedIn — proof-first variants (2026)
+
+Use after you have a **90s demo** or clip; lead with proof, not stack. Repo: https://github.com/GitBenTank/jarvis-hud
+
+### Variant A — Technical
+
+Agents propose. Execution does not run until a human approves at the boundary. Jarvis HUD is a control plane that produces **receipt + trace** for every outcome—including **blocks** and denies, not just happy paths.
+
+Approval before action. Proof of what happened. Open source.
+
+### Variant B — Narrative
+
+Everyone is adding “governance.” Fewer systems show **what was authorized** and **what actually ran** in one reconstructable loop.
+
+Jarvis HUD: propose → approve → execute → receipt → trace. You can **rebuild the story from the trace**. That’s the product—not another agent builder.
+
+### Variant C — Punchy
+
+**Approval before action. Proof of what happened.**
+
+Jarvis HUD doesn’t infer trust from a runtime—it enforces authority at the boundary. Receipts, traces, no silent execution.
+
+Open source. Link in comments.
+
+---
+
+## Hook styles (first line / 10–15s VO)
+
+### Curiosity
+
+“What if ‘audit’ meant you could **reconstruct** what ran—not skim a log?”
+
+### Authority
+
+“Execution is separate from decision. Here’s the gate—and the receipt.”
+
+---
+
+## Explainer thread (short)
+
+1. Agents can propose anything; **nothing high-stakes runs** without passing the control plane.
+2. **Approve ≠ execute**—two steps, two receipts of intent vs action.
+3. Every outcome gets **receipt + trace ID**; denies are proof too.
+4. **Jarvis governs proposals, not runtimes**—same boundary, different agent stacks.
+5. Repo + demo script in README.
+
+---
+
 ## Facebook Post
 
 Built something for developers who use AI coding tools (Cursor, Claude Dev, etc.) and want to stay in control.

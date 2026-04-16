@@ -1,5 +1,7 @@
 # Local verification: OpenClaw → Jarvis HUD
 
+**Exit bar (before recording demos or pushing distribution):** [OpenClaw ↔ Jarvis operator sprint](setup/openclaw-jarvis-operator-sprint.md) — three clean full loops plus one deny/block path, config and ingress locked first.
+
 Before running this checklist, ensure your local environment follows the [Local dev truth map](setup/local-dev-truth-map.md): **one canonical Jarvis origin per session** (standard dev is often `:3000`, demo / ingress rehearsal often `:3001`). Verification against the wrong port wastes time.
 
 Tight pass to confirm **OpenClaw is the live variable** and Jarvis is structurally correct. Run in order. Adjust paths if your OpenClaw checkout is not `~/Documents/openclaw`.

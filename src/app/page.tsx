@@ -14,26 +14,72 @@ import SafetyGatePanel from "@/components/SafetyGatePanel";
 import StatusStrip from "@/components/StatusStrip";
 import TracePanel from "@/components/TracePanel";
 
+const PROOF_CHIPS = [
+  {
+    label: "Trace ID",
+    ariaLabel: "Trace identifier for reconstructing the execution",
+    title: "Reconstructable execution trace",
+  },
+  {
+    label: "Receipt",
+    ariaLabel: "Outcome record with actor, action, and result",
+    title: "Receipt of what happened",
+  },
+  {
+    label: "Artifact",
+    ariaLabel: "Produced output or file from execution",
+    title: "Resulting artifact",
+  },
+] as const;
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-6 flex items-center justify-center gap-4">
-          <p className="text-center text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Jarvis HUD — Runtime Boundary Layer for Agentic Execution
-          </p>
-          <Link
-            href="/activity"
-            className="text-sm font-medium text-amber-500 hover:text-amber-400 dark:text-amber-400 dark:hover:text-amber-300"
-          >
-            Activity
-          </Link>
-          <Link
-            href="/about"
-            className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-          >
-            About
-          </Link>
+        <div className="mb-6 space-y-3">
+          <div className="mx-auto max-w-xl space-y-1.5 text-center">
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Jarvis HUD — approval and proof layer for AI-driven action
+            </p>
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
+              Jarvis decides what AI is allowed to do—and proves what it did.
+            </p>
+            <p className="text-[11px] tracking-wide text-zinc-500 opacity-60 dark:text-zinc-400">
+              approval before action
+            </p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Every action produces a trace, a receipt, and a clear origin.
+            </p>
+            <ul
+              className="m-0 flex list-none flex-wrap items-center justify-center gap-1.5 p-0 pt-0.5"
+              aria-label="Proof artifacts in the product"
+            >
+              {PROOF_CHIPS.map((chip) => (
+                <li
+                  key={chip.label}
+                  title={chip.title}
+                  aria-label={chip.ariaLabel}
+                  className="rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800/80 dark:text-zinc-400"
+                >
+                  {chip.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              href="/activity"
+              className="text-sm font-medium text-amber-500 hover:text-amber-400 dark:text-amber-400 dark:hover:text-amber-300"
+            >
+              Activity
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            >
+              About
+            </Link>
+          </div>
         </div>
         <TrustPostureStrip />
         <MissionStrip />

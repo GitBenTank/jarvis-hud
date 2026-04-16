@@ -1,5 +1,14 @@
 # Jarvis HUD
 
+Jarvis HUD is a control plane that enforces approval before action and produces verifiable execution traces for AI systems.
+
+```bash
+pnpm dev
+# open http://localhost:3000
+```
+
+Submit a proposal → approve → see receipt + trace (with rollback). (Use `pnpm install` and optional `.env.local` first — see [Quick Start](#quick-start-developers).) **90s proof demo script:** [docs/video/90s-proof-demo.md](docs/video/90s-proof-demo.md).
+
 **Control plane for governed AI execution.**
 
 Jarvis HUD sits between **AI agents** (e.g. [OpenClaw](https://github.com/openclaw/openclaw)) and **real-world actions**. Agents **propose**. Humans (or explicit policy) **approve**. The system **executes** only after that gate. **Every step leaves receipts and traces.**
@@ -26,7 +35,7 @@ Pair a **capability layer** (OpenClaw: research, drafts, skills, tools) with an 
 - **Every action produces proof** — receipts, artifacts, and replayable **traces**.
 - **Autonomy in thinking. Authority in action.**
 
-Full narrative: [docs/strategy/jarvis-hud-video-thesis.md](docs/strategy/jarvis-hud-video-thesis.md) · [ADR: Thesis Lock](docs/decisions/0001-thesis-lock.md).
+Full narrative: [docs/strategy/jarvis-hud-video-thesis.md](docs/strategy/jarvis-hud-video-thesis.md) · [ADR: Thesis Lock](docs/decisions/0001-thesis-lock.md). Positioning and competition: [docs/strategy/competitive-landscape-2026.md](docs/strategy/competitive-landscape-2026.md) · [Pitch narrative outline](docs/strategy/pitch-narrative-outline.md).
 
 ## Architecture
 
@@ -230,6 +239,7 @@ Jarvis sits between AI agents and system execution:
 
 ### Operator safeguards (local dev)
 
+- **Integration readiness (mismatch-only)** — When server checks fail (ingress off, bad/missing secret, OpenClaw not allowlisted, or no recent OpenClaw signal after prior activity), `GET /api/config` includes `integrationIssues` and the HUD shows a **red** banner with facts and doc links. No “all green” panel — silence means nothing to fix here.
 - **OpenClaw Control link** — When `OPENCLAW_CONTROL_UI_URL` is set, the HUD can link to your OpenClaw Control UI (e.g. local gateway). This is **operator convenience only**; real integration still depends on OpenClaw-side `JARVIS_BASE_URL`, the shared ingress secret, and plugin wiring — not this URL.
 - **Origin mismatch detection** — When `JARVIS_HUD_BASE_URL` is set, the HUD warns if its origin does not match where you opened the app (`GET /api/config` exposes `jarvisHudBaseUrl` for comparison).
 - **Mismatch-only signal** — No banner when unset or aligned; avoids noise.
@@ -309,6 +319,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Documentation
 
+- [OpenClaw ↔ Jarvis operator sprint (E2E exit before demos)](docs/setup/openclaw-jarvis-operator-sprint.md)
+- [90-second proof demo (script + OBS)](docs/video/90s-proof-demo.md)
+- [Distribution checklist (proof-first)](docs/marketing/distribution-checklist.md)
+- [Competitive landscape & positioning (2026)](docs/strategy/competitive-landscape-2026.md)
+- [Pitch narrative outline (deck)](docs/strategy/pitch-narrative-outline.md)
 - [Architecture](docs/architecture/control-plane.md)
 - [Security model](docs/architecture/security-model.md)
 - [Policy decision logs](docs/architecture/policy-decision-logs.md)

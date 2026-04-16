@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useOpenClawHealth } from "@/lib/use-openclaw-health";
 
 function formatLastSeen(iso: string | null): string | null {
@@ -32,6 +33,26 @@ const badgeClass = {
 
 export default function OpenClawHealthBadge() {
   const { data, loading, error, refresh } = useOpenClawHealth();
+  const [openclawControlUiUrl, setOpenclawControlUiUrl] = useState<string | null>(
+    null
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/config")
+      .then((res) => res.json() as Promise<{ openclawControlUiUrl?: string | null }>)
+      .then((json) => {
+        if (cancelled) return;
+        const u = json.openclawControlUiUrl;
+        setOpenclawControlUiUrl(typeof u === "string" && u.trim() ? u.trim() : null);
+      })
+      .catch(() => {
+        if (!cancelled) setOpenclawControlUiUrl(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (loading && !data) {
     return (
@@ -42,10 +63,9 @@ export default function OpenClawHealthBadge() {
   }
 
   const status = data?.status ?? "disconnected";
+  const lastSeenAt = data?.lastSeenAt;
   const lastSeenText =
-    data?.lastSeenAt != null
-      ? `Last seen ${formatLastSeen(data.lastSeenAt)}`
-      : null;
+    lastSeenAt ? `Last seen ${formatLastSeen(lastSeenAt)}` : null;
   const detailText =
     error && !data ? error : data?.lastError ?? null;
 
@@ -76,6 +96,16 @@ export default function OpenClawHealthBadge() {
       >
         Refresh
       </button>
+      {openclawControlUiUrl ? (
+        <a
+          href={openclawControlUiUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded border border-amber-600/40 bg-amber-950/20 px-2 py-1 text-[10px] font-medium text-amber-200 hover:bg-amber-950/40 dark:border-amber-500/30"
+        >
+          Open OpenClaw Control
+        </a>
+      ) : null}
     </div>
   );
 }

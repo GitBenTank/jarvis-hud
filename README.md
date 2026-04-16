@@ -230,6 +230,7 @@ Jarvis sits between AI agents and system execution:
 
 ### Operator safeguards (local dev)
 
+- **OpenClaw Control link** — When `OPENCLAW_CONTROL_UI_URL` is set, the HUD can link to your OpenClaw Control UI (e.g. local gateway). This is **operator convenience only**; real integration still depends on OpenClaw-side `JARVIS_BASE_URL`, the shared ingress secret, and plugin wiring — not this URL.
 - **Origin mismatch detection** — When `JARVIS_HUD_BASE_URL` is set, the HUD warns if its origin does not match where you opened the app (`GET /api/config` exposes `jarvisHudBaseUrl` for comparison).
 - **Mismatch-only signal** — No banner when unset or aligned; avoids noise.
 - **Facts-first** — **Viewed** vs **Configured** origins at a glance.

@@ -65,6 +65,22 @@ function getJarvisHudBaseUrlConfigured(): string | null {
   }
 }
 
+/**
+ * Optional outbound link to the OpenClaw Control UI (gateway dashboard).
+ * Set in Jarvis env only — does not configure OpenClaw; operators use it to jump from HUD → runtime.
+ */
+function getOpenClawControlUiUrlConfigured(): string | null {
+  const raw = process.env.OPENCLAW_CONTROL_UI_URL?.trim();
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    return u.href.replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
 async function readPolicyDecisions(dateKey: string): Promise<Array<{ decision?: "allow" | "deny"; reason?: string; timestamp?: string }>> {
   try {
     const content = await fs.readFile(getPolicyDecisionsFilePath(dateKey), "utf-8");
@@ -128,6 +144,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       jarvisRoot: getJarvisRoot(),
       jarvisHudBaseUrl: getJarvisHudBaseUrlConfigured(),
+      openclawControlUiUrl: getOpenClawControlUiUrlConfigured(),
       authEnabled,
       irreversibleConfirmEnabled,
       ingressValidationEnabled,

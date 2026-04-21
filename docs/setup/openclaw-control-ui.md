@@ -1,5 +1,7 @@
 # OpenClaw Control UI (dashboard) — local setup with Jarvis HUD
 
+**Daily startup order (locked-in):** [Local stack startup — Jarvis + OpenClaw](local-stack-startup.md) · verify: `pnpm local:stack:doctor`.
+
 This page gets the **OpenClaw gateway Control UI** running locally and linked from Jarvis. It does **not** configure signed ingress by itself; for that, keep **`JARVIS_BASE_URL`**, **`JARVIS_INGRESS_OPENCLAW_SECRET`**, and Jarvis ingress env aligned per [Local dev truth map](local-dev-truth-map.md) and [OpenClaw integration verification](../openclaw-integration-verification.md).
 
 Official reference: [OpenClaw — Dashboard](https://docs.openclaw.ai/web/dashboard) · CLI: [dashboard](https://docs.openclaw.ai/cli/dashboard).
@@ -127,10 +129,11 @@ cd ~/Documents/openclaw && node openclaw.mjs dashboard --no-open
 In **jarvis-hud** `.env.local` (or `.env`), set:
 
 ```bash
-OPENCLAW_CONTROL_UI_URL=http://127.0.0.1:18789
+# Example only — use the origin your gateway prints (18789, 19001, etc.)
+OPENCLAW_CONTROL_UI_URL=http://127.0.0.1:19001
 ```
 
-Use the **exact** origin your gateway prints (`127.0.0.1` vs `localhost` can differ from the browser’s idea of “same site”; matching the log reduces surprises). Restart **`pnpm dev`** after changing env.
+Use the **exact** origin your gateway prints (`127.0.0.1` vs `localhost` can differ from the browser’s idea of “same site”; matching the log reduces surprises). **`pnpm local:stack:doctor`** compares `.env.local` to listening ports. Restart **`pnpm dev`** after changing env.
 
 Jarvis will expose this in **`GET /api/config`** as `openclawControlUiUrl` and the HUD can show **Open OpenClaw Control**. This is **operator navigation only**; it does not start OpenClaw or fix ingress.
 

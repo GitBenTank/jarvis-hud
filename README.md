@@ -189,6 +189,8 @@ pnpm dev
 
 Open **http://localhost:3000**. For a **production-style** build: `pnpm build && pnpm start`. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
 
+**Jarvis + OpenClaw together:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md). **OpenClaw terminal (from this repo):** `pnpm openclaw:dev` · **Jarvis:** `pnpm dev` · **Check:** `pnpm local:stack:doctor` · **VS Code:** Run Task → `Local stack: both (parallel)`.
+
 ---
 
 ## Core lifecycle

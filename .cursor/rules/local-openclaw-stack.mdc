@@ -1,0 +1,16 @@
+---
+description: Local Jarvis HUD + OpenClaw stack — canonical startup and one-gateway rule
+alwaysApply: false
+---
+
+# Local stack (Jarvis + OpenClaw)
+
+When helping with **local OpenClaw**, **gateway**, **Control UI**, **connection refused**, **ingress**, or **two gateways**:
+
+1. **Canonical doc:** [docs/setup/local-stack-startup.md](../../docs/setup/local-stack-startup.md)
+2. **Locked flow:** OpenClaw from **git checkout** (`OPENCLAW_ROOT`, default `~/Documents/openclaw`) with **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`** and **`pnpm gateway:dev`**. From this repo: **`pnpm openclaw:dev`** loads **`JARVIS_BASE_URL`** (from **`JARVIS_HUD_BASE_URL`**), ingress secret, and **`OPENAI_API_KEY`** from **`.env.local`** then starts the gateway.
+3. **Jarvis:** **`pnpm dev`** in jarvis-hud. **`OPENCLAW_CONTROL_UI_URL`** must match the **listening** Control UI port (verify with **`pnpm local:stack:doctor`**).
+4. **Do not** run **Homebrew/LaunchAgent** OpenClaw alongside the checkout gateway — one process must own the dashboard port.
+5. **Secrets:** `JARVIS_INGRESS_OPENCLAW_SECRET` / `JARVIS_BASE_URL` / `OPENAI_API_KEY` for the **gateway** are set in **OpenClaw** (Control → Environment), not assumed from Jarvis `.env.local` alone.
+
+Deep setup: [docs/setup/openclaw-control-ui.md](../../docs/setup/openclaw-control-ui.md)

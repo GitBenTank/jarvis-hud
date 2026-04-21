@@ -208,6 +208,7 @@ If submission fails:
 
 ## Related
 
+- [Local stack startup — Jarvis + OpenClaw](local-stack-startup.md)  
 - [OpenClaw Control UI setup](openclaw-control-ui.md)  
 - [Trusted ingress / signing](../security/openclaw-ingress-signing.md)  
 - [OpenClaw agent identity on proposals](../openclaw-agent-identity.md)  

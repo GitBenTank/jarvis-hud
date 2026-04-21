@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "OpenClaw: gateway:dev",
+      "type": "shell",
+      "command": "pnpm openclaw:dev",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "localStack"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Jarvis HUD: dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "localStack"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Local stack: doctor",
+      "type": "shell",
+      "command": "pnpm local:stack:doctor",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Local stack: both (parallel)",
+      "dependsOn": ["OpenClaw: gateway:dev", "Jarvis HUD: dev"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

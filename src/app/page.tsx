@@ -6,6 +6,7 @@ import AgentActivityPanel from "@/components/AgentActivityPanel";
 import DraftsPanel from "@/components/DraftsPanel";
 import ExecutionAuthorityBanner from "@/components/ExecutionAuthorityBanner";
 import OpenClawHealthBadge from "@/components/OpenClawHealthBadge";
+import IntegrationDebugPanel from "@/components/IntegrationDebugPanel";
 import MissionStrip from "@/components/MissionStrip";
 import ModePills from "@/components/ModePills";
 import OperationsRow from "@/components/OperationsRow";
@@ -85,6 +86,7 @@ export default function Home() {
         <TrustPostureStrip />
         <div className="mx-auto max-w-5xl px-4">
           <OpenClawHealthBadge showDataPathExplainer variant="card" />
+          <IntegrationDebugPanel />
         </div>
         <MissionStrip />
         <div className="flex flex-col border-b border-zinc-700 bg-zinc-900 sm:flex-row sm:items-center sm:gap-4">

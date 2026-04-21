@@ -29,6 +29,10 @@ import {
   executionCapabilitiesShortLabel,
 } from "@/lib/execution-surface";
 import { computeIntegrationIssues } from "@/lib/integration-readiness";
+import {
+  isIntegrationDebugEnabled,
+  probeControlUiReachability,
+} from "@/lib/integration-debug-probe";
 
 type ActionLogEntry = {
   traceId?: string;
@@ -80,6 +84,12 @@ function getOpenClawControlUiUrlConfigured(): string | null {
   } catch {
     return null;
   }
+}
+
+function getDemoEmailConfigured(): boolean {
+  const u = process.env.DEMO_EMAIL_USER?.trim();
+  const p = process.env.DEMO_EMAIL_PASS?.trim();
+  return Boolean(u && p);
 }
 
 async function readPolicyDecisions(dateKey: string): Promise<Array<{ decision?: "allow" | "deny"; reason?: string; timestamp?: string }>> {
@@ -144,10 +154,21 @@ export async function GET(request: NextRequest) {
 
     const integrationIssues = await computeIntegrationIssues();
 
+    const integrationDebugEnabled = isIntegrationDebugEnabled();
+    const openclawControlUiUrlConfigured = getOpenClawControlUiUrlConfigured();
+    let openclawControlUiProbe: Awaited<
+      ReturnType<typeof probeControlUiReachability>
+    > | null = null;
+    if (integrationDebugEnabled && openclawControlUiUrlConfigured) {
+      openclawControlUiProbe = await probeControlUiReachability(
+        openclawControlUiUrlConfigured
+      );
+    }
+
     return NextResponse.json({
       jarvisRoot: getJarvisRoot(),
       jarvisHudBaseUrl: getJarvisHudBaseUrlConfigured(),
-      openclawControlUiUrl: getOpenClawControlUiUrlConfigured(),
+      openclawControlUiUrl: openclawControlUiUrlConfigured,
       authEnabled,
       irreversibleConfirmEnabled,
       ingressValidationEnabled,
@@ -166,6 +187,9 @@ export async function GET(request: NextRequest) {
       },
       runtimePosture,
       integrationIssues,
+      integrationDebugEnabled,
+      demoEmailConfigured: getDemoEmailConfigured(),
+      openclawControlUiProbe,
     });
   } catch (err) {
     if (err instanceof AuthConfigError) {

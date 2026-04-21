@@ -57,7 +57,7 @@ Used by `src/openclaw-strict-governed` when wiring OpenClaw-style tools. Same in
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `JARVIS_HUD_BASE_URL` | No | Base URL for scripts (default: `http://localhost:3000`). Must match the **listening** dev server (see [Local dev truth map](local-dev-truth-map.md)). When set, `GET /api/config` includes `jarvisHudBaseUrl`; the HUD shows a non-blocking warning if that URL’s origin differs from where you opened the app. |
-| `OPENCLAW_CONTROL_UI_URL` | No | `http:` or `https:` URL of the OpenClaw Control UI (e.g. default gateway port **18789**). When set, `GET /api/config` includes `openclawControlUiUrl` and the OpenClaw health strip can show **Open OpenClaw Control**. This is navigation only; ingress still requires matching secrets and OpenClaw-side `JARVIS_BASE_URL`. Walkthrough: [OpenClaw Control UI setup](openclaw-control-ui.md). |
+| `OPENCLAW_CONTROL_UI_URL` | No | `http:` or `https:` URL of the OpenClaw Control UI — **must match the port your gateway binds** (often **18789** or **19001**; use gateway logs or `pnpm local:stack:doctor`). When set, `GET /api/config` includes `openclawControlUiUrl` and the OpenClaw health strip can show **Open OpenClaw Control**. Navigation only; ingress still requires secrets and OpenClaw-side `JARVIS_BASE_URL`. Startup order: [Local stack startup](local-stack-startup.md); deep setup: [OpenClaw Control UI](openclaw-control-ui.md). |
 | `JARVIS_LOG_POLLING` | No | `"1"` to enable server-side log polling |
 | `PORT` | No | Binds the dev server when using `pnpm dev:port` / `demo:boot` (often **3001** for demos; **3000** for plain `pnpm dev`). Not magic — match your running process. |
 

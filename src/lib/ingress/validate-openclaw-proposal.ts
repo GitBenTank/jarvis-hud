@@ -3,6 +3,8 @@
  * Feature-flagged via JARVIS_INGRESS_OPENCLAW_VALIDATE.
  */
 
+import { parseSendEmailPayload } from "../send-email-constants";
+
 export type ValidationOk = { ok: true };
 
 export type ValidationErr = {
@@ -379,6 +381,18 @@ export function validateOpenClawProposal(input: {
         message:
           "code.apply/code.diff requires patch (top-level) or payload.code.diffText",
         field: "patch",
+      };
+    }
+  }
+
+  if (kind === "send_email") {
+    const parsed = parseSendEmailPayload(o.payload);
+    if (!parsed.ok) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: parsed.message,
+        field: parsed.field,
       };
     }
   }

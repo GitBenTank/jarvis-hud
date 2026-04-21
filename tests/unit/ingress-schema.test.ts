@@ -250,4 +250,59 @@ describe("validateIngressBody", () => {
       expect(errStr).not.toContain("apiKey");
     }
   });
+
+  it("accepts valid send_email payload", () => {
+    const body = {
+      kind: "send_email",
+      title: "Follow up",
+      summary: "Lead",
+      source: { connector: "openclaw" },
+      payload: {
+        to: "devhousehsv@gmail.com",
+        subject: "Subject line",
+        body: "Email body text.",
+      },
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects send_email with disallowed recipient", () => {
+    const body = {
+      kind: "send_email",
+      title: "Follow up",
+      summary: "Lead",
+      source: { connector: "openclaw" },
+      payload: {
+        to: "evil@example.com",
+        subject: "S",
+        body: "B",
+      },
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.errors.some((e) => e.field === "payload.to")).toBe(true);
+    }
+  });
+
+  it("rejects send_email with patch", () => {
+    const body = {
+      kind: "send_email",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      patch: "diff --git",
+      payload: {
+        to: "devhousehsv@gmail.com",
+        subject: "Sub",
+        body: "Body",
+      },
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.errors.some((e) => e.code === "PATCH_NOT_ALLOWED")).toBe(true);
+    }
+  });
 });

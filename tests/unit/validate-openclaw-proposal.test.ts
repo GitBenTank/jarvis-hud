@@ -26,6 +26,51 @@ describe("validateOpenClawProposal", () => {
     expect(r.ok).toBe(true);
   });
 
+  it("accepts valid send_email with allowlisted to", () => {
+    const body = {
+      kind: "send_email",
+      title: "Follow up",
+      summary: "Lead follow-up",
+      payload: {
+        to: "devhousehsv@gmail.com",
+        subject: "Hello from demo",
+        body: "This is the message body.",
+      },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects send_email with wrong to", () => {
+    const body = {
+      kind: "send_email",
+      title: "Follow up",
+      summary: "Lead follow-up",
+      payload: {
+        to: "other@example.com",
+        subject: "Hello",
+        body: "Body text here.",
+      },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.field).toBe("payload.to");
+    }
+  });
+
   it("accepts valid code.apply with patch", () => {
     const body = {
       kind: "code.apply",

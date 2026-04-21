@@ -320,6 +320,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Documentation
 
 - [OpenClaw ↔ Jarvis operator sprint (E2E exit before demos)](docs/setup/openclaw-jarvis-operator-sprint.md)
+- [OpenClaw ↔ Jarvis operator checklist (mental model + daily run)](docs/setup/openclaw-jarvis-operator-checklist.md)
 - [OpenClaw Control UI (dashboard) local setup](docs/setup/openclaw-control-ui.md)
 - [90-second proof demo (script + OBS)](docs/video/90s-proof-demo.md)
 - [Distribution checklist (proof-first)](docs/marketing/distribution-checklist.md)

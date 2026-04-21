@@ -27,6 +27,7 @@
   "dependencies": {
     "dagre": "^0.8.5",
     "next": "16.1.6",
+    "nodemailer": "^6.10.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "reactflow": "^11.11.4"
@@ -35,6 +36,7 @@
     "@tailwindcss/postcss": "^4",
     "@types/dagre": "^0.7.54",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.23",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

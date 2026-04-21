@@ -8,7 +8,7 @@
  *           Dev server on port 3000 (or set JARVIS_HUD_BASE_URL)
  */
 
-import { postOpenClawIngress } from "./lib/openclaw-ingress-fetch.mjs";
+import { postOpenClawIngressWithRetry } from "./lib/openclaw-ingress-fetch.mjs";
 
 const BASE = process.env.JARVIS_HUD_BASE_URL ?? "http://localhost:3000";
 const SECRET = process.env.JARVIS_INGRESS_OPENCLAW_SECRET;
@@ -27,7 +27,7 @@ async function main() {
     source: { connector: "openclaw" },
   };
 
-  const res = await postOpenClawIngress(BASE, SECRET, body);
+  const res = await postOpenClawIngressWithRetry(BASE, SECRET, body);
 
   const text = await res.text();
   let json;

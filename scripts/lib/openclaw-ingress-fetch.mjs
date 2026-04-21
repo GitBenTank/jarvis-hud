@@ -32,3 +32,40 @@ export async function postOpenClawIngress(baseUrl, secret, bodyObject) {
     body: rawBody,
   });
 }
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Same as postOpenClawIngress but retries on transient failures (cold server, 429, 502/503/504).
+ * Each attempt uses a fresh timestamp/nonce/signature.
+ */
+export async function postOpenClawIngressWithRetry(baseUrl, secret, bodyObject, options = {}) {
+  const maxAttempts = options.maxAttempts ?? 3;
+  const baseDelayMs = options.baseDelayMs ?? 600;
+  let lastRes = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      lastRes = await postOpenClawIngress(baseUrl, secret, bodyObject);
+      const retryable =
+        lastRes.status === 429 ||
+        lastRes.status === 502 ||
+        lastRes.status === 503 ||
+        lastRes.status === 504;
+      if (!retryable || attempt === maxAttempts) {
+        return lastRes;
+      }
+      const extra = lastRes.status === 429 ? 1000 : 0;
+      await sleep(baseDelayMs * attempt + extra);
+    } catch {
+      if (attempt === maxAttempts) {
+        throw new Error(
+          `Ingress POST failed after ${maxAttempts} attempts (connection error — is Jarvis running on ${baseUrl}?)`
+        );
+      }
+      await sleep(baseDelayMs * attempt);
+    }
+  }
+  return lastRes;
+}

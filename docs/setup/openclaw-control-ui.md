@@ -18,12 +18,28 @@ If the CLI prints something like **“Config was last written by a newer OpenCla
 
 ```bash
 cd ~/Documents/openclaw
-git fetch origin --tags
-git checkout <tag>   # e.g. v2026.4.14 — use the Latest tag shown on GitHub releases (not “beta” unless you mean it)
+# Pick TAG from upstream releases (link above). Do not use angle brackets in the shell (< is redirection).
+TAG=v2026.4.14
+# Tags for releases live on the official repo. If `origin` is a personal fork, `git fetch origin --tags` often has no release tags — add upstream once:
+git remote add upstream https://github.com/openclaw/openclaw.git 2>/dev/null || true
+git fetch upstream --tags
+git checkout "$TAG"
 pnpm install
 ```
 
-`pnpm gateway:dev` will rebuild TypeScript when `dist/` is stale (you may see a one-time compile on first start). A full `pnpm build` is only needed for packaging or CI-style checks—not for local dashboard use.
+**If `fatal: couldn't find remote ref refs/tags/…` or `pathspec … did not match`:** run **`git ls-remote --tags upstream | grep "$TAG"`** (after `git fetch upstream --tags`). If that prints a line, the tag exists upstream and checkout should work. If **`git remote get-url origin`** is a fork (not `github.com/openclaw/openclaw`) and you never added **`upstream`**, the block above fixes it. If `upstream` already exists but points somewhere else, run **`git remote set-url upstream https://github.com/openclaw/openclaw.git`** then **`git fetch upstream --tags`** again. Very shallow clones may need a one-time **`git fetch --unshallow`** (from `origin` or `upstream`) before tags behave normally.
+
+**If `pnpm install` ends with `ETIMEDOUT`:** that is a **registry / network** timeout, not a bad lockfile. Retry **`pnpm install`**; if it repeats, try **`pnpm config set fetch-timeout 600000`**, optionally **`pnpm config set network-concurrency 4`**, then install again. Check VPN, proxy (`HTTP_PROXY` / `HTTPS_PROXY`), and connection stability.
+
+`pnpm gateway:dev` will rebuild TypeScript when `dist/` is stale (you may see a one-time compile on first start). Logs like **`missing_build_stamp`** or **`config_newer`** on the first run after deleting **`dist/`** are normal. A full `pnpm build` is only needed for packaging or CI-style checks—not for local dashboard use.
+
+**If `pnpm gateway:dev` fails with `Could not resolve 'acpx/runtime'` / “subpath is not defined by exports”:** the workspace is almost always resolving a **stale or wrong `acpx`** (for example after a partial **`ETIMEDOUT`** install). From the repo root, remove deps then reinstall—use **`rm -rf node_modules dist && pnpm install`** so **`pnpm install` does not start until removal finishes**. Confirm **`pnpm why acpx`** in `extensions/acpx` shows **`acpx@0.5.3`** (or the version pinned in `extensions/acpx/package.json` on your tag). Avoid mixing a **tag checkout** with **`node_modules` left over** from an older branch.
+
+**If `rm -rf node_modules` reports “Directory not empty”:** something is still using the tree (another terminal running **`pnpm install`** / **`pnpm gateway:dev`**, or the editor indexing **`node_modules`**). Stop those processes, then retry. If needed: **`chmod -R u+w node_modules`** and **`rm -rf node_modules dist`** again, or **`mv node_modules ../openclaw-node_modules_trash`** and **`rm -rf ../openclaw-node_modules_trash`** after nothing is running.
+
+**If `pnpm gateway:dev` fails with `Command "tsdown" not found`:** the dev toolchain is missing from **`node_modules/.bin`** (install aborted, or dev deps were skipped). Do **not** set **`NODE_ENV=production`** when running **`pnpm install`**. From the repo root, **`rm -rf node_modules dist && pnpm install`** until exit code **0**, then verify **`pnpm exec tsdown --version`** prints a version before **`pnpm gateway:dev`** again.
+
+**If the CLI still says “current version is 2026.3.x” after checkout:** you are still on **old code or an incomplete install** (wrong cwd, stale **`dist/`**, or **`pnpm install`** never finished). Use the repo root, complete **`pnpm install`**, then **`pnpm gateway:dev`** until the TypeScript build succeeds; **`rm -rf dist`** before **`pnpm gateway:dev`** is a safe reset of bundled output for many tags (upstream will rebuild it).
 
 Then restart **`pnpm gateway:dev`** (or your LaunchAgent gateway) and re-run:
 
@@ -66,6 +82,8 @@ Set **`gateway.auth.token`** (or your build’s equivalent) so the Control UI ca
 ---
 
 ## 3. Start the gateway (OpenClaw checkout)
+
+**Using Homebrew / `openclaw-gateway` only?** Do not run this section if your live process is under **`/opt/homebrew/lib/node_modules/openclaw`**. Use **default `~/.openclaw`**, set env in **Control → Config → Environment**, and see [Homebrew-only gateway (Option A)](../openclaw-integration-verification.md#homebrew-only-gateway-option-a).
 
 From your OpenClaw clone (adjust path if needed):
 
@@ -115,6 +133,17 @@ OPENCLAW_CONTROL_UI_URL=http://127.0.0.1:18789
 Use the **exact** origin your gateway prints (`127.0.0.1` vs `localhost` can differ from the browser’s idea of “same site”; matching the log reduces surprises). Restart **`pnpm dev`** after changing env.
 
 Jarvis will expose this in **`GET /api/config`** as `openclawControlUiUrl` and the HUD can show **Open OpenClaw Control**. This is **operator navigation only**; it does not start OpenClaw or fix ingress.
+
+### Assistant display name in Control UI (OpenClaw-side)
+
+The chat header / assistant label is **not** configured by Jarvis. It comes from **OpenClaw** agent identity (`agents.list[].identity.name` and the dev workspace `IDENTITY.md` / soul files). Dev gateway defaults in current OpenClaw use the visible name **`alfred`**.
+
+If you still see an older default after upgrading:
+
+- Adjust identity in **OpenClaw Control → Settings → Agents** (or your build’s equivalent), **or**
+- Edit `openclaw.json` under your **`OPENCLAW_STATE_DIR`** (`~/.openclaw` or `~/.openclaw-dev`, etc.) and set `agents.list[].identity.name` to **`alfred`**, then restart the gateway.
+
+This changes **display copy only**; it does not rename the ingress connector id (`openclaw`), routes, secrets, or Jarvis approval flow.
 
 ---
 

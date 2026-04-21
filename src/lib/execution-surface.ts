@@ -3,7 +3,7 @@
  * Must stay aligned with POST /api/execute/[approvalId] (dryRun in JSON response).
  */
 
-export const NON_DRY_RUN_EXECUTE_KINDS = ["code.apply"] as const;
+export const NON_DRY_RUN_EXECUTE_KINDS = ["code.apply", "send_email"] as const;
 
 export type ExecutionCapabilities = {
   /** Kinds for which execute returns dryRun: false (may mutate repo / non-simulated path). */
@@ -19,7 +19,7 @@ export function buildExecutionCapabilities(): ExecutionCapabilities {
     nonDryRunExecuteKinds: [...NON_DRY_RUN_EXECUTE_KINDS],
     dryRunDefaultForOtherKinds: true,
     invariant:
-      "POST /api/execute returns dryRun: false only for code.apply; other kinds use dry-run or artifact-only adapter behavior.",
+      "POST /api/execute returns dryRun: false for code.apply and send_email; other kinds use dry-run or artifact-only adapter behavior.",
   };
 }
 

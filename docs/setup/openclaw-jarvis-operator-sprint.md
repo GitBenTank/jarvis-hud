@@ -6,6 +6,7 @@ owner: Ben Tankersley
 created: 2026-04-11
 category: setup
 related:
+  - openclaw-jarvis-operator-checklist.md
   - ../local-verification-openclaw-jarvis.md
   - local-dev-truth-map.md
   - ../openclaw-integration-verification.md

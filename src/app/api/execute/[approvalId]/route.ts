@@ -39,6 +39,8 @@ import {
   reconcileSystemNote,
   appendReconciliationLog,
 } from "@/lib/reconciliation-log";
+import { parseSendEmailPayload } from "@/lib/send-email-constants";
+import { executeSendEmailAndWriteReceipt } from "@/lib/send-email";
 import { writeRecoveryRunbook, isRecoveryClass } from "@/lib/recovery";
 import {
   ACTOR_LOCAL_USER,
@@ -235,6 +237,8 @@ export async function POST(
     let codeApplyStatsJson: { filesChangedCount: number; insertions: number; deletions: number } | null = null;
     let codeApplyRepoHeadBefore: string | null = null;
     let codeApplyRepoHeadAfter: string | null = null;
+    let sendEmailMessageId: string | null = null;
+    let sendEmailDestination: string | null = null;
 
     if (normalized.kind === "system.note") {
       outputPath = await writeSystemNote({
@@ -267,6 +271,35 @@ export async function POST(
         observed: { artifactPath: outputPath },
       });
       await appendReconciliationLog(reconciliation);
+    } else if (normalized.kind === "send_email") {
+      const parsed = parseSendEmailPayload(eventRecord.payload);
+      if (!parsed.ok) {
+        return NextResponse.json({ error: parsed.message, field: parsed.field }, { status: 400 });
+      }
+      const emailResult = await executeSendEmailAndWriteReceipt({
+        payload: parsed.value,
+        approvalId,
+        dateKey,
+        executedAt,
+        traceId,
+      });
+      outputPath = emailResult.receiptPath;
+      executionKind = "send_email";
+      sendEmailMessageId = emailResult.messageId;
+      sendEmailDestination = parsed.value.to;
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        traceId,
+        at: executedAt,
+        kind: "send_email",
+        approvalId,
+        status: actionStatus,
+        summary: normalized.summary,
+        outputPath,
+        emailDestination: parsed.value.to,
+        providerMessageId: emailResult.messageId || undefined,
+        actors: receiptActors,
+      });
     } else if (normalized.kind === "reflection.note") {
       const p = eventRecord.payload as Record<string, unknown>;
       const sourceKind = String(p.sourceKind ?? "unknown");
@@ -512,7 +545,7 @@ export async function POST(
       kind: executionKind,
       artifactPath,
       outputPath,
-      dryRun: executionKind !== "code.apply",
+      dryRun: executionKind !== "code.apply" && executionKind !== "send_email",
       status: actionStatus,
     };
     if (executionKind === "code.apply") {
@@ -529,6 +562,10 @@ export async function POST(
       response.readyForUpload = readyForUpload;
       response.videoFilePath = videoFilePath ?? null;
       response.tagsCount = tagsCount;
+    }
+    if (executionKind === "send_email") {
+      response.providerMessageId = sendEmailMessageId ?? "";
+      response.emailDestination = sendEmailDestination ?? "";
     }
     return NextResponse.json(response);
   } catch (err) {

@@ -11,6 +11,7 @@ export const ALLOWED_KINDS = [
   "content.publish",
   "reflection.note",
   "system.note",
+  "send_email",
   "code.diff",
   "code.apply",
   "youtube.package",
@@ -166,6 +167,11 @@ export function evaluatePreflightPolicy(
 
   if (config.kind === "code.apply" && !(config.codeApplyBlockReasons?.length)) {
     notes.push("Local git commit will be created if patch applies cleanly.");
+  }
+  if (config.kind === "send_email") {
+    notes.push(
+      "Execute sends one real outbound email (demo allowlist) using DEMO_EMAIL_* server credentials."
+    );
   }
   notes.push("Preflight is simulation only. No execution is performed.");
 

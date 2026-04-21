@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { normalizeAction } from "@/lib/normalize";
-import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
+import {
+  isApprovedAwaitingExecution,
+  isExecuted,
+  isPendingApproval,
+  normalizeProposalLifecycle,
+  type ProposalStatus,
+} from "@/lib/proposal-lifecycle";
 import {
   requiresIrreversibleConfirmation,
   getConfirmationPhrase,
@@ -78,6 +84,8 @@ type ExecuteResult = {
   commitHash?: string | null;
   rollbackCommand?: string | null;
   noChangesApplied?: boolean;
+  providerMessageId?: string;
+  emailDestination?: string;
 };
 
 type ExecuteError = {
@@ -319,12 +327,19 @@ function DetailModal({
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
   const isSystemNote = normalized.kind === "system.note";
+  const isSendEmail = normalized.kind === "send_email";
   const isCodeDiff = normalized.kind === "code.diff";
   const isCodeApply = normalized.kind === "code.apply";
   const isRecovery = isRecoveryClass(normalized.kind);
   const isYouTube = isPublish && normalized.channel === "youtube";
   const isExecutable =
-    isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply || isRecovery;
+    isPublish ||
+    isReflection ||
+    isSystemNote ||
+    isSendEmail ||
+    isCodeDiff ||
+    isCodeApply ||
+    isRecovery;
   const blockedForEvent = executeError?.approvalId === event.id;
   const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
 
@@ -334,6 +349,7 @@ function DetailModal({
     if (preflightLoading) return "Checking execution readiness…";
     if (isReflection) return "Execute";
     if (isCodeApply) return "Execute (git commit)";
+    if (isSendEmail) return "Execute (send email)";
     return "Execute (dry run)";
   })();
 
@@ -362,6 +378,22 @@ function DetailModal({
             ×
           </button>
         </div>
+
+        {event.status === "pending" && (
+          <p className="mb-3 rounded border border-blue-200 bg-blue-50/90 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-zinc-200">
+            <span className="font-semibold text-zinc-700 dark:text-zinc-100">Next steps: </span>
+            Approve only records your decision. If you approve, you will still need to click{" "}
+            <strong>Execute</strong> separately to run the action and write receipts — approval does not run the
+            adapter.
+          </p>
+        )}
+        {event.status === "approved" && !event.executed && (
+          <p className="mb-3 rounded border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-zinc-200">
+            <span className="font-semibold text-zinc-700 dark:text-emerald-200">Next step: </span>
+            Approval is recorded. Use <strong>Execute</strong> below to run policy checks, perform the action, and write
+            artifacts plus the action log.
+          </p>
+        )}
 
         <p
           className="mb-3 rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-zinc-600 dark:bg-zinc-900/50 dark:text-zinc-200"
@@ -475,7 +507,13 @@ function DetailModal({
           />
         </div>
 
-        {(isPublish || isReflection || isSystemNote || isCodeDiff || isCodeApply || isRecovery) && (
+        {(isPublish ||
+          isReflection ||
+          isSystemNote ||
+          isSendEmail ||
+          isCodeDiff ||
+          isCodeApply ||
+          isRecovery) && (
           <div className="mt-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-800 dark:bg-blue-900/30">
             <h3 className="font-medium">What happens if you approve?</h3>
             <ul className="mt-2 list-inside list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
@@ -489,6 +527,8 @@ function DetailModal({
                   <strong>Execute</strong>
                 ) : isCodeApply ? (
                   <strong>Execute (git commit)</strong>
+                ) : isSendEmail ? (
+                  <strong>Execute (send email)</strong>
                 ) : (
                   <strong>Execute (dry run)</strong>
                 )}{" "}
@@ -498,6 +538,8 @@ function DetailModal({
                     ? "writes reflection files + action log receipt"
                     : isCodeApply
                       ? "modifies working tree + creates local git commit + receipts (no pushing)"
+                      : isSendEmail
+                        ? "sends one allowlisted outbound email + writes receipt JSON + action log entry"
                       : isCodeDiff
                         ? "writes local diff bundle + action log receipt, no changes applied"
                         : "writes artifact to publish-queue + action log, still no posting"}
@@ -507,6 +549,14 @@ function DetailModal({
               <div className="mt-3 rounded-lg border border-amber-400/50 bg-amber-50/80 py-2 px-3 text-sm dark:border-amber-400/30 dark:bg-amber-950/30">
                 <p className="font-medium text-amber-900 dark:text-amber-200">
                   This will modify your working tree and create a local git commit. No pushing.
+                </p>
+              </div>
+            )}
+            {isSendEmail && (
+              <div className="mt-3 rounded-lg border border-amber-400/50 bg-amber-50/80 py-2 px-3 text-sm dark:border-amber-400/30 dark:bg-amber-950/30">
+                <p className="font-medium text-amber-900 dark:text-amber-200">
+                  Execute sends a real email to the demo allowlist address only. Requires DEMO_EMAIL_USER and
+                  DEMO_EMAIL_PASS on the server.
                 </p>
               </div>
             )}
@@ -611,6 +661,46 @@ function DetailModal({
               {String((event.payload as Record<string, unknown>)?.sourceApprovalId ?? "")}
             </p>
           </div>
+        ) : isSendEmail ? (
+          (() => {
+            const p = event.payload as Record<string, unknown>;
+            const inner =
+              p?.payload != null && typeof p.payload === "object" && !Array.isArray(p.payload)
+                ? (p.payload as Record<string, unknown>)
+                : p;
+            const to = typeof inner.to === "string" ? inner.to : "—";
+            const subject = typeof inner.subject === "string" ? inner.subject : "—";
+            const body = typeof inner.body === "string" ? inner.body : "";
+            const preview = body.length > 600 ? `${body.slice(0, 600)}…` : body;
+            return (
+              <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <h3 className="mb-2 flex items-center gap-2 font-medium">
+                  Email preview
+                  <span className="rounded border border-amber-400/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+                    Live send
+                  </span>
+                </h3>
+                <dl className="space-y-2 text-sm">
+                  <div>
+                    <dt className="font-medium text-zinc-500">To</dt>
+                    <dd className="break-all font-mono text-xs">{to}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-zinc-500">Subject</dt>
+                    <dd>{subject}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-zinc-500">Body</dt>
+                    <dd>
+                      <pre className="mt-1 max-h-48 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-100 p-2 text-xs dark:bg-zinc-900">
+                        {preview || "—"}
+                      </pre>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            );
+          })()
         ) : isRecovery ? (
           <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
             <h3 className="mb-2 flex items-center gap-2 font-medium">
@@ -746,11 +836,14 @@ function DetailModal({
             <div className="rounded border border-zinc-300 bg-zinc-50/80 py-2 px-3 text-sm dark:border-zinc-600 dark:bg-zinc-800/80">
               <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution boundary</p>
               <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                Approval records human consent. Execute writes artifacts and receipts.
+                Approval records human consent. Execute writes artifacts and receipts
+                {isSendEmail ? " (or sends the allowlisted demo email)." : "."}
               </p>
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Execute writes local artifacts + receipts only. It does not post.
+              {isSendEmail
+                ? "Execute sends one outbound email using server SMTP credentials; receipt JSON is written under JARVIS_ROOT."
+                : "Execute writes local artifacts + receipts only. It does not post."}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:gap-3">
               <button
@@ -781,7 +874,8 @@ function DetailModal({
           <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/30">
             <p className="font-medium">Execution not supported yet</p>
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Only content.publish, reflection.note, system.note, code.diff, and code.apply actions can be executed.
+              Only supported kinds (including send_email, system.note, code.apply, …) can be executed when present in
+              policy.
             </p>
           </div>
         )}
@@ -790,9 +884,7 @@ function DetailModal({
           <div className="mt-4 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-800 dark:bg-emerald-900/30">
             <p className="font-medium">Executed successfully</p>
             <p className="mt-1 flex items-center gap-2">
-              {executeResult.kind !== "code.apply" && (
-                <Badge variant="dry_run">DRY RUN</Badge>
-              )}
+              {executeResult.dryRun === true && <Badge variant="dry_run">DRY RUN</Badge>}
             </p>
             {executeResult.kind === "code.diff" && (
               <>
@@ -825,6 +917,33 @@ function DetailModal({
                       <code className="text-xs">{executeResult.rollbackCommand}</code>
                     </div>
                   )}
+                </div>
+              </>
+            )}
+            {executeResult.kind === "send_email" && (
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  Outbound email sent. JSON receipt written under JARVIS_ROOT; action log updated.
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Destination:</span>{" "}
+                    <code className="break-all text-xs">{executeResult.emailDestination ?? "—"}</code>
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Executed at:</span>{" "}
+                    <span className="text-xs">{executeResult.executedAt}</span>
+                  </div>
+                  {executeResult.providerMessageId ? (
+                    <div>
+                      <span className="font-medium text-zinc-500">Provider message id:</span>{" "}
+                      <code className="break-all text-xs">{executeResult.providerMessageId}</code>
+                    </div>
+                  ) : null}
+                  <div>
+                    <span className="font-medium text-zinc-500">Receipt path:</span>{" "}
+                    <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
                 </div>
               </>
             )}
@@ -920,9 +1039,11 @@ function DetailModal({
                   >
                     {isRecovery
                       ? "Open runbook in Finder"
-                      : executeResult.outputPath
-                        ? "Open package in Finder"
-                        : "Open artifact in Finder"}
+                      : executeResult.kind === "send_email"
+                        ? "Open receipt in Finder"
+                        : executeResult.outputPath
+                          ? "Open package in Finder"
+                          : "Open artifact in Finder"}
                   </button>
                   <button
                     type="button"
@@ -942,9 +1063,11 @@ function DetailModal({
                     }}
                     className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
                   >
-                    {executeResult.outputPath
-                      ? "Open package in Cursor"
-                      : "Open artifact in Cursor"}
+                    {executeResult.kind === "send_email"
+                      ? "Open receipt in Cursor"
+                      : executeResult.outputPath
+                        ? "Open package in Cursor"
+                        : "Open artifact in Cursor"}
                   </button>
                   {executeResult.kind === "youtube.package" && (
                     <>
@@ -1010,8 +1133,7 @@ function DetailModal({
 }
 
 export default function ApprovalsPanel() {
-  const [data, setData] = useState<ApprovalsResponse | null>(null);
-  const [approvedData, setApprovedData] = useState<ApprovalsResponse | null>(null);
+  const [allApprovals, setAllApprovals] = useState<ApprovalsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [irreversibleConfirmEnabled, setIrreversibleConfirmEnabled] = useState(true);
   const [detailEvent, setDetailEvent] = useState<Event | null>(null);
@@ -1022,17 +1144,11 @@ export default function ApprovalsPanel() {
   const fetchApprovals = useCallback(async () => {
     setLoading(true);
     try {
-      const [pendingRes, approvedRes] = await Promise.all([
-        fetch("/api/approvals?status=pending"),
-        fetch("/api/approvals?status=approved"),
-      ]);
-      const pending = await pendingRes.json();
-      const approved = await approvedRes.json();
-      setData(pending);
-      setApprovedData(approved);
+      const res = await fetch("/api/approvals?status=all");
+      const json = (await res.json()) as ApprovalsResponse;
+      setAllApprovals(json);
     } catch {
-      setData({ dateKey: "", approvals: [] });
-      setApprovedData({ dateKey: "", approvals: [] });
+      setAllApprovals({ dateKey: "", approvals: [] });
     } finally {
       setLoading(false);
     }
@@ -1178,16 +1294,17 @@ export default function ApprovalsPanel() {
     [fetchApprovals]
   );
 
-  const approvals = data?.approvals ?? [];
-  const approvedList = approvedData?.approvals ?? [];
-  const approvedNotExecuted = approvedList.filter((e) => !e.executed);
-  const lastExecutedProposal = [...approvedList]
-    .filter((e) => e.executed)
-    .sort(
-      (a, b) =>
-        new Date(b.executedAt ?? b.createdAt).getTime() -
-        new Date(a.executedAt ?? a.createdAt).getTime()
-    )[0] ?? null;
+  const raw = allApprovals?.approvals ?? [];
+  const approvals = raw.filter((e) => isPendingApproval(e));
+  const approvedNotExecuted = raw.filter((e) => isApprovedAwaitingExecution(e));
+  const lastExecutedProposal =
+    [...raw]
+      .filter((e) => isExecuted(e))
+      .sort(
+        (a, b) =>
+          new Date(b.executedAt ?? b.createdAt).getTime() -
+          new Date(a.executedAt ?? a.createdAt).getTime()
+      )[0] ?? null;
 
   return (
     <>
@@ -1196,7 +1313,7 @@ export default function ApprovalsPanel() {
         approvedNotExecuted={approvedNotExecuted}
         lastExecutedProposal={lastExecutedProposal}
         loading={loading}
-        dateKey={data?.dateKey}
+        dateKey={allApprovals?.dateKey}
         onDetails={(e) => setDetailEvent(e as Event)}
         onApprove={handleApprove}
         onDeny={handleDeny}
@@ -1220,7 +1337,7 @@ export default function ApprovalsPanel() {
           executeError={executeError}
           executeLoading={executeLoading}
           irreversibleConfirmEnabled={irreversibleConfirmEnabled}
-          listDateKey={data?.dateKey ?? approvedData?.dateKey ?? ""}
+          listDateKey={allApprovals?.dateKey ?? ""}
         />
       )}
     </>

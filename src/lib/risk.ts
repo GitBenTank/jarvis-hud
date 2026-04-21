@@ -9,6 +9,7 @@ export type RiskLevel = "low" | "medium" | "high";
 
 export function riskTierForKind(kind: string): RiskTier {
   if (kind === "code.apply") return "CRITICAL";
+  if (kind === "send_email") return "HIGH";
   return "LOW";
 }
 
@@ -23,11 +24,12 @@ export function requiresIrreversibleConfirmation(kind: string): boolean {
  */
 export function getConfirmationPhrase(kind: string): string {
   if (kind === "code.apply") return "APPLY";
+  if (kind === "send_email") return "SEND";
   return "CONFIRM";
 }
 
 export function getRiskLevel(kind: string): RiskLevel {
-  if (kind === "code.apply") return "high";
+  if (kind === "code.apply" || kind === "send_email") return "high";
   if (kind === "code.diff" || kind.startsWith("recovery.")) return "medium";
   return "low";
 }
@@ -37,6 +39,9 @@ export function getRiskLevel(kind: string): RiskLevel {
  */
 export function describeRiskNarrative(kind: string): string {
   const level = getRiskLevel(kind);
+  if (kind === "send_email") {
+    return "High risk: sends one real outbound email to the allowlisted demo recipient after Execute.";
+  }
   if (level === "high") {
     return "High risk: modifies repository state (working tree and may create a local commit).";
   }

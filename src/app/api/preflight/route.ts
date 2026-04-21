@@ -24,6 +24,7 @@ function expectedOutputs(kind: string): string[] {
   if (kind.startsWith("recovery.")) return ["Artifact", "Receipt log entry"];
   if (kind === "reflection.note") return ["Artifact", "Receipt log entry"];
   if (kind === "youtube.package") return ["Artifact", "Receipt log entry"];
+  if (kind === "send_email") return ["Outbound email", "Receipt JSON", "Action log entry"];
   return ["Artifact", "Receipt log entry"];
 }
 

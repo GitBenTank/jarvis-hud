@@ -121,6 +121,10 @@ export function collectExecutionScopeTargets(params: {
       ? (payload as Record<string, unknown>)
       : {};
 
+  if (kind === "send_email") {
+    return [];
+  }
+
   if (kind === "system.note") {
     return [
       {

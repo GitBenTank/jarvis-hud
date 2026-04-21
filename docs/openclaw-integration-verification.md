@@ -4,6 +4,8 @@ This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress 
 
 **Verified:** OpenClaw → Jarvis ingress → approval → execution → receipt flow is working. Smoke test (`pnpm jarvis:smoke` from OpenClaw) produces pending proposals; human approves and executes in Jarvis UI; receipts written to `~/jarvis/actions/YYYY-MM-DD.jsonl`.
 
+**Operator checklist (mental model + daily order-of-operations):** [OpenClaw ↔ Jarvis operator checklist](setup/openclaw-jarvis-operator-checklist.md).
+
 ## OpenClaw config directory (macOS gateway / dashboard)
 
 **Dashboard setup (step-by-step):** [OpenClaw Control UI setup](setup/openclaw-control-ui.md) — includes **version alignment** when the CLI warns the config was written by a newer OpenClaw.
@@ -26,6 +28,40 @@ alias oc-prod='env -u OPENCLAW_STATE_DIR openclaw'
 ```
 
 **Security:** Avoid long-lived API keys or ingress secrets in the LaunchAgent plist; prefer env files or the keychain, and rotate anything that was ever embedded in plist or shared URLs.
+
+### Homebrew-only gateway (Option A)
+
+Use this when **`lsof`** / **`ps`** show the listener on **`18789`** is **`openclaw-gateway`** with paths under **`/opt/homebrew/lib/node_modules/openclaw/`** (global/Homebrew install), not `~/Documents/openclaw`.
+
+| Rule | Why |
+|------|-----|
+| **One gateway** | Do not also run `pnpm gateway:dev` from a git checkout on the same port — only one process should own **`18789`**. |
+| **State dir = `~/.openclaw`** | The Homebrew/service gateway uses the **default** state directory unless you changed **`OPENCLAW_STATE_DIR`** in the service’s environment. Use **`openclaw dashboard`** (and CLI) **without** setting `OPENCLAW_STATE_DIR` to `~/.openclaw-dev`, or tokens and URLs will not match the running process. |
+| **Env on the running process** | Set **`OPENAI_API_KEY`** (or use the **Codex/OAuth** model route your build documents), **`JARVIS_BASE_URL`** (e.g. `http://127.0.0.1:3000`), and **`JARVIS_INGRESS_OPENCLAW_SECRET`** (same string as Jarvis, ≥32 chars) in **OpenClaw Control → Settings → Config → Environment** (or the env file your install reads under **`~/.openclaw`** — follow upstream docs). Editing only **`~/Documents/openclaw`** does **not** change this binary. |
+| **Restart after env changes** | Restart the gateway the same way it is installed (e.g. **`brew services restart …`**, LaunchAgent reload, or your documented **`openclaw gateway`** command — exact name varies by install). |
+
+**Identify the live binary (optional):**
+
+```bash
+lsof -nP -iTCP:18789 -sTCP:LISTEN
+ps -p <PID> -ww -o args=
+lsof -p <PID> | grep -E 'cwd|txt'
+```
+
+Replace `<PID>` with the PID from `lsof`. Paths under **`/opt/homebrew/lib/node_modules/openclaw`** confirm Homebrew/global.
+
+### OpenAI & Codex: recovery checklist (local debugging)
+
+Use this when logs show **mixed** paths (`~/Documents/openclaw/dist` vs `/opt/homebrew/.../openclaw`), **no API key**, **`refresh_token_reused`**, or **quota exceeded**.
+
+| Symptom | Cause | Fix |
+|--------|--------|-----|
+| **`No API key found for provider "openai"`** while using **`openai/gpt-5.4`** | `OPENAI_API_KEY` is not in the **runtime environment** of the gateway that is actually running, or you’re editing **Config → Environment** for **`~/.openclaw`** while **`pnpm gateway:dev`** uses **`~/.openclaw-dev`**. | Run **only one** gateway. Set **`OPENAI_API_KEY`** in **Config → Environment** for the **same** state dir as that process (for dev: open Control with `OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"` when editing, or set env under **`.openclaw-dev`** per upstream docs). **Restart** the gateway. |
+| **`Use openai-codex/gpt-5.4 (OAuth) or set OPENAI_API_KEY`** | Default model is **`openai/gpt-5.4`** (API key) but you only have **Codex OAuth**, or vice versa. | Either set **`OPENAI_API_KEY`**, **or** set **Agent defaults → Model** `primary` to **`openai-codex/gpt-5.4`**, **or** pick **`openai/gpt-4o-mini`** for cheap API-key tests. |
+| **`refresh_token_reused` / Codex token refresh 401** | Two gateways or clients raced OAuth refresh; session invalidated. | **Sign out** of OpenAI Codex in OpenClaw (**Settings → Authentication** or equivalent), **sign in once**. Stop duplicate gateways so only one process refreshes tokens. |
+| **`You exceeded your current quota`** on **`gpt-4o-mini`** | OpenAI account/key has no usable quota (billing, limits, wrong project). | Fix **billing / usage limits** in OpenAI for the **same** project as the API key; create a new key under the funded project if needed. |
+
+**Rule of thumb:** **Config → Environment** and **AI & Agents** apply to the **state directory** of the gateway you started. If **`pnpm gateway:dev`** uses **`~/.openclaw-dev`**, a Control UI session tied only to **`~/.openclaw`** will **not** update the dev gateway’s env.
 
 ## Demo flow (video prep)
 

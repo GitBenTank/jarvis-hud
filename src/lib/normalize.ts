@@ -32,6 +32,20 @@ export function normalizeAction(payload: unknown): {
     };
   }
 
+  if (p.kind === "send_email") {
+    const title = String(p.title ?? "(untitled)");
+    const pl = p.payload as Record<string, unknown> | undefined;
+    const inner =
+      pl && typeof pl === "object" && !Array.isArray(pl) ? pl : p;
+    const to = typeof inner.to === "string" ? inner.to : "";
+    const subject = typeof inner.subject === "string" ? inner.subject : "";
+    return {
+      kind: "send_email",
+      summary: subject || title || `Email → ${to || "?"}`,
+      title,
+    };
+  }
+
   if (p.kind === "reflection.note") {
     const sourceKind = String(p.sourceKind ?? "unknown");
     const sourceApprovalId = String(p.sourceApprovalId ?? "");

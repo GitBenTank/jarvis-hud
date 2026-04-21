@@ -3,6 +3,8 @@
  * Enforces allowlisted keys, size limits, and kind-specific rules.
  */
 
+import { SEND_EMAIL_DEMO_ALLOWED_TO } from "./send-email-constants";
+
 export type ValidationError = {
   code: string;
   message: string;
@@ -14,6 +16,8 @@ const TITLE_MAX_CHARS = 120;
 const SUMMARY_MAX_CHARS = 2000;
 const PATCH_MAX_BYTES = 1024 * 1024; // 1 MB
 const SYSTEM_NOTE_PAYLOAD_MAX_CHARS = 50_000;
+const SEND_EMAIL_SUBJECT_MAX = 200;
+const SEND_EMAIL_BODY_MAX = 50_000;
 
 const ALLOWLISTED_TOP_LEVEL_KEYS = new Set([
   "kind",
@@ -242,6 +246,14 @@ export function validateIngressBody(
     });
   }
 
+  if (kind === "send_email" && patch !== undefined) {
+    errors.push({
+      code: "PATCH_NOT_ALLOWED",
+      message: "send_email must not include patch",
+      field: "patch",
+    });
+  }
+
   if (kind === "system.note") {
     const payload = o.payload;
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
@@ -263,6 +275,61 @@ export function validateIngressBody(
           code: "FIELD_TOO_LONG",
           message: `payload.note must be ≤ ${SYSTEM_NOTE_PAYLOAD_MAX_CHARS} chars`,
           field: "payload.note",
+        });
+      }
+    }
+  }
+
+  if (kind === "send_email") {
+    const payload = o.payload;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      errors.push({
+        code: "MISSING_FIELD",
+        message: "send_email requires payload (object)",
+        field: "payload",
+      });
+    } else {
+      const pl = payload as Record<string, unknown>;
+      const to = typeof pl.to === "string" ? pl.to.trim() : "";
+      const subject = typeof pl.subject === "string" ? pl.subject.trim() : "";
+      const body = typeof pl.body === "string" ? pl.body : "";
+      if (!to) {
+        errors.push({
+          code: "MISSING_FIELD",
+          message: "send_email requires payload.to",
+          field: "payload.to",
+        });
+      } else if (to !== SEND_EMAIL_DEMO_ALLOWED_TO) {
+        errors.push({
+          code: "INVALID_FIELD",
+          message: `send_email demo: payload.to must be exactly ${SEND_EMAIL_DEMO_ALLOWED_TO}`,
+          field: "payload.to",
+        });
+      }
+      if (!subject) {
+        errors.push({
+          code: "MISSING_FIELD",
+          message: "send_email requires payload.subject",
+          field: "payload.subject",
+        });
+      } else if (subject.length > SEND_EMAIL_SUBJECT_MAX) {
+        errors.push({
+          code: "FIELD_TOO_LONG",
+          message: `send_email payload.subject must be ≤ ${SEND_EMAIL_SUBJECT_MAX} chars`,
+          field: "payload.subject",
+        });
+      }
+      if (!body.trim()) {
+        errors.push({
+          code: "MISSING_FIELD",
+          message: "send_email requires payload.body (non-empty string)",
+          field: "payload.body",
+        });
+      } else if (body.length > SEND_EMAIL_BODY_MAX) {
+        errors.push({
+          code: "FIELD_TOO_LONG",
+          message: `send_email payload.body must be ≤ ${SEND_EMAIL_BODY_MAX} chars`,
+          field: "payload.body",
         });
       }
     }

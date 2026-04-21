@@ -21,6 +21,21 @@ fail() {
   exit 1
 }
 
+# Same startup race tolerance as demo-verify — smoke is often run right after boot.
+echo "[demo-smoke] Waiting for $BASE/api/config (up to ~30s) ..."
+for i in $(seq 1 15); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/config" 2>/dev/null || echo "000")
+  if [ "$code" = "200" ]; then
+    echo "✅ server ready"
+    echo ""
+    break
+  fi
+  if [ "$i" -eq 15 ]; then
+    fail "/api/config returned $code after 15 retries. Run pnpm demo:boot (or pnpm demo:verify) first."
+  fi
+  sleep 2
+done
+
 echo "[demo-smoke] ingress:smoke..."
 out1=$(pnpm ingress:smoke 2>&1) || fail "ingress:smoke exited non-zero"
 echo "$out1" | grep -q "Ingress smoke OK" || fail "missing 'Ingress smoke OK'"

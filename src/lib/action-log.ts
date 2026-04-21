@@ -37,6 +37,10 @@ export type ActionLogEntry = {
   reasonDetails?: ReasonDetail[];
   /** Proposer, approver, executor for this receipt (Phase 1 identity). */
   actors?: ReceiptActors;
+  /** send_email demo: recipient (no body logged). */
+  emailDestination?: string;
+  /** SMTP / provider message id when available. */
+  providerMessageId?: string;
 };
 
 export async function appendActionLog(entry: ActionLogEntry): Promise<void> {

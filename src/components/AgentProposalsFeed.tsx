@@ -50,6 +50,7 @@ function getCardSummary(payload: unknown): string {
   }
   if (n.kind === "reflection.note") return n.summary || "Reflection note";
   if (n.kind === "system.note") return n.summary || "System note";
+  if (n.kind === "send_email") return n.summary || "Send email";
   if (n.kind === "code.diff") return n.summary || "Code diff (dry-run)";
   if (n.kind === "code.apply") return n.summary || "Code apply (git commit)";
   return n.summary || "(no summary)";
@@ -361,7 +362,11 @@ export default function AgentProposalsFeed({
 
       {showLastProposal && (
         <>
-          <h3 className="mb-2 font-medium">Last Proposal</h3>
+          <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+            Queue is clear — most recent completed execution
+            {dateKey ? ` · ${dateKey}` : ""}.
+          </p>
+          <h3 className="mb-2 font-medium">Last execution</h3>
           <ul className="space-y-3">
             <ProposalCard
               key={lastExecutedProposal.id}

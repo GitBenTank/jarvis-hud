@@ -116,6 +116,15 @@ export function getSystemNoteManifestPath(dateKey: string, approvalId: string): 
   return path.join(getSystemNoteDir(dateKey), `${approvalId}.json`);
 }
 
+export function getSendEmailReceiptDir(dateKey: string): string {
+  return path.join(ROOT, "email-demonstrations", dateKey);
+}
+
+/** Receipt JSON for governed send_email demo executions. */
+export function getSendEmailReceiptPath(dateKey: string, approvalId: string): string {
+  return path.join(getSendEmailReceiptDir(dateKey), `${approvalId}.json`);
+}
+
 export function getRecoveryRunbookDir(dateKey: string): string {
   return path.join(ROOT, "recovery-runbooks", dateKey);
 }

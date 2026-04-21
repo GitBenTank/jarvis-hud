@@ -116,6 +116,27 @@ for i in 1 2 3; do echo "== run $i =="; pnpm demo:verify && pnpm demo:smoke || e
 
 ---
 
+## Demo: `send_email` (real Gmail, allowlisted recipient only)
+
+**Recipient is fixed in code** (`devhousehsv@gmail.com` in `src/lib/send-email-constants.ts`) — demo mode; do not widen without policy review.
+
+**Server env** (same as Integration debug “send_email env”):
+
+- `DEMO_EMAIL_USER` — Gmail address used to authenticate SMTP  
+- `DEMO_EMAIL_PASS` — [Gmail App Password](https://support.google.com/accounts/answer/185833) (spaces OK)  
+- Optional: `DEMO_EMAIL_FROM`
+
+**One command** (loads `JARVIS_*` from `.env.local`, same as `pnpm openclaw:dev`):
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm demo:send-email
+```
+
+**Browser:** Approve the pending **`send_email`** proposal → **Execute**. Check the allowlisted inbox for the message and the receipt under `JARVIS_ROOT`.
+
+---
+
 ## Recruiter-safe flow (live demo rhythm)
 
 1. `pnpm demo:boot`

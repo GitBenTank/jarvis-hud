@@ -24,6 +24,8 @@
     "demo:boot": "bash scripts/demo-boot.sh",
     "demo:verify": "bash scripts/demo-verify.sh",
     "demo:smoke": "bash scripts/demo-smoke.sh",
+    "demo:send-email": "bash scripts/demo-send-email.sh",
+    "demo:verify-imap": "python3 scripts/verify-gmail-imap-from-env.py",
     "screenshots:readme": "node scripts/readme-screenshots.mjs"
   },
   "dependencies": {

@@ -1,0 +1,11 @@
+{
+  "kind": "send_email",
+  "title": "Demo: governed outbound email",
+  "summary": "Jarvis send_email demo — human must approve before SMTP.",
+  "source": { "connector": "openclaw" },
+  "payload": {
+    "to": "devhousehsv@gmail.com",
+    "subject": "Jarvis HUD send_email demo",
+    "body": "This message was sent after human approval in Jarvis HUD (governed execution)."
+  }
+}

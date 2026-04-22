@@ -222,9 +222,9 @@ style: |
 
 ## Agents are moving from **generation** to **action**
 
-- Sending email and messages
-- Changing systems and configuration
-- Triggering workflows and integrations
+- Send real outbound messages to customers
+- Modify live systems and production data
+- Trigger APIs, payments, and workflows
 
 <div class="callout">The question is not only “what did it say?” — it’s “what did it do?”</div>
 
@@ -232,11 +232,11 @@ style: |
 
 # The problem
 
-## Execution is not **controlled**
+## Execution is not **trusted**
 
-- Side effects can run **without explicit human authorization**
-- **Approval** is often conflated with **execution** — or skipped
-- **Logs** record activity; they are not **proof** of who authorized what
+- Actions execute **without explicit human authorization**
+- **Approval and execution collapse** into a single step
+- **Logs ≠ proof** — no record of who actually authorized the action
 
 <p class="subtle"><strong>Runtime risk is unbounded authority</strong> — not bad copy.</p>
 
@@ -246,6 +246,7 @@ style: |
 
 ## Enterprises are investing in **agent infrastructure**
 
+- Massive investment in agent infrastructure (AWS, OpenAI, enterprise platforms)
 - **Registries & catalogs** — what exists, who owns it
 - **Orchestration & platforms** — how agents are wired
 - **Governance layers** — policy, visibility, reuse
@@ -262,7 +263,7 @@ Platforms answer: *What can be discovered and shared?*
 
 They do not answer:
 
-> *What may happen **at the moment** an agent acts — under whose authority — with what proof?*
+> *What is allowed to happen — at the exact moment an agent takes action — under whose authority — with what proof?*
 
 ```
    Agents & tools
@@ -284,10 +285,10 @@ They do not answer:
 
 # Jarvis
 
-## **Approval + proof** for every action
+## The **authority layer** for every action
 
-| Step | Meaning |
-|------|---------|
+| Stage | What actually happens |
+|-------|----------------------|
 | **Propose** | Agent or connector submits an explicit action |
 | **Approve** | Human gate — authorization is deliberate |
 | **Execute** | **Separate** step — approval is not execution |
@@ -331,7 +332,7 @@ The missing layer: execution control with evidence.
 
 # Why this wins
 
-## **Agent-agnostic** control plane
+## The missing **execution layer**
 
 - Between **intent** (models, frameworks, connectors) and **side effects**
 - **Authority boundaries** — who may cause what
@@ -360,10 +361,10 @@ The missing layer: execution control with evidence.
 <!-- _class: lead -->
 # Thank you
 
-## *[Traction · team · raise · contact]*
+## Traction · team · raise · contact
 
 **Jarvis** — control plane for AI execution
 
-<p class="subtle" style="text-align:center;color:#64748b;">youtube.com / link in description</p>
+<p class="subtle" style="text-align:center;color:#64748b;">demo + deck available on request</p>
 
 ---

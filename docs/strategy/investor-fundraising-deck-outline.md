@@ -14,7 +14,8 @@ related:
 # Investor fundraising — VC lens + deck outline
 
 Spoken script: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md)  
-Thesis Lock: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md)
+Thesis Lock: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md)  
+**Investor deck (Marp → PDF/PPTX):** [pitch-deck/README.md](./pitch-deck/README.md)
 
 ---
 

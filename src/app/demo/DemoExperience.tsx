@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Frame } from "@/components/demo/Frame";
 import { PillRow } from "@/components/demo/PillRow";
 import { ProductMock } from "@/components/demo/ProductMock";
@@ -38,6 +39,7 @@ function Ambient() {
   );
 }
 
+/** Infrastructure only — gap / void comes in the next section (woven script). */
 function MarketStack() {
   return (
     <div className="mt-14 flex w-full max-w-md flex-col gap-0">
@@ -53,21 +55,6 @@ function MarketStack() {
           </div>
         </Reveal>
       ))}
-      <Reveal delayMs={280}>
-        <div className="relative mt-6 border border-dashed border-violet-400/25 bg-violet-500/[0.06] px-5 py-6 text-center">
-          <p
-            className={`${demoMono} text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-200/80`}
-          >
-            Missing today
-          </p>
-          <p className="mt-2 text-base font-medium text-zinc-200">
-            Execution authority layer
-          </p>
-          <p className="mt-1 text-sm text-zinc-500">
-            What runs — under whose sign-off — with proof
-          </p>
-        </div>
-      </Reveal>
     </div>
   );
 }
@@ -77,7 +64,7 @@ export function DemoExperience() {
     <div className="relative h-dvh snap-y snap-mandatory overflow-x-hidden overflow-y-auto overscroll-y-contain bg-[#050508] text-zinc-100 [scrollbar-gutter:stable]">
       <Ambient />
 
-      {/* Hero */}
+      {/* Open — hero */}
       <Frame className="z-10">
         <Reveal>
           <Title as="h1">Jarvis</Title>
@@ -87,85 +74,86 @@ export function DemoExperience() {
             The control plane for AI execution
           </Subtitle>
         </Reveal>
-        <Reveal delayMs={160}>
+        <Reveal delayMs={140}>
+          <p
+            className={`${demoMono} mt-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
+          >
+            Running live · local stack
+          </p>
+        </Reveal>
+        <Reveal delayMs={180}>
           <PillRow />
         </Reveal>
       </Frame>
 
-      {/* Shift */}
+      {/* Scroll — three forces + live boundary */}
       <Frame className="z-10">
         <Reveal>
-          <Title>Agents are moving from generation to action</Title>
+          <p className="mx-auto mb-6 max-w-2xl text-center text-sm font-medium uppercase tracking-[0.18em] text-zinc-500">
+            Three forces
+          </p>
+          <Title className="!max-w-3xl">
+            Agents can take real-world actions
+          </Title>
         </Reveal>
-        <ul className="mt-12 space-y-4 text-center text-lg text-zinc-300 md:text-xl">
-          {["Sending emails", "Modifying systems", "Triggering workflows"].map(
-            (t, i) => (
-              <li key={t}>
-                <Reveal delayMs={i * 100}>
-                  <span>{t}</span>
-                </Reveal>
-              </li>
-            ),
-          )}
+        <ul className="mt-10 space-y-3 text-center text-lg text-zinc-300 md:text-xl">
+          {[
+            "Sending emails",
+            "Modifying systems",
+            "Triggering workflows",
+          ].map((t, i) => (
+            <li key={t}>
+              <Reveal delayMs={i * 90}>
+                <span>{t}</span>
+              </Reveal>
+            </li>
+          ))}
         </ul>
-        <Reveal delayMs={380}>
-          <p className="mx-auto mt-14 max-w-xl text-center text-base font-medium leading-relaxed text-zinc-200 md:text-lg">
-            What matters is not what it said —{" "}
-            <span className="text-sky-300/90">it’s what it did</span>
+        <Reveal delayMs={320}>
+          <p className="mx-auto mt-12 max-w-xl text-center text-base leading-relaxed text-zinc-300 md:text-lg">
+            And what you&apos;re about to see is{" "}
+            <span className="text-zinc-100">running live</span>.
+          </p>
+        </Reveal>
+        <Reveal delayMs={400}>
+          <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+            <span className="text-sky-200/90">OpenClaw</span> generates the
+            proposal locally and sends it through the Jarvis ingress path.{" "}
+            <span className="text-sky-200/90">Jarvis</span> holds it at the
+            approval boundary before anything executes.
           </p>
         </Reveal>
       </Frame>
 
-      {/* Problem */}
+      {/* Infrastructure context */}
       <Frame className="z-10">
         <Reveal>
-          <Title>Execution is not controlled</Title>
+          <Title className="!max-w-3xl">
+            Enterprises are building the stack
+          </Title>
         </Reveal>
-        <div className="mt-14 grid w-full max-w-5xl gap-6 sm:grid-cols-3">
-          {[
-            {
-              t: "No explicit authorization",
-              d: "Side effects can run before a human deliberately allows them.",
-            },
-            {
-              t: "Approval ≠ execution",
-              d: "Signing off and running the action collapse into one ambiguous step.",
-            },
-            {
-              t: "Logs ≠ proof",
-              d: "Activity records aren’t the same as who authorized what, when.",
-            },
-          ].map((col, i) => (
-            <Reveal key={col.t} delayMs={i * 90}>
-              <div className="h-full rounded-2xl bg-rose-950/[0.12] px-6 py-8 ring-1 ring-rose-500/15">
-                <h3 className="text-lg font-medium text-rose-100/95">{col.t}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-500">
-                  {col.d}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Frame>
-
-      {/* Market */}
-      <Frame className="z-10">
-        <Reveal>
-          <Title>Enterprises are building the stack</Title>
-        </Reveal>
-        <Subtitle className="mx-auto mt-2 max-w-lg">
-          Agents, platforms, governance — without a dedicated execution layer.
+        <Subtitle className="mx-auto mt-3 max-w-xl">
+          Registries, catalogs, governance layers — visibility: what exists,
+          who owns it, what can be reused.
         </Subtitle>
         <MarketStack />
       </Frame>
 
-      {/* Gap */}
+      {/* Gap — slow down */}
       <Frame className="z-10">
         <Reveal>
-          <Title>Visibility is not control</Title>
+          <Title className="!max-w-3xl">
+            They don&apos;t control the moment of execution
+          </Title>
         </Reveal>
-        <Reveal delayMs={120}>
-          <div className="mt-16 flex flex-col items-center">
+        <Reveal delayMs={100}>
+          <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+            Even when governance looks present — the control isn&apos;t at
+            execution.
+          </p>
+        </Reveal>
+        <Reveal delayMs={180}>
+          <div className="mt-14 flex flex-col items-center">
             <div
               className={cn(
                 "relative px-10 py-8 text-center sm:px-14 sm:py-10",
@@ -186,26 +174,67 @@ export function DemoExperience() {
                 aria-hidden
               />
             </div>
-            <Reveal delayMs={200}>
-              <p className="mt-10 max-w-lg text-center text-base leading-relaxed text-zinc-400 md:text-lg">
-                Who approved this? Under what authority? Where is the proof?
-              </p>
-            </Reveal>
+            <p className="mt-10 max-w-lg text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+              Who approved this? Under what authority? Where is the proof?
+            </p>
           </div>
+        </Reveal>
+        <Reveal delayMs={320}>
+          <p
+            className={`mx-auto mt-14 max-w-xl text-center text-2xl font-medium tracking-tight text-zinc-100 md:text-3xl`}
+          >
+            That&apos;s the gap.
+          </p>
+        </Reveal>
+        <Reveal delayMs={420}>
+          <p className="mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+            As soon as those agents operate in real systems, the risks become{" "}
+            <span className="text-zinc-200">real</span>
+            — especially when actions aren&apos;t{" "}
+            <span className="text-sky-200/90">independently verified</span>.
+          </p>
+        </Reveal>
+        <Reveal delayMs={520}>
+          <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+            Organizations are moving toward formal governance for AI in
+            production.
+          </p>
+        </Reveal>
+        <Reveal delayMs={620}>
+          <p className="mx-auto mt-6 max-w-xl text-center text-lg font-medium text-zinc-200 md:text-xl">
+            What&apos;s missing is control at the moment of execution.
+          </p>
         </Reveal>
       </Frame>
 
-      {/* Jarvis */}
+      {/* Jarvis — lock-in */}
       <Frame className="z-10">
         <Reveal>
-          <Title>Jarvis governs execution</Title>
+          <Title className="!max-w-3xl">
+            Approval and proof — not the same step
+          </Title>
         </Reveal>
-        <Subtitle className="mx-auto mt-2 max-w-xl">
-          Propose → approve → execute → receipt → trace
-        </Subtitle>
+        <Reveal delayMs={100}>
+          <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+            A system that separates approval from execution — and produces
+            proof of what actually happened.
+          </p>
+        </Reveal>
+        <Reveal delayMs={200}>
+          <p className="mx-auto mt-4 max-w-xl text-center text-lg font-medium text-zinc-100 md:text-xl">
+            That&apos;s what Jarvis does.
+          </p>
+        </Reveal>
+        <Reveal delayMs={280}>
+          <p className="mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed text-zinc-300 md:text-lg">
+            Jarvis doesn&apos;t manage agents — it{" "}
+            <span className="text-sky-200/90">governs execution</span>.
+            That&apos;s where authority lives.
+          </p>
+        </Reveal>
         <div className="mt-12 grid w-full max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {LIFECYCLE.map((step, i) => (
-            <Reveal key={step.label} delayMs={i * 70}>
+            <Reveal key={step.label} delayMs={360 + i * 60}>
               <div className="flex h-full flex-col rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-5">
                 <span
                   className={`${demoMono} text-[10px] font-bold uppercase tracking-[0.16em] text-sky-400/90`}
@@ -221,74 +250,107 @@ export function DemoExperience() {
         </div>
       </Frame>
 
-      {/* Product */}
+      {/* Demo handoff */}
       <Frame className="z-10">
         <Reveal>
-          <Title>Proof in the console</Title>
+          <Title className="!text-3xl sm:!text-4xl md:!text-5xl">
+            propose → approve → execute → receipt → trace
+          </Title>
         </Reveal>
-        <Subtitle className="mx-auto mt-2 max-w-xl">
-          Queue, authorization, and reconstructable traces — one surface.
-        </Subtitle>
-        <Reveal delayMs={100}>
-          <ProductMock />
+        <Reveal delayMs={120}>
+          <p className="mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+            The same local system — proposal from{" "}
+            <span className="text-sky-200/90">OpenClaw</span>, governed and
+            executed in <span className="text-sky-200/90">Jarvis</span>.
+          </p>
         </Reveal>
-      </Frame>
-
-      {/* Why now */}
-      <Frame className="z-10">
-        <Reveal>
-          <Title>Three forces at once</Title>
-        </Reveal>
-        <ul className="mt-12 max-w-xl space-y-6 text-center text-lg text-zinc-300 md:text-xl">
-          {[
-            { h: "Capability", b: "Tool-using agents are productized." },
-            { h: "Adoption", b: "Production systems and real credentials." },
-            { h: "Governance", b: "Accountability expectations, not vibes." },
-          ].map((item, i) => (
-            <li key={item.h}>
-              <Reveal delayMs={i * 100}>
-                <span className="font-medium text-zinc-100">{item.h}</span>
-                <span className="text-zinc-500"> — {item.b}</span>
-              </Reveal>
-            </li>
-          ))}
-        </ul>
-        <Reveal delayMs={350}>
-          <p className="mx-auto mt-14 max-w-lg text-center text-base font-medium text-sky-200/90 md:text-lg">
-            The missing layer is execution control
+        <Reveal delayMs={220}>
+          <p className="mx-auto mt-6 max-w-xl text-center text-sm text-zinc-500 md:text-base">
+            Most stacks give you logs. Jarvis gives you proof.
           </p>
         </Reveal>
       </Frame>
 
-      {/* Why this wins */}
+      {/* Product — governed action + console mock */}
       <Frame className="z-10">
         <Reveal>
-          <Title>The control plane for action</Title>
+          <Title>A governed action</Title>
         </Reveal>
-        <ul className="mt-12 max-w-xl space-y-5 text-center text-lg text-zinc-300 md:text-xl">
+        <ul className="mx-auto mt-10 max-w-xl space-y-4 text-center text-base text-zinc-300 md:text-lg">
           {[
-            "Agent-agnostic — works across frameworks and connectors",
-            "Authority boundaries — who may cause what",
-            "Proof, not logs — receipts and traces you can stand behind",
+            "The agent proposes the action.",
+            "A human explicitly approves it.",
+            "Execution happens as a separate step.",
+            "We get a receipt and a trace tied to that action.",
           ].map((line, i) => (
             <li key={line}>
-              <Reveal delayMs={i * 90}>
+              <Reveal delayMs={i * 80}>
                 <span>{line}</span>
               </Reveal>
             </li>
           ))}
         </ul>
+        <Reveal delayMs={380}>
+          <p className="mx-auto mt-12 text-center text-base font-medium text-zinc-200 md:text-lg">
+            Not logs — <span className="text-sky-200/90">proof</span>.
+          </p>
+        </Reveal>
+        <Reveal delayMs={460}>
+          <ProductMock />
+        </Reveal>
       </Frame>
 
-      {/* Closing */}
+      {/* Hard cut → live HUD */}
+      <Frame className="z-10">
+        <Reveal>
+          <Title>Same lifecycle in the live system</Title>
+        </Reveal>
+        <Reveal delayMs={100}>
+          <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
+            Every step explicit. Every action attributable. Walk proposal →
+            approval → execute → receipt in the HUD.
+          </p>
+        </Reveal>
+        <Reveal delayMs={200}>
+          <p className="mt-10 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center rounded-full border border-sky-500/40 bg-sky-500/10 px-6 py-3 text-sm font-semibold text-sky-100 transition hover:border-sky-400/60 hover:bg-sky-500/15"
+            >
+              Open Jarvis HUD
+            </Link>
+          </p>
+        </Reveal>
+      </Frame>
+
+      {/* Gmail proof moment */}
+      <Frame className="z-10">
+        <Reveal>
+          <Title>Real outbound proof</Title>
+        </Reveal>
+        <Reveal delayMs={100}>
+          <p className="mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed text-zinc-300 md:text-lg">
+            A real outbound action — generated by the agent — that only exists
+            because it was approved and executed through Jarvis.
+          </p>
+        </Reveal>
+        <Reveal delayMs={200}>
+          <p
+            className={`${demoMono} mx-auto mt-10 text-center text-[11px] uppercase tracking-[0.14em] text-zinc-500`}
+          >
+            Show the inbox · then return to HUD for the close
+          </p>
+        </Reveal>
+      </Frame>
+
+      {/* Final close — three beats */}
       <Frame className="z-10 pb-28">
         <Reveal>
-          <Title>Every AI action will be governed</Title>
-        </Reveal>
-        <Reveal delayMs={120}>
-          <p className="mt-8 text-center text-sm font-medium uppercase tracking-[0.28em] text-zinc-500">
-            Control · Audit · Trust
-          </p>
+          <div className="mx-auto max-w-2xl space-y-8 text-center text-2xl font-medium leading-snug tracking-tight text-zinc-100 sm:text-3xl md:text-[2rem] md:leading-tight">
+            <p>The agent generated the action.</p>
+            <p>Jarvis governed the execution.</p>
+            <p className="text-sky-200/95">And now we have proof.</p>
+          </div>
         </Reveal>
       </Frame>
     </div>

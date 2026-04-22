@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 1.0
+version: 1.1
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -14,7 +14,7 @@ related:
 
 # Investor demo — full operator runbook
 
-Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. Spoken copy also lives in [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md).
+Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). On-screen beats that mirror that script: **`/demo`** (integration and origin banners are hidden there for a clean recording surface).
 
 **Thesis Lock:** [jarvis-hud-video-thesis.md](../strategy/jarvis-hud-video-thesis.md).
 
@@ -67,9 +67,9 @@ For pending proposals without OpenClaw, see [DEMO.md](../../DEMO.md) (`pnpm demo
 
 ---
 
-## Spoken narrative (pre-demo)
+## Spoken narrative
 
-Use the full text in [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). Critical line (use **real**, not “clear”):
+Use the **full woven script** in [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md) (one continuous take). Critical line (use **real**, not “clear”):
 
 > As soon as those agents operate in real systems, the risks become **real**—especially when actions aren’t **independently verified**.
 

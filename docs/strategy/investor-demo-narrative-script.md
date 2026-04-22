@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.2
+version: 1.3
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -9,6 +9,7 @@ related:
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/strategy/pitch-narrative-outline.md
   - DEMO.md
+  - docs/setup/local-stack-startup.md
   - docs/video/investor-demo-full-runbook.md
 ---
 
@@ -16,99 +17,153 @@ related:
 
 Canonical product thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock).  
 Live demo steps: [DEMO.md](../../DEMO.md).  
-**Operator runbook** (boot + camera + close): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).
+**Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).  
+**Cinematic beats:** scroll experience at **`/demo`** in the app — implementation in `src/app/demo/DemoExperience.tsx`.
 
-This document is **spoken copy** + **delivery notes**. It does not replace Thesis Lock.
-
----
-
-## Evidence spine (four anchors — do not add more on camera)
-
-Use mentally; **do not read citations aloud**.
-
-| Layer | One-line extraction |
-|--------|---------------------|
-| **Infrastructure** | Enterprises are investing in catalogs and registries—what exists, who owns it, what can be reused. |
-| **Capability** | Agents are built as systems that can use tools and take real actions. |
-| **Risk** | Autonomy plus tool access introduces real exposure when actions are not **independently verified**. |
-| **Governance** | Organizations are moving toward formal governance frameworks for AI in production. |
-
-**Wedge (say once, cleanly):** Catalog and policy layers answer visibility and reuse—they do not, by themselves, control what happens at the moment of execution.
+This document is **spoken copy** + **stage directions** + **delivery notes**. It does not replace Thesis Lock. There is no separate setup section in the on-camera flow; the stack is **live** from the first scroll.
 
 ---
 
-## Full script — pre-demo
+## Full investor demo script (weaved — final)
 
-**Open**
+Read this in one continuous take. Pauses are part of the script.
+
+### Open
+
+*(Start on hero. Wait ~2 seconds.)*
 
 We’re seeing three forces collide at once.
 
-Agents are now capable of taking real-world actions—sending emails, modifying systems, triggering workflows.
+*(Scroll.)*
 
-We’re already seeing this at the infrastructure level. Enterprises are building systems to track and manage agents—registries, catalogs, governance layers.
+Agents are now capable of taking real-world actions — sending emails, modifying systems, triggering workflows.
 
-But those systems focus on visibility—what exists, who owns it, and what can be reused.
+And what you’re about to see is running live.
+
+OpenClaw is generating the proposal locally, sending it through the Jarvis ingress path, and Jarvis is holding it at the approval boundary before anything executes.
+
+### Infrastructure context
+
+We’re already seeing this at the infrastructure level.
+
+Enterprises are building systems to track and manage agents — registries, catalogs, governance layers.
+
+But those systems focus on visibility — what exists, who owns it, and what can be reused.
+
+### Gap *(slow down)*
 
 They don’t control what actually happens at the moment an agent takes action.
 
-**Pause.**
+And that’s true even in systems that look like they have governance — because the control isn’t at execution.
+
+*(Pause.)*
 
 That’s the gap.
 
-As soon as those agents operate in real systems, the risks become real—especially when actions aren’t **independently verified**.
+*(Pause.)*
 
-**Pause.**
+As soon as those agents operate in real systems, the risks become real — especially when actions aren’t independently verified.
+
+*(Pause.)*
 
 At the same time, organizations are moving toward formal governance for AI systems in production.
 
-**Pause.**
+*(Pause.)*
 
 What’s missing is control at the moment of execution.
 
-**Full breath.**
+*(Full breath.)*
 
-A system that separates approval from execution—and produces proof of what actually happened.
+### Jarvis *(lock-in)*
+
+A system that separates approval from execution — and produces proof of what actually happened.
 
 That’s what Jarvis does.
 
-**Tiny pause.**
+*(Tiny pause.)*
 
-Jarvis doesn’t manage agents—it governs execution. That’s where authority lives.
+Jarvis doesn’t manage agents — it governs execution.
 
----
+That’s where authority lives.
 
-## Full script — demo handoff (short)
+### Demo handoff
 
-Everything runs through a simple lifecycle: **propose**, **approve**, **execute**—then you get a **receipt** and a **trace** you can stand behind.
+Everything runs through a simple lifecycle:
 
-(Optional close, if time permits.)
+propose → approve → execute → receipt → trace
+
+This is the same local system — proposal from OpenClaw, governed and executed in Jarvis.
+
+*(Optional.)*
 
 Most stacks give you logs. Jarvis gives you proof.
 
+### Product *(on screen)*
+
+*(Move mouse slightly, deliberate.)*
+
+This is a governed action.
+
+The agent proposes the action.
+
+A human explicitly approves it.
+
+Execution happens as a separate step.
+
+And we get a receipt and a trace tied to that action.
+
+*(Pause.)*
+
+Not logs — proof.
+
+### Hard cut → real HUD
+
+*(No transition.)*
+
+This is the same lifecycle running in the actual system.
+
+*(Click through proposal → approval → execute → receipt.)*
+
+Every step is explicit.
+
+Every action is attributable.
+
+### Gmail *(proof moment)*
+
+*(Show the email clearly.)*
+
+This is a real outbound action.
+
+It was generated by the agent…
+
+but it only exists because it was approved and executed through Jarvis.
+
+### Final close *(three beats — very important)*
+
+*(Return to HUD or stay on proof.)*
+
+The agent generated the action.
+
+Jarvis governed the execution.
+
+And now we have proof.
+
 ---
 
-## On-camera close (after Gmail proof)
+## Delivery notes *(read once, then record)*
 
-Return to Jarvis HUD, then:
+- Speak slower than feels natural.
+- Let pauses create weight.
+- Do **not** rush: “That’s the gap,” “independently verified,” or the final three lines.
+- Tone: calm, controlled, inevitable.
+- This is not a pitch — it’s **evidence**.
 
-The agent generated the action. Jarvis governed the execution. And now we have proof.
-
----
-
-## Delivery checklist
-
-- Speak **~20% slower** than feels natural.
-- **Pause** after: “the risks become real” (or equivalent beat); after “That’s the gap.”
-- **Emphasize once:** “independently verified.”
-- **Key pivot:** After “What’s missing is control at the moment of execution.” take a **full breath** before “A system that separates approval from execution…”
-- **Lock-in:** After “That’s what Jarvis does.” take a **tiny pause** before “Jarvis doesn’t manage agents…”; let “That’s where authority lives.” land on its own beat.
-
-### What success should feel like (viewer)
+### Viewer takeaway
 
 1. Agents can do real things.  
 2. That can go wrong.  
-3. Nobody is really controlling execution today.  
-4. Jarvis is the missing layer.
+3. Control belongs at execution — with proof.  
+4. Jarvis is that layer.
 
 ---
 

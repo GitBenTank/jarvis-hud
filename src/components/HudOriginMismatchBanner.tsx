@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type ConfigJson = {
@@ -33,12 +34,17 @@ function originsAlignedForLocalHud(viewedOrigin: string, configuredOrigin: strin
  * loaded (`globalThis.location.origin`), show a non-blocking operator hint (local dev drift).
  */
 export default function HudOriginMismatchBanner() {
+  const pathname = usePathname();
+  const isDemoPath =
+    pathname === "/demo" || (pathname?.startsWith("/demo/") ?? false);
+
   const [mismatch, setMismatch] = useState<{
     viewedOrigin: string;
     configuredBaseUrl: string;
   } | null>(null);
 
   useEffect(() => {
+    if (isDemoPath) return;
     let cancelled = false;
     (async () => {
       try {
@@ -64,8 +70,9 @@ export default function HudOriginMismatchBanner() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isDemoPath]);
 
+  if (isDemoPath) return null;
   if (!mismatch) return null;
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   INTEGRATION_ISSUE_LABELS,
@@ -24,12 +25,17 @@ function isIssueCode(s: string): s is IntegrationIssueCode {
  * No “all green” state — absence of this banner means nothing to fix here.
  */
 export default function HudIntegrationReadinessBanner() {
+  const pathname = usePathname();
+  const isDemoPath =
+    pathname === "/demo" || (pathname?.startsWith("/demo/") ?? false);
+
   const [state, setState] = useState<{
     issues: IntegrationIssueCode[];
     openclawControlUiUrl: string | null;
   } | null>(null);
 
   useEffect(() => {
+    if (isDemoPath) return;
     let cancelled = false;
     (async () => {
       try {
@@ -57,8 +63,9 @@ export default function HudIntegrationReadinessBanner() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isDemoPath]);
 
+  if (isDemoPath) return null;
   if (!state || state.issues.length === 0) return null;
 
   const ruleText = hasIntegrationConfigBlocker(state.issues)

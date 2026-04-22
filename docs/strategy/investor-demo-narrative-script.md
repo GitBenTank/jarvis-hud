@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.1
+version: 1.2
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -9,12 +9,14 @@ related:
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/strategy/pitch-narrative-outline.md
   - DEMO.md
+  - docs/video/investor-demo-full-runbook.md
 ---
 
 # Investor demo — full narration script
 
 Canonical product thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock).  
-Live demo steps: [DEMO.md](../../DEMO.md).
+Live demo steps: [DEMO.md](../../DEMO.md).  
+**Operator runbook** (boot + camera + close): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).
 
 This document is **spoken copy** + **delivery notes**. It does not replace Thesis Lock.
 
@@ -53,7 +55,7 @@ They don’t control what actually happens at the moment an agent takes action.
 
 That’s the gap.
 
-As soon as those agents operate in real systems, the risks become clear—especially when actions aren’t **independently verified**.
+As soon as those agents operate in real systems, the risks become real—especially when actions aren’t **independently verified**.
 
 **Pause.**
 
@@ -85,10 +87,18 @@ Most stacks give you logs. Jarvis gives you proof.
 
 ---
 
+## On-camera close (after Gmail proof)
+
+Return to Jarvis HUD, then:
+
+The agent generated the action. Jarvis governed the execution. And now we have proof.
+
+---
+
 ## Delivery checklist
 
 - Speak **~20% slower** than feels natural.
-- **Pause** after: “the risks become clear” (or equivalent beat); after “That’s the gap.”
+- **Pause** after: “the risks become real” (or equivalent beat); after “That’s the gap.”
 - **Emphasize once:** “independently verified.”
 - **Key pivot:** After “What’s missing is control at the moment of execution.” take a **full breath** before “A system that separates approval from execution…”
 - **Lock-in:** After “That’s what Jarvis does.” take a **tiny pause** before “Jarvis doesn’t manage agents…”; let “That’s where authority lives.” land on its own beat.

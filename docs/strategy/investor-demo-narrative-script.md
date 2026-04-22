@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.0
+version: 1.1
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -43,11 +43,11 @@ We’re seeing three forces collide at once.
 
 Agents are now capable of taking real-world actions—sending emails, modifying systems, triggering workflows.
 
-We’re already seeing this at the infrastructure level. Enterprises are building systems to track and manage agents across organizations—registries, catalogs, governance layers.
+We’re already seeing this at the infrastructure level. Enterprises are building systems to track and manage agents—registries, catalogs, governance layers.
 
 But those systems focus on visibility—what exists, who owns it, and what can be reused.
 
-They don’t control what actually happens when an agent takes action.
+They don’t control what actually happens at the moment an agent takes action.
 
 **Pause.**
 
@@ -69,6 +69,8 @@ A system that separates approval from execution—and produces proof of what act
 
 That’s what Jarvis does.
 
+**Tiny pause.**
+
 Jarvis doesn’t manage agents—it governs execution.
 
 ---
@@ -89,6 +91,7 @@ Most stacks give you logs. Jarvis gives you proof.
 - **Pause** after: “the risks become clear” (or equivalent beat); after “That’s the gap.”
 - **Emphasize once:** “independently verified.”
 - **Key pivot:** After “What’s missing is control at the moment of execution.” take a **full breath** before “A system that separates approval from execution…”
+- **Lock-in:** After “That’s what Jarvis does.” take a **tiny pause** before “Jarvis doesn’t manage agents…”
 
 ### What success should feel like (viewer)
 

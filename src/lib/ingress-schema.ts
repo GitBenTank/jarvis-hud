@@ -33,6 +33,7 @@ const ALLOWLISTED_TOP_LEVEL_KEYS = new Set([
   "builder",
   "provider",
   "model",
+  "batch",
 ]);
 
 const AGENT_METADATA_MAX_LEN = 64;
@@ -162,6 +163,16 @@ export function validateIngressBody(
         code: "FIELD_TOO_LONG",
         message: `model must be ≤ ${MODEL_METADATA_MAX_LEN} chars`,
         field: "model",
+      });
+    }
+  }
+
+  if (o.batch !== undefined) {
+    if (o.batch === null || typeof o.batch !== "object" || Array.isArray(o.batch)) {
+      errors.push({
+        code: "INVALID_FIELD",
+        message: "batch must be a plain object when provided",
+        field: "batch",
       });
     }
   }

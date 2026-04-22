@@ -29,6 +29,8 @@ const ALLOWED_TOP_LEVEL_KEYS = new Set([
   "builder",
   "provider",
   "model",
+  /** Review-container metadata (validated in route via `strictValidateIngressBatch`). */
+  "batch",
 ]);
 
 /** Max length for optional coordinator, builder, provider strings. */

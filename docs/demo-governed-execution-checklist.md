@@ -11,6 +11,7 @@ Short operator script for the **propose → approve → execute** story. Aligns 
 - **Awaiting execution** — Approved, not run yet; execution truth **Awaiting execution**; pipeline **Awaiting execution**.
 - **Execution blocked** — Preflight **Will block** + disabled Execute; replay `→ execution blocked (...)`; policy deny → **Execution blocked (policy)**.
 - **Executed successfully** — After Execute; green banner **Executed successfully**; trace **Executed successfully ·** in end-to-end strip; pipeline/receipt path complete.
+- **Batch / review container** — Optional UI grouping only; **advisory context**. It does **not** change execution authority. **Approve** and **Execute** remain **per proposal** (that row’s id); receipts stay **per item**.
 
 ## Path A — `system.note` (safe, full lifecycle)
 

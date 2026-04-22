@@ -9,6 +9,7 @@ import {
   normalizeProposalLifecycle,
   type ProposalStatus,
 } from "@/lib/proposal-lifecycle";
+import { getProposalBatchItemContextFromEvent } from "@/lib/proposal-batch";
 import {
   requiresIrreversibleConfirmation,
   getConfirmationPhrase,
@@ -63,6 +64,8 @@ type Event = {
   builder?: string;
   provider?: string;
   model?: string;
+  /** Review-container metadata (ADR-0005); each event still has its own execute receipt. */
+  batch?: unknown;
 };
 
 type ApprovalsResponse = {
@@ -342,6 +345,7 @@ function DetailModal({
     isRecovery;
   const blockedForEvent = executeError?.approvalId === event.id;
   const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
+  const batchCtx = getProposalBatchItemContextFromEvent(event);
 
   const executeButtonLabel = (() => {
     if (executeLoading) return "Executing…";
@@ -414,6 +418,20 @@ function DetailModal({
 
         <dl className="space-y-2 text-sm">
           <div>
+            <dt className="font-medium text-zinc-500">Proposal id</dt>
+            <dd>
+              <code className="break-all font-mono text-xs">{event.id}</code>
+            </dd>
+          </div>
+          {event.traceId ? (
+            <div>
+              <dt className="font-medium text-zinc-500">Trace id</dt>
+              <dd>
+                <code className="break-all font-mono text-xs">{event.traceId}</code>
+              </dd>
+            </div>
+          ) : null}
+          <div>
             <dt className="font-medium text-zinc-500">Type</dt>
             <dd>{event.type}</dd>
           </div>
@@ -462,6 +480,31 @@ function DetailModal({
             <div>
               <dt className="font-medium text-zinc-500">Model</dt>
               <dd className="break-all font-mono text-xs">{event.model.trim()}</dd>
+            </div>
+          ) : null}
+          {batchCtx ? (
+            <div className="rounded border border-violet-200 bg-violet-50/80 px-3 py-2 dark:border-violet-800/60 dark:bg-violet-950/35">
+              <div className="text-sm font-medium text-violet-800 dark:text-violet-200">
+                Review container (batch)
+              </div>
+              <div className="mt-1 space-y-1 text-xs text-zinc-700 dark:text-zinc-300">
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Batch id:</span>{" "}
+                  <code className="font-mono">{batchCtx.id}</code>
+                </div>
+                <div>
+                  Item {batchCtx.itemIndex + 1} of {batchCtx.itemCount} · approval and execution apply to{" "}
+                  <strong>this</strong> item only; receipts are per item.
+                </div>
+                {batchCtx.title ? (
+                  <div>
+                    <span className="font-medium text-zinc-600 dark:text-zinc-400">Title:</span> {batchCtx.title}
+                  </div>
+                ) : null}
+                {batchCtx.summary ? (
+                  <div className="text-zinc-600 dark:text-zinc-400">{batchCtx.summary}</div>
+                ) : null}
+              </div>
             </div>
           ) : null}
           <LifecycleTimestamps event={event} />

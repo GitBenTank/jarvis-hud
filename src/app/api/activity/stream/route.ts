@@ -11,6 +11,7 @@ import {
 } from "@/lib/storage";
 import { normalizeAction } from "@/lib/normalize";
 import type { ActivityEvent } from "@/lib/activity-types";
+import { proposalBatchActivitySuffix } from "@/lib/proposal-batch";
 import { buildRuntimePosture } from "@/lib/runtime-posture";
 import { getReasonDetail, reasonFromPolicyReason, type ReasonDetail } from "@/lib/reason-taxonomy";
 
@@ -26,6 +27,7 @@ type StoredEvent = {
   executedAt?: string;
   approvedAt?: string;
   proposalStatus?: string;
+  batch?: unknown;
 };
 
 type ActionLogEntry = {
@@ -93,6 +95,8 @@ type EventContext = {
   rejectedAt?: string;
   executedAt?: string;
   status?: string;
+  /** Suffix from `proposalBatchActivitySuffix` for proposal-linked rows. */
+  batchSuffix: string;
 };
 
 function toEventContext(e: StoredEvent): EventContext {
@@ -112,6 +116,7 @@ function toEventContext(e: StoredEvent): EventContext {
     rejectedAt: (e as { rejectedAt?: string }).rejectedAt,
     executedAt: e.executedAt,
     status: e.status,
+    batchSuffix: proposalBatchActivitySuffix(e.batch),
   };
 }
 
@@ -126,7 +131,7 @@ function mapProposalEvents(ctx: EventContext): ActivityEvent[] {
       status: "done",
       verb: "Proposed",
       label: "Proposal received",
-      summary: `${ctx.connector} proposed ${ctx.kind ?? "action"}.`,
+      summary: `${ctx.connector} proposed ${ctx.kind ?? "action"}.${ctx.batchSuffix}`,
       approvalId: ctx.approvalId,
       kind: ctx.kind,
     },
@@ -145,7 +150,7 @@ function mapIngressEvents(ctx: EventContext): ActivityEvent[] {
       status: "done",
       verb: "Recorded",
       label: "Ingress verified",
-      summary: `Jarvis verified ingress for ${ctx.connector}.`,
+      summary: `Jarvis verified ingress for ${ctx.connector}.${ctx.batchSuffix}`,
       approvalId: ctx.approvalId,
       kind: ctx.kind,
     },
@@ -164,7 +169,7 @@ function mapApprovalEvents(ctx: EventContext): ActivityEvent[] {
       status: "active",
       verb: "Waiting",
       label: "Awaiting approval",
-      summary: "Waiting for explicit human approval before execution.",
+      summary: `Waiting for explicit human approval before execution.${ctx.batchSuffix}`,
       reason: getReasonDetail("APPROVAL_REQUIRED"),
       approvalId: ctx.approvalId,
       kind: ctx.kind,
@@ -180,7 +185,7 @@ function mapApprovalEvents(ctx: EventContext): ActivityEvent[] {
       status: "approved",
       verb: "Approved",
       label: "Approved",
-      summary: "Operator approved proposal for execution.",
+      summary: `Operator approved proposal for execution.${ctx.batchSuffix}`,
       approvalId: ctx.approvalId,
       kind: ctx.kind,
     });
@@ -195,7 +200,7 @@ function mapApprovalEvents(ctx: EventContext): ActivityEvent[] {
       status: "blocked",
       verb: "Blocked",
       label: "Rejected",
-      summary: "Operator rejected proposal.",
+      summary: `Operator rejected proposal.${ctx.batchSuffix}`,
       reason: getReasonDetail("APPROVAL_REQUIRED"),
       approvalId: ctx.approvalId,
       kind: ctx.kind,
@@ -216,7 +221,7 @@ function mapExecutionEvents(ctx: EventContext): ActivityEvent[] {
       status: "active",
       verb: "Waiting",
       label: "Execution started",
-      summary: "Jarvis queued execution after approval.",
+      summary: `Jarvis queued execution after approval.${ctx.batchSuffix}`,
       approvalId: ctx.approvalId,
       kind: ctx.kind,
     });
@@ -231,7 +236,7 @@ function mapExecutionEvents(ctx: EventContext): ActivityEvent[] {
       status: "success",
       verb: "Executed",
       label: "Executed successfully",
-      summary: `Executed successfully (${ctx.kind ?? "action"}).`,
+      summary: `Executed successfully (${ctx.kind ?? "action"}).${ctx.batchSuffix}`,
       approvalId: ctx.approvalId,
       kind: ctx.kind,
     });

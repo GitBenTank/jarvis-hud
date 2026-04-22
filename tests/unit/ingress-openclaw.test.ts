@@ -197,6 +197,65 @@ describe("POST /api/ingress/openclaw", () => {
     expect(pl.note).toBe("body");
   });
 
+  it("returns 400 when batch has unknown field (before signature check)", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const req = await createRequest({
+      body: {
+        ...VALID_BODY,
+        batch: { id: "b", itemIndex: 0, itemCount: 1, extraKey: true },
+      },
+    });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(400);
+    const j = await res.json();
+    expect(String(j.field ?? "")).toContain("batch");
+  });
+
+  it("returns 400 when batch.itemIndex out of range", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const req = await createRequest({
+      body: {
+        ...VALID_BODY,
+        batch: { id: "b", itemIndex: 2, itemCount: 2 },
+      },
+    });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(400);
+  });
+
+  it("persists normalized batch on event when valid", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");
+
+    const req = await createRequest({
+      body: {
+        ...VALID_BODY,
+        batch: {
+          id: "  batch-1  ",
+          title: "  Daily ",
+          summary: "  Summary ",
+          itemIndex: 0,
+          itemCount: 2,
+        },
+      },
+    });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+
+    const dateKey = getDateKey();
+    const filePath = getEventsFilePath(dateKey);
+    const events = await readJson<Record<string, unknown>[]>(filePath);
+    const ev = (events ?? []).find((e) => e.id === json.id);
+    expect(ev?.batch).toEqual({
+      id: "batch-1",
+      title: "Daily",
+      summary: "Summary",
+      itemIndex: 0,
+      itemCount: 2,
+    });
+  });
+
   it("preserves optional agent, builder, provider, model and derives proposer actor from agent", async () => {
     const { POST } = await import("@/app/api/ingress/openclaw/route");
     const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");

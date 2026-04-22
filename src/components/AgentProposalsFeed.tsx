@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { normalizeAction } from "@/lib/normalize";
+import {
+  getProposalBatchItemContextFromEvent,
+  groupEventsByProposalBatch,
+} from "@/lib/proposal-batch";
 import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import { requiresIrreversibleConfirmation } from "@/lib/risk";
@@ -27,6 +31,8 @@ export type ProposalEvent = {
   builder?: string;
   provider?: string;
   model?: string;
+  /** Optional review-container metadata (ADR-0005); execution stays per approval id. */
+  batch?: unknown;
 };
 
 function formatRelativeTime(iso: string): string {
@@ -99,6 +105,73 @@ type AgentProposalsFeedProps = Readonly<{
   /** When true, kinds that require typed confirmation must use Details (not quick Approve). */
   irreversibleConfirmEnabled: boolean;
 }>;
+
+function ProposalListByBatch({
+  events,
+  variant,
+  onDetails,
+  onApprove,
+  onDeny,
+  irreversibleConfirmEnabled,
+}: {
+  events: ProposalEvent[];
+  variant: "pending" | "approved" | "executed";
+  onDetails: (e: ProposalEvent) => void;
+  onApprove: (id: string) => void;
+  onDeny: (id: string) => void;
+  irreversibleConfirmEnabled: boolean;
+}) {
+  const { groups, standalone } = groupEventsByProposalBatch(events);
+  return (
+    <>
+      {groups.map((g) => (
+        <li key={g.batchId} className="list-none">
+          <div className="rounded-lg border border-violet-300/80 bg-violet-50/40 p-4 dark:border-violet-500/35 dark:bg-violet-950/25">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-800 dark:text-violet-300">
+              Review container
+            </p>
+            {g.title ? (
+              <h4 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{g.title}</h4>
+            ) : (
+              <p className="mt-1 font-mono text-xs text-zinc-600 dark:text-zinc-400">{g.batchId}</p>
+            )}
+            {g.summary ? (
+              <p className="mt-1 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">{g.summary}</p>
+            ) : null}
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              Showing {g.items.length} of {g.itemCount} batch item{g.itemCount === 1 ? "" : "s"} in this
+              section · approve and execute each item separately.
+            </p>
+            <ul className="mt-3 space-y-3">
+              {g.items.map((event) => (
+                <ProposalCard
+                  key={event.id}
+                  event={event}
+                  variant={variant}
+                  onDetails={onDetails}
+                  onApprove={onApprove}
+                  onDeny={onDeny}
+                  irreversibleConfirmEnabled={irreversibleConfirmEnabled}
+                />
+              ))}
+            </ul>
+          </div>
+        </li>
+      ))}
+      {standalone.map((event) => (
+        <ProposalCard
+          key={event.id}
+          event={event}
+          variant={variant}
+          onDetails={onDetails}
+          onApprove={onApprove}
+          onDeny={onDeny}
+          irreversibleConfirmEnabled={irreversibleConfirmEnabled}
+        />
+      ))}
+    </>
+  );
+}
 
 function ProposalCard({
   event,
@@ -195,6 +268,18 @@ function ProposalCard({
               </span>
             </>
           ) : null}
+          {(() => {
+            const b = getProposalBatchItemContextFromEvent(event);
+            if (!b) return null;
+            return (
+              <>
+                <span className="text-zinc-400">|</span>
+                <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">
+                  Batch item {b.itemIndex + 1}/{b.itemCount}
+                </span>
+              </>
+            );
+          })()}
         </div>
 
         <p className={`font-medium text-zinc-800 dark:text-zinc-200 ${isPending || isRecovery ? "text-base" : "text-sm"}`}>
@@ -387,17 +472,14 @@ export default function AgentProposalsFeed({
             The agent may propose. Execution authority originates with a human.
           </p>
           <ul className="space-y-4">
-            {pendingApprovals.map((event) => (
-              <ProposalCard
-                key={event.id}
-                event={event}
-                variant="pending"
-                onDetails={onDetails}
-                onApprove={onApprove}
-                onDeny={onDeny}
-                irreversibleConfirmEnabled={irreversibleConfirmEnabled}
-              />
-            ))}
+            <ProposalListByBatch
+              events={pendingApprovals}
+              variant="pending"
+              onDetails={onDetails}
+              onApprove={onApprove}
+              onDeny={onDeny}
+              irreversibleConfirmEnabled={irreversibleConfirmEnabled}
+            />
           </ul>
         </>
       )}
@@ -406,17 +488,14 @@ export default function AgentProposalsFeed({
         <>
           <h3 className="mb-2 mt-6 font-medium">Authorized (Awaiting Execution)</h3>
           <ul className="space-y-3">
-            {approvedNotExecuted.map((event) => (
-              <ProposalCard
-                key={event.id}
-                event={event}
-                variant="approved"
-                onDetails={onDetails}
-                onApprove={onApprove}
-                onDeny={onDeny}
-                irreversibleConfirmEnabled={irreversibleConfirmEnabled}
-              />
-            ))}
+            <ProposalListByBatch
+              events={approvedNotExecuted}
+              variant="approved"
+              onDetails={onDetails}
+              onApprove={onApprove}
+              onDeny={onDeny}
+              irreversibleConfirmEnabled={irreversibleConfirmEnabled}
+            />
           </ul>
         </>
       )}

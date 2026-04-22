@@ -530,4 +530,27 @@ describe("validateOpenClawProposal", () => {
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.field).toBe("payload");
   });
+
+  it("allows optional top-level batch key (inner shape validated at ingress route)", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      payload: { note: "n" },
+      source: { connector: "openclaw" },
+      batch: {
+        id: "b1",
+        itemIndex: 0,
+        itemCount: 2,
+        title: "Container",
+      },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(true);
+  });
 });

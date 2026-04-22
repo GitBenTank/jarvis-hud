@@ -4,6 +4,8 @@ Status: Accepted
 Date: 2026-02-25  
 Owner: Ben Tankersley  
 
+**Related:** [ADR-0005: Agent team batch v0](./0005-agent-team-batch-v0-per-item-execute.md) · [Agent team v1](../strategy/agent-team-v1.md)
+
 ---
 
 ## Context

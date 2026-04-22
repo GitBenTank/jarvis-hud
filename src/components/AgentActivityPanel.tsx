@@ -128,6 +128,16 @@ export default function AgentActivityPanel() {
                     </span>
                   </div>
                   <p className="text-sm text-zinc-700 dark:text-zinc-300">{event.summary}</p>
+                  {event.approvalId ? (
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      Proposal{" "}
+                      <code className="font-mono" title={event.approvalId}>
+                        {event.approvalId.length > 14
+                          ? `${event.approvalId.slice(0, 8)}…${event.approvalId.slice(-4)}`
+                          : event.approvalId}
+                      </code>
+                    </p>
+                  ) : null}
                   {event.reason ? (
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       Why: <span className="font-medium">{event.reason.label}</span> - {event.reason.summary}

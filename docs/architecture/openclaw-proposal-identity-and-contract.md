@@ -55,6 +55,10 @@ Constant: `OPENCLAW_INGRESS_UNKNOWN_PROPOSER_AGENT` in `openclaw-proposal-identi
 
 `agent` and `source.agentId` are **independent**: send a human coordinator in `agent` and a machine id in `source.agentId` when both exist.
 
+**Optional (review container only — ADR-0005)**
+
+- `batch` — plain object, **only** these keys allowed: `id` (string, ≤ 128 chars after trim), `title` (optional string, ≤ 200 chars after trim), `summary` (optional string, ≤ 2000 chars after trim), `itemIndex` (non-negative integer), `itemCount` (integer 1–100, must be **greater than** `itemIndex`). Extra keys are rejected. Semantics are validated at ingress by `strictValidateIngressBatch` in `src/lib/proposal-batch.ts` (fail closed before HMAC). **Do not** put `batch` inside `payload` — it is stripped/forbidden there; send it **top-level** only.
+
 ### Stored event (after successful ingress)
 
 Jarvis appends a row that **always** includes:
@@ -64,6 +68,8 @@ Jarvis appends a row that **always** includes:
 **Payload mirror:** `payload.kind`, `payload.title`, `payload.summary` are merged from the body for every kind.
 
 **When the client sends it:** `source.agentId` is stored under `source.agentId` unchanged (trimmed). If omitted, the key is absent — there is no invented default.
+
+**When the client sends `batch`:** the normalized object (trimmed strings, no extra keys) is stored **top-level** on the event alongside `payload`. Each proposal still has its own HUD `id` for approval and execution.
 
 ---
 
@@ -81,3 +87,4 @@ Ingress only **records** proposals; execution still requires **human approval** 
 - [Trace-grounded proposal assessment](./openclaw-proposal-contract-trace-assessment.md)
 - `src/lib/ingress/validate-openclaw-proposal.ts`
 - `src/app/api/ingress/openclaw/route.ts`
+- `src/lib/proposal-batch.ts` (`strictValidateIngressBatch`)

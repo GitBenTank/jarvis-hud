@@ -27,6 +27,10 @@ import { ALLOWED_KINDS } from "@/lib/policy";
 import { getReasonDetail } from "@/lib/reason-taxonomy";
 import { agentActorFromAgentField } from "@/lib/actor-identity";
 import { resolveOpenClawLogicalAgent } from "@/lib/ingress/openclaw-proposal-identity";
+import {
+  strictValidateIngressBatch,
+  type ProposalBatchItemContext,
+} from "@/lib/proposal-batch";
 
 type IngressEvent = {
   id: string;
@@ -62,6 +66,8 @@ type IngressEvent = {
   provider?: string;
   /** Model id string; metadata only. */
   model?: string;
+  /** Optional review-container metadata; validated by `strictValidateIngressBatch`. */
+  batch?: ProposalBatchItemContext;
 };
 
 type IngressBody = {
@@ -86,6 +92,7 @@ type IngressBody = {
   builder?: string;
   provider?: string;
   model?: string;
+  batch?: unknown;
 };
 
 export async function POST(request: NextRequest) {
@@ -191,6 +198,20 @@ export async function POST(request: NextRequest) {
         );
       }
     }
+
+    const parsedObj = parsed as Record<string, unknown>;
+    let normalizedIngressBatch: ProposalBatchItemContext | undefined;
+    if (parsedObj.batch !== undefined) {
+      const br = strictValidateIngressBatch(parsedObj.batch);
+      if (!br.ok) {
+        return NextResponse.json(
+          { error: br.message, field: br.field },
+          { status: 400 }
+        );
+      }
+      normalizedIngressBatch = br.batch;
+    }
+
     const body = parsed as IngressBody;
 
     const timestamp = request.headers.get("x-jarvis-timestamp");
@@ -271,6 +292,7 @@ export async function POST(request: NextRequest) {
       "builder",
       "provider",
       "model",
+      "batch",
     ];
     const rawPayload =
       body.payload && typeof body.payload === "object" ? body.payload : {};
@@ -362,6 +384,7 @@ export async function POST(request: NextRequest) {
       ...(builderName ? { builder: builderName } : {}),
       ...(providerName ? { provider: providerName } : {}),
       ...(modelName ? { model: modelName } : {}),
+      ...(normalizedIngressBatch ? { batch: normalizedIngressBatch } : {}),
       source: {
         connector: "openclaw",
         receivedAt,

@@ -26,6 +26,7 @@ const ALLOWED_TOP_LEVEL = new Set([
   "builder",
   "provider",
   "model",
+  "batch",
 ]);
 
 export type NormalizeOk = { ok: true; body: Record<string, unknown> };

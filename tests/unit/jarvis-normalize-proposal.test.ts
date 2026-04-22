@@ -52,6 +52,26 @@ describe("normalizeProposal", () => {
     expect(r.body).not.toHaveProperty("evil");
   });
 
+  it("preserves batch when present", () => {
+    const batch = {
+      id: "batch-test-1",
+      title: "Batch title",
+      itemIndex: 1,
+      itemCount: 3,
+    };
+    const r = normalizeProposal({
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      payload: { note: "n" },
+      batch,
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.body.batch).toEqual(batch);
+  });
+
   it("rejects missing kind", () => {
     const r = normalizeProposal({
       title: "T",

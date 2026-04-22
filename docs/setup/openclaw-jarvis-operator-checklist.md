@@ -1,7 +1,7 @@
 ---
 title: "OpenClaw ↔ Jarvis HUD — operator checklist"
 status: living-document
-version: 1.3
+version: 1.4
 owner: Ben Tankersley
 created: 2026-04-18
 category: setup
@@ -53,6 +53,12 @@ An action is **valid** only if:
 2. After execution, a **corresponding receipt** exists in Jarvis (where that kind produces one).
 
 All other signals—chat, tool stdout, agent claims, local file writes—are **non-authoritative** for governed outcomes.
+
+---
+
+## Approvals and review (operator note)
+
+**Batch metadata is advisory context only.** When proposals carry optional **batch** grouping (title, summary, item index), that information helps you **review related items together** in the HUD. It does **not** change execution authority: **Approve** and **Execute** still apply **per proposal**, keyed by that row’s Jarvis **event `id`**. Receipts stay **per executed item**. A batch label is not consent to run work you have not explicitly approved and executed item by item. Spec: [Agent team v1](../strategy/agent-team-v1.md), [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md).
 
 ---
 

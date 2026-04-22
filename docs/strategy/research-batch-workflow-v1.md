@@ -178,7 +178,7 @@ Note terminal **`id`** / **`traceId`** per item for later comparison in the HUD.
 
 ### 4. Repeat (volume + what to watch for)
 
-- **Aim for patterns, not anecdotes:** several passes with **3-item** batches, then at least one **5–7** item batch (within ingress limits), same discipline: **one executed row** per run unless you deliberately vary the exercise.
+- **Aim for patterns, not anecdotes:** several passes with **3-item** batches, then **graduate** to at least one **5–7** item batch (within ingress limits), same discipline: **one executed row** per run unless you deliberately vary the exercise.
 - Run on the **locked stack** only; resist new machinery until irritations are logged.
 
 **Log anything that feels:** ambiguous · repetitive · too manual · easy to misread · easy for an **agent to author incorrectly** · annoying enough that you’d be tempted to “helpfully” automate it. That list is the raw material for Phase 3 (templates, copy, guardrails) — [Phase 3](../roadmap/0003-operator-integration-phases.md#phase-3--standardize-proposal-authoring) wakes up when rows **cluster**, not when the roadmap feels idle.
@@ -193,11 +193,15 @@ The next **paper** phase to wake up is [Phase 3 — standardize proposal authori
 
 ## Friction log (after rehearsals)
 
-Append a row after **each** run (or each day). This is the **evidence base** for Phase 3 templates and HUD copy — not new policy layers. Empty log + heavy templates = imagination; repeated rehearsals + rows = reality. When entries start to **cluster**, bring them to a design pass: templates, copy changes, or ingest guardrails — still grounded in what you observed.
+Append a row after **each** run (or each day). This is the **evidence base** for Phase 3 templates and HUD copy — not new policy layers. Empty log + heavy templates = imagination; repeated rehearsals + rows = reality. A **minimal row** (“nothing bit me”) still proves the ritual happened; a blank table can pretend it didn’t.
+
+**Phase 3 bar:** Treat an item as **Phase 3–worthy** when the **same** annoyance shows up **twice** — pattern, not a one-off. First occurrence: log it; second occurrence: prioritize template / copy / guardrail work.
+
+When entries **cluster**, bring them to a design pass: templates, copy changes, or ingest guardrails — still grounded in what you observed.
 
 | Date | Run | What confused the operator | Copy / UI to tighten | Slower than expected | Template / automation candidate (Phase 3) |
 |------|-----|----------------------------|----------------------|----------------------|-------------------------------------------|
-| | | | | | |
+| 2026-04-18 | 1 | Nothing material on first pass (baseline). | — | — | — |
 
 _(Example: “Execute button proximity to batch header”, “Activity line used batch title instead of proposal id”, “OpenClaw compose: forgot itemCount”.)_
 

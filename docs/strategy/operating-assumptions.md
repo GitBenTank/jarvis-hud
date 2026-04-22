@@ -9,6 +9,7 @@ related:
   - agent-team-v1.md
   - ../architecture/jarvis-openclaw-system-overview.md
   - ../openclaw-integration-verification.md
+  - ../roadmap/0003-operator-integration-phases.md
 ---
 
 # Operating assumptions (Jarvis + OpenClaw)
@@ -78,6 +79,7 @@ related:
 
 ## See also
 
+- [Operator integration phases (roadmap)](../roadmap/0003-operator-integration-phases.md)
 - [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md)
 - [Agent team v1](./agent-team-v1.md)
 - [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift)

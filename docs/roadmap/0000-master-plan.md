@@ -10,6 +10,7 @@
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)  
 - [ADR-0002: Positioning and ICP](../decisions/0002-money-arc-and-icp.md)  
 - [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md)
+- [Operator integration phases](./0003-operator-integration-phases.md)
 
 ---
 

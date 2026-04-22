@@ -12,6 +12,7 @@ related:
   - docs/strategy/agent-team-v1.md
   - docs/architecture/jarvis-openclaw-system-overview.md
   - docs/strategy/operating-assumptions.md
+  - docs/roadmap/0003-operator-integration-phases.md
   - docs/governance/
   - docs/roadmap/
 ---
@@ -229,6 +230,7 @@ See also:
 - [Agent team v1](./agent-team-v1.md)
 - [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md)
 - [Operating assumptions](./operating-assumptions.md)
+- [Operator integration phases](../roadmap/0003-operator-integration-phases.md)
 
 ---
 

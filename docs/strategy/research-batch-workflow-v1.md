@@ -170,16 +170,17 @@ Note terminal **`id`** / **`traceId`** per item for later comparison in the HUD.
 - Run the same protocol **multiple times** on the locked stack before adding governance machinery.
 - Then increase load: **5–7** items (within ingress batch limits), same per-item execute discipline.
 
-### 5. After Phase 3 (templates)
+### 5. When Phase 3 earns attention
 
-- **Reusable OpenClaw submission template** (compose-time) — only after friction is captured here.
-- **Creative agent v1** — only after this loop feels boringly reliable.
+The next **paper** phase to wake up is [Phase 3 — standardize proposal authoring](../roadmap/0003-operator-integration-phases.md#phase-3--standardize-proposal-authoring) — **only after** this ritual has run **enough times** to produce **honest friction log entries** (especially wording and compose-time / authoring mistakes). Templates and guidance should **prevent what you actually saw**, not what you imagined might go wrong.
+
+**Creative agent v1** ([Phase 5](../roadmap/0003-operator-integration-phases.md#phase-5--add-the-second-specialist)) stays after the research loop feels boringly reliable and Phase 3 is grounded.
 
 ---
 
 ## Friction log (after rehearsals)
 
-Append a row after **each** run (or each day). This feeds Phase 3 templates and HUD copy — not new policy layers.
+Append a row after **each** run (or each day). This is the **evidence base** for Phase 3 templates and HUD copy — not new policy layers. Empty log + heavy templates = imagination; repeated rehearsals + rows = reality.
 
 | Date | Run | What confused the operator | Copy / UI to tighten | Slower than expected | Template / automation candidate (Phase 3) |
 |------|-----|----------------------------|----------------------|----------------------|-------------------------------------------|

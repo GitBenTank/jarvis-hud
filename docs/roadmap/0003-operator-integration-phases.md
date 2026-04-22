@@ -33,7 +33,7 @@ Do these **next**, in this order:
 4. **Phase 3** — Standardize proposal authoring (templates, field conventions)
 5. **Phase 5** — Add the second specialist (creative agent, same spine)
 
-**Rationale:** Freeze the stack and authority **before** optimizing authoring ergonomics; keep the first loop boringly reliable, then broaden roles.
+**Rationale:** Freeze the stack and authority **before** optimizing authoring ergonomics; run the **research batch ritual** until the [friction log](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals) has **honest entries** — then wake **Phase 3** from that evidence (templates prevent real mistakes, not imagined ones). After that, broaden roles.
 
 Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilities, and packaging need deliberate sequencing.
 
@@ -76,6 +76,8 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 ## Phase 3 — Standardize proposal authoring
 
 **Goal:** Make agents generate correct proposals by default.
+
+**Gate:** Prefer to start serious Phase 3 work **after** several **Phase 4** rehearsals and **real rows** in the [research batch friction log](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals) (wording, authoring mistakes, repeated fixes). Avoid large template investments driven only by speculation.
 
 - Add compose-time guidance/templates for OpenClaw submissions.
 - Standardize:

@@ -16,7 +16,7 @@ Jarvis HUD sits between **AI agents** (e.g. [OpenClaw](https://github.com/opencl
 > **Status:** Active development — **demo-ready** locally with **OpenClaw-signed ingress** ([Investor / demo path](#investor--demo-path)).
 
 ![Version](https://img.shields.io/badge/version-v0.1-blue)
-![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![License](https://img.shields.io/badge/license-Proprietary-lightgrey)
 ![Node](https://img.shields.io/badge/node-20+-green)
 ![Architecture](https://img.shields.io/badge/architecture-control--plane-purple)
 ![Stack](https://img.shields.io/badge/stack-TypeScript%20%2B%20Next.js-blue)
@@ -358,4 +358,4 @@ https://ctrlstrum.com
 
 ## License
 
-Apache License 2.0.
+**Proprietary — all rights reserved.** See [LICENSE](LICENSE). The repository may be public for visibility; that does not grant rights to use or redistribute the code. For licensing inquiries, use the contact in [Author](#author).

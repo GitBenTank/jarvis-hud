@@ -197,6 +197,15 @@ Append a row after **each** run (or each day). This is the **evidence base** for
 
 **Phase 3 bar:** Treat an item as **Phase 3–worthy** when the **same** annoyance shows up **twice** — pattern, not a one-off. First occurrence: log it; second occurrence: prioritize template / copy / guardrail work.
 
+**If logged items recur — suggested fix priority (truth first):**
+
+1. **Duplicate review containers** for one batch — threatens **truthfulness** (one batch vs two).
+2. **State mismatch** (e.g. “Approve (3)” strip vs cards already **APPROVED** / **Execute**) — threatens **truthfulness** of what the HUD claims.
+3. **Disconnected / no recent activity** while ingress still works — mostly **confidence** (operator learns to trust Activity; banner still hurts).
+4. **Same rehearsal titles every run** — mostly **scanability** across Activity/receipts; templates can vary batch or id hints.
+
+Until recurrence, **log only** — then fix without mercy once a pattern is proven.
+
 When entries **cluster**, bring them to a design pass: templates, copy changes, or ingest guardrails — still grounded in what you observed.
 
 | Date | Run | What confused the operator | Copy / UI to tighten | Slower than expected | Template / automation candidate (Phase 3) |

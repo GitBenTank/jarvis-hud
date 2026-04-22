@@ -1,0 +1,34 @@
+---
+description: Commit and push to main at milestones until deploy branching is needed
+alwaysApply: true
+---
+
+# Git: commit and push to `main`
+
+**Scope:** This repo’s **primary** workflow (solo / maintainer). Until there is a dedicated production deploy branch or release process (e.g. Vercel promotion), treat **`main`** as the integration branch and **push there often**.
+
+## When to commit and push
+
+Do **both** at **important moments**, not only at the end of a long session:
+
+- A **coherent unit of work** is done (feature slice, doc set, fix + tests green).
+- **Tests pass** (`pnpm test` or the relevant subset) after code changes.
+- You are about to **switch tasks** or **hand off** — leave `main` on GitHub current.
+- The user explicitly reached a **milestone** they care about (Phase N, freeze, probe added).
+
+Prefer **small, focused commits** over one giant squashed dump when the changes are unrelated.
+
+## Commands (habit)
+
+```bash
+git status
+git add -A   # or scoped paths
+git commit -m "type(scope): short imperative summary"
+git push origin main
+```
+
+Use clear commit messages (what changed, why if non-obvious). No secrets or `.env.local` in commits.
+
+## Later (deploy / extensions)
+
+When deployment (Vercel, etc.) needs a different promotion model, update this rule and `CONTRIBUTING.md` — e.g. `main` vs `production`, tags, or release branches.

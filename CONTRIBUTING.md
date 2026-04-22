@@ -4,11 +4,17 @@ Thanks for your interest in contributing.
 
 ## Workflow
 
+### External contributors
+
 1. **Open an issue** to discuss substantial changes or new features
 2. **Fork** the repository and create a branch from `main`
 3. **Make your changes** — keep the scope focused
 4. **Run tests:** `pnpm test:unit`
 5. **Open a pull request** with a clear description of the change
+
+### Primary maintainer (this repo)
+
+Until a separate production promotion branch exists (e.g. post–Vercel deploy flow), **integrate on `main`**: commit at **meaningful milestones**, keep messages clear, **push to `origin/main`** so GitHub stays the source of truth. Run **`pnpm test`** (or the relevant subset) before pushing code changes. Do not commit secrets or `.env.local`.
 
 ## Guidelines
 

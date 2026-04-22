@@ -199,10 +199,11 @@ Append a row after **each** run (or each day). This is the **evidence base** for
 
 **If logged items recur — suggested fix priority (truth first):**
 
-1. **Duplicate review containers** for one batch — threatens **truthfulness** (one batch vs two).
-2. **State mismatch** (e.g. “Approve (3)” strip vs cards already **APPROVED** / **Execute**) — threatens **truthfulness** of what the HUD claims.
-3. **Disconnected / no recent activity** while ingress still works — mostly **confidence** (operator learns to trust Activity; banner still hurts).
-4. **Same rehearsal titles every run** — mostly **scanability** across Activity/receipts; templates can vary batch or id hints.
+1. **Duplicate review containers** for one batch — threatens **truthfulness** (one batch vs two). *Still open until recurrence drives a fix.*
+2. **Safety gate vs queue state** — threatened **truthfulness** (e.g. “Pending approval” when rows were already **APPROVED**). **Fixed** in `SafetyGatePanel` (see **Resolved in code** below).
+3. **OpenClaw disconnected / no recent activity** while ingress and receipts are still coherent — after (2), this is the **next most corrosive**: persistent **false-bad** status erodes trust in the control plane. Operator checklist already says to trust Activity for ingress truth; the banner should be reconciled or softened when recurrence justifies code/docs change.
+4. **Same rehearsal titles every run** — **scanability**; Phase 3 templates when patterns warrant.
+5. **Approval-time safety snapshot** (“NO SNAPSHOT RECORDED” on trace) — **watch**; one sighting is not yet a pattern; log again if it clusters.
 
 Until recurrence, **log only** — then fix without mercy once a pattern is proven.
 

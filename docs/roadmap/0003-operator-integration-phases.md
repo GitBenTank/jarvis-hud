@@ -10,6 +10,7 @@
 - [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md)
 - [OpenClaw integration verification](../openclaw-integration-verification.md)
 - [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md)
+- [Return after a pause](../setup/return-after-pause.md)
 - [Agent team v1](../strategy/agent-team-v1.md)
 - [Research batch workflow v1](../strategy/research-batch-workflow-v1.md)
 - [Creative batch workflow v1 (Phase 5)](../strategy/creative-batch-workflow-v1.md)

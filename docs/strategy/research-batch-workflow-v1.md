@@ -1,7 +1,7 @@
 # Research batch workflow v1 (first governed loop)
 
 **Status:** Living — **Phase 4 v1 complete (2026-04)** on the blessed stack; this doc remains the **ongoing** runbook (preflight + reps + friction log). Stack + probes: [§1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) / [§2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis). [Roadmap closure](../roadmap/0003-operator-integration-phases.md#phase-4--operationalize-the-first-agent-loop).  
-**Related:** [Agent team v1](./agent-team-v1.md) · [Creative batch workflow v1 (Phase 5)](./creative-batch-workflow-v1.md) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [OpenClaw proposal contract](../architecture/openclaw-proposal-identity-and-contract.md) · [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) · [Roadmap Phase 4](../roadmap/0003-operator-integration-phases.md#phase-4--operationalize-the-first-agent-loop)
+**Related:** [Agent team v1](./agent-team-v1.md) · [Creative batch workflow v1 (Phase 5)](./creative-batch-workflow-v1.md) · [Return after a pause](../setup/return-after-pause.md) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [OpenClaw proposal contract](../architecture/openclaw-proposal-identity-and-contract.md) · [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) · [Roadmap Phase 4](../roadmap/0003-operator-integration-phases.md#phase-4--operationalize-the-first-agent-loop)
 
 ---
 

@@ -1,7 +1,7 @@
 # Creative batch workflow v1 (Phase 5 — second specialist)
 
 **Status:** Living — **Phase 5 v1 first full close logged (2026-04-22, run 1 in friction log below)** — same approve → execute → receipt chain as research; no role-specific collapse at `system.note` depth. **Optional:** one short follow-up creative rehearsal later to rule out a lucky first pass. Same spine as [Research batch workflow v1](./research-batch-workflow-v1.md).  
-**Related:** [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Agent team v1](./agent-team-v1.md) · [Roadmap Phase 5](../roadmap/0003-operator-integration-phases.md#phase-5--add-the-second-specialist) · [Phase 3a batch naming](./research-batch-workflow-v1.md#phase-3a--rehearsal-authoring-minimal)
+**Related:** [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Agent team v1](./agent-team-v1.md) · [Return after a pause](../setup/return-after-pause.md) · [Roadmap Phase 5](../roadmap/0003-operator-integration-phases.md#phase-5--add-the-second-specialist) · [Phase 3a batch naming](./research-batch-workflow-v1.md#phase-3a--rehearsal-authoring-minimal)
 
 ---
 

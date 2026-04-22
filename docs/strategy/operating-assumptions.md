@@ -3,13 +3,15 @@ title: "Operating assumptions (Jarvis + OpenClaw)"
 status: living-document
 category: product-strategy
 owner: Ben Tankersley
-last_reviewed: 2026-04-22
+last_reviewed: 2026-04-18
 related:
   - jarvis-hud-video-thesis.md
   - agent-team-v1.md
   - ../architecture/jarvis-openclaw-system-overview.md
   - ../openclaw-integration-verification.md
   - ../roadmap/0003-operator-integration-phases.md
+  - ../setup/phase1-freeze-checklist.md
+  - ../setup/local-stack-startup.md
 ---
 
 # Operating assumptions (Jarvis + OpenClaw)
@@ -24,9 +26,18 @@ related:
 
 ### 1. Canonical OpenClaw deployment (for this project)
 
-**Assumption:** Each operator runs **one gateway** at a time; **one** `OPENCLAW_STATE_DIR` convention matches the process that owns the Control UI and env (see [integration verification](../openclaw-integration-verification.md): `~/.openclaw` vs `~/.openclaw-dev`).
+**Phase 1 — frozen (contract with reality).** For Jarvis HUD day-to-day integration, there is **one** blessed local stack. Other installs (e.g. Homebrew-only gateway, mixed state dirs) are **out of scope** for this contract until §1 is explicitly revised.
 
-**Provisional:** We do **not** yet declare a single global “only Homebrew” vs “only git dev” rule for all contributors—**per-machine consistency** matters more than which binary. Revisit when onboarding non-authors.
+| Piece | Blessed choice |
+|--------|------------------|
+| **Jarvis HUD** | This repository; **`pnpm dev`** (default listen **http://127.0.0.1:3000**) or **`pnpm dev:port`**. In **`.env.local`**, set **`JARVIS_HUD_BASE_URL`** or **`JARVIS_BASE_URL`** to the same host the browser uses (**127.0.0.1**, not `localhost`) so ingress signing and HUD origin checks stay aligned. |
+| **OpenClaw** | **Git checkout** of OpenClaw; default clone path **`~/Documents/openclaw`** (override with **`OPENCLAW_ROOT`**). **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`** for every gateway process in this flow. Start the gateway with **`pnpm openclaw:dev`** from jarvis-hud (runs **`pnpm gateway:dev`** in the clone via [`scripts/openclaw-gateway-dev.sh`](../../scripts/openclaw-gateway-dev.sh)), or the equivalent manual `cd` + `pnpm gateway:dev` with the same env. |
+| **Homebrew / LaunchAgent `openclaw`** | **Stopped** while using this flow — a second gateway causes port, token, and log confusion ([local stack startup](../setup/local-stack-startup.md)). |
+| **Control UI** | Set **`OPENCLAW_CONTROL_UI_URL`** in jarvis-hud **`.env.local`** to the **exact** origin the running gateway serves (often **`http://127.0.0.1:19001`**; the gateway log is authoritative). Restart **`pnpm dev`** after changes. |
+| **Ingress** | **`POST {JARVIS_HUD_BASE_URL}/api/ingress/openclaw`** with HMAC. **`JARVIS_INGRESS_OPENCLAW_ENABLED=true`**, **`JARVIS_INGRESS_ALLOWLIST_CONNECTORS`** includes **`openclaw`**, **`JARVIS_INGRESS_OPENCLAW_SECRET`** ≥ 32 chars in **`.env.local`**. The gateway must use the **same** secret and **`JARVIS_BASE_URL`** (injected from `.env.local` when using `pnpm openclaw:dev`). |
+| **Pass/fail** | From jarvis-hud with processes running: **`pnpm machine-wired`**. **Ground-truth capture:** [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md). |
+
+**Routine and troubleshooting detail:** [Local stack startup](../setup/local-stack-startup.md) · [Integration verification](../openclaw-integration-verification.md) (includes non-blessed recovery). **If your machine differs**, record it in the checklist first; do not treat alternate stacks as equally valid without updating this section.
 
 ---
 
@@ -79,6 +90,7 @@ related:
 
 ## See also
 
+- [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md)
 - [Operator integration phases (roadmap)](../roadmap/0003-operator-integration-phases.md)
 - [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md)
 - [Agent team v1](./agent-team-v1.md)

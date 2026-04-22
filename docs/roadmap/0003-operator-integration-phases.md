@@ -43,15 +43,16 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 **Goal:** One honest, reproducible local stack.
 
-- Distill the current operator setup into the blessed **[§1 deployment shape](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project)**.
+- Distill the current operator setup into the blessed **[§1 deployment shape](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project)** (frozen in-repo; revise only deliberately).
 - Pick **one** canonical:
   - Gateway start path
   - State dir
   - Control UI origin
   - Jarvis HUD base URL
   - Ingress URL + secret source
-- Rewrite [integration verification](../openclaw-integration-verification.md) and [operator checklist](../setup/openclaw-jarvis-operator-checklist.md) to match §1 exactly.
-- Create one blunt **machine-wired** pass/fail check.
+- **Ground truth template:** [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md).
+- [Integration verification](../openclaw-integration-verification.md) and [operator checklist](../setup/openclaw-jarvis-operator-checklist.md) describe the blessed stack first; other paths are recovery/migration context.
+- **Machine pass/fail:** **`pnpm machine-wired`** from jarvis-hud.
 
 **Done when:** A fresh run can answer “does this host match §1?” without interpretation.
 

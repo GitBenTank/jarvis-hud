@@ -6,6 +6,21 @@ This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress 
 
 **Operator checklist (mental model + daily order-of-operations):** [OpenClaw ↔ Jarvis operator checklist](setup/openclaw-jarvis-operator-checklist.md).
 
+## Phase 1 blessed deployment (normative)
+
+**Contract:** [Operating assumptions §1](strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project). **Setup routine:** [Local stack startup](setup/local-stack-startup.md). **Capture ground truth:** [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md).
+
+| Piece | Blessed choice |
+|--------|----------------|
+| **Jarvis HUD** | This repo; **`pnpm dev`** (default **http://127.0.0.1:3000**) or **`pnpm dev:port`**; **127.0.0.1** in `.env.local` for base URL |
+| **OpenClaw** | Git checkout (default **`~/Documents/openclaw`**); **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`**; **`pnpm openclaw:dev`** from jarvis-hud |
+| **Homebrew / LaunchAgent gateway** | **Off** for this flow (avoid duplicate listeners) |
+| **Control UI** | **`OPENCLAW_CONTROL_UI_URL`** in `.env.local` matches the live gateway origin |
+| **Ingress** | **`POST {base}/api/ingress/openclaw`**; secret + allowlist in `.env.local` (≥32 chars) |
+| **Machine pass/fail** | **`pnpm machine-wired`** (with Jarvis + gateway running) |
+
+Everything below that documents **mixed state dirs**, **Homebrew-only**, or **recovery** still applies when **debugging** or **migrating** — it is not an alternate blessed path for Phase 1.
+
 ## OpenClaw config directory (macOS gateway / dashboard)
 
 **Dashboard setup (step-by-step):** [OpenClaw Control UI setup](setup/openclaw-control-ui.md) — includes **version alignment** when the CLI warns the config was written by a newer OpenClaw.
@@ -108,7 +123,7 @@ Then OpenClaw smoke (inline env):
 
 ```bash
 cd ~/Documents/openclaw
-JARVIS_BASE_URL="http://localhost:3001" \
+JARVIS_BASE_URL="http://127.0.0.1:3001" \
 JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars" \
 pnpm jarvis:smoke
 ```
@@ -159,7 +174,7 @@ Even without reply, you can film: Telegram inbound → OpenClaw logs → proposa
 
 If the agent says it doesn't have the "jarvis" skill:
 
-1. **`~/.openclaw/.env`** — Set `JARVIS_BASE_URL=http://localhost:3001` (Jarvis demo uses port 3001).
+1. **`~/.openclaw/.env`** — Set `JARVIS_BASE_URL=http://127.0.0.1:3001` (Jarvis demo uses port 3001; use 127.0.0.1 for origin alignment).
 2. **Plugin id** — The extension is `jarvis-hud`, not `jarvis`. In `~/.openclaw/openclaw.json`, ensure `plugins.entries.jarvis-hud.enabled: true` and that `plugins.installs.jarvis-hud` points to the extension.
 3. **Prompt phrasing** — Ask to "use the jarvis-hud skill" or "propose a system note to Jarvis HUD" so the agent invokes `jarvis_propose_system_note`.
 4. **Restart** — After config or env changes, restart the OpenClaw Gateway.
@@ -256,9 +271,9 @@ PORT=3001 pnpm dev:port
 
 Expected output includes:
 
-- Local: http://localhost:3001
+- Local: http://127.0.0.1:3001
 
-Open the UI: http://localhost:3001
+Open the UI: http://127.0.0.1:3001
 
 ---
 
@@ -267,7 +282,7 @@ Open the UI: http://localhost:3001
 In a second terminal (still jarvis-hud):
 
 ```bash
-JARVIS_HUD_BASE_URL="http://localhost:3001" pnpm jarvis:doctor
+JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" pnpm jarvis:doctor
 ```
 
 Expected:
@@ -306,7 +321,7 @@ When requesting help, capture:
 In openclaw repo:
 
 ```bash
-JARVIS_BASE_URL="http://localhost:3001" \
+JARVIS_BASE_URL="http://127.0.0.1:3001" \
 JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-min-32" \
 pnpm jarvis:smoke
 ```
@@ -327,7 +342,7 @@ Run from jarvis-hud. Prompt for secret once so it doesn't get saved in scrollbac
 ```bash
 read -s JARVIS_INGRESS_OPENCLAW_SECRET; echo
 export JARVIS_INGRESS_OPENCLAW_SECRET
-export JARVIS_HUD_BASE_URL="http://localhost:3001"
+export JARVIS_HUD_BASE_URL="http://127.0.0.1:3001"
 
 cd ~/Documents/jarvis-hud
 pnpm ingress:smoke
@@ -338,7 +353,7 @@ If either smoke fails, triage:
 
 | Check | Command |
 |-------|---------|
-| A) Jarvis reachable? | `curl -I http://localhost:3001` |
+| A) Jarvis reachable? | `curl -I http://127.0.0.1:3001` |
 | B) Secret mismatch? | Restart dev server after exporting env; 401/403 usually means wrong secret or server not reading env |
 | C) Wrong base URL? | Jarvis HUD scripts use `JARVIS_HUD_BASE_URL`; OpenClaw may use `JARVIS_BASE_URL` |
 | D) Expected | Both smokes report `status: pending` — approval/apply is the next step |

@@ -1,13 +1,14 @@
 ---
 title: "OpenClaw ↔ Jarvis HUD — operator checklist"
 status: living-document
-version: 1.4
+version: 1.5
 owner: Ben Tankersley
 created: 2026-04-18
 category: setup
 enforcement: hard
 related:
   - ../openclaw-integration-verification.md
+  - phase1-freeze-checklist.md
   - openclaw-control-ui.md
   - openclaw-jarvis-operator-sprint.md
   - ../local-verification-openclaw-jarvis.md
@@ -21,7 +22,7 @@ related:
 
 > **Operational contract.** This document defines the operational contract between **OpenClaw** and **Jarvis HUD**. **If system behavior differs from this document, the system is misconfigured.**
 
-This page is the **mental model and order-of-operations** for local and operator use. For E2E exit criteria before demos, see [OpenClaw ↔ Jarvis operator sprint](openclaw-jarvis-operator-sprint.md). For ingress wiring and env, see [OpenClaw integration verification](../openclaw-integration-verification.md).
+This page is the **mental model and order-of-operations** for local and operator use. **Phase 1 blessed stack** (single contract): [Operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) · [Local stack startup](local-stack-startup.md) · **`pnpm machine-wired`**. For E2E exit criteria before demos, see [OpenClaw ↔ Jarvis operator sprint](openclaw-jarvis-operator-sprint.md). For ingress wiring and env, see [OpenClaw integration verification](../openclaw-integration-verification.md).
 
 **Thesis lock:** Agents propose; humans approve; execution and receipts live in Jarvis. See [Thesis Lock](../decisions/0001-thesis-lock.md) and the [video thesis](../strategy/jarvis-hud-video-thesis.md).
 
@@ -76,9 +77,9 @@ All other signals—chat, tool stdout, agent claims, local file writes—are **n
 
 ## Lock these four things
 
-1. **One canonical OpenClaw state directory** — Use the same `OPENCLAW_STATE_DIR` (or default `~/.openclaw`) whenever you start the gateway, run `openclaw config …`, or read `gateway.auth.token`. Mixed state dirs cause token mismatch and wrong dashboard URLs.
+1. **One canonical OpenClaw state directory for the blessed stack** — **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`** whenever you run the checkout gateway (`pnpm openclaw:dev` / `pnpm gateway:dev`). Do not mix with **`~/.openclaw`** (Homebrew default) in the same session. See [local stack startup](local-stack-startup.md).
 
-2. **One canonical gateway** — Only one OpenClaw gateway process **must** own the listening ports for your session (do not run Homebrew + `pnpm gateway:dev` against the same ports).
+2. **One canonical gateway** — Only one OpenClaw gateway process **must** own the listening ports for your session (do not run Homebrew / LaunchAgent **`openclaw`** alongside the checkout gateway).
 
 3. **Alfred behavior in workspace docs** — Durable rules live in **OpenClaw workspace files** (`AGENTS.md`, `IDENTITY.md`, optional `JARVIS.md`), not ad hoc chat. In `JARVIS.md`, define **exactly one canonical submission path** per workspace (see below).
 

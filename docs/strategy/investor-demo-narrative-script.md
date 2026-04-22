@@ -71,7 +71,7 @@ That’s what Jarvis does.
 
 **Tiny pause.**
 
-Jarvis doesn’t manage agents—it governs execution.
+Jarvis doesn’t manage agents—it governs execution. That’s where authority lives.
 
 ---
 
@@ -91,7 +91,7 @@ Most stacks give you logs. Jarvis gives you proof.
 - **Pause** after: “the risks become clear” (or equivalent beat); after “That’s the gap.”
 - **Emphasize once:** “independently verified.”
 - **Key pivot:** After “What’s missing is control at the moment of execution.” take a **full breath** before “A system that separates approval from execution…”
-- **Lock-in:** After “That’s what Jarvis does.” take a **tiny pause** before “Jarvis doesn’t manage agents…”
+- **Lock-in:** After “That’s what Jarvis does.” take a **tiny pause** before “Jarvis doesn’t manage agents…”; let “That’s where authority lives.” land on its own beat.
 
 ### What success should feel like (viewer)
 

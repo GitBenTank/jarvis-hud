@@ -202,8 +202,14 @@ When entries **cluster**, bring them to a design pass: templates, copy changes, 
 | Date | Run | What confused the operator | Copy / UI to tighten | Slower than expected | Template / automation candidate (Phase 3) |
 |------|-----|----------------------------|----------------------|----------------------|-------------------------------------------|
 | 2026-04-18 | 1 | Nothing material on first pass (baseline). | — | — | — |
+| 2026-04-22 | 2 | One logical batch appeared as **two** “REVIEW CONTAINER” blocks (e.g. 1-of-3 items in one card, 2-of-3 in another). | Clarify whether split is intentional; if so, label parts; if not, group in one container. | Scanning two containers for the same `batch.id` | — |
+| 2026-04-22 | 2 | **OpenClaw: Disconnected** / no recent activity banner while signed ingress and executes still work. | Operator mental model: trust Activity + receipts; banner is connector health lag (see checklist). Still feels like an error. | — | — |
+| 2026-04-22 | 2 | Top strip said **“Approve (3)”** / pending while proposal cards already showed **APPROVED** and **Execute**. | Reconcile safety gate counts with queue state so strip matches what the operator sees. | — | — |
+| 2026-04-22 | 2 | Same rehearsal **titles** every run (“Research rehearsal *n*: sample finding”) — hard to tell batches apart in Activity/receipts. | — | Scanning history across runs | Include **batch title** or short `batch.id` fragment in compose template / titles |
 
 _(Example: “Execute button proximity to batch header”, “Activity line used batch title instead of proposal id”, “OpenClaw compose: forgot itemCount”.)_
+
+**Evidence:** 2026-04-22 HUD screenshots (review containers, safety strip, receipts, activity). Browser used `localhost:3000`; Phase 1 prefers `127.0.0.1` — note for local consistency.
 
 ---
 

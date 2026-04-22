@@ -27,6 +27,28 @@ const STATE_LABEL: Record<GateState, string> = {
   red: "RED",
 };
 
+function amberGateCopy(pendingCount: number, awaitingExecutionCount: number): {
+  message: string;
+  nextStep: string;
+} {
+  if (pendingCount > 0 && awaitingExecutionCount > 0) {
+    return {
+      message: `Pending approval (${pendingCount}) · Awaiting execution (${awaitingExecutionCount})`,
+      nextStep: `Approve ${pendingCount} pending, then Execute ${awaitingExecutionCount} approved`,
+    };
+  }
+  if (pendingCount > 0) {
+    return {
+      message: `Pending approval (${pendingCount})`,
+      nextStep: `Approve (${pendingCount}) item${pendingCount === 1 ? "" : "s"}`,
+    };
+  }
+  return {
+    message: `Awaiting execution (${awaitingExecutionCount})`,
+    nextStep: `Execute (${awaitingExecutionCount}) item${awaitingExecutionCount === 1 ? "" : "s"}`,
+  };
+}
+
 export default function SafetyGatePanel() {
   const [gateState, setGateState] = useState<GateState>("green");
   const [message, setMessage] = useState("No pending");
@@ -41,11 +63,14 @@ export default function SafetyGatePanel() {
       ]);
       const pending = (await pendingRes.json()).approvals ?? [];
       const approved = (await approvedRes.json()).approvals ?? [];
+      const pendingList = pending as Event[];
       const approvedNotExecuted = approved.filter(
         (e: Event) => !e.executed
       ) as Event[];
+      const pendingCount = pendingList.length;
+      const awaitingExecutionCount = approvedNotExecuted.length;
 
-      const allRelevant: Event[] = [...(pending as Event[]), ...approvedNotExecuted];
+      const allRelevant: Event[] = [...pendingList, ...approvedNotExecuted];
       const count = allRelevant.length;
 
       let highestTier: string = "LOW";
@@ -75,8 +100,9 @@ export default function SafetyGatePanel() {
           : "Details → type APPLY to approve → Execute";
       } else {
         setGateState("amber");
-        setMessage(`Pending approval (${count})`);
-        nextStep = `Approve (${count}) item${count === 1 ? "" : "s"}`;
+        const amber = amberGateCopy(pendingCount, awaitingExecutionCount);
+        setMessage(amber.message);
+        nextStep = amber.nextStep;
       }
       setNextStep(nextStep);
     } catch {

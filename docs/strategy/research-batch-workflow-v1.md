@@ -215,10 +215,15 @@ When entries **cluster**, bring them to a design pass: templates, copy changes, 
 | 2026-04-22 | 2 | **OpenClaw: Disconnected** / no recent activity banner while signed ingress and executes still work. | Operator mental model: trust Activity + receipts; banner is connector health lag (see checklist). Still feels like an error. | — | — |
 | 2026-04-22 | 2 | Top strip said **“Approve (3)”** / pending while proposal cards already showed **APPROVED** and **Execute**. | Reconcile safety gate counts with queue state so strip matches what the operator sees. | — | — |
 | 2026-04-22 | 2 | Same rehearsal **titles** every run (“Research rehearsal *n*: sample finding”) — hard to tell batches apart in Activity/receipts. | — | Scanning history across runs | Include **batch title** or short `batch.id` fragment in compose template / titles |
+| 2026-04-22 | 3 | **RECURRENCE (fix eligible — priority #2):** Safety gate **“Pending approval (4)”** / “Approve (4) items” while **Execution Authority** shows **Pending: 0**, **Approved: 4** (same class as run 2’s “Approve (3)” vs approved cards). | Reconcile amber strip with live pending count. | — | — |
+| 2026-04-22 | 3 | **RECURRENCE (#3):** OpenClaw disconnected / no recent activity while ingress + receipts still coherent. | — | — | — |
+| 2026-04-22 | 3 | Activity trace: **Approval-time safety snapshot** — “NO SNAPSHOT RECORDED” (first log). | Document or implement when snapshot is expected vs N/A for `system.note`. | — | — |
 
 _(Example: “Execute button proximity to batch header”, “Activity line used batch title instead of proposal id”, “OpenClaw compose: forgot itemCount”.)_
 
-**Evidence:** 2026-04-22 HUD screenshots (review containers, safety strip, receipts, activity). Browser used `localhost:3000`; Phase 1 prefers `127.0.0.1` — note for local consistency.
+**Evidence:** 2026-04-22 HUD screenshots (runs 2–3: review containers, safety strip, receipts, activity, trace). Browser often `localhost:3000`; Phase 1 prefers `127.0.0.1` — note for local consistency.
+
+**Resolved in code (after 2nd occurrence, priority #2):** `SafetyGatePanel` no longer labels **approved-but-not-executed** rows as “Pending approval” / “Approve (n)”. Amber state now uses **Awaiting execution (n)** / **Execute (n)** when `pendingCount === 0` and `awaitingExecutionCount > 0`, and a split message when both are non-zero.
 
 ---
 

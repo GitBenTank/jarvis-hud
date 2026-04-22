@@ -140,6 +140,17 @@ pnpm rehearsal:preflight
 
 This runs **`pnpm machine-wired`** then **`pnpm auth-posture`**. Fix failures before submitting proposals. (Serious-mode hosts: `JARVIS_EXPECT_AUTH=true pnpm auth-posture` if you require auth on.)
 
+### Operator loop (every pass — do this now)
+
+**Next is repetition, observation, and logging** — not more design or abstractions until the [friction log](#friction-log-after-rehearsals) earns Phase 3.
+
+1. **`pnpm rehearsal:preflight`**
+2. **`pnpm rehearsal:research-batch`** (3-item quick path; for **5–7** items, same compose shape — **N** signed POSTs, shared `batch.id` — from OpenClaw or a one-off runner)
+3. In **HUD:** approve rows as needed
+4. **Execute exactly one** row
+5. **Verify** proposal **id**, **trace** id, and **receipt** for that id only
+6. **Write down every annoyance** in the friction log (even small ones)
+
 ### 1. Submit a 3-item research batch
 
 - **3** × `system.note`, **one shared `batch.id`**, **`itemCount`: 3**, **`itemIndex`**: 0, 1, 2.
@@ -165,10 +176,12 @@ Note terminal **`id`** / **`traceId`** per item for later comparison in the HUD.
 | Trace / activity wording | Per **id**, not “batch completed” |
 | IDs | **Proposal id** and **trace id** still readable after execute |
 
-### 4. Repeat
+### 4. Repeat (volume + what to watch for)
 
-- Run the same protocol **multiple times** on the locked stack before adding governance machinery.
-- Then increase load: **5–7** items (within ingress batch limits), same per-item execute discipline.
+- **Aim for patterns, not anecdotes:** several passes with **3-item** batches, then at least one **5–7** item batch (within ingress limits), same discipline: **one executed row** per run unless you deliberately vary the exercise.
+- Run on the **locked stack** only; resist new machinery until irritations are logged.
+
+**Log anything that feels:** ambiguous · repetitive · too manual · easy to misread · easy for an **agent to author incorrectly** · annoying enough that you’d be tempted to “helpfully” automate it. That list is the raw material for Phase 3 (templates, copy, guardrails) — [Phase 3](../roadmap/0003-operator-integration-phases.md#phase-3--standardize-proposal-authoring) wakes up when rows **cluster**, not when the roadmap feels idle.
 
 ### 5. When Phase 3 earns attention
 
@@ -180,7 +193,7 @@ The next **paper** phase to wake up is [Phase 3 — standardize proposal authori
 
 ## Friction log (after rehearsals)
 
-Append a row after **each** run (or each day). This is the **evidence base** for Phase 3 templates and HUD copy — not new policy layers. Empty log + heavy templates = imagination; repeated rehearsals + rows = reality.
+Append a row after **each** run (or each day). This is the **evidence base** for Phase 3 templates and HUD copy — not new policy layers. Empty log + heavy templates = imagination; repeated rehearsals + rows = reality. When entries start to **cluster**, bring them to a design pass: templates, copy changes, or ingest guardrails — still grounded in what you observed.
 
 | Date | Run | What confused the operator | Copy / UI to tighten | Slower than expected | Template / automation candidate (Phase 3) |
 |------|-----|----------------------------|----------------------|----------------------|-------------------------------------------|

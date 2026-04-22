@@ -25,6 +25,7 @@ function formatLastSeen(iso: string | null): string | null {
 
 const labelForStatus = {
   connected: "OpenClaw: Connected",
+  idle: "OpenClaw: Idle (no proposals in ~5 min)",
   degraded: "OpenClaw: Degraded",
   disconnected: "OpenClaw: Disconnected",
 } as const;
@@ -32,6 +33,8 @@ const labelForStatus = {
 const badgeClass = {
   connected:
     "border-emerald-600/50 bg-emerald-50 text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-200",
+  idle:
+    "border-amber-600/50 bg-amber-50 text-amber-950 dark:border-amber-500/40 dark:bg-amber-950/30 dark:text-amber-200",
   degraded:
     "border-amber-600/50 bg-amber-50 text-amber-950 dark:border-amber-500/40 dark:bg-amber-950/30 dark:text-amber-200",
   disconnected:
@@ -86,8 +89,15 @@ export default function OpenClawHealthBadge({
 
   const status = data?.status ?? "disconnected";
   const lastSeenAt = data?.lastSeenAt;
-  const lastSeenText = lastSeenAt ? `Last seen ${formatLastSeen(lastSeenAt)}` : null;
-  const detailText = error && !data ? error : data?.lastError ?? null;
+  const lastSeenText = lastSeenAt ? `Last proposal ${formatLastSeen(lastSeenAt)}` : null;
+  let detailText: string | null = null;
+  if (error && !data) {
+    detailText = error;
+  } else if (data?.status === "idle") {
+    detailText = "Recency signal only—prior OpenClaw proposals may still be on disk.";
+  } else if (data?.lastError) {
+    detailText = data.lastError;
+  }
 
   const inner = (
     <>

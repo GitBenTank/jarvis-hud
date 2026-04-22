@@ -5,6 +5,7 @@ import { normalizeAction } from "@/lib/normalize";
 import {
   getProposalBatchItemContextFromEvent,
   groupEventsByProposalBatch,
+  shortProposalBatchIdFragment,
 } from "@/lib/proposal-batch";
 import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
 import { isRecoveryClass } from "@/lib/recovery-shared";
@@ -106,6 +107,15 @@ type AgentProposalsFeedProps = Readonly<{
   irreversibleConfirmEnabled: boolean;
 }>;
 
+function earliestCreatedInGroup(events: ProposalEvent[]): string | null {
+  let min = "";
+  for (const e of events) {
+    if (!e.createdAt) continue;
+    if (!min || e.createdAt < min) min = e.createdAt;
+  }
+  return min || null;
+}
+
 function ProposalListByBatch({
   events,
   variant,
@@ -124,40 +134,54 @@ function ProposalListByBatch({
   const { groups, standalone } = groupEventsByProposalBatch(events);
   return (
     <>
-      {groups.map((g) => (
-        <li key={g.batchId} className="list-none">
-          <div className="rounded-lg border border-violet-300/80 bg-violet-50/40 p-4 dark:border-violet-500/35 dark:bg-violet-950/25">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-800 dark:text-violet-300">
-              Review container
-            </p>
-            {g.title ? (
-              <h4 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{g.title}</h4>
-            ) : (
-              <p className="mt-1 font-mono text-xs text-zinc-600 dark:text-zinc-400">{g.batchId}</p>
-            )}
-            {g.summary ? (
-              <p className="mt-1 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">{g.summary}</p>
-            ) : null}
-            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-              Showing {g.items.length} of {g.itemCount} batch item{g.itemCount === 1 ? "" : "s"} in this
-              section · approve and execute each item separately.
-            </p>
-            <ul className="mt-3 space-y-3">
-              {g.items.map((event) => (
-                <ProposalCard
-                  key={event.id}
-                  event={event}
-                  variant={variant}
-                  onDetails={onDetails}
-                  onApprove={onApprove}
-                  onDeny={onDeny}
-                  irreversibleConfirmEnabled={irreversibleConfirmEnabled}
-                />
-              ))}
-            </ul>
-          </div>
-        </li>
-      ))}
+      {groups.map((g) => {
+        const firstIngested = earliestCreatedInGroup(g.items);
+        return (
+          <li key={g.batchId} className="list-none">
+            <div className="rounded-lg border border-violet-300/80 bg-violet-50/40 p-4 dark:border-violet-500/35 dark:bg-violet-950/25">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-800 dark:text-violet-300">
+                Review container
+              </p>
+              {g.title ? (
+                <h4 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{g.title}</h4>
+              ) : (
+                <p className="mt-1 font-mono text-xs text-zinc-600 dark:text-zinc-400">{g.batchId}</p>
+              )}
+              <p
+                className="mt-1 font-mono text-[10px] tracking-tight text-zinc-500 dark:text-zinc-400"
+                title={g.batchId}
+              >
+                Batch id {shortProposalBatchIdFragment(g.batchId)}
+              </p>
+              {firstIngested ? (
+                <p className="mt-0.5 text-[10px] text-zinc-500 dark:text-zinc-400">
+                  First ingested {formatRelativeTime(firstIngested)}
+                </p>
+              ) : null}
+              {g.summary ? (
+                <p className="mt-1 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">{g.summary}</p>
+              ) : null}
+              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                Showing {g.items.length} of {g.itemCount} batch item{g.itemCount === 1 ? "" : "s"} in this
+                section · approve and execute each item separately.
+              </p>
+              <ul className="mt-3 space-y-3">
+                {g.items.map((event) => (
+                  <ProposalCard
+                    key={event.id}
+                    event={event}
+                    variant={variant}
+                    onDetails={onDetails}
+                    onApprove={onApprove}
+                    onDeny={onDeny}
+                    irreversibleConfirmEnabled={irreversibleConfirmEnabled}
+                  />
+                ))}
+              </ul>
+            </div>
+          </li>
+        );
+      })}
       {standalone.map((event) => (
         <ProposalCard
           key={event.id}
@@ -438,7 +462,7 @@ export default function AgentProposalsFeed({
       )}
       {!loading && hasNothingToShow && !lastExecutedProposal && (
         <>
-          <p className="text-sm text-zinc-500">No proposals awaiting authorization.</p>
+          <p className="text-sm text-zinc-500">No proposals pending approval.</p>
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
             The agent may propose. Execution authority originates with a human.
           </p>
@@ -448,7 +472,7 @@ export default function AgentProposalsFeed({
       {showLastProposal && (
         <>
           <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-            Queue is clear — most recent completed execution
+            No pending approvals — most recent completed execution
             {dateKey ? ` · ${dateKey}` : ""}.
           </p>
           <h3 className="mb-2 font-medium">Last execution</h3>

@@ -17,7 +17,7 @@ export const OPENCLAW_HEALTH_STALE_MS = 5 * 60 * 1000;
 /** Only scan this many recent day buckets (newest first). */
 const HEALTH_EVENT_DAY_LOOKBACK = 7;
 
-export type OpenClawHealthStatus = "connected" | "disconnected" | "degraded";
+export type OpenClawHealthStatus = "connected" | "idle" | "disconnected" | "degraded";
 
 export type OpenClawHealthPayload = {
   status: OpenClawHealthStatus;
@@ -142,11 +142,10 @@ export async function computeOpenClawHealth(
 
   if (ageMs > OPENCLAW_HEALTH_STALE_MS) {
     return {
-      status: "disconnected",
+      status: "idle",
       lastSeenAt: lastProposalAt,
       lastProposalAt,
       ...(version ? { version } : {}),
-      lastError: "No OpenClaw activity in the last 5 minutes",
     };
   }
 

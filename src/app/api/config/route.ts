@@ -23,6 +23,7 @@ import {
   getConnectorAllowlist,
 } from "@/lib/ingress-openclaw";
 import { buildRuntimePosture } from "@/lib/runtime-posture";
+import { scanOpenClawRecentSignals } from "@/lib/openclaw-health";
 import { loadExecutionAllowedRoots } from "@/lib/execution-scope";
 import {
   buildExecutionCapabilities,
@@ -143,14 +144,18 @@ export async function GET(request: NextRequest) {
       >(getEventsFilePath(dateKey))) ?? [];
     const actions = await readActionLog(dateKey);
     const policyDecisions = await readPolicyDecisions(dateKey);
-    const runtimePosture = buildRuntimePosture({
-      events,
-      actions,
-      policyDecisions,
-      authEnabled,
-      ingressEnabled: ingressOpenclawEnabled,
-      safetyOn: irreversibleConfirmEnabled && ingressValidationEnabled,
-    });
+    const openClawSignals = await scanOpenClawRecentSignals();
+    const runtimePosture = {
+      ...buildRuntimePosture({
+        events,
+        actions,
+        policyDecisions,
+        authEnabled,
+        ingressEnabled: ingressOpenclawEnabled,
+        safetyOn: irreversibleConfirmEnabled && ingressValidationEnabled,
+      }),
+      lastOpenClawProposalAt: openClawSignals.lastProposalAt,
+    };
 
     const integrationIssues = await computeIntegrationIssues();
 

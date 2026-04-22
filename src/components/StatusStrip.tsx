@@ -8,7 +8,10 @@ type StatusStripData = {
   pendingCount: number;
   approvedCount: number;
   executedCount: number;
+  /** Newest row in today's ledger (any origin). */
   lastProposalAt: string | null;
+  /** Same disk scan as OpenClaw health badge. */
+  lastOpenClawProposalAt: string | null;
   activeTraceId: string | null;
   agentLastSeen: string | null;
   latestDecisionSummary: string;
@@ -41,6 +44,7 @@ export default function StatusStrip() {
       const posture = config.runtimePosture as {
         activeTraceId: string | null;
         lastProposalAt: string | null;
+        lastOpenClawProposalAt: string | null;
         pendingCount: number;
         approvedCount: number;
         executedCount: number;
@@ -61,6 +65,7 @@ export default function StatusStrip() {
         approvedCount: posture.approvedCount,
         executedCount: posture.executedCount,
         lastProposalAt: posture.lastProposalAt,
+        lastOpenClawProposalAt: posture.lastOpenClawProposalAt ?? null,
         activeTraceId: posture.activeTraceId,
         agentLastSeen: posture.agentLastSeen,
         latestDecisionSummary: posture.latestDecisionSummary,
@@ -99,10 +104,10 @@ export default function StatusStrip() {
     <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-2">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 text-xs tracking-wide text-zinc-400">
         <span>
-          Pending: <span className="font-medium text-zinc-300">{data.pendingCount}</span>
+          Pending approval: <span className="font-medium text-zinc-300">{data.pendingCount}</span>
         </span>
-        <span>
-          Approved: <span className="font-medium text-zinc-300">{data.approvedCount}</span>
+        <span title="Approved, not yet executed">
+          Awaiting execution: <span className="font-medium text-zinc-300">{data.approvedCount}</span>
         </span>
         <span>
           Executed: <span className="font-medium text-zinc-300">{data.executedCount}</span>
@@ -117,11 +122,14 @@ export default function StatusStrip() {
             {data.agentStatus}
           </span>
         </span>
-        <span>
-          Last proposal: {data.lastProposalAt ? formatTimeAgo(data.lastProposalAt) : "—"}
+        <span
+          title="Matches OpenClaw health / idle recency (connector proposals on disk only)."
+        >
+          Last OpenClaw ingress:{" "}
+          {data.lastOpenClawProposalAt ? formatTimeAgo(data.lastOpenClawProposalAt) : "—"}
         </span>
-        <span>
-          Last seen: {data.agentLastSeen ? formatTimeAgo(data.agentLastSeen) : "—"}
+        <span title="Newest proposal row in today's ledger (includes simulate and other non-OpenClaw rows).">
+          Newest ledger row: {data.lastProposalAt ? formatTimeAgo(data.lastProposalAt) : "—"}
         </span>
         {traceShort && (
           <span>

@@ -244,9 +244,11 @@ export default function IntegrationDebugPanel() {
             {statusPill(
               health?.status === "connected"
                 ? "ok"
-                : health?.status === "degraded"
+                : health?.status === "idle"
                   ? "warn"
-                  : "neutral",
+                  : health?.status === "degraded"
+                    ? "warn"
+                    : "neutral",
               "signal"
             )}
             <div className="min-w-0 flex-1">

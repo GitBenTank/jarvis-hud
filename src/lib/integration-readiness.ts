@@ -21,6 +21,7 @@ export {
   INTEGRATION_CONFIG_BLOCKERS,
   hasIntegrationConfigBlocker,
   INTEGRATION_RULE_CONFIG_BLOCKED,
+  INTEGRATION_RULE_OPENCLAW_RECENCY_SIGNAL,
   INTEGRATION_RULE_STALE_OR_SIGNAL,
 } from "@/lib/integration-readiness-ui";
 
@@ -62,6 +63,8 @@ export async function computeIntegrationIssues(
 /** Cold start (no proposals yet) is not a misconfiguration — Jarvis can still receive. */
 function shouldFlagOpenClawStale(health: OpenClawHealthPayload): boolean {
   if (health.status === "connected") return false;
+  if (health.status === "idle") return true;
+  if (health.status === "degraded") return false;
   const err = health.lastError ?? "";
   if (
     err.includes("No OpenClaw proposals in the recent event window") ||

@@ -45,8 +45,11 @@ export default function OperationsRow() {
             Agent Proposals
           </h2>
           {hasPending && (
-            <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
-              {pendingCount} awaiting
+            <span
+              className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+              title="Not yet approved — distinct from awaiting execution"
+            >
+              Pending approval ({pendingCount})
             </span>
           )}
         </div>

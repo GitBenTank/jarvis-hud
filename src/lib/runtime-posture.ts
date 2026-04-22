@@ -6,7 +6,13 @@ import {
 
 export type RuntimePosture = {
   activeTraceId: string | null;
+  /** Newest proposal row in today's events file (any origin; e.g. simulate has no OpenClaw source). */
   lastProposalAt: string | null;
+  /**
+   * Latest OpenClaw connector activity on disk (same scan as OpenClaw health). Null when absent.
+   * Filled by GET /api/config; `buildRuntimePosture` sets null — merge there.
+   */
+  lastOpenClawProposalAt: string | null;
   lastExecutionAt: string | null;
   pendingCount: number;
   approvedCount: number;
@@ -98,6 +104,7 @@ export function buildRuntimePosture(args: {
   return {
     activeTraceId: latestTraceCandidate?.traceId ?? null,
     lastProposalAt: lastProposal?.createdAt ?? null,
+    lastOpenClawProposalAt: null,
     lastExecutionAt: lastExecution?.executedAt ?? null,
     pendingCount: pendingEvents.length,
     approvedCount: approvedEvents.length,

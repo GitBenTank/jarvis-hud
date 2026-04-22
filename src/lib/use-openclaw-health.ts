@@ -25,6 +25,7 @@ export function useOpenClawHealth(): UseOpenClawHealthResult {
         };
         if (
           json.status === "connected" ||
+          json.status === "idle" ||
           json.status === "degraded" ||
           json.status === "disconnected"
         ) {

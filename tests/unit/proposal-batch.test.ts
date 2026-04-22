@@ -3,8 +3,19 @@ import {
   groupEventsByProposalBatch,
   parseProposalBatchItemContext,
   proposalBatchActivitySuffix,
+  shortProposalBatchIdFragment,
   strictValidateIngressBatch,
 } from "@/lib/proposal-batch";
+
+describe("shortProposalBatchIdFragment", () => {
+  it("returns first 8 hex chars without hyphens", () => {
+    expect(shortProposalBatchIdFragment("1475c524-9a2b-4c1d-8e00-abcdef123456")).toBe("1475c524");
+  });
+
+  it("handles short ids", () => {
+    expect(shortProposalBatchIdFragment("abc")).toBe("abc");
+  });
+});
 
 describe("parseProposalBatchItemContext", () => {
   it("accepts minimal valid batch", () => {

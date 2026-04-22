@@ -9,8 +9,8 @@ type StatusData = {
   executedCount: number;
   activeTraceId: string | null;
   lastProposalAt: string | null;
+  lastOpenClawProposalAt: string | null;
   lastExecutionAt: string | null;
-  agentLastSeen: string | null;
   latestDecisionSummary: string;
   latestBlockReason: string | null;
 };
@@ -172,11 +172,11 @@ export default function SystemStatus() {
       const posture = configData.runtimePosture as {
         activeTraceId: string | null;
         lastProposalAt: string | null;
+        lastOpenClawProposalAt: string | null;
         lastExecutionAt: string | null;
         pendingCount: number;
         approvedCount: number;
         executedCount: number;
-        agentLastSeen: string | null;
         latestDecisionSummary: string;
         latestBlockReason: string | null;
       };
@@ -200,8 +200,8 @@ export default function SystemStatus() {
         executedCount: posture.executedCount,
         activeTraceId: posture.activeTraceId,
         lastProposalAt: posture.lastProposalAt,
+        lastOpenClawProposalAt: posture.lastOpenClawProposalAt ?? null,
         lastExecutionAt: posture.lastExecutionAt,
-        agentLastSeen: posture.agentLastSeen,
         latestDecisionSummary: posture.latestDecisionSummary,
         latestBlockReason: posture.latestBlockReason,
       });
@@ -352,19 +352,27 @@ export default function SystemStatus() {
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
               <div>
-                <span className="font-medium text-zinc-500">Proposals awaiting:</span>{" "}
+                <span className="font-medium text-zinc-500">Pending approval:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.pendingCount}</span>
               </div>
               <div>
-                <span className="font-medium text-zinc-500">Approved awaiting execution:</span>{" "}
+                <span className="font-medium text-zinc-500">Awaiting execution:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.approvedCount}</span>
               </div>
               <div>
                 <span className="font-medium text-zinc-500">Executed today:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.executedCount}</span>
               </div>
-              <div>
-                <span className="font-medium text-zinc-500">Last proposal:</span>{" "}
+              <div title="Same disk scan as OpenClaw health / idle banner.">
+                <span className="font-medium text-zinc-500">Last OpenClaw ingress:</span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {data.lastOpenClawProposalAt
+                    ? formatFreshness(new Date(data.lastOpenClawProposalAt).getTime())
+                    : "—"}
+                </span>
+              </div>
+              <div title="Newest proposal row today (any connector, including simulate).">
+                <span className="font-medium text-zinc-500">Newest ledger row:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">
                   {data.lastProposalAt ? formatFreshness(new Date(data.lastProposalAt).getTime()) : "—"}
                 </span>
@@ -373,12 +381,6 @@ export default function SystemStatus() {
                 <span className="font-medium text-zinc-500">Last execution:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">
                   {data.lastExecutionAt ? formatFreshness(new Date(data.lastExecutionAt).getTime()) : "—"}
-                </span>
-              </div>
-              <div>
-                <span className="font-medium text-zinc-500">Agent last seen:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {data.agentLastSeen ? formatFreshness(new Date(data.agentLastSeen).getTime()) : "—"}
                 </span>
               </div>
               <div title={data.latestDecisionSummary}>

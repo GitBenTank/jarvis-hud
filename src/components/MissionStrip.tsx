@@ -262,7 +262,7 @@ export default function MissionStrip() {
               : "hover:text-zinc-300 focus:outline-none focus:ring-1 focus:ring-zinc-500 rounded"
           }
         >
-          Queue:{" "}
+          Pending approval:{" "}
           <span
             className={
               hasPending ? "font-semibold text-amber-300" : "font-medium text-zinc-300"
@@ -320,8 +320,8 @@ export default function MissionStrip() {
           )}
         </button>
 
-        <span>
-          Approved: <span className="text-zinc-300">{data.approvedCount}</span>
+        <span title="Approved by you, not yet executed">
+          Awaiting execution: <span className="text-zinc-300">{data.approvedCount}</span>
         </span>
 
         <span>

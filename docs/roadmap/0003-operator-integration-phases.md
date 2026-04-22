@@ -29,8 +29,8 @@ Do these **next**, in this order:
 
 1. **Phase 1** — Freeze reality (§1 deployment contract, docs, machine-wired probe)
 2. **Phase 2** — Lock the human control boundary (auth / step-up on the blessed path)
-3. **Phase 4** — Operationalize the first governed loop (research batch v1, rehearsals)
-4. **Phase 3** — Standardize proposal authoring (templates, field conventions)
+3. **Phase 4** — Operationalize the first governed loop (research batch v1, rehearsals) — **v1 bar met 2026-04** (see [Phase 4](#phase-4--operationalize-the-first-agent-loop)); keep occasional reps + friction log for demo polish.
+4. **Phase 3** — Standardize proposal authoring (templates, field conventions); **Phase 3a** already shipped from friction evidence — broaden only when pain **recurs**.
 5. **Phase 5** — Add the second specialist (creative agent, same spine)
 
 **Rationale:** Freeze the stack and authority **before** optimizing authoring ergonomics; run the **research batch ritual** until the [friction log](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals) has **honest entries** — then wake **Phase 3** from that evidence (templates prevent real mistakes, not imagined ones). After that, broaden roles.
@@ -79,6 +79,8 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 **Gate:** Prefer to start serious Phase 3 work **after** several **Phase 4** rehearsals and **real rows** in the [research batch friction log](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals) (wording, authoring mistakes, repeated fixes). Avoid large template investments driven only by speculation.
 
+**Phase 3a (narrow, shipped first):** [Rehearsal authoring — minimal](../strategy/research-batch-workflow-v1.md#phase-3a--rehearsal-authoring-minimal) — **`batch.title` must carry a short differentiator** (run label, timestamp, topic slug, or `batch.id` fragment), plus light patterns for titles/summaries, `system.note` **Sources**, and batch- vs item-level prose. **Not** a schema empire; expand Phase 3 only when friction **recurs**.
+
 - Add compose-time guidance/templates for OpenClaw submissions.
 - Standardize:
   - Top-level fields
@@ -103,6 +105,8 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 - Tune: batch size, copy clarity, review ergonomics, activity and receipt clarity.
 
 **Done when:** Research proposals move through Jarvis without confusion or fear.
+
+**Status (2026-04):** **v1 bar met.** Repeated rehearsals through multi-item batches; friction + **validation** rows; coherent **proposal id → trace → receipt** and honest batch queue state (e.g. [run 7](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals)). The loop is **operationally boring** — the right outcome. **Still:** occasional Phase 4 reps before demos and when changing stack or copy; Phase **5** is not unlocked by paperwork alone.
 
 ---
 

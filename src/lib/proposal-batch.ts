@@ -266,6 +266,15 @@ export function groupEventsByProposalBatch<
   return { groups, standalone };
 }
 
+/** Short stable fragment for review-container headers (disambiguate colliding titles; not sensitive). */
+export function shortProposalBatchIdFragment(batchId: string): string {
+  const t = batchId.trim();
+  if (!t) return "—";
+  const compact = t.replace(/-/g, "");
+  if (compact.length >= 8) return compact.slice(0, 8);
+  return t.length > 8 ? `${t.slice(0, 8)}…` : t;
+}
+
 function minCreatedIso<T extends { createdAt?: string }>(items: readonly T[]): string {
   let min = "\uffff";
   for (const it of items) {

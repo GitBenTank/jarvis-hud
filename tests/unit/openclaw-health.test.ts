@@ -68,6 +68,42 @@ describe("computeOpenClawHealth", () => {
     expect(h.lastSeenAt).toBeTruthy();
     expect(h.lastProposalAt).toBe(h.lastSeenAt);
   });
+
+  it("returns idle (not disconnected) when last proposal is older than stale window", async () => {
+    vi.stubEnv("JARVIS_INGRESS_OPENCLAW_ENABLED", "true");
+    vi.stubEnv("JARVIS_INGRESS_OPENCLAW_SECRET", "01234567890123456789012345678901");
+    vi.stubEnv("JARVIS_INGRESS_ALLOWLIST_CONNECTORS", "openclaw");
+
+    const { getDateKey, getEventsFilePath } = await import("@/lib/storage");
+    const dk = getDateKey();
+    const fp = getEventsFilePath(dk);
+    await fs.mkdir(path.dirname(fp), { recursive: true });
+    const stale = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    await fs.writeFile(
+      fp,
+      JSON.stringify(
+        [
+          {
+            id: "x",
+            traceId: "t",
+            type: "proposed_action",
+            createdAt: stale,
+            source: { connector: "openclaw", receivedAt: stale },
+            payload: { kind: "system.note", title: "t", summary: "s" },
+          },
+        ],
+        null,
+        2
+      ),
+      "utf-8"
+    );
+
+    const { computeOpenClawHealth } = await import("@/lib/openclaw-health");
+    const h = await computeOpenClawHealth();
+    expect(h.status).toBe("idle");
+    expect(h.lastProposalAt).toBeTruthy();
+    expect(h.lastError).toBeUndefined();
+  });
 });
 
 describe("GET /api/connectors/openclaw/health", () => {
@@ -83,7 +119,7 @@ describe("GET /api/connectors/openclaw/health", () => {
     const res = await GET();
     expect(res.status).toBe(200);
     const json = (await res.json()) as Record<string, unknown>;
-    expect(["connected", "degraded", "disconnected"]).toContain(json.status);
+    expect(["connected", "idle", "degraded", "disconnected"]).toContain(json.status);
     expect(json).toHaveProperty("lastSeenAt");
     if (json.lastSeenAt !== null) {
       expect(typeof json.lastSeenAt).toBe("string");

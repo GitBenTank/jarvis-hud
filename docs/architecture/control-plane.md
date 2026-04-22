@@ -4,6 +4,7 @@ status: "living-document"
 category: architecture
 related:
   - ../strategy/jarvis-hud-video-thesis.md
+  - jarvis-openclaw-system-overview.md
   - ../security/agent-execution-model.md
   - ../decisions/0001-thesis-lock.md
 ---

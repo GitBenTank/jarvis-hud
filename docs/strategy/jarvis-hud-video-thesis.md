@@ -10,6 +10,8 @@ related:
   - docs/security/agent-execution-model.md
   - docs/decisions/0001-thesis-lock.md
   - docs/strategy/agent-team-v1.md
+  - docs/architecture/jarvis-openclaw-system-overview.md
+  - docs/strategy/operating-assumptions.md
   - docs/governance/
   - docs/roadmap/
 ---
@@ -225,6 +227,8 @@ See also:
 - [Agent Execution Model](../security/agent-execution-model.md)
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 - [Agent team v1](./agent-team-v1.md)
+- [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md)
+- [Operating assumptions](./operating-assumptions.md)
 
 ---
 

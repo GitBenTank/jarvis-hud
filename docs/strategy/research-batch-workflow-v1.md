@@ -201,7 +201,7 @@ Append a row after **each** run (or each day). This is the **evidence base** for
 
 1. **Duplicate review containers** for one batch — threatens **truthfulness** (one batch vs two). *Still open until recurrence drives a fix.*
 2. **Safety gate vs queue state** — threatened **truthfulness** (e.g. “Pending approval” when rows were already **APPROVED**). **Fixed** in `SafetyGatePanel` (see **Resolved in code** below).
-3. **OpenClaw disconnected / no recent activity** while ingress and receipts are still coherent — after (2), this is the **next most corrosive**: persistent **false-bad** status erodes trust in the control plane. Operator checklist already says to trust Activity for ingress truth; the banner should be reconciled or softened when recurrence justifies code/docs change.
+3. **OpenClaw disconnected / no recent activity** while ingress and receipts are still coherent — after (2), this is the **next most corrosive**: persistent **false-bad** status teaches operators that warnings are **melodramatic and ignorable**. A control plane can survive being occasionally **incomplete**; it does not survive long if it trains people to dismiss its signals. Operator checklist already says to trust Activity for ingress truth; reconcile or soften the banner when recurrence on a **clean pass** justifies a change.
 4. **Same rehearsal titles every run** — **scanability**; Phase 3 templates when patterns warrant.
 5. **Approval-time safety snapshot** (“NO SNAPSHOT RECORDED” on trace) — **watch**; one sighting is not yet a pattern; log again if it clusters.
 

@@ -263,6 +263,8 @@ Jarvis sits between AI agents and system execution:
 | `pnpm jarvis:doctor` | Preflight (ingress, secret, allowlist) |
 | `pnpm machine-wired` | Phase 1: stack + Control UI pass/fail |
 | `pnpm auth-posture` | Phase 2: auth vs ingress capability (optional `JARVIS_EXPECT_AUTH=true`) |
+| `pnpm rehearsal:preflight` | Before research batch rehearsal: `machine-wired` + `auth-posture` |
+| `pnpm rehearsal:research-batch` | Submit 3× `system.note` with shared `batch.id` (then execute one row in HUD) |
 | `pnpm jarvis:submit` | Normalize + signed POST from a JSON file |
 | `pnpm demo:system-note` | End-to-end **truth loop** demo: draft → normalize → validate → trust preflight → submit (`--no-submit`, `--scenario=*`; see `scripts/demos/system-note-runner.ts`) |
 | `pnpm test:unit`     | Unit tests                           |

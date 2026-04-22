@@ -1,7 +1,7 @@
 # Research batch workflow v1 (first governed loop)
 
-**Status:** Draft — concrete runbook for the first **narrow end-to-end** agent loop  
-**Related:** [Agent team v1](./agent-team-v1.md) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [OpenClaw proposal contract](../architecture/openclaw-proposal-identity-and-contract.md) · [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md)
+**Status:** Living — Phase 4 rehearsal runbook (stack + probes frozen in [§1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) / [§2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis))  
+**Related:** [Agent team v1](./agent-team-v1.md) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [OpenClaw proposal contract](../architecture/openclaw-proposal-identity-and-contract.md) · [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) · [Roadmap Phase 4](../roadmap/0003-operator-integration-phases.md#phase-4--operationalize-the-first-agent-loop)
 
 ---
 
@@ -121,37 +121,71 @@ Answer honestly and adjust compose prompts or HUD copy — not policy — first:
 - [ ] OpenClaw workspace / runner: emit **`n`** signed proposals with valid **`batch`** and structured **`note`**.
 - [ ] Confirm all items appear under one **Review container** in **Agent Proposals**.
 - [ ] Run **Approve → Execute** on at least one item; confirm **receipt** and **trace** for that **`id`** only.
-- [ ] Record friction notes in this doc or a short run log (optional appendix).
+- [ ] Append friction notes to [Friction log](#friction-log-after-rehearsals) after each rehearsal.
 
 ---
 
-## First live rehearsal (do this next)
+## Phase 4 rehearsal protocol (boring repeatability)
 
-Design is sufficient; **validate the loop in the real stack**. One batch, minimal scope.
+Use the **blessed stack** only ([local stack startup](../setup/local-stack-startup.md)). Goal: the loop is **calm and literal** — no interpretive “did the batch run?” narrative.
 
-**Setup**
+### 0. Preflight (every session)
 
-- **3** research items (`system.note`), **one shared `batch.id`**, **`itemCount`: 3**, **`itemIndex`**: 0, 1, 2.
-- **N separate** signed **`POST /api/ingress/openclaw`** (same batch metadata pattern as above).
-- **Quick path:** with dev server up and `.env.local` configured, run **`pnpm rehearsal:research-batch`** (loads secrets via `--env-file=.env.local`).
+With **Jarvis** and **OpenClaw gateway** running:
 
-**In the HUD**
+```bash
+cd /path/to/jarvis-hud
+pnpm rehearsal:preflight
+```
 
-- Confirm **one review container** groups all three; scan batch title/summary and per-item headlines.
-- **Approve** as needed; **execute only one item** (one row’s **Execute** / Details flow).
+This runs **`pnpm machine-wired`** then **`pnpm auth-posture`**. Fix failures before submitting proposals. (Serious-mode hosts: `JARVIS_EXPECT_AUTH=true pnpm auth-posture` if you require auth on.)
 
-**Verify (not only “it didn’t error”)**
+### 1. Submit a 3-item research batch
 
-- **Receipt** exists for **that item’s** approval id only — not for the whole batch.
-- **Trace** / activity tells the truth for that id; no wording that implies “the batch ran.”
-- **Operator honesty:** authoring felt natural, review felt honest, **Execute** felt clearly separate from **Approve**, and post-run narrative matched what actually ran.
+- **3** × `system.note`, **one shared `batch.id`**, **`itemCount`: 3**, **`itemIndex`**: 0, 1, 2.
+- **3** separate signed **`POST /api/ingress/openclaw`** (strict ingress; no `batch` inside `payload`).
 
-**After a clean pass**
+**Quick path:** `pnpm rehearsal:research-batch` (uses `.env.local`; base URL defaults to **`http://127.0.0.1:3000`** — align with your listening port).
 
-1. Second run with **5–7** items (still within ingress batch limits).
-2. **Minor wording / UX** fixes from friction notes only.
-3. **Reusable OpenClaw submission template** (compose-time).
-4. Then **creative agent v1** — not before the research loop feels boringly reliable.
+Note terminal **`id`** / **`traceId`** per item for later comparison in the HUD.
+
+### 2. In the HUD (operator)
+
+- One **review container** groups all three rows; **Proposal id** and **Trace id** stay legible in **Details** (per row).
+- **Approve** any rows you want eligible; **Execute exactly one row** (that row’s **Execute** only).
+
+**Success bar:** the operator never has to **guess** which proposal executed. If copy implies “the batch ran,” file a UX bug (batch is advisory; execution is per [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md)).
+
+### 3. Verify (hard checks)
+
+| Check | Pass |
+|--------|------|
+| Receipt / activity | Tied to **one** executed **proposal `id`** only |
+| Non-executed rows | No receipt implying they ran |
+| Trace / activity wording | Per **id**, not “batch completed” |
+| IDs | **Proposal id** and **trace id** still readable after execute |
+
+### 4. Repeat
+
+- Run the same protocol **multiple times** on the locked stack before adding governance machinery.
+- Then increase load: **5–7** items (within ingress batch limits), same per-item execute discipline.
+
+### 5. After Phase 3 (templates)
+
+- **Reusable OpenClaw submission template** (compose-time) — only after friction is captured here.
+- **Creative agent v1** — only after this loop feels boringly reliable.
+
+---
+
+## Friction log (after rehearsals)
+
+Append a row after **each** run (or each day). This feeds Phase 3 templates and HUD copy — not new policy layers.
+
+| Date | Run | What confused the operator | Copy / UI to tighten | Slower than expected | Template / automation candidate (Phase 3) |
+|------|-----|----------------------------|----------------------|----------------------|-------------------------------------------|
+| | | | | | |
+
+_(Example: “Execute button proximity to batch header”, “Activity line used batch title instead of proposal id”, “OpenClaw compose: forgot itemCount”.)_
 
 ---
 

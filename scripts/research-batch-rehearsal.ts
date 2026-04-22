@@ -1,7 +1,8 @@
 /**
  * First live rehearsal: 3 system.note items, shared batch.id, N separate ingress POSTs.
  *
- * Requires Jarvis dev server (`pnpm dev`) and `.env.local` with ingress secret + `JARVIS_HUD_BASE_URL`.
+ * Requires Jarvis dev server (`pnpm dev`) and `.env.local` with ingress secret + `JARVIS_HUD_BASE_URL`
+ * (default base http://127.0.0.1:3000 if unset — match Phase 1).
  *   pnpm rehearsal:research-batch
  *
  * Uses `tsx --env-file=.env.local` (see package.json). If you omit `.env.local`, export
@@ -24,7 +25,7 @@ async function main() {
   }
 
   const base =
-    process.env.JARVIS_BASE_URL ?? process.env.JARVIS_HUD_BASE_URL ?? "http://localhost:3000";
+    process.env.JARVIS_BASE_URL ?? process.env.JARVIS_HUD_BASE_URL ?? "http://127.0.0.1:3000";
   console.log("Base URL:", base.replace(/\/$/, ""));
   console.log("");
 

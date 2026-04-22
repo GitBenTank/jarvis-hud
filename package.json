@@ -17,6 +17,7 @@
     "demo:proof": "node scripts/demo-proof.mjs",
     "ingress:smoke": "node scripts/ingress-smoke.mjs",
     "jarvis:submit": "tsx scripts/jarvis-submit.ts",
+    "rehearsal:preflight": "pnpm machine-wired && pnpm auth-posture",
     "rehearsal:research-batch": "tsx --env-file=.env.local scripts/research-batch-rehearsal.ts",
     "demo:system-note": "tsx scripts/demos/system-note-runner.ts",
     "jarvis:smoke:apply": "node scripts/ingress-smoke-apply.mjs",

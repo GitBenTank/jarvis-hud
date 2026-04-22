@@ -104,6 +104,8 @@ related:
 
 **Assumption (research v0):** **`system.note`** carries research batches until a dedicated kind is justified ([Research batch workflow v1](./research-batch-workflow-v1.md)).
 
+**Assumption (creative Phase 5 v1):** **`system.note`** also carries creative batches with structure in markdown (`payload.note`); no `creative.*` kind until justified ([Creative batch workflow v1](./creative-batch-workflow-v1.md)).
+
 **Provisional:** Introducing `research.*` (or similar) requires **ingress + policy + UI copy** in one change set, not “agent-only.”
 
 ---

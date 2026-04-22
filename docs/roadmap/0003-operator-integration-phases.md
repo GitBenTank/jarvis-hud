@@ -12,6 +12,7 @@
 - [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md)
 - [Agent team v1](../strategy/agent-team-v1.md)
 - [Research batch workflow v1](../strategy/research-batch-workflow-v1.md)
+- [Creative batch workflow v1 (Phase 5)](../strategy/creative-batch-workflow-v1.md)
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 - [ADR-0005: Batch v0, per-item execute](../decisions/0005-agent-team-batch-v0-per-item-execute.md)
 
@@ -31,7 +32,7 @@ Do these **next**, in this order:
 2. **Phase 2** — Lock the human control boundary (auth / step-up on the blessed path)
 3. **Phase 4** — Operationalize the first governed loop (research batch v1, rehearsals) — **v1 bar met 2026-04** (see [Phase 4](#phase-4--operationalize-the-first-agent-loop)); keep occasional reps + friction log for demo polish.
 4. **Phase 3** — Standardize proposal authoring (templates, field conventions); **Phase 3a** already shipped from friction evidence — broaden only when pain **recurs**.
-5. **Phase 5** — Add the second specialist (creative agent, same spine)
+5. **Phase 5** — Add the second specialist (creative agent, same spine) — **v1:** [Creative batch workflow](../strategy/creative-batch-workflow-v1.md) + `pnpm rehearsal:creative-batch`
 
 **Rationale:** Freeze the stack and authority **before** optimizing authoring ergonomics; run the **research batch ritual** until the [friction log](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals) has **honest entries** — then wake **Phase 3** from that evidence (templates prevent real mistakes, not imagined ones). After that, broaden roles.
 
@@ -114,12 +115,16 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 **Goal:** Prove the model works beyond one role.
 
-- Introduce **creative agent**.
+**Phase 5 v1:** [Creative batch workflow v1](../strategy/creative-batch-workflow-v1.md) — second specialist uses **`system.note`** with a **markdown** contract (Brief, Audience, Angle, 3–5 variants, Risks/notes, Sources). Same **`batch`** semantics, **per-item** approve/execute/receipt; no `creative.*` kind until justified. Rehearsal: **`pnpm rehearsal:creative-batch`** (`scripts/creative-batch-rehearsal.ts`).
+
+- Introduce **creative agent** proposals through the same ingress and HUD path as research.
 - Use the same batch and approval semantics.
 - No new execution shortcuts.
 - Compare research vs creative needs before expanding schema.
 
-**Done when:** Two specialists work through one governance spine without drift.
+**Done when:** Two specialists work through one governance spine without drift — creative batches rehearse with the same calm as research (coherent id/trace/receipt, no governance confusion).
+
+**Milestone (2026-04) — first claim:** Creative v1 **full close** logged (proposal id, trace, receipt align — see [creative friction log](../strategy/creative-batch-workflow-v1.md)). **Interpretation:** the spine **generalizes** across at least **two** cognitive artifact shapes at `system.note` depth without a new governance model. **Not closed forever:** optional **second** short creative rehearsal to rule out a lucky first pass; Phase **6+** and richer kinds still wait on sustained boredom, not one green run.
 
 ---
 

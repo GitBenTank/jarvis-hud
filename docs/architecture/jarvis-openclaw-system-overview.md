@@ -61,6 +61,7 @@ OpenClaw is documented upstream as a **gateway** with configuration under **`~/.
 | Thesis + Thesis Lock | [Video thesis](../strategy/jarvis-hud-video-thesis.md) |
 | Batch = review container; per-item execute | [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md), [Agent team v1](../strategy/agent-team-v1.md) |
 | First research loop | [Research batch workflow v1](../strategy/research-batch-workflow-v1.md) |
+| Creative specialist v1 (Phase 5) | [Creative batch workflow v1](../strategy/creative-batch-workflow-v1.md) |
 | Proposal identity (`agent`, `builder`, `source.agentId`) | [OpenClaw proposal identity & contract](./openclaw-proposal-identity-and-contract.md) |
 | Execution policy gate | [ADR-0003](../decisions/0003-execution-policy-v1.md) |
 

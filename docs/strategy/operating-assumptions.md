@@ -11,6 +11,7 @@ related:
   - ../openclaw-integration-verification.md
   - ../roadmap/0003-operator-integration-phases.md
   - ../setup/phase1-freeze-checklist.md
+  - ../setup/phase2-auth-authority-checklist.md
   - ../setup/local-stack-startup.md
 ---
 
@@ -43,9 +44,41 @@ related:
 
 ### 2. Auth and step-up (Jarvis)
 
-**Assumption (local / demo):** `JARVIS_AUTH_ENABLED=false` is common; ingress still uses **shared HMAC secret**.
+**Phase 2 — provisional-but-clear authority model.** Human authority is **not** the same thing as **ingress capability**. Thesis Lock still applies: agents propose; humans approve and execute; receipts are per action.
 
-**Provisional (serious use):** Target posture for multi-user or sensitive environments is **not finalized** here. When auth is on, headless clients may see `stepUpValid: null` on `GET /api/config` — that is **unknown / N/A**, not “failed” ([OpenClaw V1 contract](../architecture/openclaw-v1-contract.md)).
+#### Modes (pick one consciously per environment)
+
+| Mode | `JARVIS_AUTH_ENABLED` | Typical use |
+|------|------------------------|-------------|
+| **Local convenience** | `false` (default) | Solo dev on a trusted machine; fastest loop. |
+| **Demo / rehearsal** | Usually `false` | Same as convenience unless the demo must **show** the session gate — then turn auth **on** and rehearse with browser login + step-up. |
+| **Serious** | `true` | Shared machine, sensitive data, or any case where **only identified operators** should reach approve/execute APIs. |
+
+#### Who may do what (blessed stack)
+
+| Action | Local convenience | Serious (`auth` on) |
+|--------|-------------------|---------------------|
+| **Submit ingress** (`POST /api/ingress/openclaw`) | Any party with **`JARVIS_INGRESS_OPENCLAW_SECRET`** + valid signature (e.g. OpenClaw gateway, scripts). | Same — ingress is **not** end-user SSO; it is **shared capability**. Protect the secret and network like a capability token. |
+| **Approve / Execute in HUD** | Anyone who can open the HUD URL and use the UI (no Jarvis session). | **Session required** for gated routes; **step-up** required for execute when policy demands it (`trustPosture.stepUpValid` on `GET /api/config` with browser cookies). |
+| **Human identity** | **HMAC does not prove** which human submitted. It proves possession of the ingress secret. | Same for ingress. **Browser session** (when auth on) is the boundary for “who is at the HUD.” |
+
+#### `stepUpValid` (normal use)
+
+- Surfaced on **`GET /api/config`** inside **`trustPosture.stepUpValid`** (canonical for agents — [OpenClaw V1 contract](../architecture/openclaw-v1-contract.md)).
+- **`null`:** auth is **off** → step-up is **N/A**, not “failed.”
+- **`true` / `false`:** auth is **on** → reflects **this request’s cookies** (browser with session). **Headless** callers (Node, OpenClaw tools without cookies) usually see **`false`** or cannot distinguish step-up — that is **not** “step-up broken”; it is **no browser session on this client**. Do not treat cookieless `GET /api/config` as proof the operator has stepped up.
+
+#### Headless submitters (OpenClaw, CI)
+
+- **Allowed** today for ingress when the secret is configured — they **propose** only; execution still requires HUD approval (and auth + step-up when enabled).
+- **Risk:** a leaked secret is **full submission capability** until rotated. Serious mode must include **who may hold the secret** and **network placement** (record in [Phase 2 checklist](../setup/phase2-auth-authority-checklist.md)).
+
+#### Probes
+
+- **`pnpm auth-posture`** — cookieless; prints convenience-mode reminders or validates auth-on + secret presence; optional **`JARVIS_EXPECT_AUTH=true`** fails if auth is off (guardrail for “serious” hosts).
+- **`pnpm machine-wired`** — Phase 1 stack / Control UI (run both).
+
+**Still provisional:** per-tenant SSO, per-connector identity at ingress, and CI policy are **not** specified here — extend §2 in the same PR when you add code.
 
 ---
 
@@ -90,6 +123,7 @@ related:
 
 ## See also
 
+- [Phase 2 auth authority checklist](../setup/phase2-auth-authority-checklist.md)
 - [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md)
 - [Operator integration phases (roadmap)](../roadmap/0003-operator-integration-phases.md)
 - [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md)

@@ -189,7 +189,7 @@ pnpm dev
 
 Open **http://localhost:3000**. For a **production-style** build: `pnpm build && pnpm start`. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
 
-**Jarvis + OpenClaw together:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md). **OpenClaw terminal (from this repo):** `pnpm openclaw:dev` · **Jarvis:** `pnpm dev` · **Check:** `pnpm local:stack:doctor` · **Phase 1 pass/fail:** `pnpm machine-wired` (with both running) · **VS Code:** Run Task → `Local stack: both (parallel)`.
+**Jarvis + OpenClaw together:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md). **OpenClaw terminal (from this repo):** `pnpm openclaw:dev` · **Jarvis:** `pnpm dev` · **Check:** `pnpm local:stack:doctor` · **Phase 1 pass/fail:** `pnpm machine-wired` (with both running) · **Phase 2 auth:** `pnpm auth-posture` · **VS Code:** Run Task → `Local stack: both (parallel)`.
 
 ---
 
@@ -261,6 +261,8 @@ Jarvis sits between AI agents and system execution:
 | `pnpm demo:smoke`    | Ingress + apply smoke tests          |
 | `pnpm ingress:smoke` | `system.note` ingress smoke          |
 | `pnpm jarvis:doctor` | Preflight (ingress, secret, allowlist) |
+| `pnpm machine-wired` | Phase 1: stack + Control UI pass/fail |
+| `pnpm auth-posture` | Phase 2: auth vs ingress capability (optional `JARVIS_EXPECT_AUTH=true`) |
 | `pnpm jarvis:submit` | Normalize + signed POST from a JSON file |
 | `pnpm demo:system-note` | End-to-end **truth loop** demo: draft → normalize → validate → trust preflight → submit (`--no-submit`, `--scenario=*`; see `scripts/demos/system-note-runner.ts`) |
 | `pnpm test:unit`     | Unit tests                           |

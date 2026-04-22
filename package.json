@@ -22,6 +22,7 @@
     "jarvis:smoke:apply": "node scripts/ingress-smoke-apply.mjs",
     "jarvis:doctor": "node scripts/jarvis-doctor.mjs",
     "machine-wired": "node scripts/machine-wired-probe.mjs",
+    "auth-posture": "node scripts/auth-posture-probe.mjs",
     "local:stack:doctor": "node scripts/local-stack-doctor.mjs",
     "openclaw:dev": "bash scripts/openclaw-gateway-dev.sh",
     "demo:boot": "bash scripts/demo-boot.sh",

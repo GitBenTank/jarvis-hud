@@ -62,16 +62,14 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 **Goal:** Make serious use safe and explicit.
 
-- Define auth / step-up posture for the blessed path ([§2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis)).
-- Clarify:
-  - Who may submit ingress
-  - Who may approve
-  - Who may execute
-  - What `stepUpValid` means in real use
-- Align UI copy, runbooks, and trust contract docs.
-- Test failure modes: no auth, stale auth, headless submitter, wrong secret, wrong origin.
+- **§2 frozen (provisional):** [Auth and step-up](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) — modes (convenience / demo / serious), who may submit vs approve vs execute, `stepUpValid` semantics, headless submitters.
+- **Checklist:** [Phase 2 auth authority](../setup/phase2-auth-authority-checklist.md) (record who may hold the ingress secret, when auth must be on).
+- **Trust docs:** [OpenClaw V1 contract](../architecture/openclaw-v1-contract.md#human-authority-boundary-phase-2) · [OpenClaw ↔ Jarvis trust contract](../architecture/openclaw-jarvis-trust-contract.md) (ingress vs human authority).
+- **Operator path:** [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) (human authority section).
+- **Probe:** **`pnpm auth-posture`** (cookieless; optional **`JARVIS_EXPECT_AUTH=true`** on serious hosts). Run with **`pnpm machine-wired`**.
+- **Manual tests:** no auth, auth on without step-up at execute, headless `GET /api/config`, wrong ingress secret, origin drift (Phase 1 probe).
 
-**Done when:** Approval and execution authority are unambiguous on the real stack.
+**Done when:** Approval and execution authority are unambiguous on the real stack and probes/docs agree.
 
 ---
 

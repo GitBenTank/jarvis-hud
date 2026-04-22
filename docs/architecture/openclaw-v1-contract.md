@@ -5,6 +5,7 @@ category: architecture
 related:
   - openclaw-jarvis-trust-contract.md
   - operator-sprint-trust-map.md
+  - ../strategy/operating-assumptions.md
   - ../security/openclaw-ingress-signing.md
 ---
 
@@ -42,6 +43,18 @@ This is the **ordered integration plan** for OpenClaw agents (Alfred, Forge, …
 - `src/jarvis/submitProposal.ts` — optional `trustPreflight`, `abortIfIngressLikelyRejected`, `abortIfCodeApplyLikelyBlocked`
 
 Node callers do not send session cookies; when `JARVIS_AUTH_ENABLED=true`, `stepUpValid` may be `null` in config. That is **not** “step-up failed” — it is **unknown / N/A for this client** (see [OpenClaw ↔ Jarvis trust contract](./openclaw-jarvis-trust-contract.md)).
+
+---
+
+## Human authority boundary (Phase 2)
+
+**Normative summary:** [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) · checklist: [Phase 2 auth authority](../setup/phase2-auth-authority-checklist.md).
+
+- **Ingress (HMAC + allowlist)** proves possession of **`JARVIS_INGRESS_OPENCLAW_SECRET`**, not which human is at the keyboard. Do not narrate “the operator submitted” from signature success alone.
+- **`trustPosture.stepUpValid`** on `GET /api/config` reflects **browser cookies** for this request. When **`authEnabled`** is false, Jarvis surfaces **`null`** (N/A). When auth is on without cookies (typical Node / headless), **`false`** means **no session here** — not “step-up subsystem broken.”
+- **Approve and execute** authority in serious mode is whoever controls the **HUD session** (and step-up when required), per policy — not whoever holds the ingress secret.
+
+**Probe:** `pnpm auth-posture` from jarvis-hud (optional `JARVIS_EXPECT_AUTH=true` for serious-mode hosts).
 
 ---
 

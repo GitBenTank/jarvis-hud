@@ -1,7 +1,7 @@
 ---
 title: "OpenClaw ↔ Jarvis HUD — operator checklist"
 status: living-document
-version: 1.5
+version: 1.6
 owner: Ben Tankersley
 created: 2026-04-18
 category: setup
@@ -9,6 +9,7 @@ enforcement: hard
 related:
   - ../openclaw-integration-verification.md
   - phase1-freeze-checklist.md
+  - phase2-auth-authority-checklist.md
   - openclaw-control-ui.md
   - openclaw-jarvis-operator-sprint.md
   - ../local-verification-openclaw-jarvis.md
@@ -29,6 +30,17 @@ This page is the **mental model and order-of-operations** for local and operator
 These components implement a **governed execution protocol for autonomous agents**: deterministic ingress, a single execution authority, constrained agent behavior, an auditable chain, and an explicit failure model—not optional integration guidance.
 
 **This contract must be satisfied before recording demos, distributing builds, or relying on the system for governed execution.**
+
+---
+
+## Human authority and auth (Phase 2)
+
+**Normative:** [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) · **decisions:** [Phase 2 checklist](phase2-auth-authority-checklist.md).
+
+- **Ingress (`POST /api/ingress/openclaw`)** — Anyone with **`JARVIS_INGRESS_OPENCLAW_SECRET`** can **submit proposals**. That is **capability**, not human identity. Rotate the secret if leaked.
+- **Approve / Execute** — When **`JARVIS_AUTH_ENABLED=true`**, gated HUD routes require a **session**; execute may require **step-up** (`trustPosture.stepUpValid` on `GET /api/config` with browser cookies). When auth is **off** (typical local dev), anyone who can reach the HUD URL can use the UI — protect the URL and host.
+- **Headless OpenClaw / scripts** — May hold the ingress secret; they **never** replace Approve/Execute in the HUD. Do not confuse “signed ingress succeeded” with “a human approved.”
+- **Probe:** `pnpm auth-posture` · **`JARVIS_EXPECT_AUTH=true pnpm auth-posture`** on hosts that must not run auth-off.
 
 ---
 

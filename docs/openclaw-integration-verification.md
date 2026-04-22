@@ -21,6 +21,8 @@ This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress 
 
 Everything below that documents **mixed state dirs**, **Homebrew-only**, or **recovery** still applies when **debugging** or **migrating** — it is not an alternate blessed path for Phase 1.
 
+**Phase 2 (auth / human authority):** [Operating assumptions §2](strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) · **`pnpm auth-posture`**.
+
 ## OpenClaw config directory (macOS gateway / dashboard)
 
 **Dashboard setup (step-by-step):** [OpenClaw Control UI setup](setup/openclaw-control-ui.md) — includes **version alignment** when the CLI warns the config was written by a newer OpenClaw.

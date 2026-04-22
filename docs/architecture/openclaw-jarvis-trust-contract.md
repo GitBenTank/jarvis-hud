@@ -32,6 +32,12 @@ Only **enforced_and_surfaced** may use **authoritative** language.
 
 ---
 
+## Ingress capability vs human authority
+
+Valid **`POST /api/ingress/openclaw`** means the caller had the **shared ingress secret** and a conforming body — an **enforced** check, but **not** identification of a human operator. **Approval and execution** remain human-gated in the HUD (and session + step-up when `JARVIS_AUTH_ENABLED=true`). See [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) and [OpenClaw V1 contract](./openclaw-v1-contract.md#human-authority-boundary-phase-2).
+
+---
+
 ## Mandatory pre-submission posture (OpenClaw V1)
 
 **Alfred MUST** fetch and evaluate `GET /api/config` before submitting proposals that enter the executable approval path, then **downgrade or narrate uncertainty** when posture is unknown or blocking — not invent substitute truth.

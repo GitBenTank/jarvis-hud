@@ -26,8 +26,12 @@ Jarvis HUD configuration is driven by environment variables. Never commit secret
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `JARVIS_AUTH_ENABLED` | No | `"true"` to require session auth |
+| `JARVIS_AUTH_ENABLED` | No | `"true"` to require session auth for gated HUD / API routes |
 | `JARVIS_AUTH_SECRET` | When auth enabled | Min 16 chars. Used for session signing. |
+
+**Authority model (who may submit vs approve):** [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis). Ingress still uses **`JARVIS_INGRESS_OPENCLAW_SECRET`** (HMAC) — that secret is **not** a substitute for human identity.
+
+**Probe:** `pnpm auth-posture` from jarvis-hud. For hosts that must run with auth on, use **`JARVIS_EXPECT_AUTH=true pnpm auth-posture`** in CI or onboarding scripts.
 
 ---
 
@@ -56,7 +60,7 @@ Used by `src/openclaw-strict-governed` when wiring OpenClaw-style tools. Same in
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `JARVIS_HUD_BASE_URL` | No | Base URL for scripts (default: `http://localhost:3000`). Must match the **listening** dev server (see [Local dev truth map](local-dev-truth-map.md)). When set, `GET /api/config` includes `jarvisHudBaseUrl`; the HUD shows a non-blocking warning if that URL’s origin differs from where you opened the app. |
+| `JARVIS_HUD_BASE_URL` | No | Base URL for scripts (prefer **`http://127.0.0.1:3000`** to match Phase 1; see [operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project)). Must match the **listening** dev server (see [Local dev truth map](local-dev-truth-map.md)). When set, `GET /api/config` includes `jarvisHudBaseUrl`; the HUD shows a non-blocking warning if that URL’s origin differs from where you opened the app. |
 | `OPENCLAW_CONTROL_UI_URL` | No | `http:` or `https:` URL of the OpenClaw Control UI — **must match the port your gateway binds** (often **18789** or **19001**; use gateway logs or `pnpm local:stack:doctor`). When set, `GET /api/config` includes `openclawControlUiUrl` and the OpenClaw health strip can show **Open OpenClaw Control**. Navigation only; ingress still requires secrets and OpenClaw-side `JARVIS_BASE_URL`. Startup order: [Local stack startup](local-stack-startup.md); deep setup: [OpenClaw Control UI](openclaw-control-ui.md). |
 | `JARVIS_LOG_POLLING` | No | `"1"` to enable server-side log polling |
 | `PORT` | No | Binds the dev server when using `pnpm dev:port` / `demo:boot` (often **3001** for demos; **3000** for plain `pnpm dev`). Not magic — match your running process. |
@@ -71,6 +75,7 @@ Use `dev:port` when running with ingress to avoid port collisions:
 
 ```bash
 PORT=3001 pnpm dev:port   # with JARVIS_INGRESS_* env set
-JARVIS_HUD_BASE_URL="http://localhost:3001" pnpm ingress:smoke
+JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" pnpm ingress:smoke
 pnpm jarvis:doctor       # preflight before demos
+pnpm auth-posture        # Phase 2: convenience vs serious-mode guard
 ```

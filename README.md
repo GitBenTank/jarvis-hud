@@ -358,4 +358,4 @@ https://ctrlstrum.com
 
 ## License
 
-**Proprietary — all rights reserved.** See [LICENSE](LICENSE). The repository may be public for visibility; that does not grant rights to use or redistribute the code. For licensing inquiries, use the contact in [Author](#author).
+**Proprietary — all rights reserved.** See [LICENSE](LICENSE). The repository may be public for visibility; that does not grant rights to use or redistribute the code. **Commercial licensing is available on request.** For licensing inquiries, use the contact in [Author](#author).

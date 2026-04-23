@@ -413,6 +413,12 @@ export const DOCS_OPERATORS: DocsLibraryStartItem[] = [
     title: "Operating assumptions",
     description: "Frozen deployment and auth defaults.",
   },
+  {
+    href: "/docs/strategy/agent-team-contract-v1",
+    title: "Agent team contract v1",
+    description:
+      "Alfred + specialists: routing, handoffs, Jarvis kinds, one-proposal-per-consent.",
+  },
 ];
 
 export async function buildDocsLibrary(): Promise<DocsLibraryBuild> {

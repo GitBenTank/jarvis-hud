@@ -6,6 +6,7 @@ related:
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/strategy/gener8tor-pitch.md
   - docs/strategy/competitive-landscape-2026.md
+  - docs/strategy/agent-team-contract-v1.md
   - docs/decisions/0001-thesis-lock.md
 ---
 

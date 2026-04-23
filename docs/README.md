@@ -63,6 +63,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Full narrative spec | [Video thesis](strategy/jarvis-hud-video-thesis.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |
+| Multi-agent + Jarvis boundary | [Agent team contract v1](strategy/agent-team-contract-v1.md) |
 
 ---
 

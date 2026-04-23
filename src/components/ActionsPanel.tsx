@@ -26,17 +26,46 @@ type ActionsResponse = {
   actions: ActionEntry[];
 };
 
+function sessionRequiredReceiptsBox() {
+  return (
+    <div
+      className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100"
+      role="status"
+    >
+      <p className="font-medium">Session required to load receipts</p>
+      <p className="mt-1 text-xs opacity-90">
+        The status strip can show execution counts from public config while this list is session-gated.
+        Open <strong className="font-semibold">System status → Security</strong> →{" "}
+        <strong className="font-semibold">Establish session</strong> (same host as{" "}
+        <code className="rounded bg-black/10 px-1 dark:bg-white/10">JARVIS_HUD_BASE_URL</code>).
+      </p>
+    </div>
+  );
+}
+
 export default function ActionsPanel() {
   const [data, setData] = useState<ActionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionBlocked, setSessionBlocked] = useState(false);
 
   const fetchActions = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/actions");
+      const res = await fetch("/api/actions", { credentials: "include" });
+      if (res.status === 401) {
+        setSessionBlocked(true);
+        setData({ dateKey: "", actions: [] });
+        return;
+      }
+      setSessionBlocked(false);
       const json = await res.json();
-      setData(json);
+      if (!res.ok || !Array.isArray((json as ActionsResponse).actions)) {
+        setData({ dateKey: typeof (json as ActionsResponse).dateKey === "string" ? (json as ActionsResponse).dateKey : "", actions: [] });
+        return;
+      }
+      setData(json as ActionsResponse);
     } catch {
+      setSessionBlocked(false);
       setData({ dateKey: "", actions: [] });
     } finally {
       setLoading(false);
@@ -130,10 +159,13 @@ export default function ActionsPanel() {
         </button>
       </div>
 
-      {loading && actions.length === 0 && (
+      {loading && actions.length === 0 && !sessionBlocked && (
         <p className="text-sm text-zinc-500">Loading…</p>
       )}
-      {!loading && actions.length === 0 && (
+      {!loading && sessionBlocked && (
+        sessionRequiredReceiptsBox()
+      )}
+      {!loading && !sessionBlocked && actions.length === 0 && (
         <>
           <p className="text-sm text-zinc-500">No executed actions yet.</p>
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">

@@ -5,6 +5,7 @@ category: product-strategy
 owner: Ben Tankersley
 last_reviewed: 2026-04-23
 related:
+  - ../README.md
   - jarvis-hud-video-thesis.md
   - agent-team-v1.md
   - ../architecture/jarvis-openclaw-system-overview.md
@@ -17,7 +18,7 @@ related:
 
 # Operating assumptions (Jarvis + OpenClaw)
 
-**Purpose:** Record **current defaults and provisional choices** so future work does not rely on memory or chat. This doc **ages on purpose** when posture changes. The **stable structural map** is [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md).
+**Purpose:** Record **current defaults and provisional choices** so future work does not rely on memory or chat. This doc **ages on purpose** when posture changes. **Doc navigation:** [Documentation hub](../README.md). The **stable structural map** is [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md).
 
 **Rule:** When you change a default here, bump **`last_reviewed`** and add a one-line note if the old assumption misled anyone.
 

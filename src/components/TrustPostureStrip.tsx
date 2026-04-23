@@ -75,6 +75,65 @@ function readOptionalTopLevelBool(json: Record<string, unknown>, key: string): b
 const pillBase =
   "rounded border border-zinc-300 bg-zinc-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-700 dark:border-zinc-600 dark:bg-zinc-900/80 dark:text-zinc-300";
 
+type AuthStatusPayload = {
+  authEnabled: boolean;
+  hasSession: boolean;
+  stepUpValid: boolean;
+};
+
+function sessionPillClass(kind: "neutral" | "warn" | "ok" | "muted"): string {
+  if (kind === "warn") {
+    return `${pillBase} border-amber-600/50 bg-amber-500/15 text-amber-950 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100`;
+  }
+  if (kind === "ok") {
+    return `${pillBase} border-emerald-600/40 bg-emerald-500/10 text-emerald-950 dark:border-emerald-500/35 dark:bg-emerald-500/10 dark:text-emerald-100`;
+  }
+  if (kind === "muted") {
+    return `${pillBase} opacity-80`;
+  }
+  return pillBase;
+}
+
+function formatSessionPill(
+  s: AuthStatusPayload | null,
+): { label: string; title: string; kind: "neutral" | "warn" | "ok" | "muted" } {
+  if (s === null) {
+    return {
+      label: "Session: …",
+      title: "Loading session state from GET /api/auth/status",
+      kind: "neutral",
+    };
+  }
+  if (!s.authEnabled) {
+    return {
+      label: "Session: N/A",
+      title: "Auth is off — API detail routes are not session-gated.",
+      kind: "muted",
+    };
+  }
+  if (!s.hasSession) {
+    return {
+      label: "Session: None",
+      title:
+        "No HUD session cookie — approvals, activity, traces, and connector health return 401 until you Establish session (System status → Security). Use the same host as JARVIS_HUD_BASE_URL (e.g. 127.0.0.1).",
+      kind: "warn",
+    };
+  }
+  if (!s.stepUpValid) {
+    return {
+      label: "Session: Limited",
+      title:
+        "Session cookie present — gated lists and APIs load. Step-up still required for execute (System status → Security) when policy demands it.",
+      kind: "neutral",
+    };
+  }
+  return {
+    label: "Session: Ready",
+    title: "Signed in and step-up valid — session-gated APIs and execute (when policy allows) are unblocked by auth.",
+    kind: "ok",
+  };
+}
+
 function applyTrustConfigJson(
   json: Record<string, unknown>,
   setters: {
@@ -101,6 +160,29 @@ export default function TrustPostureStrip() {
   const [codeApplyAvailable, setCodeApplyAvailable] = useState<boolean | null>(null);
   const [latestBlockReason, setLatestBlockReason] = useState<string | null>(null);
   const [trustPosture, setTrustPosture] = useState<TrustPosturePayload | null>(null);
+  const [authStatus, setAuthStatus] = useState<AuthStatusPayload | null>(null);
+
+  const fetchAuthStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/status", { credentials: "include" });
+      if (!res.ok) {
+        setAuthStatus(null);
+        return;
+      }
+      const json = (await res.json()) as Record<string, unknown>;
+      if (typeof json.authEnabled !== "boolean") {
+        setAuthStatus(null);
+        return;
+      }
+      setAuthStatus({
+        authEnabled: json.authEnabled,
+        hasSession: json.hasSession === true,
+        stepUpValid: json.stepUpValid === true,
+      });
+    } catch {
+      setAuthStatus(null);
+    }
+  }, []);
 
   const fetchConfig = useCallback(async () => {
     const clear = () => {
@@ -140,10 +222,20 @@ export default function TrustPostureStrip() {
   }, []);
 
   useEffect(() => {
-    const id = setInterval(fetchConfig, 5000);
-    queueMicrotask(() => fetchConfig());
+    const tick = () => {
+      void fetchConfig();
+      void fetchAuthStatus();
+    };
+    const id = setInterval(tick, 5000);
+    queueMicrotask(tick);
     return () => clearInterval(id);
-  }, [fetchConfig]);
+  }, [fetchConfig, fetchAuthStatus]);
+
+  useEffect(() => {
+    const handler = () => void fetchAuthStatus();
+    globalThis.addEventListener("jarvis-refresh", handler);
+    return () => globalThis.removeEventListener("jarvis-refresh", handler);
+  }, [fetchAuthStatus]);
 
   const tp = trustPosture;
   const showStepUpAuthOn = authEnabled === true && tp?.stepUpValid !== undefined;
@@ -155,6 +247,7 @@ export default function TrustPostureStrip() {
   const showExecute = Boolean(execLabel?.length);
   const reasons = tp?.codeApplyBlockReasons;
   const showApplyReasons = Boolean(reasons?.length);
+  const sessionPill = formatSessionPill(authStatus);
 
   return (
     <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-2 dark:border-zinc-800 dark:bg-zinc-950">
@@ -171,6 +264,9 @@ export default function TrustPostureStrip() {
           </span>
           <span className={pillBase} title="HUD auth requirement">
             Auth: {tri(authEnabled, "On", "Off")}
+          </span>
+          <span className={sessionPillClass(sessionPill.kind)} title={sessionPill.title}>
+            {sessionPill.label}
           </span>
           <span className={pillBase} title="code.apply execution path available">
             Apply: {tri(codeApplyAvailable, "Available", "Blocked")}

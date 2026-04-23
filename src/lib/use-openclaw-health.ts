@@ -18,7 +18,7 @@ export function useOpenClawHealth(): UseOpenClawHealthResult {
   const fetchHealth = useCallback(() => {
     setLoading(true);
     setError(null);
-    fetch("/api/connectors/openclaw/health")
+    fetch("/api/connectors/openclaw/health", { credentials: "include" })
       .then(async (res) => {
         const json = (await res.json()) as OpenClawHealthPayload & {
           error?: string;
@@ -34,6 +34,13 @@ export function useOpenClawHealth(): UseOpenClawHealthResult {
           return;
         }
         setData(null);
+        if (res.status === 401) {
+          setError(
+            json.error ??
+              "Session required — establish session on the HUD, then refresh this card."
+          );
+          return;
+        }
         setError(json.error ?? `HTTP ${res.status}`);
       })
       .catch(() => {
@@ -47,6 +54,9 @@ export function useOpenClawHealth(): UseOpenClawHealthResult {
 
   useEffect(() => {
     queueMicrotask(() => fetchHealth());
+    const onRefresh = () => fetchHealth();
+    globalThis.addEventListener("jarvis-refresh", onRefresh);
+    return () => globalThis.removeEventListener("jarvis-refresh", onRefresh);
   }, [fetchHealth]);
 
   return { data, loading, error, refresh: fetchHealth };

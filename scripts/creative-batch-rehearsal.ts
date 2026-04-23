@@ -105,9 +105,15 @@ async function main() {
     };
 
     const { status, bodyText } = await submitProposal(body);
-    let json: { ok?: boolean; id?: string; traceId?: string; error?: string } | null = null;
+    type SubmitJson = {
+      ok?: boolean;
+      id?: string;
+      traceId?: string;
+      error?: string;
+    };
+    let json: SubmitJson | null = null;
     try {
-      json = JSON.parse(bodyText) as typeof json;
+      json = JSON.parse(bodyText) as SubmitJson;
     } catch {
       /* ignore */
     }

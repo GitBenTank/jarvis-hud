@@ -6,6 +6,10 @@ This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress 
 
 **Operator checklist (mental model + daily order-of-operations):** [OpenClaw ↔ Jarvis operator checklist](setup/openclaw-jarvis-operator-checklist.md).
 
+**Ingress in plain language (proposals vs approval vs execute):** [OpenClaw ingress for humans](setup/openclaw-ingress-for-humans.md).
+
+**Documentation hub (which file when):** [docs/README.md](README.md).
+
 ## Phase 1 blessed deployment (normative)
 
 **Contract:** [Operating assumptions §1](strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project). **Setup routine:** [Local stack startup](setup/local-stack-startup.md). **Capture ground truth:** [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md).
@@ -93,10 +97,11 @@ node -e 'console.log("Jarvis secret len:", process.env.JARVIS_INGRESS_OPENCLAW_S
 pnpm dev:port
 ```
 
-**Terminal 2 (OpenClaw):**
+**Terminal 2 (OpenClaw):** use the **same** checkout the gateway uses — blessed default is **`~/Documents/openclaw-runtime`** (see [local stack startup](setup/local-stack-startup.md)); `~/Documents/openclaw` is fine if that is your `OPENCLAW_ROOT`.
+
 ```bash
-cd ~/Documents/openclaw
-source scripts/demo-env.sh
+source ~/Documents/jarvis-hud/scripts/demo-env.sh   # adjust path if needed
+cd ~/Documents/openclaw-runtime   # or your OpenClaw clone / OPENCLAW_ROOT
 node -e 'console.log("OpenClaw secret len:", process.env.JARVIS_INGRESS_OPENCLAW_SECRET?.length, "base:", process.env.JARVIS_BASE_URL)'
 curl -s "$JARVIS_BASE_URL/api/config" | head -c 120; echo
 pnpm jarvis:smoke
@@ -124,7 +129,7 @@ pnpm dev:port
 Then OpenClaw smoke (inline env):
 
 ```bash
-cd ~/Documents/openclaw
+cd ~/Documents/openclaw-runtime   # or your OpenClaw clone
 JARVIS_BASE_URL="http://127.0.0.1:3001" \
 JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars" \
 pnpm jarvis:smoke
@@ -251,135 +256,43 @@ Legacy events without `proposalStatus` are normalized at read time from `status`
 
 ## Preconditions
 
-- Jarvis HUD is running locally with **OpenClaw ingress enabled**
-- Jarvis is bound to a known port (recommend **3001** to avoid conflicts)
-- OpenClaw has the Jarvis extension/tool wired and a smoke command (`pnpm jarvis:smoke`)
+- Jarvis HUD running with **OpenClaw ingress enabled** (usually via `.env.local` — [environment](setup/env.md)).
+- **One** live Jarvis origin for the session — **`127.0.0.1:3000`** (`pnpm dev`) is standard; **`3001`** is common for demo / `demo:boot` ([local dev truth map](setup/local-dev-truth-map.md)).
+- OpenClaw checkout with **`pnpm jarvis:smoke`** (blessed clone: **`~/Documents/openclaw-runtime`** per [local stack startup](setup/local-stack-startup.md)).
 
----
+### Executable checklist (do this first)
 
-## Step 0 — Start Jarvis HUD with ingress enabled (clean port)
+Follow the numbered steps in **[Local verification: OpenClaw → Jarvis HUD](local-verification-openclaw-jarvis.md)** — hard reset, gateway, Control UI, Jarvis, Alfred JSON, ingress, final truth test. That doc stays **short and ordered**; this file keeps **protocol detail** (below).
 
-In the **jarvis-hud** repo:
+**Phase 1 wiring proof:** with both processes up, from jarvis-hud: **`pnpm machine-wired`**
 
-```bash
-# Stop stray dev servers (macOS)
-killall node 2>/dev/null || true
+**Jarvis env sanity:** **`JARVIS_HUD_BASE_URL=<live origin> pnpm jarvis:doctor`** (must match the URL bar / listening port).
 
-JARVIS_INGRESS_OPENCLAW_ENABLED=true \
-JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-min-32" \
-JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw \
-PORT=3001 pnpm dev:port
-```
+### OpenClaw → Jarvis smoke (minimal)
 
-Expected output includes:
-
-- Local: http://127.0.0.1:3001
-
-Open the UI: http://127.0.0.1:3001
-
----
-
-## Step 1 — Jarvis Doctor (proves server env is correct)
-
-In a second terminal (still jarvis-hud):
+From your **OpenClaw** repo (clone must match the gateway you run):
 
 ```bash
-JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" pnpm jarvis:doctor
-```
-
-Expected:
-
-- ✅ Ingress enabled
-- ✅ Secret present and length >= 32 (never prints secret)
-- ✅ Allowlist includes openclaw
-- ✅ Server config matches env (no "restart server with env" warning)
-
-If doctor says "server needs same env", restart Jarvis with the vars in Step 0.
-
----
-
-## Step 2 — Build OpenClaw (ensure clean baseline)
-
-In the openclaw repo:
-
-```bash
-pnpm install
-pnpm typecheck
-pnpm build
-```
-
-If typecheck fails, stop here and fix it before running smoke.
-
-When requesting help, capture:
-
-- The command you ran
-- The first error block (don't paste giant logs)
-- `node -v` and `pnpm -v`
-
----
-
-## Step 3 — Run OpenClaw → Jarvis smoke (proposes a system.note)
-
-In openclaw repo:
-
-```bash
-JARVIS_BASE_URL="http://127.0.0.1:3001" \
-JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-min-32" \
+JARVIS_BASE_URL="http://127.0.0.1:3000"   # or :3001 — must match live HUD
+JARVIS_INGRESS_OPENCLAW_SECRET="…"       # same value as Jarvis
 pnpm jarvis:smoke
 ```
 
-Expected success output:
+**Want:** `ok: true`, `id`, `traceId`, `status: pending`. No secrets or raw body in logs.
 
-- `ok: true`
-- `id: <uuid>`
-- `traceId: <uuid>`
-- `status: pending`
-
-No secrets or raw request body should be logged.
-
-### Safe smoke (no secret in shell history)
-
-Run from jarvis-hud. Prompt for secret once so it doesn't get saved in scrollback:
-
-```bash
-read -s JARVIS_INGRESS_OPENCLAW_SECRET; echo
-export JARVIS_INGRESS_OPENCLAW_SECRET
-export JARVIS_HUD_BASE_URL="http://127.0.0.1:3001"
-
-cd ~/Documents/jarvis-hud
-pnpm ingress:smoke
-pnpm jarvis:smoke:apply
-```
-
-If either smoke fails, triage:
+**Without putting the secret in shell history:** from jarvis-hud, **`pnpm ingress:smoke`** / **`pnpm jarvis:smoke:apply`** (same env alignment). If either fails:
 
 | Check | Command |
 |-------|---------|
-| A) Jarvis reachable? | `curl -I http://127.0.0.1:3001` |
-| B) Secret mismatch? | Restart dev server after exporting env; 401/403 usually means wrong secret or server not reading env |
-| C) Wrong base URL? | Jarvis HUD scripts use `JARVIS_HUD_BASE_URL`; OpenClaw may use `JARVIS_BASE_URL` |
-| D) Expected | Both smokes report `status: pending` — approval/apply is the next step |
+| A) Jarvis reachable? | `curl -I "$JARVIS_HUD_BASE_URL"` |
+| B) Secret mismatch? | Restart dev server after env changes; 401/403 usually means wrong secret or wrong HUD instance |
+| C) Wrong base URL? | `JARVIS_HUD_BASE_URL` vs OpenClaw `JARVIS_BASE_URL` must be the **same origin** |
 
----
+**Full CI-style OpenClaw build** (`pnpm typecheck` / `pnpm build`) is only needed when debugging OpenClaw itself — daily ingress proof is smoke + UI approval path above.
 
-## Step 4 — Verify in Jarvis UI
+### Approve → execute in the HUD
 
-In Jarvis UI (Approvals panel):
-
-- Find the newly created pending event
-- Confirm badges:
-  - OpenClaw (verified)
-  - Ingress: passed
-
-Then:
-
-1. Approve
-2. For `code.apply`: complete the irreversible confirmation (checkbox + type `APPLY`)
-3. Execute
-4. Verify:
-   - Action log entry exists
-   - Bundle path exists (artifact output path)
-   - Trace timeline shows the event and receipt linkage
+In **Approvals**: pending row shows **OpenClaw (verified)** and **ingress passed** → **Approve** → for `code.apply`, confirm **`APPLY`** → **Execute** → confirm trace + receipts. Step-by-step: [Local verification — final truth test](local-verification-openclaw-jarvis.md).
 
 ---
 
@@ -396,7 +309,7 @@ Then:
 **Fix:**
 
 - Run `pnpm jarvis:doctor` against the same base URL OpenClaw uses
-- Restart Jarvis with Step 0 env vars
+- Restart Jarvis with ingress env vars (see [environment](setup/env.md) and [local verification](local-verification-openclaw-jarvis.md))
 - Confirm `JARVIS_BASE_URL`
 
 ### 401 — Signature/timestamp invalid

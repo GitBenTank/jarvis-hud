@@ -10,6 +10,7 @@ import IntegrationDebugPanel from "@/components/IntegrationDebugPanel";
 import MissionStrip from "@/components/MissionStrip";
 import ModePills from "@/components/ModePills";
 import OperationsRow from "@/components/OperationsRow";
+import HomeSessionCta from "@/components/HomeSessionCta";
 import TrustPostureStrip from "@/components/TrustPostureStrip";
 import ResearchNotesPanel from "@/components/ResearchNotesPanel";
 import SafetyGatePanel from "@/components/SafetyGatePanel";
@@ -96,6 +97,7 @@ export default function Home() {
           </div>
         </div>
         <TrustPostureStrip />
+        <HomeSessionCta />
         <div className="mx-auto max-w-5xl px-4">
           <OpenClawHealthBadge showDataPathExplainer variant="card" />
           <IntegrationDebugPanel />

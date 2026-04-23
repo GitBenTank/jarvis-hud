@@ -107,6 +107,7 @@ Full ordering, abort flags, and in-repo helpers: [OpenClaw V1 contract](./opencl
 
 ## See also
 
+- [OpenClaw ingress for humans](../setup/openclaw-ingress-for-humans.md) — ingress vs human authority in plain language
 - [OpenClaw V1 contract](./openclaw-v1-contract.md)
 - [Operator sprint — trust map & strip contract](./operator-sprint-trust-map.md)
 - [Trusted ingress](../security/trusted-ingress.md)

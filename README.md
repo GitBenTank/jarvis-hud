@@ -7,7 +7,7 @@ pnpm dev
 # open http://localhost:3000
 ```
 
-**In the browser:** `/docs` is the **dark Jarvis** markdown library (rendered prose, optional **Slides** split on `##` for long docs). **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) opens the same **cinematic five-slide deck** as phase 1 of `/demo`, with **Markdown** for the source file (`?view=markdown`). `/demo` continues the full flow (slides → transition → live proof). Short redirects: `/library` → `/docs`, plus `/pitch`, `/playbook`, `/thesis`.
+**In the browser:** `/docs` is the documentation home—**audience-first** (newcomers, investors, trust story, operators) plus a **curated** file index; use **`/docs?library=all`** for every markdown file. Rendered prose with optional **Slides** mode (split on `##`). New to the product: **`/docs/getting-started/welcome`**. **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) matches the cinematic deck from `/demo` (`?view=markdown` for markdown). Short redirects: `/library` → `/docs`, plus `/pitch`, `/playbook`, `/thesis`.
 
 Submit a proposal → approve → see receipt + trace (with rollback). (Use `pnpm install` and optional `.env.local` first — see [Quick Start](#quick-start-developers).) **90s proof demo script:** [docs/video/90s-proof-demo.md](docs/video/90s-proof-demo.md).
 

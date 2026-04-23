@@ -27,6 +27,11 @@ if [[ ! -f "$OPENCLAW_ROOT/package.json" ]]; then
 fi
 
 echo "openclaw-gateway-dev: OPENCLAW_STATE_DIR=$OPENCLAW_STATE_DIR"
+if [[ -n "${OPENAI_API_KEY:-}" ]]; then
+  node "$SCRIPT_DIR/sync-openclaw-openai-auth-from-env.mjs"
+else
+  echo "openclaw-gateway-dev: OPENAI_API_KEY unset — embedded Control UI chat needs it in .env.local; run: pnpm openclaw:sync-openai-auth after setting the key"
+fi
 echo "openclaw-gateway-dev: cd $OPENCLAW_ROOT && pnpm gateway:dev"
 cd "$OPENCLAW_ROOT"
 exec pnpm gateway:dev

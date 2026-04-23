@@ -3,6 +3,7 @@ title: "Jarvis HUD ↔ OpenClaw — system overview"
 status: living-document
 category: architecture
 related:
+  - ../README.md
   - ../strategy/jarvis-hud-video-thesis.md
   - ../strategy/operating-assumptions.md
   - control-plane.md
@@ -13,7 +14,7 @@ related:
 
 # Jarvis HUD ↔ OpenClaw — system overview
 
-**Purpose:** A **stable map** of how the two systems relate, how data flows, and where truth lives. Product posture and “what we assume this quarter” belong in [Operating assumptions](../strategy/operating-assumptions.md), not here—so this file does not need to change every time defaults shift.
+**Purpose:** A **stable map** of how the two systems relate, how data flows, and where truth lives. **Doc navigation:** [Documentation hub](../README.md). Product posture and “what we assume this quarter” belong in [Operating assumptions](../strategy/operating-assumptions.md), not here—so this file does not need to change every time defaults shift.
 
 ---
 

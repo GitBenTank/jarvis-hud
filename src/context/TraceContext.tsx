@@ -162,10 +162,18 @@ export function TraceProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/traces/${encodeURIComponent(tid)}`);
+      const res = await fetch(`/api/traces/${encodeURIComponent(tid)}`, {
+        credentials: "include",
+      });
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error ?? `Request failed (${res.status})`);
+        if (res.status === 401) {
+          setError(
+            "Session required — Establish session (System status → Security), then reload."
+          );
+        } else {
+          setError(json.error ?? `Request failed (${res.status})`);
+        }
         setTraceData(null);
         return;
       }

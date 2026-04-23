@@ -1178,6 +1178,7 @@ function DetailModal({
 export default function ApprovalsPanel() {
   const [allApprovals, setAllApprovals] = useState<ApprovalsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [approvalsEmptyBlocked, setApprovalsEmptyBlocked] = useState<"session" | null>(null);
   const [irreversibleConfirmEnabled, setIrreversibleConfirmEnabled] = useState(true);
   const [detailEvent, setDetailEvent] = useState<Event | null>(null);
   const [executeResult, setExecuteResult] = useState<ExecuteResult | null>(null);
@@ -1187,10 +1188,23 @@ export default function ApprovalsPanel() {
   const fetchApprovals = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/approvals?status=all");
+      const res = await fetch("/api/approvals?status=all", {
+        credentials: "include",
+      });
+      if (res.status === 401) {
+        setApprovalsEmptyBlocked("session");
+        setAllApprovals({ dateKey: "", approvals: [] });
+        return;
+      }
+      setApprovalsEmptyBlocked(null);
       const json = (await res.json()) as ApprovalsResponse;
+      if (!res.ok || !Array.isArray(json.approvals)) {
+        setAllApprovals({ dateKey: typeof json.dateKey === "string" ? json.dateKey : "", approvals: [] });
+        return;
+      }
       setAllApprovals(json);
     } catch {
+      setApprovalsEmptyBlocked(null);
       setAllApprovals({ dateKey: "", approvals: [] });
     } finally {
       setLoading(false);
@@ -1362,6 +1376,7 @@ export default function ApprovalsPanel() {
         onDeny={handleDeny}
         onRefresh={fetchApprovals}
         irreversibleConfirmEnabled={irreversibleConfirmEnabled}
+        emptyStateBlocked={approvalsEmptyBlocked}
       />
 
       {detailEvent && (

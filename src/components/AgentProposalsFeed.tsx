@@ -105,6 +105,8 @@ type AgentProposalsFeedProps = Readonly<{
   onRefresh: () => void;
   /** When true, kinds that require typed confirmation must use Details (not quick Approve). */
   irreversibleConfirmEnabled: boolean;
+  /** When set, empty state is a load/auth block — not “there are zero proposals”. */
+  emptyStateBlocked?: "session" | null;
 }>;
 
 function earliestCreatedInGroup(events: ProposalEvent[]): string | null {
@@ -437,6 +439,7 @@ export default function AgentProposalsFeed({
   onDeny,
   onRefresh,
   irreversibleConfirmEnabled,
+  emptyStateBlocked,
 }: AgentProposalsFeedProps) {
   const hasNothingToShow =
     pendingApprovals.length === 0 && approvedNotExecuted.length === 0;
@@ -460,7 +463,30 @@ export default function AgentProposalsFeed({
       {loading && hasNothingToShow && !lastExecutedProposal && (
         <p className="text-sm text-zinc-500">Loading…</p>
       )}
-      {!loading && hasNothingToShow && !lastExecutedProposal && (
+      {!loading &&
+        hasNothingToShow &&
+        !lastExecutedProposal &&
+        emptyStateBlocked === "session" && (
+          <div
+            className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100"
+            role="status"
+          >
+            <p className="font-medium">Session required to load proposals</p>
+            <p className="mt-1 text-xs opacity-90">
+              Open{" "}
+              <strong className="font-semibold">System status → Security</strong> and click{" "}
+              <strong className="font-semibold">Establish session</strong>. Use the same host as{" "}
+              <code className="rounded bg-black/10 px-1 dark:bg-white/10">JARVIS_HUD_BASE_URL</code>{" "}
+              (e.g. <code className="rounded bg-black/10 px-1 dark:bg-white/10">127.0.0.1</code>, not{" "}
+              <code className="rounded bg-black/10 px-1 dark:bg-white/10">localhost</code>) so the
+              cookie applies.
+            </p>
+          </div>
+        )}
+      {!loading &&
+        hasNothingToShow &&
+        !lastExecutedProposal &&
+        emptyStateBlocked !== "session" && (
         <>
           <p className="text-sm text-zinc-500">No proposals pending approval.</p>
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">

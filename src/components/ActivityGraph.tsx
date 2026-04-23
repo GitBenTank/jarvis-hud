@@ -178,7 +178,24 @@ export default function ActivityGraph() {
 
   const fetchStream = useCallback(async () => {
     try {
-      const res = await fetch("/api/activity/stream");
+      const res = await fetch("/api/activity/stream", { credentials: "include" });
+      if (res.status === 401) {
+        setAllEvents([]);
+        setNodes([
+          {
+            id: "error",
+            type: "default",
+            position: { x: 0, y: 0 },
+            data: {
+              label:
+                "Session required — Establish session (System status → Security), same host as JARVIS_HUD_BASE_URL.",
+            },
+          },
+        ]);
+        setEdges([]);
+        return;
+      }
+      if (!res.ok) throw new Error(String(res.status));
       const events: ActivityEvent[] = await res.json();
       setAllEvents(events);
 

@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import Link from "next/link";
 import { DocsArticleClient } from "@/components/docs/DocsArticleClient";
 import { DocsLibraryIndex } from "@/components/docs/DocsLibraryIndex";
+import { buildDocsLibrary } from "@/lib/docs-library-index";
 
 const DOCS_ROOT = path.join(process.cwd(), "docs");
 
@@ -25,14 +26,24 @@ function isAllowedPath(segments: string[]): boolean {
 
 export default async function DocsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ path?: string[] }>;
+  searchParams?: Promise<{ library?: string }>;
 }) {
   const { path: pathSegments } = await params;
   const segments = pathSegments ?? [];
+  const sp = (await searchParams) ?? {};
+  const showFullTechnicalIndex = sp.library === "all";
 
   if (segments.length === 0) {
-    return <DocsLibraryIndex />;
+    const library = await buildDocsLibrary();
+    return (
+      <DocsLibraryIndex
+        library={library}
+        showFullTechnicalIndex={showFullTechnicalIndex}
+      />
+    );
   }
 
   if (!isAllowedPath(segments)) {
@@ -71,7 +82,7 @@ export default async function DocsPage({
 
   return (
     <div className="min-h-screen px-5 py-14 sm:px-10">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-3xl">
         <Link
           href="/docs"
           className="text-sm text-zinc-500 transition hover:text-zinc-300"
@@ -81,7 +92,7 @@ export default async function DocsPage({
         <p
           className={`mt-2 font-[family-name:var(--font-docs-mono)] text-[11px] text-zinc-500`}
         >
-          /docs/{segments.join("/")}
+          docs/{segments.join("/")}.md
         </p>
         <div className="mt-10">
           <DocsArticleClient raw={content} docSegments={segments} />

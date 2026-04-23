@@ -380,14 +380,26 @@ export default function TracePanel() {
   const [viewMode, setViewMode] = useState<"live" | "replay">("live");
   const [recentTraces, setRecentTraces] = useState<RecentTraceRow[]>([]);
   const [recentLoading, setRecentLoading] = useState(false);
+  const [recentListSessionBlocked, setRecentListSessionBlocked] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setRecentLoading(true);
-    fetch("/api/traces/recent?limit=20")
-      .then((res) => res.json())
-      .then((json: { traces?: RecentTraceRow[] }) => {
-        if (!cancelled && Array.isArray(json.traces)) {
+    setRecentListSessionBlocked(false);
+    fetch("/api/traces/recent?limit=20", { credentials: "include" })
+      .then((res) => {
+        if (res.status === 401) {
+          if (!cancelled) {
+            setRecentTraces([]);
+            setRecentListSessionBlocked(true);
+          }
+          return null;
+        }
+        return res.json() as Promise<{ traces?: RecentTraceRow[] }>;
+      })
+      .then((json) => {
+        if (!json || cancelled) return;
+        if (Array.isArray(json.traces)) {
           setRecentTraces(json.traces);
         }
       })
@@ -426,9 +438,17 @@ export default function TracePanel() {
     async (tid: string, mode: "live" | "replay") => {
       const base = `/api/traces/${encodeURIComponent(tid)}`;
       const url = mode === "replay" ? `${base}/replay` : base;
-      const res = await fetch(url);
+      const res = await fetch(url, { credentials: "include" });
       const json = await res.json();
-      if (!res.ok) return { error: json.error ?? `Request failed (${res.status})` };
+      if (!res.ok) {
+        if (res.status === 401) {
+          return {
+            error:
+              "Session required — Establish session (System status → Security), then fetch again.",
+          };
+        }
+        return { error: json.error ?? `Request failed (${res.status})` };
+      }
       if (mode === "replay" && json.traceId) {
         return { data: replayToTraceResponse(json as TraceReplayResult) };
       }
@@ -1214,6 +1234,15 @@ export default function TracePanel() {
         </div>
         {recentLoading ? (
           <p className="text-xs text-zinc-500">Loading…</p>
+        ) : recentListSessionBlocked ? (
+          <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-200">
+            Recent traces require a session when auth is on. Establish session (System status →
+            Security), then refresh — or open{" "}
+            <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">
+              /activity?trace=&lt;id&gt;
+            </code>{" "}
+            directly if you know the trace id.
+          </p>
         ) : recentTraces.length === 0 ? (
           <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
             No recent traces found. Create an action or open{" "}

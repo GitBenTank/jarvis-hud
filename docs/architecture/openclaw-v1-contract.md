@@ -86,6 +86,7 @@ Forge must not claim approval, policy outcome, execution, or receipt state — o
 
 ## See also
 
+- [OpenClaw ingress for humans](../setup/openclaw-ingress-for-humans.md) — plain-language proposal path (non-coders)
 - [OpenClaw strict mode — capability-layer enforcement](./openclaw-strict-mode-enforcement.md) — tool wrapping, governed vs safe tools
 - [OpenClaw proposal identity & v1 contract](./openclaw-proposal-identity-and-contract.md) — `agent`, `builder`, `source.agentId`, wire vs stored minimums
 - [OpenClaw ↔ Jarvis trust contract](./openclaw-jarvis-trust-contract.md) — honesty tags, role matrix

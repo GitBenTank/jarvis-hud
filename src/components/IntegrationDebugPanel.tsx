@@ -68,12 +68,15 @@ export default function IntegrationDebugPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fetchedAt, setFetchedAt] = useState<number | null>(null);
+  /** When health returns 401, SIGNAL is blocked by auth — not “connector dead”. */
+  const [healthSessionBlocked, setHealthSessionBlocked] = useState(false);
   /** Set after mount only — avoids SSR vs client mismatch on `window.location`. */
   const [browserOrigin, setBrowserOrigin] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setHealthSessionBlocked(false);
     try {
       const [cRes, hRes] = await Promise.all([
         fetch("/api/config", { credentials: "include" }),
@@ -87,7 +90,10 @@ export default function IntegrationDebugPanel() {
       }
       const cJson = (await cRes.json()) as ConfigPayload;
       setCfg(cJson);
-      if (hRes.ok) {
+      if (hRes.status === 401) {
+        setHealth(null);
+        setHealthSessionBlocked(true);
+      } else if (hRes.ok) {
         setHealth((await hRes.json()) as OpenClawHealthPayload);
       } else {
         setHealth(null);
@@ -270,6 +276,13 @@ export default function IntegrationDebugPanel() {
                       · <span className="text-amber-800 dark:text-amber-200">{health.lastError}</span>
                     </>
                   )}
+                </p>
+              ) : healthSessionBlocked ? (
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  Health endpoint is session-gated when auth is on. Establish a browser session (System
+                  status → Security), then refresh — or interpret posture from{" "}
+                  <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">/api/config</code>{" "}
+                  (last OpenClaw ingress time).
                 </p>
               ) : (
                 <p className="text-zinc-600 dark:text-zinc-400">Could not load /api/connectors/openclaw/health.</p>

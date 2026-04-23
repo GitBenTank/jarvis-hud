@@ -1,52 +1,58 @@
 # Local verification: OpenClaw → Jarvis HUD
 
-**Exit bar (before recording demos or pushing distribution):** [OpenClaw ↔ Jarvis operator sprint](setup/openclaw-jarvis-operator-sprint.md) — three clean full loops plus one deny/block path, config and ingress locked first.
+Tight pass to confirm **OpenClaw is the live variable** and Jarvis is structurally correct. Run **in order**.
 
-Before running this checklist, ensure your local environment follows the [Local dev truth map](setup/local-dev-truth-map.md): **one canonical Jarvis origin per session** (standard dev is often `:3000`, demo / ingress rehearsal often `:3001`). Verification against the wrong port wastes time.
+**Daily routine (terminals, clone paths, doctor):** [Local stack startup](setup/local-stack-startup.md) — that doc is authoritative for **`OPENCLAW_ROOT=~/Documents/openclaw-runtime`** and **`pnpm local:stack:doctor`**.
 
-Tight pass to confirm **OpenClaw is the live variable** and Jarvis is structurally correct. Run in order. Adjust paths if your OpenClaw checkout is not `~/Documents/openclaw`.
+**Exit bar (demos / distribution):** [OpenClaw ↔ Jarvis operator sprint](setup/openclaw-jarvis-operator-sprint.md).
 
-**Ports:** Jarvis is often `http://localhost:3000` (`pnpm dev`) or `http://localhost:3001` (`pnpm demo:boot`). Replace `JARVIS_URL` below with whichever you use. OpenClaw must use the **same** base URL and **`JARVIS_INGRESS_OPENCLAW_SECRET`** as Jarvis for signed ingress.
+**Origin discipline:** [Local dev truth map](setup/local-dev-truth-map.md). Prefer **`127.0.0.1`** for `JARVIS_URL`, `JARVIS_HUD_BASE_URL`, and OpenClaw `JARVIS_BASE_URL` so checks and the browser stay aligned.
+
+**Ports:** Standard dev is **`http://127.0.0.1:3000`** (`pnpm dev`). Demo / ingress rehearsal is often **`http://127.0.0.1:3001`**. Replace `JARVIS_URL` below with the **live** origin. OpenClaw must use the **same** base URL and **`JARVIS_INGRESS_OPENCLAW_SECRET`** as Jarvis for signed ingress.
+
+---
 
 ## Hard reset (ghost processes)
 
-Most “it worked yesterday” bugs are **duplicate or stale processes**. Prefer **Ctrl+C** in the terminals that started OpenClaw / Jarvis. If things are wedged, run:
+Most “it worked yesterday” bugs are **duplicate or stale processes**. Prefer **Ctrl+C** in the terminals that started OpenClaw / Jarvis. If things are wedged:
 
 ```bash
 pkill -f openclaw || true
 pkill -f next || true
 ```
 
-`pkill -f` matches **any** process whose full command line contains that substring, so it can touch unrelated tools (e.g. another app with “next” in its path). Use only when you mean to clear local dev junk, then start **one** gateway and **one** Jarvis dev server.
+`pkill -f` matches **any** process whose full command line contains that substring, so it can touch unrelated tools. Use only when you mean to clear local dev junk, then start **one** gateway and **one** Jarvis dev server.
 
 ---
 
-## 1. OpenClaw runtime
+## 1. OpenClaw gateway
+
+**Blessed (from jarvis-hud):**
 
 ```bash
-cd ~/Documents/openclaw
-pnpm gateway:dev
+cd ~/Documents/jarvis-hud
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
 ```
 
-**Want in logs:** gateway started; model resolves to OpenAI (or your configured provider); no Anthropic auth errors; no duplicate gateway (if unsure: `pkill -f openclaw-gateway` then start once).
+**Or** manual `pnpm gateway:dev` inside the OpenClaw clone with **`OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"`** — same as [local stack startup](setup/local-stack-startup.md).
 
-**If Anthropic errors persist after config edit:** suspect stale gateway process, a per-agent override in OpenClaw, or a profile/workspace file under the dev agent directory overriding defaults—not Jarvis.
+**Want in logs:** gateway **ready**; HTTP listener on your Control UI port (often **19001**); no second Homebrew gateway spamming **`/opt/homebrew/...`**. If the tree is dirty, expect **`Building TypeScript…`** before the port binds — use a **clean** `openclaw-runtime` clone for fast proof.
 
 ---
 
-## 2. OpenClaw UI
+## 2. OpenClaw Control UI
 
-Step-by-step (state dir, `openclaw dashboard`, Jarvis `OPENCLAW_CONTROL_UI_URL`): [OpenClaw Control UI setup](setup/openclaw-control-ui.md).
+Step-by-step: [OpenClaw Control UI setup](setup/openclaw-control-ui.md).
 
-Open the OpenClaw control UI in the browser. On **Overview**, confirm the **gateway token** matches `gateway.auth.token` in the config you edited (so chat is authenticated).
+Open the Control UI. On **Overview**, WebSocket should show **OK**; gateway token matches **`gateway.auth.token`** for the same **`OPENCLAW_STATE_DIR`** as the process.
 
 Chat: `hello`
 
-**Want:** no unauthorized banner; no missing provider/API key error; a normal agent reply.
+**Want:** authenticated session; **no** persistent “no API key” for your provider. If **Overview is OK** but chat fails with **quota / billing** errors, that is an **OpenAI (or provider) account** issue — not Jarvis. See **OpenAI & Codex recovery** in [OpenClaw integration verification](openclaw-integration-verification.md).
 
 ---
 
-## 3. Jarvis HUD runtime
+## 3. Jarvis HUD
 
 From this repo:
 
@@ -55,19 +61,26 @@ cd ~/Documents/jarvis-hud
 pnpm dev
 ```
 
-For demo-style ingress env (port 3001):
+Demo-style ingress on **3001**:
 
 ```bash
 pnpm demo:boot
 ```
 
-**Want:** app loads at your local URL; Activity works:
+**Want:** app loads; Activity responds:
 
 ```bash
-export JARVIS_URL=http://localhost:3000
-# or: export JARVIS_URL=http://localhost:3001
+export JARVIS_URL=http://127.0.0.1:3000
+# or: export JARVIS_URL=http://127.0.0.1:3001
 
 curl -sS -o /dev/null -w "%{http_code}\n" "$JARVIS_URL/activity"
+```
+
+**Phase 1 pass (both stacks running):**
+
+```bash
+pnpm machine-wired
+pnpm local:stack:doctor
 ```
 
 Connector health (optional):
@@ -75,12 +88,6 @@ Connector health (optional):
 ```bash
 curl -sS "$JARVIS_URL/api/connectors/openclaw/health" | head -c 500
 echo
-```
-
-Preflight (if using demo boot):
-
-```bash
-pnpm demo:verify
 ```
 
 ---
@@ -96,11 +103,10 @@ Create a Jarvis proposal for a system note called "Alfred live test". Output JSO
 **Want in the emitted body (top-level metadata for Jarvis ingress):**
 
 - `agent`: `"alfred"`
-- `builder`: `"forge"`
-- `provider`: `"openai"`
-- `model`: `"openai/gpt-4o"` (or your actual configured model string)
+- `builder`, `provider`, `model` as your workspace expects
+- `source.connector`: `"openclaw"`
 
-Use a valid `kind` (e.g. `system.note`) and `source.connector`: `"openclaw"`. For `system.note`, put body text in `payload.note` (not only `content`) so Jarvis normalizes the note correctly.
+Use a valid `kind` (e.g. `system.note`). For `system.note`, put body text in `payload.note` (not only `content`) so Jarvis normalizes correctly.
 
 ---
 
@@ -115,9 +121,9 @@ pnpm jarvis:submit --file path/to/proposal.json
 
 See [jarvis-proposal-submit.md](jarvis-proposal-submit.md). Same env vars as `pnpm ingress:smoke`.
 
-**Or** use `pnpm ingress:smoke`, an OpenClaw plugin, or curl with HMAC per [openclaw-integration-verification.md](openclaw-integration-verification.md).
+**Or** `pnpm ingress:smoke`, an OpenClaw plugin, or HMAC `curl` per [OpenClaw integration verification](openclaw-integration-verification.md).
 
-**Want in Jarvis UI:** proposal in feed; Approvals detail shows Coordinator / Builder / Provider / Model where applicable; **approval** still requires a human; **execution** only via Jarvis after approve.
+**Want in Jarvis UI:** proposal in feed; Approvals show metadata; **approval** still requires a human; **execution** only via Jarvis after approve.
 
 ---
 
@@ -125,38 +131,39 @@ See [jarvis-proposal-submit.md](jarvis-proposal-submit.md). Same env vars as `pn
 
 After **approve** and **execute** in Jarvis:
 
-**Want:** trace exists for that `traceId`; receipt/action log reflects execution; metadata still visible on trace; no automatic execution from OpenClaw alone.
+**Want:** trace exists for that `traceId`; receipt / action log reflects execution; no governed outcome claimed from OpenClaw chat alone.
 
 ---
 
 ## Quick start (two terminals)
 
-Use after a **hard reset** if you want the shortest path to “both stacks up.” Run each block in its **own** terminal.
+After a **hard reset**, shortest path to both stacks up:
 
-**Terminal A — OpenClaw**
+**Terminal A — from jarvis-hud**
 
 ```bash
-cd ~/Documents/openclaw && pkill -f openclaw 2>/dev/null; pnpm gateway:dev
+cd ~/Documents/jarvis-hud
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
 ```
 
 **Terminal B — Jarvis**
 
 ```bash
-cd ~/Documents/jarvis-hud && pnpm dev
+cd ~/Documents/jarvis-hud
+pnpm dev
 ```
 
-For **demo ingress** on port 3001 instead of plain `dev`, use `pnpm demo:boot` in terminal B (see step 3).
+For **demo ingress** on port **3001**, use **`pnpm demo:boot`** in terminal B instead of **`pnpm dev`**.
 
-**Then manually:** open OpenClaw UI (token on Overview) → chat `hello` → open Jarvis URL → `/activity` → run the Alfred JSON proposal + signed ingress loop from steps 4–6.
+**Then:** Control UI (token on Overview if needed) → chat `hello` → Jarvis URL → `/activity` → steps 4–6 above.
 
 ---
 
 ## One-liner reminders
 
 ```bash
-# Jarvis URL (pick one)
-export JARVIS_URL=http://localhost:3000
+# Jarvis URL (pick one; must match live process)
+export JARVIS_URL=http://127.0.0.1:3000
 
-# Quick reachability
 curl -sS -o /dev/null -w "activity HTTP %{http_code}\n" "$JARVIS_URL/activity"
 ```

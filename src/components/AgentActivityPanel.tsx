@@ -49,7 +49,15 @@ export default function AgentActivityPanel() {
 
     const fetchActivity = async () => {
       try {
-        const res = await fetch("/api/activity/stream");
+        const res = await fetch("/api/activity/stream", { credentials: "include" });
+        if (res.status === 401) {
+          if (!mounted) return;
+          setEvents([]);
+          setError(
+            "Session required — open System status → Security → Establish session (use the same host as JARVIS_HUD_BASE_URL, e.g. 127.0.0.1)."
+          );
+          return;
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as ActivityEvent[];
         if (!mounted) return;

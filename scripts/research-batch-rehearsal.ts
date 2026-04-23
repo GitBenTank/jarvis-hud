@@ -4,6 +4,7 @@
  * Requires Jarvis dev server (`pnpm dev`) and `.env.local` with ingress secret + `JARVIS_HUD_BASE_URL`
  * (default base http://127.0.0.1:3000 if unset — match Phase 1).
  *   pnpm rehearsal:research-batch
+ *   pnpm rehearsal:serious-mode-ingress   # same entrypoint — blessed batch ingress for serious-mode rehearsal (docs/setup/serious-mode-rehearsal-checklist.md)
  *
  * Pressure test (Phase 4): set item count 5–7 (same shape, shared batch.id):
  *   RESEARCH_BATCH_ITEM_COUNT=6 pnpm rehearsal:research-batch
@@ -84,9 +85,15 @@ async function main() {
     };
 
     const { status, bodyText } = await submitProposal(body);
-    let json: { ok?: boolean; id?: string; traceId?: string; error?: string } | null = null;
+    type SubmitJson = {
+      ok?: boolean;
+      id?: string;
+      traceId?: string;
+      error?: string;
+    };
+    let json: SubmitJson | null = null;
     try {
-      json = JSON.parse(bodyText) as typeof json;
+      json = JSON.parse(bodyText) as SubmitJson;
     } catch {
       /* ignore */
     }

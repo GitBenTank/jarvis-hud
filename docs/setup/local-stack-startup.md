@@ -2,9 +2,26 @@
 
 Use this as the **single** routine for daily development. It avoids the common failure modes: **two gateways**, **mixed state directories**, and **Jarvis env pointing at the wrong Control UI port**.
 
-**TL;DR (this repo):** Terminal A — `pnpm dev` · Terminal B — **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (loads `JARVIS_BASE_URL` / ingress secret / `OPENAI_API_KEY` from `.env.local`) · wait **gateway ready** + **19001** · check — `pnpm local:stack:doctor`. (**Locked-in** clean runtime clone — see **One-time: runtime clone** below. Hacking OpenClaw still uses **`~/Documents/openclaw`** without **`OPENCLAW_ROOT`**.)
+### Blessed path (default — Jarvis + OpenClaw integration)
 
-**Related:** [OpenClaw Control UI](openclaw-control-ui.md) (deep setup) · [OpenClaw integration verification](../openclaw-integration-verification.md) · [Operator checklist](openclaw-jarvis-operator-checklist.md) · [Operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project).
+| | |
+|--|--|
+| **OpenClaw checkout** | **`~/Documents/openclaw-runtime`** (clean; release tag, e.g. **`v2026.4.14`** — **supported runtime pin** for this repo’s operator docs) |
+| **Start from jarvis-hud** | **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (two shell lines: `cd` jarvis-hud, then the command — do not paste `cd ...OPENCLAW_ROOT=...` as one token) |
+| **State dir** | **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`** (set by the script unless you override) |
+| **Rule** | **One** gateway, **one** state dir; turn **off** duplicate Homebrew/LaunchAgent gateways for this flow |
+
+### Dev / hacking path (editing OpenClaw itself)
+
+| | |
+|--|--|
+| **OpenClaw checkout** | **`~/Documents/openclaw`** (or your fork) — omit **`OPENCLAW_ROOT`** or set it to this path |
+| **Expect** | **`dirty_watched_tree`**, long **`Building TypeScript…`** before **19001** listens |
+| **Rule** | This lane is for **runtime development**, not the default **integration / demo** proof |
+
+**TL;DR (this repo):** Terminal A — `pnpm dev` · Terminal B — **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (loads `JARVIS_BASE_URL` / ingress secret / `OPENAI_API_KEY` from `.env.local`; syncs **`auth-profiles.json`** for embedded chat when the key is set) · wait **gateway ready** + **19001** · check — `pnpm local:stack:doctor`. (**Locked-in** clean runtime clone — see **One-time: runtime clone** below. Hacking OpenClaw still uses **`~/Documents/openclaw`** without **`OPENCLAW_ROOT`**.)
+
+**Related:** [Documentation hub](../README.md) · [OpenClaw Control UI](openclaw-control-ui.md) (deep setup) · [OpenClaw integration verification](../openclaw-integration-verification.md) · [Operator checklist](openclaw-jarvis-operator-checklist.md) · [Operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project).
 
 ---
 
@@ -120,7 +137,7 @@ cd /path/to/jarvis-hud
 pnpm openclaw:dev
 ```
 
-This runs `scripts/openclaw-gateway-dev.sh`: loads **`JARVIS_BASE_URL`** (from **`JARVIS_HUD_BASE_URL`**), **`JARVIS_INGRESS_OPENCLAW_SECRET`**, and **`OPENAI_API_KEY`** from **jarvis-hud `.env.local`**, sets **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`**, **`cd ~/Documents/openclaw`** (override with **`OPENCLAW_ROOT`**), then **`pnpm gateway:dev`**. Override env file: **`JARVIS_HUD_ENV_FILE=/path/.env.local`**.
+This runs `scripts/openclaw-gateway-dev.sh`: loads **`JARVIS_BASE_URL`** (from **`JARVIS_HUD_BASE_URL`**), **`JARVIS_INGRESS_OPENCLAW_SECRET`**, and **`OPENAI_API_KEY`** from **jarvis-hud `.env.local`**. When **`OPENAI_API_KEY`** is set, it also writes **`openai:default`** into **`$OPENCLAW_STATE_DIR/agents/dev/agent/auth-profiles.json`** (OpenClaw embedded chat reads that file, not env alone). Run **`pnpm openclaw:sync-openai-auth`** anytime after you rotate the key. Then it sets **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`**, **`cd ~/Documents/openclaw`** (override with **`OPENCLAW_ROOT`**), and **`pnpm gateway:dev`**. Override env file: **`JARVIS_HUD_ENV_FILE=/path/.env.local`**.
 
 **Or** manually:
 
@@ -184,10 +201,12 @@ Manual checks:
 | **Overview shows OK but Gateway Logs spam `Missing config` / `gateway.mode=local`** (stack traces from **`/opt/homebrew/.../openclaw`**) | Your **checkout** gateway is fine; a **second** Homebrew OpenClaw is crash-looping. **Stop** brew services / LaunchAgent for OpenClaw (`brew services list`, `~/Library/LaunchAgents`). Run **`pnpm local:stack:doctor`** — it prints Homebrew `openclaw` PSp lines if present. |
 | **`Missing config`** and the **only** gateway you want is Homebrew | Run **`openclaw setup`** or set **`gateway.mode`** to **`local`** in **`~/.openclaw`** (or your real state dir). |
 | **Token / URL mismatch** | CLI and gateway must share the same **`OPENCLAW_STATE_DIR`**. |
-| **No API key for openai** | Set **`OPENAI_API_KEY`** in OpenClaw Control → Environment; restart gateway. |
+| **No API key for openai** (embedded chat / `auth-profiles.json`) | Set **`OPENAI_API_KEY`** in jarvis-hud **`.env.local`**, run **`pnpm openclaw:sync-openai-auth`**, restart gateway; or configure OpenAI in Control UI so the dev agent store is written. |
+| **Control UI OK but chat fails**; logs: **`exceeded your current quota`**, **`embedded_run_agent_end`**, **`auth profile failure`** with **`rate_limit`** | **OpenAI billing** for the **account that owns the API key** (e.g. **negative credit balance**, **auto-recharge off**, org budget). The auth-profile line is **downstream** of the API error—not missing Jarvis config. Fix billing; optional: auto-recharge. [OpenAI error codes](https://platform.openai.com/docs/guides/error-codes/api-errors). |
 | **Attention: skills with missing dependencies** | Optional. Skills need host apps (1Password, Notes, …). Ignore for Jarvis/ingress unless you rely on those tools. |
 | **`Building TypeScript…` very long or “stuck”; 19001 not listening** | The OpenClaw repo you use for **`pnpm openclaw:dev`** likely has a **dirty** git tree, so the gateway rebuilds before bind. For daily integration, use a **clean** clone via **`OPENCLAW_ROOT`**, or **`git stash` / commit** in your working OpenClaw checkout. |
 | **Integration debug: origin mismatch** (`localhost` vs `127.0.0.1`) | Pick **one** host for browser + **`JARVIS_HUD_BASE_URL`** + gateway env; restart **`pnpm dev`** and **`pnpm openclaw:dev`**. Prefer **`127.0.0.1`** (see **HUD signals** below). |
+| **`ReferenceError: loadDocsLibraryIndex is not defined`** on **`/docs`** | Stale **`pnpm dev`** or an outdated `page.tsx`. Confirm **`src/app/docs/[[...path]]/page.tsx`** uses **`buildDocsLibrary`** (not `loadDocsLibraryIndex`); save files, stop the dev server (**Ctrl+C**), run **`pnpm dev`** again. |
 
 ---
 

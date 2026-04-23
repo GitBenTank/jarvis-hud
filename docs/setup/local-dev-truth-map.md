@@ -24,10 +24,12 @@ Whichever request returns JSON is your current Jarvis base URL for this session.
 
 | Mode | Typical command | Expected browser origin |
 |------|-----------------|-------------------------|
-| **Standard dev** | `pnpm dev` | `http://localhost:3000` |
-| **Demo / ingress rehearsal** | `PORT=3001 pnpm dev:port` or `pnpm demo:boot` | `http://localhost:3001` |
+| **Standard dev** | `pnpm dev` | `http://127.0.0.1:3000` (or `localhost` — pick **one** per session) |
+| **Demo / ingress rehearsal** | `PORT=3001 pnpm dev:port` or `pnpm demo:boot` | `http://127.0.0.1:3001` |
 
 **Wording:** Do not treat “default is 3000” as the only story. **Demo boot intentionally uses 3001** (see `scripts/demo-env.sh`, `DEMO.md`). The live process port is what matters for a given session.
+
+**Recommendation:** use **`127.0.0.1`** everywhere in `.env.local`, OpenClaw `JARVIS_BASE_URL`, and the browser for local work — avoids “same machine, different host” drift (see [local stack startup](local-stack-startup.md)).
 
 ---
 

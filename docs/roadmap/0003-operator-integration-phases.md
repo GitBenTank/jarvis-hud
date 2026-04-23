@@ -66,6 +66,7 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 - **§2 frozen (provisional):** [Auth and step-up](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) — modes (convenience / demo / serious), who may submit vs approve vs execute, `stepUpValid` semantics, headless submitters.
 - **Checklist:** [Phase 2 auth authority](../setup/phase2-auth-authority-checklist.md) (record who may hold the ingress secret, when auth must be on).
+- **Hands-on rehearsal:** [Serious-mode rehearsal checklist](../setup/serious-mode-rehearsal-checklist.md) — auth on, batched ingress, approve, item-level execute, capture UX gaps.
 - **Trust docs:** [OpenClaw V1 contract](../architecture/openclaw-v1-contract.md#human-authority-boundary-phase-2) · [OpenClaw ↔ Jarvis trust contract](../architecture/openclaw-jarvis-trust-contract.md) (ingress vs human authority).
 - **Operator path:** [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) (human authority section).
 - **Probe:** **`pnpm auth-posture`** (cookieless; optional **`JARVIS_EXPECT_AUTH=true`** on serious hosts). Run with **`pnpm machine-wired`**.

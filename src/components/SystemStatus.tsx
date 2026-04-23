@@ -237,6 +237,7 @@ export default function SystemStatus() {
       });
       if (res.ok) {
         fetchStatus();
+        globalThis.dispatchEvent(new CustomEvent("jarvis-refresh"));
       }
     } finally {
       setAuthLoading(false);

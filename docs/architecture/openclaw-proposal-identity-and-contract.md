@@ -81,6 +81,7 @@ Ingress only **records** proposals; execution still requires **human approval** 
 
 ## See also
 
+- [OpenClaw ingress for humans](../setup/openclaw-ingress-for-humans.md) — non-coder overview of the proposal journey
 - [Missing `agent` fallback (short operator note)](./openclaw-missing-agent-fallback.md)
 - [OpenClaw V1 — Jarvis integration contract](./openclaw-v1-contract.md)
 - [OpenClaw ↔ Jarvis trust contract](./openclaw-jarvis-trust-contract.md)

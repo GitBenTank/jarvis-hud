@@ -3,7 +3,7 @@ title: "Operating assumptions (Jarvis + OpenClaw)"
 status: living-document
 category: product-strategy
 owner: Ben Tankersley
-last_reviewed: 2026-04-18
+last_reviewed: 2026-04-23
 related:
   - jarvis-hud-video-thesis.md
   - agent-team-v1.md
@@ -32,7 +32,7 @@ related:
 | Piece | Blessed choice |
 |--------|------------------|
 | **Jarvis HUD** | This repository; **`pnpm dev`** (default listen **http://127.0.0.1:3000**) or **`pnpm dev:port`**. In **`.env.local`**, set **`JARVIS_HUD_BASE_URL`** or **`JARVIS_BASE_URL`** to the same host the browser uses (**127.0.0.1**, not `localhost`) so ingress signing and HUD origin checks stay aligned. |
-| **OpenClaw** | **Git checkout** of OpenClaw; default clone path **`~/Documents/openclaw`** (override with **`OPENCLAW_ROOT`**). **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`** for every gateway process in this flow. Start the gateway with **`pnpm openclaw:dev`** from jarvis-hud (runs **`pnpm gateway:dev`** in the clone via [`scripts/openclaw-gateway-dev.sh`](../../scripts/openclaw-gateway-dev.sh)), or the equivalent manual `cd` + `pnpm gateway:dev` with the same env. |
+| **OpenClaw** | **Locked-in (Phase 1):** dedicated **clean** checkout **`~/Documents/openclaw-runtime`**; start with **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** from jarvis-hud ([`scripts/openclaw-gateway-dev.sh`](../../scripts/openclaw-gateway-dev.sh)). **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`** for every gateway process in this flow. **Development / dirty-tree hacking:** use **`~/Documents/openclaw`** by running **`pnpm openclaw:dev`** **without** **`OPENCLAW_ROOT`** (script default). |
 | **Homebrew / LaunchAgent `openclaw`** | **Stopped** while using this flow — a second gateway causes port, token, and log confusion ([local stack startup](../setup/local-stack-startup.md)). |
 | **Control UI** | Set **`OPENCLAW_CONTROL_UI_URL`** in jarvis-hud **`.env.local`** to the **exact** origin the running gateway serves (often **`http://127.0.0.1:19001`**; the gateway log is authoritative). Restart **`pnpm dev`** after changes. |
 | **Ingress** | **`POST {JARVIS_HUD_BASE_URL}/api/ingress/openclaw`** with HMAC. **`JARVIS_INGRESS_OPENCLAW_ENABLED=true`**, **`JARVIS_INGRESS_ALLOWLIST_CONNECTORS`** includes **`openclaw`**, **`JARVIS_INGRESS_OPENCLAW_SECRET`** ≥ 32 chars in **`.env.local`**. The gateway must use the **same** secret and **`JARVIS_BASE_URL`** (injected from `.env.local` when using `pnpm openclaw:dev`). |

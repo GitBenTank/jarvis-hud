@@ -13,7 +13,7 @@ This doc is the deterministic runbook to verify OpenClaw → Jarvis HUD ingress 
 | Piece | Blessed choice |
 |--------|----------------|
 | **Jarvis HUD** | This repo; **`pnpm dev`** (default **http://127.0.0.1:3000**) or **`pnpm dev:port`**; **127.0.0.1** in `.env.local` for base URL |
-| **OpenClaw** | Git checkout (default **`~/Documents/openclaw`**); **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`**; **`pnpm openclaw:dev`** from jarvis-hud |
+| **OpenClaw** | **Clean** checkout **`~/Documents/openclaw-runtime`**; **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`**; **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** from jarvis-hud (hacking clone **`~/Documents/openclaw`** = omit **`OPENCLAW_ROOT`**) |
 | **Homebrew / LaunchAgent gateway** | **Off** for this flow (avoid duplicate listeners) |
 | **Control UI** | **`OPENCLAW_CONTROL_UI_URL`** in `.env.local` matches the live gateway origin |
 | **Ingress** | **`POST {base}/api/ingress/openclaw`**; secret + allowlist in `.env.local` (≥32 chars) |

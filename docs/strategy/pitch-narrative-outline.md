@@ -1,7 +1,7 @@
 ---
 title: "Pitch deck narrative outline"
 status: living-document
-version: 1.2
+version: 1.4
 owner: Ben Tankersley
 created: 2026-04-11
 category: product-strategy
@@ -15,6 +15,10 @@ related:
 Use this as **speaker notes** and slide order. Keep slides visual; spoken narrative carries the Thesis Lock story. Full competitive context: [competitive-landscape-2026.md](./competitive-landscape-2026.md).
 
 **Principle:** The demo is the proof. Slides set context; the live or recorded path (proposal → approval → execution → receipt → trace) is the anchor—do not bury it in an appendix.
+
+**Accelerator / five-slide compression:** [gener8tor-pitch.md](./gener8tor-pitch.md) (consequence-before-UI, slide copy, timed demo blocks).
+
+**Room discipline** (opener, 30s pitch, objections): [room-playbook-v1.md](./room-playbook-v1.md).
 
 ---
 

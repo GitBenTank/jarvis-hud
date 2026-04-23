@@ -2,6 +2,8 @@
 # Start OpenClaw gateway with a stable dev state dir (canonical local stack).
 # Usage: from anywhere — bash path/to/jarvis-hud/scripts/openclaw-gateway-dev.sh
 # Override: OPENCLAW_ROOT, OPENCLAW_STATE_DIR
+# Phase 1 blessed path (see docs/setup/local-stack-startup.md): OPENCLAW_ROOT=~/Documents/openclaw-runtime
+# Default below stays ~/Documents/openclaw for machines that only have one clone.
 
 set -euo pipefail
 

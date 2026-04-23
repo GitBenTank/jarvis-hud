@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { isHudChromelessPath } from "@/lib/hud-chromeless-routes";
 
 type ConfigJson = {
   jarvisHudBaseUrl?: string | null;
@@ -35,8 +36,7 @@ function originsAlignedForLocalHud(viewedOrigin: string, configuredOrigin: strin
  */
 export default function HudOriginMismatchBanner() {
   const pathname = usePathname();
-  const isDemoPath =
-    pathname === "/demo" || (pathname?.startsWith("/demo/") ?? false);
+  const chromeless = isHudChromelessPath(pathname);
 
   const [mismatch, setMismatch] = useState<{
     viewedOrigin: string;
@@ -44,7 +44,7 @@ export default function HudOriginMismatchBanner() {
   } | null>(null);
 
   useEffect(() => {
-    if (isDemoPath) return;
+    if (chromeless) return;
     let cancelled = false;
     (async () => {
       try {
@@ -70,9 +70,9 @@ export default function HudOriginMismatchBanner() {
     return () => {
       cancelled = true;
     };
-  }, [isDemoPath]);
+  }, [chromeless]);
 
-  if (isDemoPath) return null;
+  if (chromeless) return null;
   if (!mismatch) return null;
 
   return (

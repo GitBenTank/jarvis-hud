@@ -10,6 +10,7 @@ import {
   hasIntegrationConfigBlocker,
   type IntegrationIssueCode,
 } from "@/lib/integration-readiness-ui";
+import { isHudChromelessPath } from "@/lib/hud-chromeless-routes";
 
 type ConfigJson = {
   integrationIssues?: string[];
@@ -26,8 +27,7 @@ function isIssueCode(s: string): s is IntegrationIssueCode {
  */
 export default function HudIntegrationReadinessBanner() {
   const pathname = usePathname();
-  const isDemoPath =
-    pathname === "/demo" || (pathname?.startsWith("/demo/") ?? false);
+  const chromeless = isHudChromelessPath(pathname);
 
   const [state, setState] = useState<{
     issues: IntegrationIssueCode[];
@@ -35,7 +35,7 @@ export default function HudIntegrationReadinessBanner() {
   } | null>(null);
 
   useEffect(() => {
-    if (isDemoPath) return;
+    if (chromeless) return;
     let cancelled = false;
     (async () => {
       try {
@@ -63,9 +63,9 @@ export default function HudIntegrationReadinessBanner() {
     return () => {
       cancelled = true;
     };
-  }, [isDemoPath]);
+  }, [chromeless]);
 
-  if (isDemoPath) return null;
+  if (chromeless) return null;
   if (!state || state.issues.length === 0) return null;
 
   const configBlocked = hasIntegrationConfigBlocker(state.issues);

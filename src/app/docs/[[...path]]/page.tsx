@@ -1,6 +1,8 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import Link from "next/link";
+import { DocsArticleClient } from "@/components/docs/DocsArticleClient";
+import { DocsLibraryIndex } from "@/components/docs/DocsLibraryIndex";
 
 const DOCS_ROOT = path.join(process.cwd(), "docs");
 
@@ -9,8 +11,7 @@ async function getDocContent(pathSegments: string[]): Promise<string | null> {
   const filePath = path.join(DOCS_ROOT, ...pathSegments);
   const withExt = filePath.endsWith(".md") ? filePath : `${filePath}.md`;
   try {
-    const content = await fs.readFile(withExt, "utf-8");
-    return content;
+    return await fs.readFile(withExt, "utf-8");
   } catch {
     return null;
   }
@@ -31,45 +32,18 @@ export default async function DocsPage({
   const segments = pathSegments ?? [];
 
   if (segments.length === 0) {
-    return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
-        <div className="mx-auto max-w-2xl">
-          <Link
-            href="/"
-            className="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-400"
-          >
-            ← Back to HUD
-          </Link>
-          <h1 className="mt-4 text-xl font-semibold">Research & Security Docs</h1>
-          <ul className="mt-4 space-y-2">
-            <li>
-              <Link
-                href="/docs/research/video-insights/insight-index"
-                className="text-zinc-700 underline hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-              >
-                Video Insights Index
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/docs/security/trusted-ingress"
-                className="text-zinc-700 underline hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-              >
-                Trusted Ingress
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    );
+    return <DocsLibraryIndex />;
   }
 
   if (!isAllowedPath(segments)) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
+      <div className="min-h-screen px-5 py-14 sm:px-10">
         <div className="mx-auto max-w-2xl">
-          <p className="text-red-600">Invalid path</p>
-          <Link href="/docs" className="mt-2 inline-block text-sm text-zinc-500 hover:underline">
+          <p className="text-red-400">Invalid path</p>
+          <Link
+            href="/docs"
+            className="mt-2 inline-block text-sm text-sky-400/90 underline hover:text-sky-300"
+          >
             Back to docs
           </Link>
         </div>
@@ -81,10 +55,13 @@ export default async function DocsPage({
 
   if (!content) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
+      <div className="min-h-screen px-5 py-14 sm:px-10">
         <div className="mx-auto max-w-2xl">
-          <p className="text-zinc-600 dark:text-zinc-400">Document not found</p>
-          <Link href="/docs" className="mt-2 inline-block text-sm text-zinc-500 hover:underline">
+          <p className="text-zinc-600">Document not found</p>
+          <Link
+            href="/docs"
+            className="mt-2 inline-block text-[13px] font-medium text-[#0071e3] hover:underline"
+          >
             Back to docs
           </Link>
         </div>
@@ -93,17 +70,22 @@ export default async function DocsPage({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
+    <div className="min-h-screen px-5 py-14 sm:px-10">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/docs"
-          className="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-400"
+          className="text-sm text-zinc-500 transition hover:text-zinc-300"
         >
-          ← Back to docs
+          ← Docs library
         </Link>
-        <pre className="mt-4 whitespace-pre-wrap rounded-lg border border-zinc-200 bg-white p-4 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
-          {content}
-        </pre>
+        <p
+          className={`mt-2 font-[family-name:var(--font-docs-mono)] text-[11px] text-zinc-500`}
+        >
+          /docs/{segments.join("/")}
+        </p>
+        <div className="mt-10">
+          <DocsArticleClient raw={content} docSegments={segments} />
+        </div>
       </div>
     </div>
   );

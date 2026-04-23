@@ -68,12 +68,24 @@ export default function Home() {
               ))}
             </ul>
           </div>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <Link
               href="/activity"
               className="text-sm font-medium text-amber-500 hover:text-amber-400 dark:text-amber-400 dark:hover:text-amber-300"
             >
               Activity
+            </Link>
+            <Link
+              href="/docs"
+              className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            >
+              Docs
+            </Link>
+            <Link
+              href="/demo"
+              className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            >
+              Demo
             </Link>
             <Link
               href="/about"

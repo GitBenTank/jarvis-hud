@@ -14,7 +14,7 @@ related:
 
 **Purpose:** Capture **ground truth** for one machine, then keep [operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) and runbooks aligned. Fill this when onboarding a new laptop or after changing gateway install, ports, or env layout.
 
-**Blessed stack (summary):** [Local stack startup](local-stack-startup.md) — checkout OpenClaw + `~/.openclaw-dev` + `pnpm openclaw:dev`; Jarvis `pnpm dev`; secrets in jarvis-hud `.env.local`.
+**Blessed stack (summary):** [Local stack startup](local-stack-startup.md) — **clean** OpenClaw at **`~/Documents/openclaw-runtime`** + **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** + `~/.openclaw-dev`; Jarvis `pnpm dev`; secrets in jarvis-hud `.env.local`.
 
 ---
 
@@ -23,8 +23,8 @@ related:
 | Field | Your value |
 |-------|------------|
 | **Jarvis HUD repo path** | |
-| **OpenClaw clone path** (`OPENCLAW_ROOT` if not `~/Documents/openclaw`) | |
-| **How OpenClaw gateway is started** | e.g. `pnpm openclaw:dev` from jarvis-hud |
+| **OpenClaw clone path** | **`~/Documents/openclaw-runtime`** (blessed); **`~/Documents/openclaw`** (hacking / legacy default if `OPENCLAW_ROOT` unset) |
+| **How OpenClaw gateway is started** | e.g. **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** from jarvis-hud |
 | **`OPENCLAW_STATE_DIR`** | Should be `$HOME/.openclaw-dev` for blessed stack |
 | **Control UI URL (origin)** | From gateway logs / browser — goes in `OPENCLAW_CONTROL_UI_URL` |
 | **`JARVIS_HUD_BASE_URL` or `JARVIS_BASE_URL`** | Prefer `http://127.0.0.1:<port>` |

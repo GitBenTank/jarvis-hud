@@ -1,12 +1,13 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 1.1
+version: 1.3
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
 related:
   - docs/strategy/investor-demo-narrative-script.md
+  - docs/strategy/gener8tor-pitch.md
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/setup/local-stack-startup.md
   - DEMO.md
@@ -14,7 +15,7 @@ related:
 
 # Investor demo — full operator runbook
 
-Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). On-screen beats that mirror that script: **`/demo`** (integration and origin banners are hidden there for a clean recording surface).
+Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). **Five-slide + block-timed narration:** [gener8tor-pitch.md](../strategy/gener8tor-pitch.md). On-screen beats that mirror that script: **`/demo`** — **five full-screen slides** (Gener8tor narrative), **transition** (“This is not a concept. This is running.”), then the **cinematic proof** scroll (lifecycle, mock, HUD link). Integration and origin banners are hidden on `/demo` for a clean recording surface.
 
 **Thesis Lock:** [jarvis-hud-video-thesis.md](../strategy/jarvis-hud-video-thesis.md).
 
@@ -82,7 +83,7 @@ Use the **full woven script** in [investor-demo-narrative-script.md](../strategy
 
 ## Camera choreography (Alfred + email — control-plane boundary)
 
-Order is intentional: capability first, then authority, then proof.
+Order is intentional: **stakes (consequence) before chrome** in spoken narrative, then capability on screen, then authority, then proof. If you switch to the HUD before saying what would happen **without** the control layer, the demo weakens—see [gener8tor-pitch.md](../strategy/gener8tor-pitch.md).
 
 1. Show **Alfred** can perform the **email-capable** task (integration actually works).
 2. Tell Alfred: **send it as proposal to Jarvis** (or equivalent).

@@ -11,6 +11,14 @@ export default function ResearchNotesPanel() {
       <ul className="space-y-1 text-xs">
         <li>
           <Link
+            href="/docs"
+            className="text-zinc-600 underline hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+          >
+            Docs library (pitch, thesis, setup)
+          </Link>
+        </li>
+        <li>
+          <Link
             href="/docs/research/video-insights/insight-index"
             className="text-zinc-600 underline hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
           >

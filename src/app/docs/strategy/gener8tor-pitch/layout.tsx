@@ -1,0 +1,27 @@
+import type { ReactNode } from "react";
+import { DM_Sans, JetBrains_Mono } from "next/font/google";
+
+const demoSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-demo-sans",
+});
+
+const demoMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-demo-mono",
+});
+
+/** Demo-grade fonts for the cinematic Gener8tor route only. */
+export default function Gener8torPitchLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  return (
+    <div className={`${demoSans.variable} ${demoMono.variable}`}>
+      {children}
+    </div>
+  );
+}

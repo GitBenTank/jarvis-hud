@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.3
+version: 1.5
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -11,6 +11,7 @@ related:
   - DEMO.md
   - docs/setup/local-stack-startup.md
   - docs/video/investor-demo-full-runbook.md
+  - docs/strategy/gener8tor-pitch.md
 ---
 
 # Investor demo — full narration script
@@ -18,9 +19,22 @@ related:
 Canonical product thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock).  
 Live demo steps: [DEMO.md](../../DEMO.md).  
 **Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).  
-**Cinematic beats:** scroll experience at **`/demo`** in the app — implementation in `src/app/demo/DemoExperience.tsx`.
+**Cinematic beats:** **`/demo`** opens with a **five-slide** investor narrative (full viewport), a **transition** (“This is not a concept. This is running.”), then the **cinematic proof** scroll (lifecycle, mock, HUD link). Implementation: `src/app/demo/DemoExperience.tsx`, `src/components/demo/InvestorPitchSlides.tsx`, `src/components/demo/DemoCinematicScroll.tsx`.  
+**Gener8tor / five-slide + timed demo blocks:** [gener8tor-pitch.md](./gener8tor-pitch.md).
 
 This document is **spoken copy** + **stage directions** + **delivery notes**. It does not replace Thesis Lock. There is no separate setup section in the on-camera flow; the stack is **live** from the first scroll.
+
+---
+
+## Memorize (room + camera)
+
+1. **Reality** — Agents take real actions (email, code, systems, APIs).  
+2. **Consequence** — Without a control layer, this would have **[email | code | API — pick one]** in a real system. Say it **before** the queue UI lands.  
+3. **Insight** — The model is not the authority.  
+4. **System** — Jarvis: propose → approve → execute → receipt → trace.  
+5. **Proof** — Live demo → receipt → trace → real artifact (e.g. Gmail).
+
+If the audience sees the HUD before they feel the stakes, the demo reads as “cool dashboard.” Consequence first; interface second.
 
 ---
 
@@ -37,6 +51,16 @@ We’re seeing three forces collide at once.
 *(Scroll.)*
 
 Agents are now capable of taking real-world actions — sending emails, modifying systems, triggering workflows.
+
+*(Pause.)*
+
+Without a control layer, that outbound path would read like any other tool call — a real message to a real recipient, with no durable moment that says a human owned that decision.
+
+*(Pause.)*
+
+Let me show you that capability — and where authority actually sits.
+
+*(Tiny pause.)*
 
 And what you’re about to see is running live.
 
@@ -154,7 +178,8 @@ And now we have proof.
 
 - Speak slower than feels natural.
 - Let pauses create weight.
-- Do **not** rush: “That’s the gap,” “independently verified,” or the final three lines.
+- Do **not** rush: “That’s the gap,” “independently verified,” the **consequence** beat after real actions, or the final three lines.
+- Say the **without a control layer** line before the HUD reads as the hero; consequence before chrome.
 - Tone: calm, controlled, inevitable.
 - This is not a pitch — it’s **evidence**.
 

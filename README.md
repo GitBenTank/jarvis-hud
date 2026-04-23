@@ -7,6 +7,8 @@ pnpm dev
 # open http://localhost:3000
 ```
 
+**In the browser:** `/docs` is the **dark Jarvis** markdown library (rendered prose, optional **Slides** split on `##` for long docs). **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) opens the same **cinematic five-slide deck** as phase 1 of `/demo`, with **Markdown** for the source file (`?view=markdown`). `/demo` continues the full flow (slides → transition → live proof). Short redirects: `/library` → `/docs`, plus `/pitch`, `/playbook`, `/thesis`.
+
 Submit a proposal → approve → see receipt + trace (with rollback). (Use `pnpm install` and optional `.env.local` first — see [Quick Start](#quick-start-developers).) **90s proof demo script:** [docs/video/90s-proof-demo.md](docs/video/90s-proof-demo.md).
 
 **Control plane for governed AI execution.**
@@ -35,7 +37,7 @@ Pair a **capability layer** (OpenClaw: research, drafts, skills, tools) with an 
 - **Every action produces proof** — receipts, artifacts, and replayable **traces**.
 - **Autonomy in thinking. Authority in action.**
 
-Full narrative: [docs/strategy/jarvis-hud-video-thesis.md](docs/strategy/jarvis-hud-video-thesis.md) · [ADR: Thesis Lock](docs/decisions/0001-thesis-lock.md). Positioning and competition: [docs/strategy/competitive-landscape-2026.md](docs/strategy/competitive-landscape-2026.md) · [Pitch narrative outline](docs/strategy/pitch-narrative-outline.md).
+Full narrative: [docs/strategy/jarvis-hud-video-thesis.md](docs/strategy/jarvis-hud-video-thesis.md) · [ADR: Thesis Lock](docs/decisions/0001-thesis-lock.md). Positioning and competition: [docs/strategy/competitive-landscape-2026.md](docs/strategy/competitive-landscape-2026.md) · [Pitch narrative outline](docs/strategy/pitch-narrative-outline.md) · [Gener8tor pitch (5 slides + demo)](docs/strategy/gener8tor-pitch.md) · [Room playbook — restraint](docs/strategy/room-playbook-v1.md).
 
 ## Architecture
 
@@ -189,7 +191,7 @@ pnpm dev
 
 Open **http://localhost:3000**. For a **production-style** build: `pnpm build && pnpm start`. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
 
-**Jarvis + OpenClaw together:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md). **OpenClaw terminal (from this repo):** `pnpm openclaw:dev` · **Jarvis:** `pnpm dev` · **Check:** `pnpm local:stack:doctor` · **Phase 1 pass/fail:** `pnpm machine-wired` (with both running) · **Phase 2 auth:** `pnpm auth-posture` · **VS Code:** Run Task → `Local stack: both (parallel)`.
+**Jarvis + OpenClaw together:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md). **OpenClaw terminal (from this repo):** **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (locked-in clean clone; see doc) · **Jarvis:** `pnpm dev` · **Check:** `pnpm local:stack:doctor` · **Phase 1 pass/fail:** `pnpm machine-wired` (with both running) · **Phase 2 auth:** `pnpm auth-posture` · **VS Code:** Run Task → `Local stack: both (parallel)`.
 
 ---
 
@@ -333,6 +335,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [Distribution checklist (proof-first)](docs/marketing/distribution-checklist.md)
 - [Competitive landscape & positioning (2026)](docs/strategy/competitive-landscape-2026.md)
 - [Pitch narrative outline (deck)](docs/strategy/pitch-narrative-outline.md)
+- [Gener8tor pitch — 5 slides + consequence-first demo](docs/strategy/gener8tor-pitch.md)
+- [Room playbook — opener, 30s pitch, objections](docs/strategy/room-playbook-v1.md)
 - [Architecture](docs/architecture/control-plane.md)
 - [Security model](docs/architecture/security-model.md)
 - [Policy decision logs](docs/architecture/policy-decision-logs.md)

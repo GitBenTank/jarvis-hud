@@ -419,6 +419,12 @@ export const DOCS_OPERATORS: DocsLibraryStartItem[] = [
     description:
       "Alfred + specialists: routing, handoffs, Jarvis kinds, one-proposal-per-consent.",
   },
+  {
+    href: "/docs/strategy/research-agent-v1",
+    title: "Research agent v1",
+    description:
+      "Evidence specialist: citations, system.note capture, handoffs — no silent execution.",
+  },
 ];
 
 export async function buildDocsLibrary(): Promise<DocsLibraryBuild> {

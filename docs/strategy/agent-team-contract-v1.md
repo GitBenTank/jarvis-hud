@@ -7,6 +7,7 @@ related:
   - ../decisions/0001-thesis-lock.md
   - ../architecture/openclaw-proposal-identity-and-contract.md
   - ../architecture/openclaw-jarvis-trust-contract.md
+  - ./research-agent-v1.md
   - ../strategy/research-batch-workflow-v1.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
 ---
@@ -140,12 +141,13 @@ This preserves **Jarvis/OpenClaw compatibility** without **robotic** chat format
 ## 9. Versioning
 
 - **v1** — Alfred entry + routing + Jarvis mapping + evidence + UX split (this doc).
-- **v2+** — Add specialist-specific annexes (Research v1, Creative v1) **by reference**; do not fork the consent model per agent.
+- **v2+** — Specialist specs (e.g. [Research agent v1](./research-agent-v1.md), Creative v1) **by reference**; do not fork the consent model per agent.
 
 ---
 
 ## Related
 
+- [Research agent v1](./research-agent-v1.md)
 - [Research batch workflow v1](./research-batch-workflow-v1.md)
 - [OpenClaw proposal identity and contract](../architecture/openclaw-proposal-identity-and-contract.md)
 - [Jarvis strongman (operator brief)](./jarvis-strongman.md)

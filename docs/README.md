@@ -67,6 +67,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | First composable team (Alfred + Research + Creative) | [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md) |
 | Research specialist (evidence) | [Research agent v1](strategy/research-agent-v1.md) |
 | Creative specialist (messaging) | [Creative agent v1](strategy/creative-agent-v1.md) |
+| OpenClaw runtime + team + Jarvis (one narrative) | [Runtime + team + Jarvis loop v1](strategy/runtime-openclaw-jarvis-team-loop-v1.md) |
 
 ---
 

@@ -76,6 +76,7 @@ Any surface that claims to explain **what happened** after a run should tie to *
 
 ## See also
 
+- [Runtime + team + Jarvis — one narrative loop v1](../strategy/runtime-openclaw-jarvis-team-loop-v1.md) — single story: OpenClaw sessions, handoffs, ingress loop
 - [Operating assumptions](../strategy/operating-assumptions.md) — time-stamped defaults and open decisions
 - [Agent execution model](../security/agent-execution-model.md)
 - [Thesis Lock ADR](../decisions/0001-thesis-lock.md)

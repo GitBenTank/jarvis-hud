@@ -10,6 +10,7 @@ related:
   - ../decisions/0001-thesis-lock.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
   - ../roadmap/0004-phased-platform-plan.md
+  - ./runtime-openclaw-jarvis-team-loop-v1.md
 ---
 
 # Flagship team bundle v1 — Alfred + Research + Creative

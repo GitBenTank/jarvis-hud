@@ -41,3 +41,4 @@ related:
 ## Related
 
 - [Documentation hub](../README.md) — full map by role
+- **Deeper (only if they ask how runtime + team fit Jarvis):** [Runtime + team + Jarvis — one narrative loop v1](./runtime-openclaw-jarvis-team-loop-v1.md)

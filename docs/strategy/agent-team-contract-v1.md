@@ -12,6 +12,7 @@ related:
   - ./flagship-team-bundle-v1.md
   - ./research-batch-workflow-v1.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
+  - ./runtime-openclaw-jarvis-team-loop-v1.md
 ---
 
 # Agent team contract v1 — Alfred, specialists, Jarvis
@@ -19,6 +20,8 @@ related:
 **Purpose:** Define how **Alfred** and **specialist agents** (Research, Creative, Operator, etc.) work together so that **human authority stays legible** and every real action can land in **Jarvis** as a **proper proposal** (trace, approval, execute, receipt). This doc is the **shared contract**; Alfred v1 and future specialist specs **must not contradict** it.
 
 **Normative product boundary:** [Thesis Lock](../decisions/0001-thesis-lock.md) — agents may propose; execution requires explicit human approval; approval ≠ execution; receipts and traces required; the model is not a trusted principal.
+
+**Narrative (OpenClaw runtime ↔ team ↔ Jarvis loop):** [Runtime + team + Jarvis — one narrative loop v1](./runtime-openclaw-jarvis-team-loop-v1.md).
 
 ---
 
@@ -149,6 +152,7 @@ This preserves **Jarvis/OpenClaw compatibility** without **robotic** chat format
 
 ## Related
 
+- [Runtime + team + Jarvis — one narrative loop v1](./runtime-openclaw-jarvis-team-loop-v1.md)
 - [Flagship team bundle v1](./flagship-team-bundle-v1.md)
 - [Research agent v1](./research-agent-v1.md)
 - [Creative agent v1](./creative-agent-v1.md)

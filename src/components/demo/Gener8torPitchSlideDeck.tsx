@@ -203,7 +203,7 @@ export function Gener8torPitchSlideDeck({
       onKeyDown={onKeyDown}
       className={cn(
         "relative z-10 h-dvh snap-y snap-mandatory overflow-x-hidden overflow-y-auto overscroll-y-contain outline-none [scrollbar-gutter:stable]",
-        "focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050508]",
+        "focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]",
       )}
     >
       <section
@@ -347,7 +347,7 @@ export function Gener8torPitchSlideDeck({
         <button
           type="button"
           onClick={onCta}
-          className="mt-16 inline-flex min-w-[12rem] items-center justify-center rounded-full border border-zinc-600 bg-zinc-900/40 px-10 py-3.5 text-sm font-medium text-zinc-100 backdrop-blur-sm transition-colors duration-200 hover:border-sky-500/40 hover:bg-sky-500/10 hover:text-white"
+          className="mt-16 inline-flex min-w-[12rem] items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 px-10 py-3.5 text-sm font-medium text-zinc-100 transition-colors duration-200 hover:border-sky-800/50 hover:bg-zinc-800"
         >
           {ctaLabel}
         </button>

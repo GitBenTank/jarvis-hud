@@ -91,7 +91,7 @@ If advice conflicts: **Thesis Lock / video thesis** → **operating assumptions*
 | `architecture/` | Control plane, trust, OpenClaw contracts |
 | `security/` | Ingress signing, execution model |
 | `decisions/` | ADRs |
-| `roadmap/` | Phased plans |
+| `roadmap/` | Phased plans — [integration (0003)](roadmap/0003-operator-integration-phases.md), [platform growth (0004)](roadmap/0004-phased-platform-plan.md) |
 | `video/` | Demo and episode runbooks |
 | `research/` | Structured insights intake |
 | `marketing/` | Distribution copy |

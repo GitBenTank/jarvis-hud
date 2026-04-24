@@ -16,12 +16,15 @@
 - [Creative batch workflow v1 (Phase 5)](../strategy/creative-batch-workflow-v1.md)
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 - [ADR-0005: Batch v0, per-item execute](../decisions/0005-agent-team-batch-v0-per-item-execute.md)
+- [Phased platform plan (0004)](./0004-phased-platform-plan.md) — broader **platform growth** (agent productization, enterprise, UI, GTM); this doc stays **integration- and operator-focused**
 
 ---
 
 ## Purpose
 
 This roadmap sequences **integration hardening** (OpenClaw + Jarvis HUD), **human authority**, and **agent-team expansion** without drifting [Thesis Lock](../strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift). Phases are numbered for stable reference; **near-term execution order** may differ (see below).
+
+For **end-to-end platform phases** (flagship as product, verticals, enterprise UI, packaging), use [0004 — Phased platform plan](./0004-phased-platform-plan.md).
 
 ---
 
@@ -226,6 +229,7 @@ For integration work, keep **one contract, one narrative, one probe** aligned:
 
 ## See also
 
+- [Phased platform plan (0004)](./0004-phased-platform-plan.md)
 - [Master plan](./0000-master-plan.md)
 - [Technical roadmap — production](./0001-technical-roadmap-production.md)
 - [Demo safety / production phases](./0002-demo-safety-production-phases.md)

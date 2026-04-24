@@ -9,6 +9,7 @@ related:
   - ./creative-agent-v1.md
   - ../decisions/0001-thesis-lock.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
+  - ../roadmap/0004-phased-platform-plan.md
 ---
 
 # Flagship team bundle v1 — Alfred + Research + Creative

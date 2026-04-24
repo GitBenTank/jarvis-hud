@@ -8,6 +8,7 @@ related:
   - docs/strategy/competitive-landscape-2026.md
   - docs/strategy/agent-team-contract-v1.md
   - docs/strategy/research-agent-v1.md
+  - docs/strategy/creative-agent-v1.md
   - docs/decisions/0001-thesis-lock.md
 ---
 

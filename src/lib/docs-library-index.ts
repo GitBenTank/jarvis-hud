@@ -425,6 +425,12 @@ export const DOCS_OPERATORS: DocsLibraryStartItem[] = [
     description:
       "Evidence specialist: citations, system.note capture, handoffs — no silent execution.",
   },
+  {
+    href: "/docs/strategy/creative-agent-v1",
+    title: "Creative agent v1",
+    description:
+      "Messaging specialist: variants, content.publish drafts — no send/post without Jarvis.",
+  },
 ];
 
 export async function buildDocsLibrary(): Promise<DocsLibraryBuild> {

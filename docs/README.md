@@ -65,6 +65,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |
 | Multi-agent + Jarvis boundary | [Agent team contract v1](strategy/agent-team-contract-v1.md) |
 | Research specialist (evidence) | [Research agent v1](strategy/research-agent-v1.md) |
+| Creative specialist (messaging) | [Creative agent v1](strategy/creative-agent-v1.md) |
 
 ---
 

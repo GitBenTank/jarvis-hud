@@ -6,6 +6,7 @@ owner: Ben Tankersley
 related:
   - ../decisions/0001-thesis-lock.md
   - ./agent-team-contract-v1.md
+  - ./creative-agent-v1.md
   - ./research-batch-workflow-v1.md
   - ../architecture/openclaw-proposal-identity-and-contract.md
 ---
@@ -129,5 +130,6 @@ Aligned with [team contract §8](./agent-team-contract-v1.md#8-output-contract--
 ## Related
 
 - [Agent team contract v1](./agent-team-contract-v1.md)  
+- [Creative agent v1](./creative-agent-v1.md)  
 - [Research batch workflow v1](./research-batch-workflow-v1.md)  
 - [Jarvis strongman (operator brief)](./jarvis-strongman.md)  

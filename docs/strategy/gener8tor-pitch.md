@@ -1,7 +1,7 @@
 ---
 title: "Gener8tor pitch — 6 slides + consequence-first demo"
 status: living-document
-version: 2.1
+version: 2.2
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -41,7 +41,7 @@ related:
   2. **Ungated execution** — Without a control layer, those actions can be allowed to run immediately—no human gate.
   3. **Governance pressure** — Regulation and enterprise programs are converging—while control at the moment of execution is still what’s missing.
 - **Footer on slide:** OpenClaw proposes locally → Jarvis ingress → held at approval before anything executes.
-- **Say:** Name the three forces, then *“And what you’re about to see is running live.”* → OpenClaw … Jarvis … approval boundary. Match [investor-demo-narrative-script.md](./investor-demo-narrative-script.md) **Open**.
+- **Say:** Name the three forces on slide 2; on **slide 3** tie in **`system.note`** + risk-class anchor with the typewriter; then live / OpenClaw / ingress. Full weave: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md).
 
 ### Slide 3 — Consequence *(script: consequence + anchor)*
 
@@ -93,13 +93,13 @@ Hold on **Jarvis** + thesis. Optional: one short line, or silence—then advance
 
 ### Block 2 — Open / Slide 2 (20–35s)
 
-*“We’re seeing three forces collide at once.”* *(Pause.)* Point to the slide if needed:
+*“We’re seeing three forces collide at once.”* *(Pause.)* Use the **same labels** as the deck:
 
-1. **Capability** — real actions in real systems.  
-2. **Ungated execution** — without a control layer, no human gate.  
-3. **Governance pressure** — rules and programs meeting reality; execution control still the gap.
+1. **Capability** — agents take real actions: email, systems, workflows, APIs.  
+2. **Ungated execution** — allowed to run immediately; no human gate.  
+3. **Governance pressure** — regulation and enterprise converging; execution control still missing.
 
-*“And what you’re about to see is running live.”* → *OpenClaw … Jarvis … approval boundary.*
+*(Advance to slide 3 · Consequence.)* Land **`system.note`** + email/code/API anchor **with the typewriter** (see script). Then: *“Let me show you…”* → *“Running live.”* → *OpenClaw … Jarvis … approval boundary.*
 
 ### Block 3 — Consequence / Slide 3 (10–15s) — before any queue UI
 

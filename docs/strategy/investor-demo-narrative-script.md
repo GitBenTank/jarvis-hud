@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 2.0
+version: 2.1
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -28,13 +28,13 @@ This document is **spoken copy** + **stage directions** + **delivery notes**. It
 
 ## Memorize (room + camera)
 
-1. **Reality** — Slide 2 names three forces: **Capability**, **Ungated execution**, **Governance pressure**.  
-2. **Consequence** — Without this layer, actions would be **allowed to run immediately** (uncontrolled). **Anchor** with email / code / API examples vs **`system.note`** on screen. Say stakes **before** the queue UI lands.  
-3. **Insight** — The model is not the authority.  
-4. **System** — Jarvis: propose → approve → execute → receipt → trace.  
-5. **Proof** — Live demo → receipt → trace → real artifact (e.g. Gmail).
+1. **Hero (slide 1)** — **Jarvis** + thesis on screen; optional one line or silence.  
+2. **Three forces (slide 2)** — **Capability**, **Ungated execution**, **Governance pressure** (same words as the deck).  
+3. **Anchor** — Email / code / API examples vs **`system.note`** on screen; stakes **before** the HUD.  
+4. **Gap & lock-in (slides 4–5)** — Visibility ≠ execution; Jarvis separates approve / execute + proof.  
+5. **Handoff → live** — Lifecycle string, then HUD / Flow 1 (or **`send_email`** path per operator block).
 
-If the audience sees the HUD before they feel the stakes, the demo reads as “cool dashboard.” Consequence first; interface second.
+If the audience sees the HUD before they feel the stakes, the demo reads as “cool dashboard.” Forces and consequence before chrome.
 
 ---
 
@@ -42,25 +42,33 @@ If the audience sees the HUD before they feel the stakes, the demo reads as “c
 
 Read this in one continuous take. Pauses are part of the script.
 
-### Open
+### Hero *(slide 1)*
 
-*(Start on hero. Wait ~2 seconds.)*
+*(Start on slide 1. Hold ~2 seconds. On screen: **Jarvis** — *Autonomy in thinking. Authority in action.*)*
+
+*(Optional, one quiet line:)* “This is the layer we’re here to prove.”
+
+*(Advance to slide 2.)*
+
+### Three forces *(slide 2)*
 
 We’re seeing three forces collide at once.
 
-*(Scroll.)*
+*(Either let the slide carry, or narrate in sync — use the **same labels** as `/demo`:)*
 
-**First: capability** — agents take real actions: email, systems, workflows, APIs.  
-**Second: ungated execution** — without a control layer, those actions can be allowed to run immediately, with no human gate.  
-**Third: governance pressure** — regulation and enterprise programs are converging, while control at the moment of execution is still what’s missing.
+**Capability** — agents take real actions: email, systems, workflows, APIs.
 
-*(Pause.)*
+**Ungated execution** — without a control layer, those actions can be allowed to run immediately — no human gate.
 
-Without this layer, those actions would be **allowed to run immediately** — no separate moment where a human owns the decision.
+**Governance pressure** — regulation and enterprise programs are converging, while control at the moment of execution is still what’s missing.
 
-*(Tiny pause.)*
+*(Pause. Advance to slide 3 · Consequence.)*
 
-That could mean sending an email, modifying code, or hitting an API. **On screen today** you’ll see **`system.note`** — same **control** boundary, different risk class.
+### Consequence *(slide 3 — typewriter on screen)*
+
+*(Headline: no moment where a human owns the decision. Let the typewriter run, or mirror its first line once if you want lockstep.)*
+
+When the deck lands the second beat, **anchor the demo**: that could mean email, code, or an API — **on screen today** it’s **`system.note`**, same **control** boundary, different risk class.
 
 *(Pause.)*
 
@@ -72,7 +80,9 @@ And what you’re about to see is running live.
 
 OpenClaw is generating the proposal locally, sending it through the Jarvis ingress path, and Jarvis is holding it at the approval boundary before anything executes.
 
-### Infrastructure context
+*(Advance through slides 4–6 while you speak the sections below, or let the slides breathe — copy maps to **The gap**, **Jarvis lock-in**, **Handoff**.)*
+
+### Infrastructure context *(slide 4 · The gap — start here or as you enter this slide)*
 
 We’re already seeing this at the infrastructure level.
 
@@ -104,7 +114,7 @@ What’s missing is control at the moment of execution.
 
 *(Full breath.)*
 
-### Jarvis *(lock-in)*
+### Jarvis *(lock-in — slide 5)*
 
 A system that separates approval from execution — and produces proof of what actually happened.
 
@@ -116,7 +126,7 @@ Jarvis doesn’t manage agents — it governs execution.
 
 That’s where authority lives.
 
-### Demo handoff
+### Demo handoff *(slide 6, then “Enter live system”)*
 
 Everything runs through a simple lifecycle:
 
@@ -183,17 +193,17 @@ Not logs — proof.
 
 ### Hard cut → real HUD
 
-*(No transition.)*
+*(After the full-screen transition: “This is not a concept. This is running.”)*
 
 This is the same lifecycle running in the actual system.
 
-*(On screen: the pending **`send_email`** you submitted—**Approve** → **Execute** → receipt. Same lifecycle as `system.note`; different consequence when it runs.)*
+*(On screen: pending proposals — **Flow 1** uses two **`system.note`** cards; **`send_email`** path uses the governed email proposal. **Approve** → **Execute** → receipt in either case.)*
 
 Every step is explicit.
 
 Every action is attributable.
 
-### Gmail *(proof moment)*
+### Gmail *(proof moment — only if you ran `send_email`)*
 
 *(Show the email clearly.)*
 
@@ -202,6 +212,8 @@ This is a real outbound action.
 It was generated by the agent…
 
 but it only exists because it was approved and executed through Jarvis.
+
+*(If you stayed on **Flow 1** / **`system.note`** only, skip Gmail; end on **receipt + trace** in the HUD.)*
 
 ### Final close *(three beats — very important)*
 
@@ -217,10 +229,11 @@ And now we have proof.
 
 ## Delivery notes *(read once, then record)*
 
+- **Slide sync:** Hero (1) → three forces (2) → consequence typewriter (3) → gap (4) → Jarvis lock-in (5) → handoff (6) → transition → cinematic scroll / HUD. See [gener8tor-pitch.md](./gener8tor-pitch.md) for block timing.
 - Speak slower than feels natural.
 - Let pauses create weight.
-- Do **not** rush: “That’s the gap,” “independently verified,” the **consequence** beat after real actions, or the final three lines.
-- Say the **without a control layer** line before the HUD reads as the hero; consequence before chrome.
+- Do **not** rush: “That’s the gap,” “independently verified,” the **three-forces** beat, or the final three lines.
+- Land **Capability / Ungated execution / Governance pressure** before the HUD; don’t repeat the ungated line twice — slide 2 already states it.
 - Tone: calm, controlled, inevitable.
 - This is not a pitch — it’s **evidence**.
 

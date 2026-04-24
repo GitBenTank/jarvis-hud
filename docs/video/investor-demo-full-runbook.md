@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 1.8
+version: 1.9
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -86,9 +86,9 @@ Use the **full woven script** in [investor-demo-narrative-script.md](../strategy
 
 **Setup (before you speak):** `/demo` open; Jarvis HUD (**Activity** / queue); optional OpenClaw Control UI.
 
-**Opening (~20–30 s):** Agents take real actions (email, code, APIs). Without a control layer, those actions just happen. Jarvis: agents **propose**, nothing executes without **explicit approval**, every real action produces a **receipt** and **trace**.
+**Opening (~20–30 s):** Same spine as [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md): **hero (Jarvis + thesis)** → **three forces** (**Capability**, **Ungated execution**, **Governance pressure**) → **consequence / system.note** anchor → then gap, lock-in, handoff. Jarvis: agents **propose**, nothing executes without **explicit approval**, every real action produces a **receipt** and **trace**.
 
-**Slides (~1–2 min max):** Click through `/demo` — **propose → approve → execute → receipt → trace**. Keep it short; frame as “the model,” not a feature tour.
+**Slides (~1–2 min max):** Advance `/demo` through **six slides** in order (see script + [gener8tor-pitch.md](../strategy/gener8tor-pitch.md)); don’t skip naming the **three forces** on slide 2. After **Enter live system**, lifecycle is **propose → approve → execute → receipt → trace**. Keep it short; frame as control, not a feature tour.
 
 **Transition (before live HUD):** Two beats (don’t rush the line break):
 

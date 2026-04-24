@@ -34,7 +34,7 @@ Constant: `OPENCLAW_INGRESS_UNKNOWN_PROPOSER_AGENT` in `openclaw-proposal-identi
 
 ## Quick reference: OpenClaw agent identity fields
 
-Skim only — **normative definitions and fallback rules** are in **Identity semantics** and **Intentional fallback when `agent` is omitted** above.
+This section is a **simplified, non-normative** skim. **Canonical semantics** are defined in **Identity semantics** and **Intentional fallback when `agent` is omitted** above — if anything here could be read differently, **those sections win**.
 
 | Field (ingress JSON) | Meaning | Stored on event |
 |----------------------|---------|-----------------|

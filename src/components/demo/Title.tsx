@@ -15,7 +15,7 @@ export function Title({
   return (
     <Tag
       className={cn(
-        "max-w-4xl text-center text-4xl font-medium tracking-tight text-zinc-50 sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.05]",
+        "max-w-4xl text-center text-4xl font-semibold tracking-[-0.028em] text-zinc-50 sm:text-5xl md:text-6xl lg:text-[4.1rem] lg:leading-[1.06]",
         className,
       )}
     >

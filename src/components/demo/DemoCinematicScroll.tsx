@@ -7,7 +7,7 @@ import { Reveal } from "@/components/demo/Reveal";
 import { Title } from "@/components/demo/Title";
 
 const demoMono =
-  "[font-family:var(--font-demo-mono),ui-monospace,monospace]" as const;
+  "[font-family:var(--font-geist-mono),ui-monospace,monospace]" as const;
 
 const LIFECYCLE = [
   { label: "PROPOSE", line: "Explicit action submitted" },

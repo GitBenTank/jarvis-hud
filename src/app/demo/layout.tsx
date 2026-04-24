@@ -1,22 +1,13 @@
 import type { ReactNode } from "react";
-import { DM_Sans, JetBrains_Mono } from "next/font/google";
 
-const demoSans = DM_Sans({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-demo-sans",
-});
-
-const demoMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-demo-mono",
-});
-
+/**
+ * Uses root Geist variables (--font-geist-sans / --font-geist-mono) for a clean,
+ * neutral keynote surface — no separate “demo” face that reads generic/AI.
+ */
 export default function DemoLayout({ children }: { children: ReactNode }) {
   return (
     <div
-      className={`${demoSans.variable} ${demoMono.variable} min-h-screen antialiased [font-family:var(--font-demo-sans),system-ui,sans-serif]`}
+      className={`min-h-screen antialiased [font-family:var(--font-geist-sans),ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif]`}
     >
       {children}
     </div>

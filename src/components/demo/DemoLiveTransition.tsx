@@ -23,10 +23,10 @@ export function DemoLiveTransition({ onDone }: { onDone: () => void }) {
       <div
         className={`transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}
       >
-        <p className="text-center text-2xl font-medium tracking-tight text-zinc-100 md:text-3xl">
+        <p className="text-center text-2xl font-semibold tracking-[-0.02em] text-zinc-100 md:text-3xl">
           This is not a concept.
         </p>
-        <p className="mt-5 text-center text-2xl font-medium tracking-tight text-sky-200/95 md:text-3xl">
+        <p className="mt-5 text-center text-2xl font-normal tracking-[-0.02em] text-zinc-400 md:text-3xl">
           This is running.
         </p>
       </div>

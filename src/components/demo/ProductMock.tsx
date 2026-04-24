@@ -1,7 +1,7 @@
 "use client";
 
 const mono =
-  "[font-family:var(--font-demo-mono),ui-monospace,monospace]" as const;
+  "[font-family:var(--font-geist-mono),ui-monospace,monospace]" as const;
 
 export function ProductMock() {
   return (

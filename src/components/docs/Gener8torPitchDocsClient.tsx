@@ -12,7 +12,7 @@ export function Gener8torPitchDocsClient() {
   const router = useRouter();
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-hidden bg-[#050508] text-zinc-100 [font-family:var(--font-demo-sans),system-ui,sans-serif]">
+    <div className="fixed inset-0 z-[100] overflow-hidden bg-[#09090b] text-zinc-100 [font-family:var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
       <DocsAmbient />
       <header className="pointer-events-none absolute left-0 right-0 top-0 z-[110] flex items-start justify-between gap-3 px-4 pt-4 sm:px-6 sm:pt-5">
         <nav

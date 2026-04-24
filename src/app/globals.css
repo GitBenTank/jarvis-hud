@@ -37,21 +37,6 @@ body {
   }
 }
 
-/* Static gradient fill — same sky palette, no shimmer or glow */
-.demo-pitch-hero-title {
-  background: linear-gradient(
-    180deg,
-    #fafafa 0%,
-    #f4f4f5 18%,
-    #bae6fd 52%,
-    #7dd3fc 78%,
-    #38bdf8 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
 .demo-pitch-hero-mount-1 {
   opacity: 0;
   animation: demo-pitch-fade-up 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -62,21 +47,9 @@ body {
   animation: demo-pitch-fade-up 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.28s forwards;
 }
 
-.demo-pitch-hero-mount-3 {
-  opacity: 0;
-  animation: demo-pitch-fade-up 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .demo-pitch-hero-title {
-    color: #fafafa;
-    background: none;
-    -webkit-background-clip: unset;
-    background-clip: unset;
-  }
   .demo-pitch-hero-mount-1,
-  .demo-pitch-hero-mount-2,
-  .demo-pitch-hero-mount-3 {
+  .demo-pitch-hero-mount-2 {
     animation: none;
     opacity: 1;
   }

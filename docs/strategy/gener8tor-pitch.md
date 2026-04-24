@@ -1,7 +1,7 @@
 ---
 title: "Gener8tor pitch — 6 slides + consequence-first demo"
 status: living-document
-version: 1.9
+version: 2.0
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -30,7 +30,7 @@ related:
 
 ### Slide 1 — Jarvis *(hero — thesis only on screen)*
 
-- **On screen:** Large **Jarvis** wordmark (static sky gradient type), thesis on **two lines** (second line emphasized), thin neutral rule, micro-tag: *Control plane for real agent actions.* Keynote-style: no glow, no motion on the wordmark.
+- **On screen:** **Jarvis** in solid white, large semibold display type (Geist / system stack); one **subtitle** line in muted gray — *Autonomy in thinking. Authority in action.* No gradient type, no rule, no micro-tag (reads cleaner / less “AI deck”).
 - **Say (optional):** One beat of silence, or: *“This is the layer we’re about to prove.”* Then advance.
 
 ### Slide 2 — Open *(script: Open)*

@@ -14,7 +14,7 @@ import { Subtitle } from "@/components/demo/Subtitle";
 import { cn } from "@/components/demo/cn";
 
 const demoMono =
-  "[font-family:var(--font-demo-mono),ui-monospace,monospace]" as const;
+  "[font-family:var(--font-geist-mono),ui-monospace,monospace]" as const;
 
 function DeckSlide({
   scrollRoot,
@@ -102,16 +102,16 @@ function ConsequenceTypewriter() {
     <div className="mx-auto mt-10 max-w-2xl space-y-6 text-center text-xl leading-relaxed text-zinc-200 md:text-2xl">
       <p>
         <span className="text-zinc-300">{line1Prefix}</span>
-        <span className="font-medium text-sky-200/95">
+        <span className="font-normal text-zinc-100">
           {line1Reveal.slice(0, revealLen)}
           {revealLen < line1Reveal.length ? (
-            <span className="ml-0.5 inline-block h-[1em] w-0.5 animate-pulse bg-sky-400/80 align-middle" />
+            <span className="ml-px inline-block h-[0.92em] w-px translate-y-px bg-zinc-500 align-middle" />
           ) : null}
         </span>
       </p>
       <p
         className={cn(
-          "text-base font-normal text-zinc-400 transition-opacity duration-500 md:text-lg",
+          "text-base font-normal text-zinc-500 transition-opacity duration-500 md:text-lg",
           line1Done ? "opacity-100" : "opacity-0",
         )}
       >
@@ -203,55 +203,35 @@ export function Gener8torPitchSlideDeck({
       onKeyDown={onKeyDown}
       className={cn(
         "relative z-10 h-dvh snap-y snap-mandatory overflow-x-hidden overflow-y-auto overscroll-y-contain outline-none [scrollbar-gutter:stable]",
-        "focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]",
+        "focus-visible:ring-2 focus-visible:ring-zinc-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]",
       )}
     >
       <section
         id={slideIds[0]}
         aria-label="Jarvis"
-        className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
+        className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-6 py-16 sm:px-10"
       >
         <h1
           className={cn(
-            "max-w-5xl text-center text-6xl font-semibold tracking-[-0.05em] sm:text-7xl md:text-8xl lg:text-[6rem] lg:leading-[0.95]",
-            "demo-pitch-hero-title demo-pitch-hero-mount-1",
+            "max-w-[14ch] text-center text-[clamp(2.75rem,11vw,5.75rem)] font-semibold leading-[1.02] tracking-[-0.038em] text-white",
+            "demo-pitch-hero-mount-1",
           )}
         >
           Jarvis
         </h1>
-        <div
+        <p
           className={cn(
-            "mt-12 max-w-xl space-y-2 text-balance text-center",
+            "mt-7 max-w-[28rem] text-balance text-center text-[1.0625rem] font-normal leading-[1.45] tracking-[-0.016em] text-zinc-500 md:mt-8 md:text-[1.1875rem]",
             "demo-pitch-hero-mount-2",
           )}
         >
-          <p className="text-lg font-normal tracking-tight text-zinc-300 md:text-2xl md:font-light">
-            Autonomy in thinking.
-          </p>
-          <p className="text-lg font-medium tracking-tight text-sky-300 md:text-2xl">
-            Authority in action.
-          </p>
-        </div>
-        <div
-          className={cn(
-            "mt-16 h-px w-24 bg-gradient-to-r from-transparent via-zinc-600 to-transparent sm:w-36",
-            "demo-pitch-hero-mount-3",
-          )}
-          aria-hidden
-        />
-        <p
-          className={cn(
-            `${demoMono} mt-12 max-w-sm text-center text-[10px] font-medium uppercase tracking-[0.32em] text-zinc-500`,
-            "demo-pitch-hero-mount-3",
-          )}
-        >
-          Control plane for real agent actions
+          Autonomy in thinking. Authority in action.
         </p>
       </section>
 
       <DeckSlide scrollRoot={scrollRoot} id={slideIds[1]}>
         <p
-          className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
+          className={`${demoMono} mb-6 text-center text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-600`}
         >
           Slide 2 · Open
         </p>
@@ -261,7 +241,7 @@ export function Gener8torPitchSlideDeck({
         <ul className="mt-12 max-w-lg space-y-6 text-center text-lg font-light leading-relaxed text-zinc-300 md:text-xl">
           <li>Agents take real-world actions</li>
           <li>Email, systems, workflows</li>
-          <li className="font-normal text-sky-300">
+          <li className="font-normal text-zinc-100">
             {"And what you're about to see is running live"}
           </li>
         </ul>
@@ -273,7 +253,7 @@ export function Gener8torPitchSlideDeck({
 
       <DeckSlide scrollRoot={scrollRoot} id={slideIds[2]}>
         <p
-          className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
+          className={`${demoMono} mb-6 text-center text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-600`}
         >
           Slide 3 · Consequence
         </p>
@@ -285,7 +265,7 @@ export function Gener8torPitchSlideDeck({
 
       <DeckSlide scrollRoot={scrollRoot} id={slideIds[3]}>
         <p
-          className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
+          className={`${demoMono} mb-6 text-center text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-600`}
         >
           Slide 4 · The gap
         </p>
@@ -294,7 +274,7 @@ export function Gener8torPitchSlideDeck({
           <li>
             Enterprises track agents — registries, catalogs, governance layers.
           </li>
-          <li className="text-sky-200/85">
+          <li className="text-zinc-100">
             Most of that is visibility — not what happens at execution.
           </li>
           <li>
@@ -310,7 +290,7 @@ export function Gener8torPitchSlideDeck({
 
       <DeckSlide scrollRoot={scrollRoot} id={slideIds[4]}>
         <p
-          className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
+          className={`${demoMono} mb-6 text-center text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-600`}
         >
           Slide 5 · Jarvis
         </p>
@@ -326,7 +306,7 @@ export function Gener8torPitchSlideDeck({
 
       <DeckSlide scrollRoot={scrollRoot} id={slideIds[5]}>
         <p
-          className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
+          className={`${demoMono} mb-6 text-center text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-600`}
         >
           Slide 6 · Handoff
         </p>
@@ -339,7 +319,7 @@ export function Gener8torPitchSlideDeck({
         <Subtitle className="mx-auto mt-8 max-w-xl text-zinc-300">
           Same stack — OpenClaw proposes, Jarvis governs. Most stacks give you
           logs.{" "}
-          <span className="font-medium text-sky-200/95">Jarvis gives you proof.</span>
+          <span className="font-medium text-zinc-100">Jarvis gives you proof.</span>
         </Subtitle>
         <p className="mx-auto mt-6 max-w-sm text-center text-sm text-zinc-500">
           Live: intercept → gate → execute → attributable outcome
@@ -347,7 +327,7 @@ export function Gener8torPitchSlideDeck({
         <button
           type="button"
           onClick={onCta}
-          className="mt-16 inline-flex min-w-[12rem] items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 px-10 py-3.5 text-sm font-medium text-zinc-100 transition-colors duration-200 hover:border-sky-800/50 hover:bg-zinc-800"
+          className="mt-16 inline-flex min-w-[12rem] items-center justify-center rounded-full border border-zinc-600 bg-zinc-900 px-10 py-3.5 text-sm font-medium text-zinc-100 transition-colors duration-200 hover:border-zinc-500 hover:bg-zinc-800"
         >
           {ctaLabel}
         </button>
@@ -370,7 +350,7 @@ export function Gener8torPitchSlideDeck({
             className={cn(
               "rounded-full transition-[width,height,background-color] duration-200",
               active === i
-                ? "h-2 w-2 bg-sky-400"
+                ? "h-2 w-2 bg-zinc-200"
                 : "h-1.5 w-1.5 bg-zinc-600 hover:bg-zinc-500",
             )}
           />

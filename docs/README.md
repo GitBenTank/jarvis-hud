@@ -25,7 +25,7 @@ Then **`pnpm machine-wired`**, **`pnpm local:stack:doctor`**, and (when exercisi
 | If you are… | Open this first |
 |-------------|-----------------|
 | **New to Jarvis** | [Welcome — what is Jarvis?](getting-started/welcome.md) |
-| **Investor or advisor** | [Gener8tor pitch](strategy/gener8tor-pitch.md) · [Room playbook](strategy/room-playbook-v1.md) · [90s proof](video/90s-proof-demo.md) |
+| **Investor or advisor** | **HUD:** `/docs/tati` — or [investor-read-pack.md](strategy/investor-read-pack.md) (same four links). Then [Gener8tor pitch](strategy/gener8tor-pitch.md) · [Room playbook](strategy/room-playbook-v1.md) · [90s proof](video/90s-proof-demo.md) |
 | **Technical diligence** | [Thesis Lock ADR](decisions/0001-thesis-lock.md) · [System overview](architecture/jarvis-openclaw-system-overview.md) · [Security model](architecture/security-model.md) |
 | **Operator / building locally** | [Operators — start here](#operators--start-here) · [Local stack startup](setup/local-stack-startup.md) · [Operator checklist](setup/openclaw-jarvis-operator-checklist.md) |
 

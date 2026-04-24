@@ -307,6 +307,11 @@ export const DOCS_NEWCOMERS: DocsLibraryStartItem[] = [
 /** Narrative & diligence — still readable without running code */
 export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
   {
+    href: "/docs/tati",
+    title: "Investor read pack (canonical four)",
+    description: "Fixed 15-minute order: pitch, room, Thesis Lock, flagship team.",
+  },
+  {
     href: "/docs/strategy/gener8tor-pitch",
     title: "Investor pitch (slides + demo)",
     description: "Five-slide, consequence-first narrative.",

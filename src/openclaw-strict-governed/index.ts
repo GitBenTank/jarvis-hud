@@ -20,7 +20,10 @@ export { createStrictGovernedRegistry, type StrictGovernedRegistry } from "./reg
 export { readGovernedFile } from "./tools/readGovernedFile";
 export { proposeCodeApply } from "./tools/proposeCodeApply";
 export {
+  proposeAlfredIntakeSystemNote,
   proposeResearchSystemNote,
+  FLAGSHIP_FLOW_1_ALFRED_INTAKE_GREP_ANCHOR,
+  FLAGSHIP_FLOW_1_BUNDLE_CORRELATION_ID,
   FLAGSHIP_FLOW_1_GREP_ANCHOR,
 } from "./tools/proposeResearchSystemNote";
 export { applyPatchDirect } from "./tools/applyPatchDirect";

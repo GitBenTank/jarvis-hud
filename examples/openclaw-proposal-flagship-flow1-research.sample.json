@@ -4,13 +4,14 @@
   "builder": "forge",
   "provider": "openai",
   "model": "openai/gpt-4o",
+  "correlationId": "flagship-bundle-eu-ai-act-001",
   "title": "Evidence digest: EU AI Act — applicability vs. GPAI (Q1 2026 scope)",
   "summary": "Capture Research's ResearchEvidencePack: 4 sources, 2 high-confidence claims, 3 explicit unknowns; links to quotes; recommends deeper pull on Title II only if user approves a follow-on note.",
   "payload": {
-    "note": "grep_anchor: flagship-flow-1-eu-ai-act-digest\n\n## Scope\nUser asked for Q1 2026 applicability vs GPAI rules.\n\n## Sources (illustrative)\n1. EUR-Lex consolidated text — retrieved 2026-04-18\n2. Commission FAQ — high-level only\n\n## Claims\n- **High confidence:** Act applies to providers placing AI on EU market.\n- **High confidence:** GPAI chapter adds obligations distinct from classical high-risk.\n\n## Unknowns\n- Exact timeline edge for existing systems.\n- National competent authority mapping for our use case.\n- Title II depth not fully reviewed.\n\n## Next\nPropose a follow-on `system.note` for Title II only after operator approves."
+    "note": "grep_anchor: flagship-flow-1-eu-ai-act-digest\n\ncorrelation_id: flagship-bundle-eu-ai-act-001\n\n## Alfred intake (handoff)\nAlfred recorded: user asked for Q1 2026 applicability vs. GPAI; consent to governed notes; Research owns evidence. See prior `system.note` with `grep_anchor: flagship-flow-1-alfred-intake` and same `correlationId`.\n\n## Scope\nUser asked for Q1 2026 applicability vs GPAI rules.\n\n## Sources (illustrative)\n1. EUR-Lex consolidated text — retrieved 2026-04-18\n2. Commission FAQ — high-level only\n\n## Claims\n- **High confidence:** Act applies to providers placing AI on EU market.\n- **High confidence:** GPAI chapter adds obligations distinct from classical high-risk.\n\n## Unknowns\n- Exact timeline edge for existing systems.\n- National competent authority mapping for our use case.\n- Title II depth not fully reviewed.\n\n## Next\nPropose a follow-on `system.note` for Title II only after operator approves."
   },
   "source": {
     "connector": "openclaw",
-    "agentId": "openclaw-flagship-flow1-demo"
+    "agentId": "openclaw-flagship-research-digest"
   }
 }

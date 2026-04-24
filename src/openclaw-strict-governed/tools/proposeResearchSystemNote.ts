@@ -1,7 +1,16 @@
 import { submitOpenClawIngress } from "../jarvisClient";
 
-/** Grep anchor aligned with `docs/strategy/flagship-team-bundle-v1.md` Flow 1. */
+/** Grep anchor aligned with `docs/strategy/flagship-team-bundle-v1.md` Flow 1 (Research digest). */
 export const FLAGSHIP_FLOW_1_GREP_ANCHOR = "flagship-flow-1-eu-ai-act-digest";
+
+/** Grep anchor for the Alfred intake `system.note` in the same bundle (distinct coordinator). */
+export const FLAGSHIP_FLOW_1_ALFRED_INTAKE_GREP_ANCHOR = "flagship-flow-1-alfred-intake";
+
+/**
+ * Stable id to correlate Alfred intake + Research digest proposals in logs and the HUD
+ * (optional in ingress; pair both sample JSON files with this value).
+ */
+export const FLAGSHIP_FLOW_1_BUNDLE_CORRELATION_ID = "flagship-bundle-eu-ai-act-001";
 
 export type ProposeResearchSystemNoteInput = {
   title: string;
@@ -54,19 +63,19 @@ function validateCoreFields(
   sourceAgentId: string,
   agent: string
 ): void {
-  if (!title) throw new Error("proposeResearchSystemNote: title is required");
+  if (!title) throw new Error("system.note proposal: title is required");
   if (title.length > 120) {
-    throw new Error("proposeResearchSystemNote: title must be ≤ 120 chars");
+    throw new Error("system.note proposal: title must be ≤ 120 chars");
   }
-  if (!summary) throw new Error("proposeResearchSystemNote: summary is required");
+  if (!summary) throw new Error("system.note proposal: summary is required");
   if (summary.length > 500) {
-    throw new Error("proposeResearchSystemNote: summary must be ≤ 500 chars");
+    throw new Error("system.note proposal: summary must be ≤ 500 chars");
   }
-  if (!note) throw new Error("proposeResearchSystemNote: note is required");
+  if (!note) throw new Error("system.note proposal: note is required");
   if (!sourceAgentId) {
-    throw new Error("proposeResearchSystemNote: sourceAgentId is required");
+    throw new Error("system.note proposal: sourceAgentId is required");
   }
-  if (!agent) throw new Error("proposeResearchSystemNote: agent is required");
+  if (!agent) throw new Error("system.note proposal: agent is required");
 }
 
 function noteWithOptionalAnchor(
@@ -90,7 +99,7 @@ function attachOptionalIngressFields(
   const md = input.markdown?.trim();
   if (!md) return;
   if (md.length > 20_000) {
-    throw new Error("proposeResearchSystemNote: markdown must be ≤ 20,000 chars");
+    throw new Error("system.note proposal: markdown must be ≤ 20,000 chars");
   }
   body.markdown = md;
 }
@@ -128,14 +137,10 @@ function buildResearchSystemNoteBody(
   return body;
 }
 
-/**
- * Submits a `system.note` proposal to Jarvis ingress only — does not persist notes locally.
- * Use after Alfred intake + Research evidence work; operator must Approve + Execute in the HUD.
- */
-export async function proposeResearchSystemNote(
-  input: ProposeResearchSystemNoteInput
+async function postSystemNoteIngress(
+  body: Record<string, unknown>,
+  okMessage: string
 ): Promise<ProposeResearchSystemNoteResult> {
-  const body = buildResearchSystemNoteBody(input);
   const res = await submitOpenClawIngress(body);
 
   if (res.ok) {
@@ -143,7 +148,7 @@ export async function proposeResearchSystemNote(
       ok: true,
       proposalId: res.id,
       traceId: res.traceId,
-      message: "Research system.note proposal submitted to Jarvis.",
+      message: okMessage,
     };
   }
 
@@ -153,4 +158,40 @@ export async function proposeResearchSystemNote(
     status: res.status,
     rawBody: res.rawBody,
   };
+}
+
+/**
+ * Submits a `system.note` proposal to Jarvis ingress only — does not persist notes locally.
+ * Use after Alfred intake + Research evidence work; operator must Approve + Execute in the HUD.
+ */
+export async function proposeResearchSystemNote(
+  input: ProposeResearchSystemNoteInput
+): Promise<ProposeResearchSystemNoteResult> {
+  const body = buildResearchSystemNoteBody(input);
+  return postSystemNoteIngress(body, "Research system.note proposal submitted to Jarvis.");
+}
+
+/** Input for Alfred’s intake note (defaults: `agent: alfred`, Alfred grep anchor). */
+export type ProposeAlfredIntakeSystemNoteInput = Omit<
+  ProposeResearchSystemNoteInput,
+  "agent" | "grepAnchor"
+> & {
+  agent?: string;
+  grepAnchor?: string;
+};
+
+/**
+ * Submits Alfred’s intake `system.note` (routing, consent summary) — same governed path as Research.
+ * Run **before** `proposeResearchSystemNote` when demoing the full flagship bundle.
+ */
+export async function proposeAlfredIntakeSystemNote(
+  input: ProposeAlfredIntakeSystemNoteInput
+): Promise<ProposeResearchSystemNoteResult> {
+  const merged: ProposeResearchSystemNoteInput = {
+    ...input,
+    agent: input.agent ?? "alfred",
+    grepAnchor: input.grepAnchor ?? FLAGSHIP_FLOW_1_ALFRED_INTAKE_GREP_ANCHOR,
+  };
+  const body = buildResearchSystemNoteBody(merged);
+  return postSystemNoteIngress(body, "Alfred intake system.note proposal submitted to Jarvis.");
 }

@@ -108,22 +108,36 @@ Create a Jarvis proposal for a system note called "Alfred live test". Output JSO
 
 Use a valid `kind` (e.g. `system.note`). For `system.note`, put body text in `payload.note` (not only `content`) so Jarvis normalizes correctly.
 
-### 4b. Flagship Flow 1 — Research `system.note` (end-to-end shape)
+### 4b. Flagship Flow 1 — Alfred intake → Research digest (full bundle)
 
-**Product intent:** Alfred handles intake; **Research** owns the evidence proposal; Jarvis holds approve + execute.
+**Product intent:** **Alfred** and **Research** are distinct coordinators on the **same** governed `system.note` path; Jarvis holds approve + execute for **each** proposal (Thesis Lock: no shortcut around the gate).
 
-**A. Submit the canonical sample (signed `jarvis:submit`):**
+**A. Submit order (two proposals, same bundle):**
+
+Shared **`correlationId`:** `flagship-bundle-eu-ai-act-001` (grep logs / pair cards in demos).
+
+1. **Alfred intake** — coordinator `alfred`, grep anchor `flagship-flow-1-alfred-intake`:
 
 ```bash
 cd ~/Documents/jarvis-hud
+pnpm jarvis:submit --file examples/openclaw-proposal-flagship-flow1-alfred-intake.sample.json
+```
+
+In the HUD: **Approve** → **Execute** → confirm artifact / receipt (same honesty as rehearsal).
+
+2. **Research digest** — coordinator `research`, grep anchor `flagship-flow-1-eu-ai-act-digest`:
+
+```bash
 pnpm jarvis:submit --file examples/openclaw-proposal-flagship-flow1-research.sample.json
 ```
 
-The file uses **`agent`: `research`**, kind **`system.note`**, and grep anchor **`flagship-flow-1-eu-ai-act-digest`** inside `payload.note` (see [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md)).
+Again: **Approve** → **Execute** → receipt. The Research note body references the Alfred handoff and the same `correlationId`.
 
-**B. Strict-governed OpenClaw (reference registry):** tool **`proposeResearchSystemNote`** in `src/openclaw-strict-governed/` builds the same ingress shape and calls `submitOpenClawIngress` — wire it after Research produces `title` / `summary` / `note` from an Alfred-routed task.
+**Success bar:** intake copy reads like **routing/consent**, not evidence; Research note carries **claims/sources**; both show **OpenClaw (verified)** ingress, **LOW** risk, and **Execute** produces real paths — compare to your rehearsal batch and confirm it feels like one team, not a single blended chat blob.
 
-**C. In Jarvis:** open the proposal card — expect **Research** metadata, **Low** risk posture for `system.note`, then **Approve** and **Execute** only in the HUD.
+**B. Strict-governed OpenClaw (reference registry):** **`proposeAlfredIntakeSystemNote`** then **`proposeResearchSystemNote`** (`src/openclaw-strict-governed/`) — same ingress client as samples; pass the same **`correlationId`** from constants in code (`FLAGSHIP_FLOW_1_BUNDLE_CORRELATION_ID`).
+
+**C. Research-only shortcut:** if you only need the digest card, submitting the Research file alone still matches the bundle doc’s single-proposal example shape; the two-step path is the **full** flagship team demo.
 
 ---
 

@@ -24,4 +24,5 @@ export type StrictGovernedToolName =
   | "readGovernedFile"
   | "proposeCodeApply"
   | "proposeResearchSystemNote"
+  | "proposeAlfredIntakeSystemNote"
   | "applyPatchDirect";

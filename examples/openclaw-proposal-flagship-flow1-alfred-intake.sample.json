@@ -1,0 +1,17 @@
+{
+  "kind": "system.note",
+  "agent": "alfred",
+  "builder": "forge",
+  "provider": "openai",
+  "model": "openai/gpt-4o",
+  "correlationId": "flagship-bundle-eu-ai-act-001",
+  "title": "Intake: EU AI Act — applicability vs. GPAI (route to Research)",
+  "summary": "User asked for Q1 2026 scope; consent to file governed notes; hand off to Research for evidence pack and digest. No execution until HUD approve + execute.",
+  "payload": {
+    "note": "grep_anchor: flagship-flow-1-alfred-intake\n\n## User ask (verbatim)\nCompare EU AI Act applicability vs. GPAI obligations for our Q1 2026 planning.\n\n## Intake decisions\n- **Consent:** Operator agreed to governed `system.note` path (no outbound).\n- **Routing:** Research owns evidence + digest proposal next.\n- **Bundle id:** `flagship-bundle-eu-ai-act-001` (pair with Research proposal).\n\n## Out of scope for Alfred\nNo sources, no claims — Research produces the `ResearchEvidencePack`."
+  },
+  "source": {
+    "connector": "openclaw",
+    "agentId": "openclaw-flagship-alfred-intake"
+  }
+}

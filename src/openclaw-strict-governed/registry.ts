@@ -11,7 +11,9 @@ import {
   type ProposeCodeApplyResult,
 } from "./tools/proposeCodeApply";
 import {
+  proposeAlfredIntakeSystemNote,
   proposeResearchSystemNote,
+  type ProposeAlfredIntakeSystemNoteInput,
   type ProposeResearchSystemNoteInput,
   type ProposeResearchSystemNoteResult,
 } from "./tools/proposeResearchSystemNote";
@@ -49,6 +51,14 @@ function buildDefaultRegistry(): Map<StrictGovernedToolName, ToolEntry> {
       ) as Promise<ProposeResearchSystemNoteResult>,
   });
 
+  m.set("proposeAlfredIntakeSystemNote", {
+    classification: "jarvis-proposal",
+    invoke: (args) =>
+      proposeAlfredIntakeSystemNote(
+        args as ProposeAlfredIntakeSystemNoteInput
+      ) as Promise<ProposeResearchSystemNoteResult>,
+  });
+
   m.set("applyPatchDirect", {
     classification: "governed-mutation",
     invoke: (args) =>
@@ -79,7 +89,12 @@ export function createStrictGovernedRegistry(): StrictGovernedRegistry {
   return {
     get registeredNames(): StrictGovernedToolName[] {
       if (strictGovernedModeEnabled()) {
-        return ["readGovernedFile", "proposeCodeApply", "proposeResearchSystemNote"];
+        return [
+          "readGovernedFile",
+          "proposeCodeApply",
+          "proposeAlfredIntakeSystemNote",
+          "proposeResearchSystemNote",
+        ];
       }
       return [...tools.keys()];
     },

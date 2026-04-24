@@ -63,6 +63,7 @@ describe("openclaw-strict-governed", () => {
       assertNoUnsafeGovernedToolsInStrictMode([
         { id: "readGovernedFile", classification: "read-only" },
         { id: "proposeCodeApply", classification: "jarvis-proposal" },
+        { id: "proposeAlfredIntakeSystemNote", classification: "jarvis-proposal" },
         { id: "proposeResearchSystemNote", classification: "jarvis-proposal" },
       ])
     ).not.toThrow();
@@ -126,6 +127,7 @@ describe("openclaw-strict-governed", () => {
     expect(reg.registeredNames).toEqual([
       "readGovernedFile",
       "proposeCodeApply",
+      "proposeAlfredIntakeSystemNote",
       "proposeResearchSystemNote",
     ]);
     process.env.OPENCLAW_STRICT_GOVERNED = "false";
@@ -189,6 +191,51 @@ describe("openclaw-strict-governed", () => {
         agentId: "openclaw-test",
       });
       expect(typeof body.patch).toBe("string");
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it("proposeAlfredIntakeSystemNote submits system.note with alfred agent (mocked fetch)", async () => {
+    process.env.OPENCLAW_STRICT_GOVERNED = "true";
+    process.env.JARVIS_INGRESS_OPENCLAW_SECRET = "x".repeat(32);
+    process.env.JARVIS_BASE_URL = "http://127.0.0.1:9";
+
+    const calls: { url: string; init: RequestInit }[] = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      calls.push({ url, init: init ?? {} });
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          id: "alfred-intake-uuid",
+          traceId: "alfred-trace-uuid",
+          status: "pending",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    };
+
+    try {
+      const reg = createStrictGovernedRegistry();
+      const result = (await reg.invoke("proposeAlfredIntakeSystemNote", {
+        title: "Intake: EU AI Act — route to Research",
+        summary: "Handoff only; Research produces digest next.",
+        note: "Routing line.",
+        sourceAgentId: "openclaw-test-alfred",
+        correlationId: "flagship-bundle-eu-ai-act-001",
+      })) as { ok: boolean; proposalId: string; message: string };
+
+      expect(result.ok).toBe(true);
+      expect(result.proposalId).toBe("alfred-intake-uuid");
+
+      const body = JSON.parse(String(calls[0].init.body)) as Record<string, unknown>;
+      expect(body.kind).toBe("system.note");
+      expect(body.agent).toBe("alfred");
+      expect(body.correlationId).toBe("flagship-bundle-eu-ai-act-001");
+      const payload = body.payload as Record<string, unknown>;
+      expect(String(payload.note)).toContain("flagship-flow-1-alfred-intake");
     } finally {
       globalThis.fetch = realFetch;
     }

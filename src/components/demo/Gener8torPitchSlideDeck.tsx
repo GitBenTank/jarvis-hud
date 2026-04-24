@@ -16,9 +16,12 @@ const demoMono =
   "[font-family:var(--font-demo-mono),ui-monospace,monospace]" as const;
 
 function ConsequenceTypewriter() {
-  const prefix = "Without a control layer, this would have ";
-  const reveal = "sent a real email to an external recipient.";
+  const line1Prefix = "Without this layer, these actions would be ";
+  const line1Reveal = "allowed to run immediately—with no human gate.";
+  const line2 =
+    "That could mean sending an email, modifying code, or hitting an API. Today you see system notes—the control is the same.";
   const [revealLen, setRevealLen] = useState(0);
+  const [line1Done, setLine1Done] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,8 +32,9 @@ function ConsequenceTypewriter() {
         if (cancelled) return;
         len += 1;
         setRevealLen(len);
-        if (len >= reveal.length && intervalId !== undefined) {
+        if (len >= line1Reveal.length && intervalId !== undefined) {
           globalThis.clearInterval(intervalId);
+          setLine1Done(true);
         }
       }, 34);
     }, 400);
@@ -39,18 +43,28 @@ function ConsequenceTypewriter() {
       globalThis.clearTimeout(startId);
       if (intervalId !== undefined) globalThis.clearInterval(intervalId);
     };
-  }, [reveal.length]);
+  }, [line1Reveal.length]);
 
   return (
-    <p className="mx-auto mt-10 max-w-2xl text-center text-xl leading-relaxed text-zinc-200 md:text-2xl">
-      <span className="text-zinc-300">{prefix}</span>
-      <span className="font-medium text-sky-200/95">
-        {reveal.slice(0, revealLen)}
-        {revealLen < reveal.length ? (
-          <span className="ml-0.5 inline-block h-[1em] w-0.5 animate-pulse bg-sky-400/80 align-middle" />
-        ) : null}
-      </span>
-    </p>
+    <div className="mx-auto mt-10 max-w-2xl space-y-6 text-center text-xl leading-relaxed text-zinc-200 md:text-2xl">
+      <p>
+        <span className="text-zinc-300">{line1Prefix}</span>
+        <span className="font-medium text-sky-200/95">
+          {line1Reveal.slice(0, revealLen)}
+          {revealLen < line1Reveal.length ? (
+            <span className="ml-0.5 inline-block h-[1em] w-0.5 animate-pulse bg-sky-400/80 align-middle" />
+          ) : null}
+        </span>
+      </p>
+      <p
+        className={cn(
+          "text-base font-normal text-zinc-400 transition-opacity duration-500 md:text-lg",
+          line1Done ? "opacity-100" : "opacity-0",
+        )}
+      >
+        {line2}
+      </p>
+    </div>
   );
 }
 

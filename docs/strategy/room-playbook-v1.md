@@ -27,7 +27,7 @@ Deliver **exactly three things** in the opening beat:
 |------|------|------------------|
 | **1 · Core idea** | One sentence on the problem you own | AI agents can take real actions, but there’s **no authority layer** at execution. |
 | **2 · Supporting frame** | **Pick one** analogy — never stack them | It’s like a **control plane**: you **separate** decision from execution. |
-| **3 · Consequence** | One concrete “would have happened” | Without that layer, **this would have sent a real email** (swap: code / API). |
+| **3 · Consequence** | Uncontrolled execution (then anchor) | Without that layer, **actions would be allowed to run immediately**—then *e.g.* email / code / API so it stays concrete without faking what’s on screen. |
 
 Everything else—last mile, last reversible moment, evidence vs logs, proposal governance—is for **Q&A**, not the opener.
 

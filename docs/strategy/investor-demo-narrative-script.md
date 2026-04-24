@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.6
+version: 1.7
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -29,7 +29,7 @@ This document is **spoken copy** + **stage directions** + **delivery notes**. It
 ## Memorize (room + camera)
 
 1. **Reality** — Agents take real actions (email, code, systems, APIs).  
-2. **Consequence** — Without a control layer, this would have **[email | code | API — pick one]** in a real system. Say it **before** the queue UI lands.  
+2. **Consequence** — Without this layer, actions would be **allowed to run immediately** (uncontrolled). **Anchor** with email / code / API **examples** so it stays real—without implying the **on-screen** demo already did that effect when you are on **`system.note`**. Say it **before** the queue UI lands.  
 3. **Insight** — The model is not the authority.  
 4. **System** — Jarvis: propose → approve → execute → receipt → trace.  
 5. **Proof** — Live demo → receipt → trace → real artifact (e.g. Gmail).
@@ -54,7 +54,11 @@ Agents are now capable of taking real-world actions — sending emails, modifyin
 
 *(Pause.)*
 
-Without a control layer, that outbound path would read like any other tool call — a real message to a real recipient, with no durable moment that says a human owned that decision.
+Without this layer, those actions would be **allowed to run immediately** — no separate moment where a human owns the decision.
+
+*(Tiny pause.)*
+
+That could mean sending an email, modifying code, or hitting an API. **On screen today** you’ll see **`system.note`** — same **control** boundary, different risk class.
 
 *(Pause.)*
 

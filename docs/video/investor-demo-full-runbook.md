@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 1.6
+version: 1.7
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -93,7 +93,7 @@ Use the **full woven script** in [investor-demo-narrative-script.md](../strategy
 **Transition (before live HUD):** Two beats (don’t rush the line break):
 
 1. “This isn’t just a diagram—**this is running**.”
-2. “And **without this layer**… these actions would **already be happening**.”
+2. “And **without this layer**… these actions would be **allowed to run immediately**—no human gate.” *(Optional second beat:)* “That could mean email, code, an API—**you’re seeing `system.note`, but the boundary is the same.**”
 
 **Then** switch to HUD (and OpenClaw Chat if driving Flow 1 from there).
 
@@ -102,7 +102,7 @@ Use the **full woven script** in [investor-demo-narrative-script.md](../strategy
 1. **Scope (say once):** “Today I’m showing this with **system notes**—but the **same boundary** applies to **email, code, and real external actions**.” (Stops the room from thinking this is only note-taking.)
 2. **Alfred intake** — first `system.note`: “Nothing has happened yet. This is just a proposal.”
 3. **Research digest** — second `system.note`.
-4. **Key moment (consequence):** Say: “**If this system didn’t exist, both of these would have already run.**” **Micro-pause:** deliver the line → **look at them** → count **1… 2** in your head → then continue. That silence is where risk lands. Then: “**Instead, nothing happens until I explicitly approve**—and **even then, execution is a separate step**.” **Correlation / two-card detail (optional):** If the room is technical, add one line: two proposals, one **correlationId**, **independent** approve/execute—no fake batching. If not technical, **skip**—don’t trade momentum for explanation.
+4. **Key moment (consequence):** Say: “**If this system didn’t exist, both of these would be allowed to run immediately**—**uncontrolled**.” **Micro-pause:** deliver the line → **look at them** → count **1… 2** in your head → then continue. That silence is where risk lands. Then: “**Instead, nothing happens until I explicitly approve**—and **even then, execution is a separate step**.” **Correlation / two-card detail (optional):** If the room is technical, add one line: two proposals, one **correlationId**, **independent** approve/execute—no fake batching. If not technical, **skip**—don’t trade momentum for explanation.
 5. **Pending** — Point at pending state. Say: “**This is the system holding the line.**” Then (if needed): “Nothing runs automatically.”
 6. **Approve** — “Approval is explicit—and it does **not** execute anything.” (**Slow down** here.)
 7. **Execute** — “Execution is a **separate** step.”

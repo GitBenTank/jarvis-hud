@@ -1,7 +1,7 @@
 ---
 title: "Gener8tor pitch — 5 slides + consequence-first demo"
 status: living-document
-version: 1.3
+version: 1.4
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -22,7 +22,7 @@ related:
 
 **Principle:** The audience should feel **consequence before chrome**. If they see the HUD first without the stakes line, the demo reads as “cool dashboard.” If they hear **what would have happened without the layer** first, it reads as **necessary infrastructure**.
 
-**In-product:** **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) opens the **cinematic five-slide deck** (same slides as phase 1 of **`/demo`**). **`?view=markdown`** on that URL shows this file in the minimal reader. **`/demo`** continues with **transition → live proof scroll** (`DemoExperience.tsx`). Slide 2 uses a short typewriter on the email consequence line; no tables before stakes.
+**In-product:** **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) opens the **cinematic five-slide deck** (same slides as phase 1 of **`/demo`**). **`?view=markdown`** on that URL shows this file in the minimal reader. **`/demo`** continues with **transition → live proof scroll** (`DemoExperience.tsx`). Slide 2 uses a short typewriter on **capability consequence** (allowed to run immediately), then a second line anchoring email/code/API and **`system.note`**; no tables before stakes.
 
 ---
 
@@ -86,7 +86,9 @@ related:
 
 ### Block 2 — Consequence (10–15s) — before any queue UI
 
-Pick **one** line; do not hedge:
+**Default (system.note on screen):** *“Without this layer, these actions would be allowed to run immediately—no human gate.”* *(Pause.)* *“That could mean email, code, or an API. You’re seeing system notes—the control is the same.”*
+
+**When the live demo is literally `send_email`:** pick **one** line; do not hedge:
 
 - **Email:** *“Without a control layer, that outbound path would fire like any other tool call—a real message to a real recipient, with no durable moment that says a human owned that decision.”*
 - **Code:** *“Without a control layer, this would have modified real code on a real branch—or worse, the path everyone actually deploys from.”*

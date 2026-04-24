@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 1.7
+version: 1.8
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -16,7 +16,7 @@ related:
 
 # Investor demo — full operator runbook
 
-Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). **Five-slide + block-timed narration:** [gener8tor-pitch.md](../strategy/gener8tor-pitch.md). On-screen beats that mirror that script: **`/demo`** — **five full-screen slides** (Gener8tor narrative), **transition** (“This is not a concept. This is running.”), then the **cinematic proof** scroll (lifecycle, mock, HUD link). Integration and origin banners are hidden on `/demo` for a clean recording surface.
+Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). **Six-slide + block-timed narration:** [gener8tor-pitch.md](../strategy/gener8tor-pitch.md). On-screen beats: **`/demo`** — **six full-screen slides** (hero **Jarvis** + thesis, then Gener8tor narrative), **transition** (“This is not a concept. This is running.”), then the **cinematic proof** scroll (lifecycle, mock, HUD link). Integration and origin banners are hidden on `/demo` for a clean recording surface.
 
 **Thesis Lock:** [jarvis-hud-video-thesis.md](../strategy/jarvis-hud-video-thesis.md).
 

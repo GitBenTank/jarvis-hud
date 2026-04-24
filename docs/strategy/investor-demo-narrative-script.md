@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.8
+version: 1.9
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -19,8 +19,8 @@ related:
 Canonical product thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock).  
 Live demo steps: [DEMO.md](../../DEMO.md).  
 **Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).  
-**Cinematic beats:** **`/demo`** opens with **five slides** in the same order as this document: **Open → Consequence → The gap → Jarvis → Demo handoff** (`Gener8torPitchSlideDeck.tsx`), then a **transition**, then the **cinematic proof** scroll. Implementation: `DemoExperience.tsx`, `InvestorPitchSlides.tsx`, `DemoCinematicScroll.tsx`.  
-**Gener8tor / five-slide + timed demo blocks:** [gener8tor-pitch.md](./gener8tor-pitch.md).
+**Cinematic beats:** **`/demo`** opens with **six slides**: **Jarvis (hero + thesis)** → **Open → Consequence → The gap → Jarvis (lock-in) → Demo handoff** (`Gener8torPitchSlideDeck.tsx`), then a **transition**, then the **cinematic proof** scroll. Implementation: `DemoExperience.tsx`, `InvestorPitchSlides.tsx`, `DemoCinematicScroll.tsx`.  
+**Gener8tor / six-slide + timed demo blocks:** [gener8tor-pitch.md](./gener8tor-pitch.md).
 
 This document is **spoken copy** + **stage directions** + **delivery notes**. It does not replace Thesis Lock. There is no separate setup section in the on-camera flow; the stack is **live** from the first scroll.
 

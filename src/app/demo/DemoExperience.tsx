@@ -27,9 +27,9 @@ function Ambient() {
 type Phase = "slides" | "transition" | "live";
 
 /**
- * /demo flow: five slides (woven script order: Open → Consequence → Gap →
- * Jarvis → Handoff) → full-screen transition → cinematic proof scroll. See
- * docs/strategy/gener8tor-pitch.md and investor-demo-narrative-script.md.
+ * /demo flow: six slides (Jarvis hero + thesis → Open → Consequence → Gap →
+ * Jarvis lock-in → Handoff) → full-screen transition → cinematic proof scroll.
+ * See docs/strategy/gener8tor-pitch.md and investor-demo-narrative-script.md.
  */
 export function DemoExperience() {
   const [phase, setPhase] = useState<Phase>("slides");

@@ -16,7 +16,7 @@ Use this as **speaker notes** and slide order. Keep slides visual; spoken narrat
 
 **Principle:** The demo is the proof. Slides set context; the live or recorded path (proposal → approval → execution → receipt → trace) is the anchor—do not bury it in an appendix.
 
-**Accelerator / five-slide compression:** [gener8tor-pitch.md](./gener8tor-pitch.md) (consequence-before-UI, slide copy, timed demo blocks).
+**Accelerator / six-slide compression:** [gener8tor-pitch.md](./gener8tor-pitch.md) (consequence-before-UI, slide copy, timed demo blocks).
 
 **Room discipline** (opener, 30s pitch, objections): [room-playbook-v1.md](./room-playbook-v1.md).
 

@@ -68,7 +68,7 @@ function ConsequenceTypewriter() {
   );
 }
 
-const SLIDE_COUNT = 5;
+const SLIDE_COUNT = 6;
 
 export function Gener8torPitchSlideDeck({
   slideIdPrefix,
@@ -139,7 +139,7 @@ export function Gener8torPitchSlideDeck({
     <div
       ref={scrollerRef}
       role="region"
-      aria-label="Gener8tor pitch — five slides"
+      aria-label="Gener8tor pitch — six slides"
       tabIndex={0}
       onKeyDown={onKeyDown}
       className={cn(
@@ -149,15 +149,31 @@ export function Gener8torPitchSlideDeck({
     >
       <section
         id={slideIds[0]}
+        aria-label="Jarvis"
+        className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
+      >
+        <Title
+          as="h1"
+          className="!max-w-4xl !text-5xl sm:!text-6xl md:!text-7xl lg:!text-[5.25rem]"
+        >
+          Jarvis
+        </Title>
+        <Subtitle className="mt-8 max-w-lg text-balance text-zinc-300 sm:mt-10 md:text-2xl">
+          Autonomy in thinking. Authority in action.
+        </Subtitle>
+      </section>
+
+      <section
+        id={slideIds[1]}
         className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
       >
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 1 · Open
+          Slide 2 · Open
         </p>
         <Title as="h1" className="!max-w-3xl">
-          Jarvis — three forces collide at once
+          Three forces collide at once
         </Title>
         <ul className="mt-10 max-w-lg space-y-3 text-center text-lg text-zinc-300 md:text-xl">
           <li>Agents take real-world actions</li>
@@ -171,13 +187,13 @@ export function Gener8torPitchSlideDeck({
       </section>
 
       <section
-        id={slideIds[1]}
+        id={slideIds[2]}
         className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
       >
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 2 · Consequence
+          Slide 3 · Consequence
         </p>
         <Title className="!max-w-3xl">
           No moment where a human owns the decision
@@ -186,13 +202,13 @@ export function Gener8torPitchSlideDeck({
       </section>
 
       <section
-        id={slideIds[2]}
+        id={slideIds[3]}
         className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
       >
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 3 · The gap
+          Slide 4 · The gap
         </p>
         <Title className="!max-w-3xl">{"That's the gap"}</Title>
         <ul className="mx-auto mt-10 max-w-xl space-y-4 text-center text-lg leading-relaxed text-zinc-300 md:text-xl">
@@ -212,13 +228,13 @@ export function Gener8torPitchSlideDeck({
       </section>
 
       <section
-        id={slideIds[3]}
+        id={slideIds[4]}
         className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
       >
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 4 · Jarvis
+          Slide 5 · Jarvis
         </p>
         <Title className="!max-w-4xl !text-3xl sm:!text-4xl md:!text-5xl">
           Approval ≠ execution — plus proof
@@ -228,21 +244,16 @@ export function Gener8torPitchSlideDeck({
             "Jarvis doesn't manage agents — it governs execution. That's where authority lives."
           }
         </Subtitle>
-        <p
-          className={`${demoMono} mx-auto mt-8 max-w-md text-center text-xs uppercase tracking-[0.18em] text-zinc-500`}
-        >
-          Autonomy in thinking · Authority in action
-        </p>
       </section>
 
       <section
-        id={slideIds[4]}
+        id={slideIds[5]}
         className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
       >
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 5 · Handoff
+          Slide 6 · Handoff
         </p>
         <Title as="h1" className="!max-w-2xl !text-3xl sm:!text-4xl md:!text-5xl">
           propose → approve → execute → receipt → trace

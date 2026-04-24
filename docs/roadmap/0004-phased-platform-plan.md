@@ -136,6 +136,7 @@ Per vertical, satisfy the **core rule** (specialist + kind + policy + adapter + 
 
 **Accomplish**
 
+- Narrative anchor for runtime vs authority and the end-to-end loop: [Runtime + OpenClaw team + Jarvis loop v1](../strategy/runtime-openclaw-jarvis-team-loop-v1.md).
 - Refine routing defaults; define when Alfred answers vs defers; when specialists hand back vs embed drafts.
 - **Operator v1** only if pain is recurring: queue shaping, packaging, orchestration, runbook ownership — document evidence before writing the spec.
 

@@ -1,7 +1,7 @@
 ---
 title: "Gener8tor pitch — 5 slides + consequence-first demo"
 status: living-document
-version: 1.5
+version: 1.6
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -30,7 +30,7 @@ related:
 
 ### Slide 1 — Open *(script: Open)*
 
-- **Headline:** Three forces collide at once.
+- **Headline:** Jarvis — three forces collide at once.
 - **Bullets:** Agents take real-world actions · Email, systems, workflows · What you’re about to see is running live.
 - **Footer on slide:** OpenClaw proposes locally → Jarvis ingress → held at approval before anything executes.
 - **Say:** Match [investor-demo-narrative-script.md](./investor-demo-narrative-script.md) **Open** through “running live” / ingress line.

@@ -157,7 +157,7 @@ export function Gener8torPitchSlideDeck({
           Slide 1 · Open
         </p>
         <Title as="h1" className="!max-w-3xl">
-          Three forces collide at once
+          Jarvis — three forces collide at once
         </Title>
         <ul className="mt-10 max-w-lg space-y-3 text-center text-lg text-zinc-300 md:text-xl">
           <li>Agents take real-world actions</li>

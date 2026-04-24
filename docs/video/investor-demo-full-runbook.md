@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 1.4
+version: 1.5
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -90,23 +90,36 @@ Use the **full woven script** in [investor-demo-narrative-script.md](../strategy
 
 **Slides (~1–2 min max):** Click through `/demo` — **propose → approve → execute → receipt → trace**. Keep it short; frame as “the model,” not a feature tour.
 
-**Transition (before live HUD):** “This isn’t just a diagram—**this is running**.” Then switch to HUD (and OpenClaw Chat if driving Flow 1 from there).
+**Transition (before live HUD):** “This isn’t just a diagram—**this is running**. And **without this layer**, these actions would **already be happening**.” **Then** switch to HUD (and OpenClaw Chat if driving Flow 1 from there).
 
 **Flow 1 — core (~5–7 min):**
 
-1. **Alfred intake** — first `system.note`: “Nothing has happened yet. This is just a proposal.”
-2. **Research digest** — second `system.note`.
-3. **Key line:** “These are **two separate proposals**—not one blob. They share a **correlation ID**, but they must be **approved and executed independently**.”
-4. **Pending** — “The system is holding everything. Nothing runs automatically.”
-5. **Approve** — “Approval is explicit—and it does **not** execute anything.”
-6. **Execute** — “Execution is a **separate** step.”
-7. **Proof** — receipt + trace; what was approved, what ran, reconstructable.
+1. **Scope (say once):** “Today I’m showing this with **system notes**—but the **same boundary** applies to **email, code, and real external actions**.” (Stops the room from thinking this is only note-taking.)
+2. **Alfred intake** — first `system.note`: “Nothing has happened yet. This is just a proposal.”
+3. **Research digest** — second `system.note`.
+4. **Key moment (consequence):** “**If this system didn’t exist, both of these would have already run.**” Pause. “**Instead, nothing happens until I explicitly approve**—and **even then, execution is a separate step**.” (Then you can add, if useful: two proposals, one correlation ID, **independent** approve/execute—no fake batching.)
+5. **Pending** — “The system is holding everything. Nothing runs automatically.”
+6. **Approve** — “Approval is explicit—and it does **not** execute anything.”
+7. **Execute** — “Execution is a **separate** step.”
+8. **Proof** — receipt + trace; what was approved, what ran, reconstructable. **Stop talking when proof is visible.**
 
-**Close:** Real actions are **gated**, **attributable**, and **provable**.
+**Close (sticky):** “**The agent generated the action. I controlled whether it ran. And now we have proof of what actually happened.**”
 
 **Hand-off (ask):** How to position this in investor conversations without sounding like generic “AI governance.”
 
 **Avoid on camera:** Deep OpenClaw internals; enumerating every agent; long scrolling; filling silence with jargon.
+
+---
+
+## Final checklist (before the meeting)
+
+Run mentally (or tick on paper):
+
+- Gateway stable (**19001** confirmed — `pnpm local:stack:doctor`).
+- HUD **Activity** clean enough to narrate (no distracting noise).
+- Both Flow 1 proposals **reproducible fast** (OpenClaw prompts or fallback `jarvis:submit` commands).
+- You land: **consequence** → **intercept** → **approve ≠ execute** → **receipt + trace**.
+- You **stop talking** when proof is on screen.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.5
+version: 1.6
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -122,6 +122,41 @@ This is the same local system — proposal from OpenClaw, governed and executed 
 
 Most stacks give you logs. Jarvis gives you proof.
 
+### Operator — OpenClaw + email (`send_email` proposal)
+
+Run **once** before you **hard cut** to the real HUD (or immediately after the handoff above). Same signed ingress as Flow 1; proposal file is **`scripts/demos/send-email-proposal.json`** (allowlisted demo recipient — see [DEMO.md](../../DEMO.md)). Server must have **`DEMO_EMAIL_USER`** / **`DEMO_EMAIL_PASS`** for SMTP after you execute.
+
+**Terminal (from `jarvis-hud`):**
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm jarvis:submit --file scripts/demos/send-email-proposal.json
+```
+
+**Same behavior, one wrapper** (loads `.env.local` like `pnpm openclaw:dev`):
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm demo:send-email
+```
+
+**OpenClaw → Chat** (paste; adjust path if your clone is not `~/Documents/jarvis-hud`):
+
+```
+Investor demo — submit governed send_email only.
+
+Follow workspace JARVIS.md: submit to Jarvis using the repo sample file—do not invent another submission path or use curl.
+
+Working directory: /Users/bentankersley/Documents/jarvis-hud
+
+Run:
+pnpm jarvis:submit --file scripts/demos/send-email-proposal.json
+
+Reply with the Jarvis proposal id and trace id (pending). Do not claim execution—the HUD approves and executes.
+```
+
+*(Then in the HUD: pending **`send_email`** → **Approve** → **Execute** → receipt/trace → **Gmail** proof below.)*
+
 ### Product *(on screen)*
 
 *(Move mouse slightly, deliberate.)*
@@ -146,7 +181,7 @@ Not logs — proof.
 
 This is the same lifecycle running in the actual system.
 
-*(Click through proposal → approval → execute → receipt.)*
+*(On screen: the pending **`send_email`** you submitted—**Approve** → **Execute** → receipt. Same lifecycle as `system.note`; different consequence when it runs.)*
 
 Every step is explicit.
 

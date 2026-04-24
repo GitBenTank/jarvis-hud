@@ -38,6 +38,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Still in the repo | Shown in default `/docs` index? |
 |-------------------|----------------------------------|
 | Most `docs/**/*.md` | **Yes** |
+| `docs/archive/**` (superseded copies kept for history) | **No** — direct URL or stub links only |
 | Dated video insight writeups under `research/video-insights/` (except [insight index](research/video-insights/insight-index.md) and the folder README) | **No** — intake notes; keep for staff |
 | [Social copy draft](marketing/social-copy.md) | **No** — internal GTM |
 | [Cursor ingress prompt](cursor-prompt-openclaw-ingress.md) | **No** — agent prompt fragment |

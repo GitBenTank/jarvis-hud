@@ -153,6 +153,8 @@ export function isExcludedFromPublicLibraryIndex(segments: string[]): boolean {
   const pathStr = segments.join("/");
   const leaf = segments[segments.length - 1] ?? "";
 
+  if (segments[0] === "archive") return true;
+
   if (pathStr === "marketing/social-copy") return true;
   if (pathStr === "cursor-prompt-openclaw-ingress") return true;
   if (pathStr === "interview-prep-jarvis") return true;

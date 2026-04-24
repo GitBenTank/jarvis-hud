@@ -232,5 +232,5 @@ If submission fails:
 - [Local stack startup — Jarvis + OpenClaw](local-stack-startup.md)  
 - [OpenClaw Control UI setup](openclaw-control-ui.md)  
 - [Trusted ingress / signing](../security/openclaw-ingress-signing.md)  
-- [OpenClaw agent identity on proposals](../openclaw-agent-identity.md)  
+- [OpenClaw proposal identity & v1 contract](../architecture/openclaw-proposal-identity-and-contract.md)  
 - [Local dev truth map](local-dev-truth-map.md)  

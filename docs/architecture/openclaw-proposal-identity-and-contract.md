@@ -32,6 +32,27 @@ Constant: `OPENCLAW_INGRESS_UNKNOWN_PROPOSER_AGENT` in `openclaw-proposal-identi
 
 ---
 
+## Quick reference: OpenClaw agent identity fields
+
+Skim only — **normative definitions and fallback rules** are in **Identity semantics** and **Intentional fallback when `agent` is omitted** above.
+
+| Field (ingress JSON) | Meaning | Stored on event |
+|----------------------|---------|-----------------|
+| `agent` | Coordinator / operator-facing label (e.g. **`alfred`**) | `event.agent` + durable actor fields (`actorId` / `actorLabel`) |
+| `builder` | Role that shaped proposal text (e.g. **Forge** as Alfred’s internal builder) | `event.builder` |
+| `provider` | LLM provider label (e.g. **openai**) | `event.provider` |
+| `model` | Model id string (e.g. **`openai/gpt-4o`**) | `event.model` |
+
+**Governance:** These fields are **labels for traceability only**. They do **not** grant approval, execution, or policy rights. Jarvis remains the control plane: humans approve; humans (or explicit Jarvis execution paths) execute; receipts and logs stay authoritative. OpenClaw agents **propose only**. **`provider`** and **`model`** are descriptive metadata and must not be read as execution authority.
+
+**`source.connector`:** Stays **`"openclaw"`** for transport only. It is **not** used as a silent substitute for **`agent`** when the coordinator label is missing (see fallback rules above).
+
+**`payload`:** Do **not** put `agent`, `builder`, `provider`, or `model` inside `payload`. Ingress strips them from `payload` so metadata cannot be spoofed alongside arbitrary proposal data.
+
+**Code:** `resolveOpenClawLogicalAgent` in `src/lib/ingress/openclaw-proposal-identity.ts`; ingress in `src/app/api/ingress/openclaw/route.ts`.
+
+---
+
 ## Minimal v1 contract
 
 ### Wire (strict validator: `validateOpenClawProposal`)

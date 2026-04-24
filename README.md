@@ -341,7 +341,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [Security model](docs/architecture/security-model.md)
 - [Policy decision logs](docs/architecture/policy-decision-logs.md)
 - [OpenClaw integration](docs/openclaw-integration-verification.md)
-- [OpenClaw coordinator / builder metadata](docs/openclaw-agent-identity.md)
+- [OpenClaw coordinator / builder metadata](docs/architecture/openclaw-proposal-identity-and-contract.md)
 - [Local verification: OpenClaw + Jarvis (command checklist)](docs/local-verification-openclaw-jarvis.md)
 - [Submit proposal JSON (`pnpm jarvis:submit`)](docs/jarvis-proposal-submit.md)
 - [Demo runbook](DEMO.md)

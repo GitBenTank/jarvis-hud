@@ -209,12 +209,11 @@ export function Gener8torPitchSlideDeck({
       <section
         id={slideIds[0]}
         aria-label="Jarvis"
-        className="relative flex min-h-dvh snap-start snap-always flex-col items-center justify-center overflow-hidden px-5 py-16 sm:px-8"
+        className="flex min-h-dvh snap-start snap-always flex-col items-center justify-center px-5 py-16 sm:px-8"
       >
-        <div className="demo-pitch-hero-glow" aria-hidden />
         <h1
           className={cn(
-            "relative z-10 max-w-5xl text-center text-6xl font-medium tracking-[-0.045em] sm:text-7xl md:text-8xl lg:text-[6.25rem] lg:leading-[0.92]",
+            "max-w-5xl text-center text-6xl font-semibold tracking-[-0.05em] sm:text-7xl md:text-8xl lg:text-[6rem] lg:leading-[0.95]",
             "demo-pitch-hero-title demo-pitch-hero-mount-1",
           )}
         >
@@ -222,27 +221,27 @@ export function Gener8torPitchSlideDeck({
         </h1>
         <div
           className={cn(
-            "relative z-10 mt-10 max-w-xl space-y-3 text-balance text-center",
+            "mt-12 max-w-xl space-y-2 text-balance text-center",
             "demo-pitch-hero-mount-2",
           )}
         >
-          <p className="text-lg font-normal text-zinc-200 md:text-2xl">
+          <p className="text-lg font-normal tracking-tight text-zinc-300 md:text-2xl md:font-light">
             Autonomy in thinking.
           </p>
-          <p className="text-lg font-semibold text-sky-200/95 md:text-2xl">
+          <p className="text-lg font-medium tracking-tight text-sky-300 md:text-2xl">
             Authority in action.
           </p>
         </div>
         <div
           className={cn(
-            "relative z-10 mt-14 h-px w-32 bg-gradient-to-r from-transparent via-sky-400/55 to-transparent sm:w-48",
+            "mt-16 h-px w-24 bg-gradient-to-r from-transparent via-zinc-600 to-transparent sm:w-36",
             "demo-pitch-hero-mount-3",
           )}
           aria-hidden
         />
         <p
           className={cn(
-            `${demoMono} relative z-10 mt-10 max-w-sm text-center text-[10px] font-medium uppercase tracking-[0.28em] text-zinc-500`,
+            `${demoMono} mt-12 max-w-sm text-center text-[10px] font-medium uppercase tracking-[0.32em] text-zinc-500`,
             "demo-pitch-hero-mount-3",
           )}
         >
@@ -259,14 +258,10 @@ export function Gener8torPitchSlideDeck({
         <Title as="h1" className="!max-w-3xl">
           Three forces collide at once
         </Title>
-        <ul className="mt-10 max-w-lg space-y-4 text-center text-lg leading-snug text-zinc-200 md:text-xl">
-          <li className="border-b border-zinc-800/80 pb-4">
-            Agents take real-world actions
-          </li>
-          <li className="border-b border-zinc-800/80 pb-4">
-            Email, systems, workflows
-          </li>
-          <li className="text-sky-200/90">
+        <ul className="mt-12 max-w-lg space-y-6 text-center text-lg font-light leading-relaxed text-zinc-300 md:text-xl">
+          <li>Agents take real-world actions</li>
+          <li>Email, systems, workflows</li>
+          <li className="font-normal text-sky-300">
             {"And what you're about to see is running live"}
           </li>
         </ul>
@@ -352,7 +347,7 @@ export function Gener8torPitchSlideDeck({
         <button
           type="button"
           onClick={onCta}
-          className="mt-14 inline-flex items-center justify-center rounded-full border border-sky-400/50 bg-gradient-to-b from-sky-500/25 to-sky-600/10 px-10 py-4 text-sm font-semibold text-sky-50 shadow-[0_0_40px_rgba(56,189,248,0.22)] transition duration-300 hover:scale-[1.03] hover:border-sky-300/60 hover:shadow-[0_0_56px_rgba(56,189,248,0.35)] active:scale-[0.98]"
+          className="mt-16 inline-flex min-w-[12rem] items-center justify-center rounded-full border border-zinc-600 bg-zinc-900/40 px-10 py-3.5 text-sm font-medium text-zinc-100 backdrop-blur-sm transition-colors duration-200 hover:border-sky-500/40 hover:bg-sky-500/10 hover:text-white"
         >
           {ctaLabel}
         </button>
@@ -373,10 +368,10 @@ export function Gener8torPitchSlideDeck({
             aria-current={active === i ? "true" : undefined}
             onClick={() => scrollToSlide(i)}
             className={cn(
-              "rounded-full transition-all duration-300",
+              "rounded-full transition-[width,height,background-color] duration-200",
               active === i
-                ? "h-2.5 w-2.5 bg-sky-400 shadow-[0_0_16px_rgba(56,189,248,0.55)]"
-                : "h-2 w-2 bg-zinc-600 hover:bg-zinc-500",
+                ? "h-2 w-2 bg-sky-400"
+                : "h-1.5 w-1.5 bg-zinc-600 hover:bg-zinc-500",
             )}
           />
         ))}

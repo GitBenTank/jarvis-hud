@@ -19,7 +19,7 @@ function ConsequenceTypewriter() {
   const line1Prefix = "Without this layer, these actions would be ";
   const line1Reveal = "allowed to run immediately—with no human gate.";
   const line2 =
-    "That could mean sending an email, modifying code, or hitting an API. Today you see system notes—the control is the same.";
+    "That could mean sending an email, modifying code, or hitting an API. On screen today: system.note — same control boundary, different risk class.";
   const [revealLen, setRevealLen] = useState(0);
   const [line1Done, setLine1Done] = useState(false);
 
@@ -154,18 +154,19 @@ export function Gener8torPitchSlideDeck({
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 1 · Reality
+          Slide 1 · Open
         </p>
         <Title as="h1" className="!max-w-3xl">
-          Agents already act in the real world
+          Three forces collide at once
         </Title>
         <ul className="mt-10 max-w-lg space-y-3 text-center text-lg text-zinc-300 md:text-xl">
-          <li>Outbound comms</li>
-          <li>Code and systems</li>
-          <li>APIs and workflows</li>
+          <li>Agents take real-world actions</li>
+          <li>Email, systems, workflows</li>
+          <li>{"And what you're about to see is running live"}</li>
         </ul>
         <p className="mx-auto mt-12 max-w-md text-center text-sm text-zinc-500">
-          Live capability — not a lab chatbot.
+          OpenClaw proposes locally → Jarvis ingress → held at approval before
+          anything executes.
         </p>
       </section>
 
@@ -178,7 +179,9 @@ export function Gener8torPitchSlideDeck({
         >
           Slide 2 · Consequence
         </p>
-        <Title className="!max-w-3xl">The failure mode is already here</Title>
+        <Title className="!max-w-3xl">
+          No moment where a human owns the decision
+        </Title>
         <ConsequenceTypewriter />
       </section>
 
@@ -189,11 +192,22 @@ export function Gener8torPitchSlideDeck({
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 3 · Insight
+          Slide 3 · The gap
         </p>
-        <Title className="!max-w-3xl">The model is not the authority</Title>
-        <Subtitle className="mx-auto mt-6 max-w-lg text-zinc-400">
-          Autonomy in thinking. Authority in action.
+        <Title className="!max-w-3xl">{"That's the gap"}</Title>
+        <ul className="mx-auto mt-10 max-w-xl space-y-4 text-center text-lg leading-relaxed text-zinc-300 md:text-xl">
+          <li>
+            Enterprises track agents — registries, catalogs, governance layers.
+          </li>
+          <li>Most of that is visibility — not what happens at execution.</li>
+          <li>
+            {
+              "In real systems, risk is real — especially when actions aren't independently verified."
+            }
+          </li>
+        </ul>
+        <Subtitle className="mx-auto mt-10 max-w-lg text-zinc-400">
+          {"What's missing is control at the moment of execution."}
         </Subtitle>
       </section>
 
@@ -204,14 +218,21 @@ export function Gener8torPitchSlideDeck({
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 4 · System
+          Slide 4 · Jarvis
         </p>
         <Title className="!max-w-4xl !text-3xl sm:!text-4xl md:!text-5xl">
-          Proposal → approval → execution → receipt → trace
+          Approval ≠ execution — plus proof
         </Title>
         <Subtitle className="mx-auto mt-8 max-w-xl text-zinc-400">
-          Governs proposals, not runtimes. Proof is the product.
+          {
+            "Jarvis doesn't manage agents — it governs execution. That's where authority lives."
+          }
         </Subtitle>
+        <p
+          className={`${demoMono} mx-auto mt-8 max-w-md text-center text-xs uppercase tracking-[0.18em] text-zinc-500`}
+        >
+          Autonomy in thinking · Authority in action
+        </p>
       </section>
 
       <section
@@ -221,14 +242,18 @@ export function Gener8torPitchSlideDeck({
         <p
           className={`${demoMono} mb-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
         >
-          Slide 5 · Proof
+          Slide 5 · Handoff
         </p>
-        <Title as="h1" className="!max-w-2xl">
-          Live
+        <Title as="h1" className="!max-w-2xl !text-3xl sm:!text-4xl md:!text-5xl">
+          propose → approve → execute → receipt → trace
         </Title>
-        <Subtitle className="mx-auto mt-6 max-w-xl text-zinc-400">
-          Intercept → gate → execute → attributable outcome
+        <Subtitle className="mx-auto mt-8 max-w-xl text-zinc-400">
+          Same stack — OpenClaw proposes, Jarvis governs. Most stacks give you
+          logs. Jarvis gives you proof.
         </Subtitle>
+        <p className="mx-auto mt-6 max-w-sm text-center text-sm text-zinc-500">
+          Live: intercept → gate → execute → attributable outcome
+        </p>
         <button
           type="button"
           onClick={onCta}

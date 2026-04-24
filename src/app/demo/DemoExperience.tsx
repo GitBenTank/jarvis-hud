@@ -27,9 +27,9 @@ function Ambient() {
 type Phase = "slides" | "transition" | "live";
 
 /**
- * /demo flow: five investor slides (inevitability) → full-screen transition →
- * cinematic proof scroll (lifecycle, mock, HUD link, close). See
- * docs/strategy/gener8tor-pitch.md.
+ * /demo flow: five slides (woven script order: Open → Consequence → Gap →
+ * Jarvis → Handoff) → full-screen transition → cinematic proof scroll. See
+ * docs/strategy/gener8tor-pitch.md and investor-demo-narrative-script.md.
  */
 export function DemoExperience() {
   const [phase, setPhase] = useState<Phase>("slides");

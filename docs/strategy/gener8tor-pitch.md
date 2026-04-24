@@ -1,7 +1,7 @@
 ---
 title: "Gener8tor pitch — 5 slides + consequence-first demo"
 status: living-document
-version: 1.4
+version: 1.5
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -22,22 +22,31 @@ related:
 
 **Principle:** The audience should feel **consequence before chrome**. If they see the HUD first without the stakes line, the demo reads as “cool dashboard.” If they hear **what would have happened without the layer** first, it reads as **necessary infrastructure**.
 
-**In-product:** **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) opens the **cinematic five-slide deck** (same slides as phase 1 of **`/demo`**). **`?view=markdown`** on that URL shows this file in the minimal reader. **`/demo`** continues with **transition → live proof scroll** (`DemoExperience.tsx`). Slide 2 uses a short typewriter on **capability consequence** (allowed to run immediately), then a second line anchoring email/code/API and **`system.note`**; no tables before stakes.
+**In-product:** **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) opens the **cinematic five-slide deck** (same slides as phase 1 of **`/demo`**). **`?view=markdown`** on that URL shows this file in the minimal reader. **`/demo`** continues with **transition → live proof scroll** (`DemoExperience.tsx`). **Slide order tracks the woven script:** Open → Consequence (typewriter) → Gap → Jarvis → Handoff. Slide 2 typewriter: **allowed to run immediately**, then anchor line + **`system.note`**.
 
 ---
 
 ## Five slides (speaker notes)
 
-### Slide 1 — Reality
+### Slide 1 — Open *(script: Open)*
 
-- **Headline:** Agents already act in the real world.
-- **Bullets (max 3):** Outbound comms · Code and systems · APIs and workflows.
-- **Say (optional):** This is live capability—not a lab chatbot.
+- **Headline:** Three forces collide at once.
+- **Bullets:** Agents take real-world actions · Email, systems, workflows · What you’re about to see is running live.
+- **Footer on slide:** OpenClaw proposes locally → Jarvis ingress → held at approval before anything executes.
+- **Say:** Match [investor-demo-narrative-script.md](./investor-demo-narrative-script.md) **Open** through “running live” / ingress line.
 
-### Slide 2 — What actually happens without this layer
+### Slide 2 — Consequence *(script: consequence + anchor)*
 
-- **Headline:** The failure mode is already here.
-- **Table (keep sparse):**
+- **Headline:** No moment where a human owns the decision.
+- **Body:** Typewriter — “allowed to run immediately—with no human gate,” then second line (email / code / API + **system.note** same boundary).
+- **When live demo is `send_email`:** spoken consequence can swap to a single concrete line — see Block 2 below.
+
+### Slide 3 — The gap *(script: Infrastructure context + Gap)*
+
+- **Headline:** That’s the gap.
+- **Bullets:** Enterprises track agents (registries, catalogs, governance) · Most of that is visibility—not what happens at execution · In real systems, risk is real—especially when actions aren’t independently verified.
+- **Sub:** What’s missing is control at the moment of execution.
+- **Table (optional Q&A):**
 
 | Typical stack | What breaks |
 |---------------|-------------|
@@ -45,25 +54,17 @@ related:
 | “We have governance” | **Visibility** ≠ execution control |
 | After the fact | **Logs**, not reconstructable **proof** |
 
-- **One line (pick one and stay consistent):**
-  - **Email:** Without a control layer, that email would have gone to a real external recipient.
-  - **Code:** Without a control layer, this would have modified production code.
-  - **API:** Without a control layer, this would have triggered a real API call.
+### Slide 4 — Jarvis *(script: Jarvis lock-in)*
 
-### Slide 3 — Insight
+- **Headline:** Approval ≠ execution — plus proof.
+- **Sub:** Jarvis doesn’t manage agents — it governs execution. That’s where authority lives.
+- **Thesis line (on slide):** Autonomy in thinking · Authority in action.
 
-- **Headline:** The model is not the authority.
-- **Sub:** Autonomy in thinking. Authority in action.
+### Slide 5 — Handoff *(script: Demo handoff → enter live)*
 
-### Slide 4 — System (Jarvis)
-
-- **Headline:** Proposal → approval → execution → receipt → trace.
-- **Sub:** Governs proposals, not runtimes. Proof is the product.
-
-### Slide 5 — Proof
-
-- **Headline:** Live.
-- **Sub:** Intercept → gate → execute → attributable outcome.
+- **Headline:** propose → approve → execute → receipt → trace
+- **Sub:** Same stack — OpenClaw proposes, Jarvis governs. Most stacks give you logs. Jarvis gives you proof.
+- **Footer:** Live: intercept → gate → execute → attributable outcome.
 
 ### Backup (30s) — Competition
 
@@ -79,14 +80,17 @@ related:
 
 *“I’m going to show you something running live—not a slide.”*
 
-### Block 1 — Reality (20–30s)
+### Block 1 — Open / Slide 1 (20–35s)
+
+Match script **Open**: *“We’re seeing three forces collide at once.”* → agents + real actions → (after Slide 2) bridge to infrastructure, or advance to Slide 2 for consequence first if you’re clicking ahead.
 
 *“Three things are true at once.”* *(Pause ~1s.)*  
-*“Agents can take real actions: email, code, systems, APIs.”* *(Pause.)*
+*“Agents can take real-world actions — email, systems, workflows.”* *(Pause.)*  
+*“And what you’re about to see is running live.”* → *OpenClaw … Jarvis … approval boundary.*
 
-### Block 2 — Consequence (10–15s) — before any queue UI
+### Block 2 — Consequence / Slide 2 (10–15s) — before any queue UI
 
-**Default (system.note on screen):** *“Without this layer, these actions would be allowed to run immediately—no human gate.”* *(Pause.)* *“That could mean email, code, or an API. You’re seeing system notes—the control is the same.”*
+**Default (system.note on screen):** *“Without this layer, these actions would be allowed to run immediately—no human gate.”* *(Pause.)* *“That could mean email, code, or an API. On screen today: system.note — same control boundary, different risk class.”*
 
 **When the live demo is literally `send_email`:** pick **one** line; do not hedge:
 
@@ -97,17 +101,19 @@ related:
 **Bridge (required):**  
 *“Let me show you that capability—and where authority actually sits.”*
 
-### Block 3 — Insight (15s)
+### Block 3 — Infrastructure + gap / Slide 3 (25–40s)
 
-*“The gap isn’t intelligence. The gap is runtime control.”* *(Pause.)*  
-*“The model should not be the authority. A person—or explicit policy—has to be.”*
+Match script **Infrastructure context** + **Gap**: enterprises, visibility vs execution, *“That’s the gap,”* independently verified, *“What’s missing is control at the moment of execution.”*
 
-### Block 4 — System (15s)
+Optional: *“The gap isn’t intelligence. The gap is runtime control.”*
 
-*“Jarvis is the control plane: propose, approve, execute—then receipt and trace.”*  
-*“Approval is not execution. If you can’t point to the receipt, it didn’t happen in a way you can stand behind.”*
+### Block 4 — Jarvis / Slide 4 (15–20s)
 
-### Block 5 — Proof (choreography)
+Match script **Jarvis**: approval vs execution + proof; *“Jarvis doesn’t manage agents — it governs execution.”* Thesis: *Autonomy in thinking. Authority in action.*
+
+### Block 5 — Handoff / Slide 5 → live (10s + choreography)
+
+Match script **Demo handoff**: full lifecycle string; OpenClaw + Jarvis; *“Most stacks give you logs. Jarvis gives you proof.”* Then **Enter live system** → proof choreography:
 
 | Step | Time | Screen / action | Say |
 |------|------|-----------------|-----|

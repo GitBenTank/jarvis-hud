@@ -72,6 +72,48 @@ Everything below is **proposal-shaped** (trace → approve → execute → recei
 
 ---
 
+## Proposal-shape examples (grep + implementation)
+
+Each row is one **concrete** proposal card aligned with [Jarvis kind mapping](./agent-team-contract-v1.md#5-jarvis-kind-mapping-execution-truth) and `ALLOWED_KINDS` in [`src/lib/policy.ts`](../../src/lib/policy.ts). Strings are intentionally distinctive so you can search the repo or logs for them during demos and tests.
+
+### Flow 1 — Factual / research
+
+| Field | Example |
+|--------|---------|
+| **Grep anchor** | `flagship-flow-1-eu-ai-act-digest` |
+| **Jarvis `kind`** | `system.note` |
+| **Sample title** | Evidence digest: EU AI Act — applicability vs. GPAI (Q1 2026 scope) |
+| **Sample summary** | Capture Research’s `ResearchEvidencePack`: 4 sources, 2 high-confidence claims, 3 explicit unknowns; links to quotes; recommends deeper pull on Title II only if user approves a follow-on note. |
+| **Owning agent** | Research (produced the action; Alfred scoped consent only). |
+| **Risk level** | Low |
+| **Why it stops at Jarvis** | Even a **note write** is an execution-shaped effect: Thesis Lock requires **explicit human approval** before persistence; the model is not a trusted principal and there must be a **receipt / trace** after execute. |
+
+### Flow 2 — Creative output
+
+| Field | Example |
+|--------|---------|
+| **Grep anchor** | `flagship-flow-2-publish-variant-b` |
+| **Jarvis `kind`** | `content.publish` |
+| **Sample title** | Publish: investor one-pager — Variant B (shorter hook, CTA v2) |
+| **Sample summary** | Creative selected **Variant B** from three `system.note`-captured drafts; payload is staging path + channel metadata; no send until HUD approve + execute. |
+| **Owning agent** | Creative (authored the publish intent; Alfred confirmed constraints only). |
+| **Risk level** | High |
+| **Why it stops at Jarvis** | Publishing is **outbound / world-facing**; authority lives in the HUD gate, not in model confidence. Approve ≠ execute; policy and adapters enforce the allowlist. |
+
+### Flow 3 — Mixed (research → creative package)
+
+| Field | Example |
+|--------|---------|
+| **Grep anchor** | `flagship-flow-3-youtube-package-mixed` |
+| **Jarvis `kind`** | `youtube.package` |
+| **Sample title** | YouTube package: “Strongman” beat — evidence-backed script v2 |
+| **Sample summary** | Research supplied cited claims (2 disputed, flagged); Creative locked script v2 and b-roll list; package job references evidence bundle id in narrative metadata — **one approval id = one package execution** per [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md). |
+| **Owning agent** | Creative (primary owner of this **execution** proposal); Research’s digest may exist as a **separate** approved `system.note` in the same batch. |
+| **Risk level** | Medium–high |
+| **Why it stops at Jarvis** | Bundling does not merge authority: the package is still **one gated effect**; human must approve before the adapter runs, with receipts for audit. |
+
+---
+
 ## Related
 
 - [Agent team contract v1](./agent-team-contract-v1.md)

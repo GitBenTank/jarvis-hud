@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 1.9
+version: 2.0
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -28,8 +28,8 @@ This document is **spoken copy** + **stage directions** + **delivery notes**. It
 
 ## Memorize (room + camera)
 
-1. **Reality** — Agents take real actions (email, code, systems, APIs).  
-2. **Consequence** — Without this layer, actions would be **allowed to run immediately** (uncontrolled). **Anchor** with email / code / API **examples** so it stays real—without implying the **on-screen** demo already did that effect when you are on **`system.note`**. Say it **before** the queue UI lands.  
+1. **Reality** — Slide 2 names three forces: **Capability**, **Ungated execution**, **Governance pressure**.  
+2. **Consequence** — Without this layer, actions would be **allowed to run immediately** (uncontrolled). **Anchor** with email / code / API examples vs **`system.note`** on screen. Say stakes **before** the queue UI lands.  
 3. **Insight** — The model is not the authority.  
 4. **System** — Jarvis: propose → approve → execute → receipt → trace.  
 5. **Proof** — Live demo → receipt → trace → real artifact (e.g. Gmail).
@@ -50,7 +50,9 @@ We’re seeing three forces collide at once.
 
 *(Scroll.)*
 
-Agents are now capable of taking real-world actions — sending emails, modifying systems, triggering workflows.
+**First: capability** — agents take real actions: email, systems, workflows, APIs.  
+**Second: ungated execution** — without a control layer, those actions can be allowed to run immediately, with no human gate.  
+**Third: governance pressure** — regulation and enterprise programs are converging, while control at the moment of execution is still what’s missing.
 
 *(Pause.)*
 

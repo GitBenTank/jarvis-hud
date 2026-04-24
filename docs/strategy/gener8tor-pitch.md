@@ -1,7 +1,7 @@
 ---
 title: "Gener8tor pitch — 6 slides + consequence-first demo"
 status: living-document
-version: 2.0
+version: 2.1
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -36,9 +36,12 @@ related:
 ### Slide 2 — Open *(script: Open)*
 
 - **Headline:** Three forces collide at once.
-- **Bullets:** Agents take real-world actions · Email, systems, workflows · What you’re about to see is running live.
+- **The three forces (on screen):**
+  1. **Capability** — Agents take real actions (email, systems, workflows, APIs).
+  2. **Ungated execution** — Without a control layer, those actions can be allowed to run immediately—no human gate.
+  3. **Governance pressure** — Regulation and enterprise programs are converging—while control at the moment of execution is still what’s missing.
 - **Footer on slide:** OpenClaw proposes locally → Jarvis ingress → held at approval before anything executes.
-- **Say:** Match [investor-demo-narrative-script.md](./investor-demo-narrative-script.md) **Open** through “running live” / ingress line.
+- **Say:** Name the three forces, then *“And what you’re about to see is running live.”* → OpenClaw … Jarvis … approval boundary. Match [investor-demo-narrative-script.md](./investor-demo-narrative-script.md) **Open**.
 
 ### Slide 3 — Consequence *(script: consequence + anchor)*
 
@@ -90,10 +93,12 @@ Hold on **Jarvis** + thesis. Optional: one short line, or silence—then advance
 
 ### Block 2 — Open / Slide 2 (20–35s)
 
-Match script **Open**: *“We’re seeing three forces collide at once.”* → agents + real actions → bridge to infrastructure on later slides.
+*“We’re seeing three forces collide at once.”* *(Pause.)* Point to the slide if needed:
 
-*“Three things are true at once.”* *(Pause ~1s.)*  
-*“Agents can take real-world actions — email, systems, workflows.”* *(Pause.)*  
+1. **Capability** — real actions in real systems.  
+2. **Ungated execution** — without a control layer, no human gate.  
+3. **Governance pressure** — rules and programs meeting reality; execution control still the gap.
+
 *“And what you’re about to see is running live.”* → *OpenClaw … Jarvis … approval boundary.*
 
 ### Block 3 — Consequence / Slide 3 (10–15s) — before any queue UI

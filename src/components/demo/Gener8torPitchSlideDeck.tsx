@@ -238,11 +238,28 @@ export function Gener8torPitchSlideDeck({
         <Title as="h1" className="!max-w-3xl">
           Three forces collide at once
         </Title>
-        <ul className="mt-12 max-w-lg space-y-6 text-center text-lg font-light leading-relaxed text-zinc-300 md:text-xl">
-          <li>Agents take real-world actions</li>
-          <li>Email, systems, workflows</li>
-          <li className="font-normal text-zinc-100">
-            {"And what you're about to see is running live"}
+        <ul className="mt-12 max-w-2xl space-y-8 text-center text-[1.0625rem] font-normal leading-snug text-zinc-400 md:text-lg">
+          <li className="space-y-1.5">
+            <p className="font-medium text-zinc-100">Capability</p>
+            <p>
+              Agents take real actions—email, systems, workflows, and APIs.
+            </p>
+          </li>
+          <li className="space-y-1.5">
+            <p className="font-medium text-zinc-100">Ungated execution</p>
+            <p>
+              {
+                "Without a control layer, those actions can be allowed to run immediately—no human gate."
+              }
+            </p>
+          </li>
+          <li className="space-y-1.5">
+            <p className="font-medium text-zinc-100">Governance pressure</p>
+            <p>
+              {
+                "Regulation and enterprise programs are converging—while control at the moment of execution is still what's missing."
+              }
+            </p>
           </li>
         </ul>
         <p className="mx-auto mt-12 max-w-md text-center text-sm leading-relaxed text-zinc-400">

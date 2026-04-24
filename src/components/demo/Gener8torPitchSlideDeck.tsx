@@ -242,7 +242,7 @@ export function Gener8torPitchSlideDeck({
           <li className="space-y-1.5">
             <p className="font-medium text-zinc-100">Capability</p>
             <p>
-              Agents take real actions—email, systems, workflows, and APIs.
+              Agents take real actions: email, systems, workflows, and APIs.
             </p>
           </li>
           <li className="space-y-1.5">
@@ -262,10 +262,6 @@ export function Gener8torPitchSlideDeck({
             </p>
           </li>
         </ul>
-        <p className="mx-auto mt-12 max-w-md text-center text-sm leading-relaxed text-zinc-400">
-          OpenClaw proposes locally → Jarvis ingress → held at approval before
-          anything executes.
-        </p>
       </DeckSlide>
 
       <DeckSlide scrollRoot={scrollRoot} id={slideIds[2]}>

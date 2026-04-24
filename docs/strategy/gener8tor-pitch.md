@@ -1,7 +1,7 @@
 ---
 title: "Gener8tor pitch — 6 slides + consequence-first demo"
 status: living-document
-version: 2.2
+version: 2.3
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -37,10 +37,10 @@ related:
 
 - **Headline:** Three forces collide at once.
 - **The three forces (on screen):**
-  1. **Capability** — Agents take real actions (email, systems, workflows, APIs).
+  1. **Capability** — Agents take real actions: email, systems, workflows, APIs.
   2. **Ungated execution** — Without a control layer, those actions can be allowed to run immediately—no human gate.
   3. **Governance pressure** — Regulation and enterprise programs are converging—while control at the moment of execution is still what’s missing.
-- **Footer on slide:** OpenClaw proposes locally → Jarvis ingress → held at approval before anything executes.
+- **No footer on slide 2** — OpenClaw / ingress appears in **spoken script** after slide 3 and on **slide 6 · Handoff** in the UI.
 - **Say:** Name the three forces on slide 2; on **slide 3** tie in **`system.note`** + risk-class anchor with the typewriter; then live / OpenClaw / ingress. Full weave: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md).
 
 ### Slide 3 — Consequence *(script: consequence + anchor)*

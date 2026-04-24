@@ -63,6 +63,7 @@ describe("openclaw-strict-governed", () => {
       assertNoUnsafeGovernedToolsInStrictMode([
         { id: "readGovernedFile", classification: "read-only" },
         { id: "proposeCodeApply", classification: "jarvis-proposal" },
+        { id: "proposeResearchSystemNote", classification: "jarvis-proposal" },
       ])
     ).not.toThrow();
   });
@@ -122,7 +123,11 @@ describe("openclaw-strict-governed", () => {
   it("registeredNames omits applyPatchDirect in strict mode", () => {
     process.env.OPENCLAW_STRICT_GOVERNED = "true";
     const reg = createStrictGovernedRegistry();
-    expect(reg.registeredNames).toEqual(["readGovernedFile", "proposeCodeApply"]);
+    expect(reg.registeredNames).toEqual([
+      "readGovernedFile",
+      "proposeCodeApply",
+      "proposeResearchSystemNote",
+    ]);
     process.env.OPENCLAW_STRICT_GOVERNED = "false";
     const reg2 = createStrictGovernedRegistry();
     expect(reg2.registeredNames).toContain("applyPatchDirect");
@@ -184,6 +189,55 @@ describe("openclaw-strict-governed", () => {
         agentId: "openclaw-test",
       });
       expect(typeof body.patch).toBe("string");
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it("proposeResearchSystemNote submits system.note with research agent (mocked fetch)", async () => {
+    process.env.OPENCLAW_STRICT_GOVERNED = "true";
+    process.env.JARVIS_INGRESS_OPENCLAW_SECRET = "x".repeat(32);
+    process.env.JARVIS_BASE_URL = "http://127.0.0.1:9";
+
+    const calls: { url: string; init: RequestInit }[] = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      calls.push({ url, init: init ?? {} });
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          id: "research-note-uuid",
+          traceId: "research-trace-uuid",
+          status: "pending",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    };
+
+    try {
+      const reg = createStrictGovernedRegistry();
+      const result = (await reg.invoke("proposeResearchSystemNote", {
+        title: "Evidence digest: EU AI Act — applicability vs. GPAI (Q1 2026 scope)",
+        summary:
+          "Capture Research's ResearchEvidencePack: 4 sources, 2 high-confidence claims, 3 explicit unknowns; links to quotes; recommends deeper pull on Title II only if user approves a follow-on note.",
+        note: "Body line one.\nBody line two.",
+        sourceAgentId: "openclaw-flagship-flow1-test",
+      })) as { ok: boolean; proposalId: string; traceId: string; message: string };
+
+      expect(result.ok).toBe(true);
+      expect(result.proposalId).toBe("research-note-uuid");
+      expect(result.traceId).toBe("research-trace-uuid");
+
+      expect(calls).toHaveLength(1);
+      const body = JSON.parse(String(calls[0].init.body)) as Record<string, unknown>;
+      expect(body.kind).toBe("system.note");
+      expect(body.agent).toBe("research");
+      expect(body.title).toContain("EU AI Act");
+      const payload = body.payload as Record<string, unknown>;
+      expect(typeof payload.note).toBe("string");
+      expect(String(payload.note)).toContain("flagship-flow-1-eu-ai-act-digest");
+      expect(String(payload.note)).toContain("Body line one.");
     } finally {
       globalThis.fetch = realFetch;
     }

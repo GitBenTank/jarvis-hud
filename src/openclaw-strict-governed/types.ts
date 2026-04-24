@@ -23,4 +23,5 @@ export type ToolClassification =
 export type StrictGovernedToolName =
   | "readGovernedFile"
   | "proposeCodeApply"
+  | "proposeResearchSystemNote"
   | "applyPatchDirect";

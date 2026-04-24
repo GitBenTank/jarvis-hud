@@ -108,6 +108,23 @@ Create a Jarvis proposal for a system note called "Alfred live test". Output JSO
 
 Use a valid `kind` (e.g. `system.note`). For `system.note`, put body text in `payload.note` (not only `content`) so Jarvis normalizes correctly.
 
+### 4b. Flagship Flow 1 — Research `system.note` (end-to-end shape)
+
+**Product intent:** Alfred handles intake; **Research** owns the evidence proposal; Jarvis holds approve + execute.
+
+**A. Submit the canonical sample (signed `jarvis:submit`):**
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm jarvis:submit --file examples/openclaw-proposal-flagship-flow1-research.sample.json
+```
+
+The file uses **`agent`: `research`**, kind **`system.note`**, and grep anchor **`flagship-flow-1-eu-ai-act-digest`** inside `payload.note` (see [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md)).
+
+**B. Strict-governed OpenClaw (reference registry):** tool **`proposeResearchSystemNote`** in `src/openclaw-strict-governed/` builds the same ingress shape and calls `submitOpenClawIngress` — wire it after Research produces `title` / `summary` / `note` from an Alfred-routed task.
+
+**C. In Jarvis:** open the proposal card — expect **Research** metadata, **Low** risk posture for `system.note`, then **Approve** and **Execute** only in the HUD.
+
 ---
 
 ## 5. Ingest into Jarvis

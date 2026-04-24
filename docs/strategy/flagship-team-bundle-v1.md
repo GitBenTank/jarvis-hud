@@ -88,6 +88,8 @@ Each row is one **concrete** proposal card aligned with [Jarvis kind mapping](./
 | **Risk level** | Low |
 | **Why it stops at Jarvis** | Even a **note write** is an execution-shaped effect: Thesis Lock requires **explicit human approval** before persistence; the model is not a trusted principal and there must be a **receipt / trace** after execute. |
 
+**Runnable in repo:** `examples/openclaw-proposal-flagship-flow1-research.sample.json` → `pnpm jarvis:submit --file …`; OpenClaw strict tool **`proposeResearchSystemNote`** (`src/openclaw-strict-governed/tools/proposeResearchSystemNote.ts`). See [Local verification](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--research-systemnote-end-to-end-shape).
+
 ### Flow 2 — Creative output
 
 | Field | Example |

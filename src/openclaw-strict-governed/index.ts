@@ -19,6 +19,10 @@ export { submitOpenClawIngress, type SubmitOpenClawIngressResult } from "./jarvi
 export { createStrictGovernedRegistry, type StrictGovernedRegistry } from "./registry";
 export { readGovernedFile } from "./tools/readGovernedFile";
 export { proposeCodeApply } from "./tools/proposeCodeApply";
+export {
+  proposeResearchSystemNote,
+  FLAGSHIP_FLOW_1_GREP_ANCHOR,
+} from "./tools/proposeResearchSystemNote";
 export { applyPatchDirect } from "./tools/applyPatchDirect";
 export type {
   ToolClassification,

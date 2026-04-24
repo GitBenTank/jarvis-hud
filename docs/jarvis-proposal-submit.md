@@ -31,6 +31,8 @@ export JARVIS_BASE_URL=http://localhost:3001   # if not using default :3000
 pnpm jarvis:submit --file examples/openclaw-proposal-alfred-nested.sample.json
 ```
 
+**Flagship Flow 1 (Research `system.note`):** `examples/openclaw-proposal-flagship-flow1-research.sample.json` — `agent: research`, grep anchor in `payload.note`; see [Local verification](local-verification-openclaw-jarvis.md#4b-flagship-flow-1--research-systemnote-end-to-end-shape).
+
 From another repo (OpenClaw), env vars must still be set in **that** shell (they are not read from `jarvis-hud/.env.local` automatically):
 
 ```bash

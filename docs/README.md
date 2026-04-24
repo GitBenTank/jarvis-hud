@@ -61,6 +61,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Port / origin discipline | [Local dev truth map](setup/local-dev-truth-map.md) |
 | Env reference | [Environment variables](setup/env.md) |
 | Control UI / gateway | [OpenClaw Control UI](setup/openclaw-control-ui.md) |
+| Heartbeat cost / cron check-ins | [OpenClaw heartbeat & cron policy](setup/openclaw-heartbeat-cron-policy.md) |
 | Full narrative spec | [Video thesis](strategy/jarvis-hud-video-thesis.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |

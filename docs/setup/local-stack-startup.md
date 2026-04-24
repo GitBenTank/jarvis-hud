@@ -21,7 +21,7 @@ Use this as the **single** routine for daily development. It avoids the common f
 
 **TL;DR (this repo):** Terminal A — `pnpm dev` · Terminal B — **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (loads `JARVIS_BASE_URL` / ingress secret / `OPENAI_API_KEY` from `.env.local`; syncs **`auth-profiles.json`** for embedded chat when the key is set) · wait **gateway ready** + **19001** · check — `pnpm local:stack:doctor`. (**Locked-in** clean runtime clone — see **One-time: runtime clone** below. Hacking OpenClaw still uses **`~/Documents/openclaw`** without **`OPENCLAW_ROOT`**.)
 
-**Related:** [Documentation hub](../README.md) · [OpenClaw Control UI](openclaw-control-ui.md) (deep setup) · [OpenClaw integration verification](../openclaw-integration-verification.md) · [Operator checklist](openclaw-jarvis-operator-checklist.md) · [Operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project).
+**Related:** [Documentation hub](../README.md) · [OpenClaw Control UI](openclaw-control-ui.md) (deep setup) · [Heartbeat & cron policy](openclaw-heartbeat-cron-policy.md) (idle API cost) · [OpenClaw integration verification](../openclaw-integration-verification.md) · [Operator checklist](openclaw-jarvis-operator-checklist.md) · [Operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project).
 
 ---
 

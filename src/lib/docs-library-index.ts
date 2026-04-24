@@ -420,6 +420,12 @@ export const DOCS_OPERATORS: DocsLibraryStartItem[] = [
       "Alfred + specialists: routing, handoffs, Jarvis kinds, one-proposal-per-consent.",
   },
   {
+    href: "/docs/strategy/flagship-team-bundle-v1",
+    title: "Flagship team bundle v1",
+    description:
+      "Alfred + Research + Creative: intake, evidence, variants, Jarvis proposals — no Operator v1.",
+  },
+  {
     href: "/docs/strategy/research-agent-v1",
     title: "Research agent v1",
     description:

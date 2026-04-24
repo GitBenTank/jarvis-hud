@@ -1,7 +1,10 @@
 # Agent team v1
 
 **Status:** Draft canonical direction  
-**Related:** [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md) · [ADR-0005: Batch v0 — per-item execute](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Research batch workflow v1](./research-batch-workflow-v1.md) · [Creative batch workflow v1 (Phase 5)](./creative-batch-workflow-v1.md) · [Jarvis ↔ OpenClaw overview](../architecture/jarvis-openclaw-system-overview.md) · [Operating assumptions](./operating-assumptions.md)
+
+**Read first for operating law:** [Agent team contract v1](./agent-team-contract-v1.md) — routing, handoffs, consent, and Jarvis mapping. **This page** is broader product framing; specialist behavior lives in [Research v1](./research-agent-v1.md), [Creative v1](./creative-agent-v1.md), and [Flagship team bundle v1](./flagship-team-bundle-v1.md).
+
+**Related:** [Agent team contract v1](./agent-team-contract-v1.md) · [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md) · [ADR-0005: Batch v0 — per-item execute](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Research batch workflow v1](./research-batch-workflow-v1.md) · [Creative batch workflow v1 (Phase 5)](./creative-batch-workflow-v1.md) · [Jarvis ↔ OpenClaw overview](../architecture/jarvis-openclaw-system-overview.md) · [Operating assumptions](./operating-assumptions.md)
 
 ---
 

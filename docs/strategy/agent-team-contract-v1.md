@@ -9,6 +9,7 @@ related:
   - ../architecture/openclaw-jarvis-trust-contract.md
   - ./research-agent-v1.md
   - ./creative-agent-v1.md
+  - ./flagship-team-bundle-v1.md
   - ./research-batch-workflow-v1.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
 ---
@@ -148,6 +149,7 @@ This preserves **Jarvis/OpenClaw compatibility** without **robotic** chat format
 
 ## Related
 
+- [Flagship team bundle v1](./flagship-team-bundle-v1.md)
 - [Research agent v1](./research-agent-v1.md)
 - [Creative agent v1](./creative-agent-v1.md)
 - [Research batch workflow v1](./research-batch-workflow-v1.md)

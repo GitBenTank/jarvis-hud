@@ -7,6 +7,7 @@ related:
   - ../decisions/0001-thesis-lock.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
   - ./agent-team-contract-v1.md
+  - ./flagship-team-bundle-v1.md
   - ./research-agent-v1.md
   - ../architecture/openclaw-proposal-identity-and-contract.md
 ---

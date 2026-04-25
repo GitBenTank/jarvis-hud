@@ -1,0 +1,11 @@
+{
+  "kind": "send_email",
+  "title": "Demo: draft we will not send",
+  "summary": "Investor compare — obvious wrong-draft email; operator denies in HUD.",
+  "source": { "connector": "openclaw" },
+  "payload": {
+    "to": "devhousehsv@gmail.com",
+    "subject": "IGNORE — wrong investor demo draft (reject me)",
+    "body": "This is the bad-path draft for the live demo. The operator will deny this proposal so it never sends. If you are reading this in the inbox, something went wrong."
+  }
+}

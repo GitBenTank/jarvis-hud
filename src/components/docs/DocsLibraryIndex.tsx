@@ -64,6 +64,32 @@ function CardGrid({ items }: { items: DocsLibraryStartItem[] }) {
   );
 }
 
+function InvestorFifteenMinutePath({ items }: { items: DocsLibraryStartItem[] }) {
+  return (
+    <ol className="max-w-3xl list-none space-y-5">
+      {items.map((item, index) => (
+        <li key={item.href} className="flex gap-4 sm:gap-5">
+          <span
+            className={`${mono} flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.12] bg-zinc-950/60 text-[13px] font-semibold text-zinc-300`}
+            aria-hidden
+          >
+            {index + 1}
+          </span>
+          <div className="min-w-0 pt-0.5">
+            <Link
+              href={item.href}
+              className="text-[16px] font-medium leading-snug text-zinc-100 underline-offset-2 hover:text-sky-200 hover:underline"
+            >
+              {item.title}
+            </Link>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-500">{item.description}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function SectionTitle({
   eyebrow,
   title,
@@ -181,6 +207,39 @@ export function DocsLibraryIndex({
         </header>
 
         <section
+          aria-labelledby="start-here-investors-heading"
+          className="mt-10 rounded-2xl border border-sky-500/25 bg-gradient-to-b from-sky-950/40 to-zinc-950/30 p-6 sm:p-8"
+        >
+          <h2
+            id="start-here-investors-heading"
+            className="text-xl font-medium tracking-tight text-zinc-50 sm:text-2xl"
+          >
+            Start here — see Jarvis in action
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-[1.7]">
+            A six-slide walkthrough into the live HUD: agents propose, humans approve, execution
+            stays separate, and every outcome leaves a receipt and trace.{" "}
+            <span className="text-zinc-300">
+              Autonomy in thinking; authority in action.
+            </span>
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link
+              href="/demo"
+              className="inline-flex items-center justify-center rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-zinc-950 shadow-lg shadow-sky-900/30 transition hover:bg-sky-400"
+            >
+              Open live demo
+            </Link>
+            <Link
+              href="/docs"
+              className={`${mono} inline-flex items-center justify-center rounded-xl border border-white/[0.12] bg-zinc-950/50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-300 transition hover:border-zinc-500 hover:text-zinc-100`}
+            >
+              Browse docs
+            </Link>
+          </div>
+        </section>
+
+        <section
           aria-label="Shortcuts"
           className="mt-10 grid gap-8 border-b border-white/[0.06] pb-10 sm:grid-cols-2"
         >
@@ -196,6 +255,25 @@ export function DocsLibraryIndex({
               <RouteLink href="/playbook">/playbook</RouteLink>
               <RouteLink href="/thesis">/thesis</RouteLink>
             </RouteRow>
+            <p className="mt-4 max-w-xl text-[13px] leading-relaxed text-zinc-500">
+              <span className="font-medium text-zinc-400">Investor pitch</span> (
+              <Link href="/pitch" className="text-zinc-300 underline-offset-2 hover:text-white">
+                /pitch
+              </Link>
+              ,{" "}
+              <Link
+                href="/docs/strategy/gener8tor-pitch"
+                className="text-zinc-300 underline-offset-2 hover:text-white"
+              >
+                docs
+              </Link>
+              ): Read-only deck. For the live investor demo with speaker notes and governed
+              execution flow, open{" "}
+              <Link href="/demo" className="font-medium text-sky-300/90 underline-offset-2 hover:text-sky-200">
+                /demo
+              </Link>
+              .
+            </p>
           </div>
           <div>
             <h2
@@ -227,12 +305,12 @@ export function DocsLibraryIndex({
 
         <section className="mt-14" aria-labelledby="investors-heading">
           <SectionTitle
-            eyebrow="Investors & narrative"
+            eyebrow="Investors"
             sectionId="investors-heading"
-            title="Materials for the room"
-            subtitle="Pitch, positioning, and short proof scripts—written to stand alone."
+            title="For investors — 15 minute path"
+            subtitle="One sequence—live demo first, then pack, Thesis Lock, team bundle. Deeper narrative and runbooks live in the library below."
           />
-          <CardGrid items={library.investors} />
+          <InvestorFifteenMinutePath items={library.investors} />
         </section>
 
         <section className="mt-14" aria-labelledby="trust-heading">

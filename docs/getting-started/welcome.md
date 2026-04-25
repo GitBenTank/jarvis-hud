@@ -25,7 +25,7 @@ The formal rules are captured in **[Thesis Lock](../decisions/0001-thesis-lock.m
 | If you are… | Start here |
 |-------------|------------|
 | **New to the product** | This page, then [About](/about) · [Demo](/demo) |
-| **Investor or advisor** | [Gener8tor pitch](../strategy/gener8tor-pitch.md) · [Room playbook](../strategy/room-playbook-v1.md) · [90s proof demo](../video/90s-proof-demo.md) |
+| **Investor or advisor** | **[Investor read pack](/docs/tati)** (same as [markdown](../strategy/investor-read-pack.md)) — then [Demo](/demo). Optional: [90s proof](../video/90s-proof-demo.md) if time is tight. |
 | **Technical diligence** | [System overview](../architecture/jarvis-openclaw-system-overview.md) · [Security model](../architecture/security-model.md) · [Thesis Lock ADR](../decisions/0001-thesis-lock.md) |
 | **Building or operating the stack** | [Local stack startup](../setup/local-stack-startup.md) · [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) · [Documentation hub](../README.md#operators--start-here) |
 

@@ -1,7 +1,7 @@
 ---
 title: "Room playbook — restraint (investor + adjacent rooms)"
 status: living-document
-version: 1.0
+version: 1.1
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
@@ -11,11 +11,16 @@ related:
   - docs/strategy/competitive-landscape-2026.md
   - docs/strategy/investor-demo-narrative-script.md
   - docs/strategy/pitch-narrative-outline.md
+  - docs/strategy/investor-read-pack.md
 ---
 
 # Room playbook (v1)
 
-**Purpose:** Win conversations with **discipline in what you don’t say**. Canonical thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md). Slides + demo arc: [gener8tor-pitch.md](./gener8tor-pitch.md).
+**Purpose:** Win conversations with **discipline in what you don’t say**. **Investor path:** [investor-read-pack.md](./investor-read-pack.md) (this doc is item 2). Canonical thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md). Slides + demo arc: [gener8tor-pitch.md](./gener8tor-pitch.md).
+
+**Technical:** Three fixed slots in the opener (idea, one frame, consequence); everything else waits for Q&A so the room doesn’t get a feature dump before stakes land.
+
+**Plain English:** If you try to explain the whole product in the first minute, people stop listening. Lead with **three clear beats**, then **let them pull** the detail they care about.
 
 ---
 

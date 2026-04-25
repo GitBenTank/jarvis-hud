@@ -299,49 +299,33 @@ export const DOCS_NEWCOMERS: DocsLibraryStartItem[] = [
     title: "About (in the app)",
     description: "Short product surface inside the HUD—not a markdown file.",
   },
-  {
-    href: "/demo",
-    title: "Guided demo",
-    description: "The story we tell in the room—slides and live proof.",
-  },
 ];
 
-/** Narrative & diligence — still readable without running code */
+/** Narrative & diligence — canonical /docs home path (numbered on the docs index UI) */
 export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
   {
+    href: "/demo",
+    title: "See it live",
+    description:
+      "Six slides, speaker notes, transition, and live HUD—agents propose; humans approve; approval is not execution; receipt and trace as proof.",
+  },
+  {
     href: "/docs/tati",
-    title: "Investor read pack (canonical four)",
-    description: "Fixed 15-minute order: pitch, room, Thesis Lock, flagship team.",
+    title: "Read the investor pack",
+    description:
+      "~15 minutes, fixed order, plain English—start here before depth.",
   },
   {
-    href: "/docs/strategy/gener8tor-pitch",
-    title: "Investor pitch (slides + demo)",
-    description: "Five-slide, consequence-first narrative.",
+    href: "/docs/decisions/0001-thesis-lock",
+    title: "Read Thesis Lock",
+    description:
+      "The non‑negotiables: autonomy in thinking, authority in action; receipts; the model is not a trusted principal.",
   },
   {
-    href: "/docs/strategy/room-playbook-v1",
-    title: "Room playbook",
-    description: "Opener, 30-second pitch, and objections.",
-  },
-  {
-    href: "/docs/video/investor-demo-full-runbook",
-    title: "Investor demo runbook",
-    description: "Operator checklist for a clean live proof.",
-  },
-  {
-    href: "/docs/video/90s-proof-demo",
-    title: "90-second proof",
-    description: "Ultra-short script when time is tight.",
-  },
-  {
-    href: "/docs/strategy/competitive-landscape-2026",
-    title: "Competitive landscape",
-    description: "Positioning versus alternatives (2026).",
-  },
-  {
-    href: "/docs/strategy/pitch-narrative-outline",
-    title: "Pitch narrative outline",
-    description: "Deck storyline and messaging spine.",
+    href: "/docs/strategy/flagship-team-bundle-v1",
+    title: "Review the flagship team bundle",
+    description:
+      "Alfred, Research, Creative—multiple agents as one governed system.",
   },
 ];
 

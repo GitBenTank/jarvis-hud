@@ -1,58 +1,74 @@
 import Link from "next/link";
+import { InvestorReadPackTatiLayout } from "@/components/docs/InvestorReadPackTatiLayout";
 
-const PACK: { href: string; title: string; blurb: string }[] = [
+const PACK: { href: string; title: string; blurb: string; plain: string }[] = [
   {
     href: "/docs/strategy/gener8tor-pitch",
-    title: "Gener8tor pitch",
-    blurb: "Overview + demo framing (consequence before chrome).",
+    title: "1 · Gener8tor pitch",
+    blurb: "Six-slide story + demo beats—stakes before the UI.",
+    plain: "The script for what you say and show before they ask to see the product.",
   },
   {
     href: "/docs/strategy/room-playbook-v1",
-    title: "Room playbook",
-    blurb: "How we approach conversations—restraint signal.",
+    title: "2 · Room playbook",
+    blurb: "Opener discipline, 30-second pitch, Q&A—what we don’t lead with.",
+    plain: "How we stay clear and short so we don’t talk past the room.",
   },
   {
     href: "/docs/decisions/0001-thesis-lock",
-    title: "Thesis Lock (ADR)",
-    blurb: "Core rule of the system—single source of truth.",
+    title: "3 · Thesis Lock (ADR)",
+    blurb: "Propose vs approve vs execute; receipts; model isn’t the authority.",
+    plain: "The constitution: humans own the yes; running work is explicit; everything leaves a trail.",
   },
   {
     href: "/docs/strategy/flagship-team-bundle-v1",
-    title: "Flagship team bundle",
-    blurb: "Agent layer as a system—not one agent.",
+    title: "4 · Flagship team bundle",
+    blurb: "Alfred, Research, Creative—roles, handoffs, sample flows.",
+    plain: "Multiple agents as one system—not one magic assistant that does everything.",
   },
 ];
 
 export default function InvestorReadPackPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="mx-auto max-w-xl px-5 py-14 sm:px-8">
+    <InvestorReadPackTatiLayout>
+      <div>
         <p className="font-[family-name:var(--font-docs-mono)] text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
-          Investor read pack
+          Tati · Investors and advisors
         </p>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-50">
-          Canonical four
+          Investor read pack
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-          About <strong className="text-zinc-300">15 minutes</strong> if you read in order. Same links every time—we don’t rotate this list per
-          meeting.
+          About <strong className="text-zinc-300">15 minutes</strong> in order. Same four every time.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-zinc-500">
-          In the room: start with the problem and <Link href="/demo" className="text-sky-400/90 underline hover:text-sky-300">/demo</Link>
-          ; open these when asked.
+          <strong className="font-medium text-zinc-400">Plain English:</strong> Agents can already act in the real
+          world—the gap is <strong className="font-medium text-zinc-300">who approved it</strong>,{" "}
+          <strong className="font-medium text-zinc-300">what ran</strong>, and{" "}
+          <strong className="font-medium text-zinc-300">proof you can show later</strong>. Jarvis sits on that boundary.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-500">
+          In the room: problem first, then{" "}
+          <Link href="/demo" className="text-zinc-200 underline underline-offset-2 hover:text-white">
+            /demo
+          </Link>
+          . Use these when they want depth.
         </p>
 
         <ol className="mt-10 space-y-8">
-          {PACK.map((item, i) => (
+          {PACK.map((item) => (
             <li key={item.href} className="list-none">
-              <span className="font-[family-name:var(--font-docs-mono)] text-xs text-zinc-500">{i + 1}.</span>
               <Link
                 href={item.href}
-                className="mt-1 block text-base font-medium text-sky-400/95 underline-offset-2 hover:text-sky-300 hover:underline"
+                className="block text-base font-medium text-zinc-100 underline-offset-2 hover:underline"
               >
                 {item.title}
               </Link>
               <p className="mt-1.5 text-sm text-zinc-400">{item.blurb}</p>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-500">
+                <span className="text-zinc-600">In plain English: </span>
+                {item.plain}
+              </p>
             </li>
           ))}
         </ol>
@@ -70,6 +86,6 @@ export default function InvestorReadPackPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </InvestorReadPackTatiLayout>
   );
 }

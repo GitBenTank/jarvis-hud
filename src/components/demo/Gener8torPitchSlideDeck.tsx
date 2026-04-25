@@ -127,12 +127,21 @@ export function Gener8torPitchSlideDeck({
   slideIdPrefix,
   ctaLabel,
   onCta,
+  onActiveSlideChange,
   footerHint = "Scroll or use arrow keys · then continue",
+  /** Shown on slide 6 only, above the CTA (e.g. docs/pitch surface points to /demo). */
+  handoffSurfaceNote,
+  /** Extra classes on slide dots nav (e.g. inset from right when /demo uses a split notes column). */
+  slideNavClassName,
 }: {
   slideIdPrefix: string;
   ctaLabel: string;
   onCta: () => void;
+  /** Fires when the centered slide changes (0-based). For speaker notes sync. */
+  onActiveSlideChange?: (slideIndex: number) => void;
   footerHint?: string;
+  handoffSurfaceNote?: ReactNode;
+  slideNavClassName?: string;
 }) {
   const slideIds = useMemo(
     () =>
@@ -179,6 +188,10 @@ export function Gener8torPitchSlideDeck({
 
     return () => obs.disconnect();
   }, [slideIds]);
+
+  useEffect(() => {
+    onActiveSlideChange?.(active);
+  }, [active, onActiveSlideChange]);
 
   const onKeyDown = useCallback(
     (e: ReactKeyboardEvent) => {
@@ -330,13 +343,20 @@ export function Gener8torPitchSlideDeck({
           propose → approve → execute → receipt → trace
         </Title>
         <Subtitle className="mx-auto mt-8 max-w-xl text-zinc-300">
-          Same stack — OpenClaw proposes, Jarvis governs. Most stacks give you
-          logs.{" "}
-          <span className="font-medium text-zinc-100">Jarvis gives you proof.</span>
+          Same stack — OpenClaw proposes, Jarvis governs. Most systems show you
+          what already happened.{" "}
+          <span className="font-medium text-zinc-100">
+            Jarvis shows what was allowed to happen.
+          </span>
         </Subtitle>
         <p className="mx-auto mt-6 max-w-sm text-center text-sm text-zinc-500">
           Live: intercept → gate → execute → attributable outcome
         </p>
+        {handoffSurfaceNote ? (
+          <div className="mx-auto mt-10 max-w-md px-2 text-center text-[13px] leading-relaxed text-zinc-500">
+            {handoffSurfaceNote}
+          </div>
+        ) : null}
         <button
           type="button"
           onClick={onCta}
@@ -350,7 +370,10 @@ export function Gener8torPitchSlideDeck({
       </DeckSlide>
 
       <nav
-        className="fixed bottom-6 left-0 right-0 z-20 flex justify-center gap-2"
+        className={cn(
+          "fixed bottom-6 left-0 z-20 flex justify-center gap-2",
+          slideNavClassName ?? "right-0",
+        )}
         aria-label="Slide navigation"
       >
         {slideIds.map((sid, i) => (

@@ -7,6 +7,7 @@ import { DocsAmbient } from "@/components/docs/DocsAmbient";
 
 /**
  * Full-viewport cinematic Gener8tor deck (same slides as /demo) from /docs.
+ * CTA opens Jarvis HUD (Activity); handoff copy points to /demo for split notes + cinematic continuation.
  */
 export function Gener8torPitchDocsClient() {
   const router = useRouter();
@@ -35,11 +36,32 @@ export function Gener8torPitchDocsClient() {
       </header>
       <Gener8torPitchSlideDeck
         slideIdPrefix="docs-g8"
-        ctaLabel="Continue to live demo"
+        ctaLabel="Open Jarvis HUD"
         onCta={() => {
-          router.push("/demo");
+          router.push("/activity");
         }}
-        footerHint="Opens /demo — transition + proof scroll"
+        footerHint="Opens Activity (queue) — live walkthrough; cinematic deck + split notes: /demo"
+        handoffSurfaceNote={
+          <>
+            Open{" "}
+            <Link
+              href="/activity"
+              className="font-medium text-zinc-400 underline decoration-zinc-600 underline-offset-2 transition hover:text-zinc-200"
+            >
+              Jarvis HUD (Activity)
+            </Link>{" "}
+            below to run the live investor path—from there you can open OpenClaw from the UI. For
+            the six-slide story with{" "}
+            <span className="text-zinc-400">split speaker notes</span> beside the deck, use{" "}
+            <Link
+              href="/demo"
+              className="font-medium text-zinc-400 underline decoration-zinc-600 underline-offset-2 transition hover:text-zinc-200"
+            >
+              /demo
+            </Link>
+            .
+          </>
+        }
       />
     </div>
   );

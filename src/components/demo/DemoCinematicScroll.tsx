@@ -33,30 +33,18 @@ export function DemoCinematicScroll() {
             Live system
           </p>
           <Title className="!max-w-3xl">
-            Approval and proof — not the same step
+            The door between proposal and action
           </Title>
         </Reveal>
         <Reveal delayMs={100}>
           <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-zinc-400 md:text-lg">
-            A system that separates approval from execution — and produces
-            proof of what actually happened.
-          </p>
-        </Reveal>
-        <Reveal delayMs={200}>
-          <p className="mx-auto mt-4 max-w-xl text-center text-lg font-medium text-zinc-100 md:text-xl">
-            That&apos;s what Jarvis does.
-          </p>
-        </Reveal>
-        <Reveal delayMs={280}>
-          <p className="mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed text-zinc-300 md:text-lg">
-            Jarvis doesn&apos;t manage agents — it{" "}
-            <span className="text-sky-200/90">governs execution</span>.
-            That&apos;s where authority lives.
+            Jarvis is where action stops, waits, and only moves forward with
+            authority.
           </p>
         </Reveal>
         <div className="mt-12 grid w-full max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {LIFECYCLE.map((step, i) => (
-            <Reveal key={step.label} delayMs={360 + i * 60}>
+            <Reveal key={step.label} delayMs={280 + i * 60}>
               <div className="flex h-full flex-col rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-5">
                 <span
                   className={`${demoMono} text-[10px] font-bold uppercase tracking-[0.16em] text-sky-400/90`}
@@ -88,7 +76,8 @@ export function DemoCinematicScroll() {
         </Reveal>
         <Reveal delayMs={220}>
           <p className="mx-auto mt-6 max-w-xl text-center text-sm text-zinc-500 md:text-base">
-            Most stacks give you logs. Jarvis gives you proof.
+            Most systems show you what already happened. Jarvis shows what was
+            allowed to happen.
           </p>
         </Reveal>
       </Frame>
@@ -100,10 +89,10 @@ export function DemoCinematicScroll() {
         </Reveal>
         <ul className="mx-auto mt-10 max-w-xl space-y-4 text-center text-base text-zinc-300 md:text-lg">
           {[
-            "The agent proposes the action.",
-            "A human explicitly approves it.",
-            "Execution happens as a separate step.",
-            "We get a receipt and a trace tied to that action.",
+            "The agent brings something to the door.",
+            "A human decides whether it crosses.",
+            "Execution happens separately.",
+            "The receipt and trace prove what moved forward.",
           ].map((line, i) => (
             <li key={line}>
               <Reveal delayMs={i * 80}>

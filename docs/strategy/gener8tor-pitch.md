@@ -1,13 +1,14 @@
 ---
 title: "Gener8tor pitch — 6 slides + consequence-first demo"
 status: living-document
-version: 2.3
+version: 2.8
 owner: Ben Tankersley
 created: 2026-04-18
 category: product-strategy
 related:
   - docs/strategy/investor-demo-narrative-script.md
   - docs/video/investor-demo-full-runbook.md
+  - docs/video/investor-demo-rehearsal-run-sheet.md
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/strategy/competitive-landscape-2026.md
   - docs/strategy/pitch-narrative-outline.md
@@ -18,11 +19,13 @@ related:
 
 **Restraint in the room** (one core + one analogy + one consequence; objections only in Q&A): [room-playbook-v1.md](./room-playbook-v1.md).
 
-**Purpose:** Ultra-tight deck copy and **consequence-first** demo narration for accelerator / investor rooms. Full woven read-through: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md). Boot + camera order: [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md). Thesis Lock: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md).
+**Purpose:** Ultra-tight deck copy and **consequence-first** demo narration for accelerator / investor rooms. Full woven read-through: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md). Boot + camera: [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md). **Operator one-pager:** [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md). Thesis Lock: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md).
+
+**Plain English:** This doc is the **words and clicks** for `/demo`: why the problem is scary first, then what Jarvis does. If you’re not running the meeting, start with the **[investor read pack](./investor-read-pack.md)**—that’s the 15-minute path for advisors and investors.
 
 **Principle:** The audience should feel **consequence before chrome**. If they see the HUD first without the stakes line, the demo reads as “cool dashboard.” If they hear **what would have happened without the layer** first, it reads as **necessary infrastructure**.
 
-**In-product:** **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) opens the **cinematic six-slide deck** (same slides as phase 1 of **`/demo`**). **`?view=markdown`** on that URL shows this file in the minimal reader. **`/demo`** continues with **transition → live proof scroll** (`DemoExperience.tsx`). **Slide order:** **Jarvis (hero + thesis)** → Open → Consequence (typewriter) → Gap → Jarvis (lock-in) → Handoff. Slide 3 typewriter: **allowed to run immediately**, then anchor line + **`system.note`**.
+**In-product:** **`/docs`** — **Start here** CTA to **`/demo`**; investor **15 min path** on the same page. **`/demo`** — same six slides with **split outline track** (speaker notes; mobile **N**), **transition**, and **cinematic proof** scroll (door / authority; `DemoCinematicScroll.tsx`). **`/docs/strategy/gener8tor-pitch`** and **`/pitch`** — **read-only** deck; slide 6 CTA **Open Jarvis HUD** → **`/activity`**; handoff also links **`/demo`** for notes + full scroll. **`?view=markdown`** on the docs URL shows this file. **Slide order:** **Jarvis (hero + thesis)** → Open → Consequence (typewriter) → Gap → Jarvis (lock-in) → Handoff. Slide 3 typewriter: **allowed to run immediately**, then anchor + **`system.note`**.
 
 ---
 
@@ -31,7 +34,7 @@ related:
 ### Slide 1 — Jarvis *(hero — thesis only on screen)*
 
 - **On screen:** **Jarvis** in solid white, large semibold display type (Geist / system stack); one **subtitle** line in muted gray — *Autonomy in thinking. Authority in action.* No gradient type, no rule, no micro-tag (reads cleaner / less “AI deck”).
-- **Say (optional):** One beat of silence, or: *“This is the layer we’re about to prove.”* Then advance.
+- **Say (optional):** **Default:** ~2s silence—let the title and subtitle land (avoids abstract “layer” language in mixed rooms). **If you want one line:** point at what’s already on screen—*“That sentence under the name—that’s what we’re here to show.”* Then advance.
 
 ### Slide 2 — Open *(script: Open)*
 
@@ -70,7 +73,7 @@ related:
 ### Slide 6 — Handoff *(script: Demo handoff → enter live)*
 
 - **Headline:** propose → approve → execute → receipt → trace
-- **Sub:** Same stack — OpenClaw proposes, Jarvis governs. Most stacks give you logs. Jarvis gives you proof.
+- **Sub:** Same stack — OpenClaw proposes, Jarvis governs. Most systems show you what already happened. Jarvis shows what was allowed to happen.
 - **Footer:** Live: intercept → gate → execute → attributable outcome.
 
 ### Backup (30s) — Competition
@@ -126,7 +129,7 @@ Match script **Jarvis**: approval vs execution + proof; *“Jarvis doesn’t man
 
 ### Block 6 — Handoff / Slide 6 → live (10s + choreography)
 
-Match script **Demo handoff**: full lifecycle string; OpenClaw + Jarvis; *“Most stacks give you logs. Jarvis gives you proof.”* Then **Enter live system** → proof choreography:
+Match script **Demo handoff**: full lifecycle string; OpenClaw + Jarvis; *“Most systems… allowed to happen.”* (see UI). Then **Enter live system** → proof choreography (door / authority boundary):
 
 | Step | Time | Screen / action | Say |
 |------|------|-----------------|-----|

@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 2.2
+version: 2.16
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -11,6 +11,7 @@ related:
   - DEMO.md
   - docs/setup/local-stack-startup.md
   - docs/video/investor-demo-full-runbook.md
+  - docs/video/investor-demo-rehearsal-run-sheet.md
   - docs/strategy/gener8tor-pitch.md
 ---
 
@@ -18,9 +19,10 @@ related:
 
 Canonical product thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock).  
 Live demo steps: [DEMO.md](../../DEMO.md).  
-**Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).  
-**Cinematic beats:** **`/demo`** opens with **six slides**: **Jarvis (hero + thesis)** → **Open → Consequence → The gap → Jarvis (lock-in) → Demo handoff** — **canonical on-screen copy** is in [`Gener8torPitchSlideDeck.tsx`](../../src/components/demo/Gener8torPitchSlideDeck.tsx) (keep script and UI in sync when you change wording). Then **transition** → **cinematic proof** scroll ([`DemoCinematicScroll.tsx`](../../src/components/demo/DemoCinematicScroll.tsx)). Wiring: `DemoExperience.tsx`, `InvestorPitchSlides.tsx`.  
-**Timed blocks + speaker notes:** [gener8tor-pitch.md](./gener8tor-pitch.md).
+**Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md). **Rehearsal run sheet** (one page): [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md).  
+**Cinematic beats:** **`/demo`** opens with **six slides**: **Jarvis (hero + thesis)** → **Open → Consequence → The gap → Jarvis (lock-in) → Demo handoff** — **canonical on-screen copy** is in [`Gener8torPitchSlideDeck.tsx`](../../src/components/demo/Gener8torPitchSlideDeck.tsx) (keep script and UI in sync when you change wording). Then **transition** → **cinematic proof** scroll ([`DemoCinematicScroll.tsx`](../../src/components/demo/DemoCinematicScroll.tsx)). Wiring: `DemoExperience.tsx`, `InvestorPitchSlides.tsx`. **Outline track (`/demo`):** [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts) — **split panel** beside the deck on desktop (mobile: **N** drawer). **Slide 1** = hook; **slides 2–6** = **house / river / door**; **live** = **Flow 1** + operator email optional. Read-only pitch (`/pitch`, docs URL): CTA → **`/activity`** (HUD). Technical rehearsal: **long-form weave** below; boot: [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).  
+**Timed blocks + speaker notes:** [gener8tor-pitch.md](./gener8tor-pitch.md).  
+**Investor-facing path (read before live):** [investor-read-pack.md](./investor-read-pack.md) — what to send advisors; this file is **operator narration**.
 
 This document is **spoken copy** + **stage directions** + **delivery notes**. It does not replace Thesis Lock. There is no separate setup section in the on-camera flow; the stack is **live** from the first scroll.
 
@@ -28,8 +30,8 @@ This document is **spoken copy** + **stage directions** + **delivery notes**. It
 
 ## Memorize (room + camera)
 
-1. **Hero (slide 1)** — **Jarvis** + thesis on screen; optional one line or silence.  
-2. **Three forces (slide 2)** — **Capability**, **Ungated execution**, **Governance pressure** (same words as the deck).  
+1. **Hero (slide 1)** — **Jarvis** + thesis on screen; **outline track** uses the full grounded house/river opener ending on the thesis line—or shorter silence if you prefer (see `investorDemoSpeakerNotes.ts`).  
+2. **Three forces (slide 2)** — Continue **house / river** momentum (see Script panel); don’t read bullets aloud.  
 3. **Anchor** — Email / code / API examples vs **`system.note`** on screen; stakes **before** the HUD.  
 4. **Gap & lock-in (slides 4–5)** — Visibility ≠ execution; Jarvis separates approve / execute + proof.  
 5. **Handoff → live** — Lifecycle string, then HUD / Flow 1 (or **`send_email`** path per operator block).
@@ -46,7 +48,7 @@ Read this in one continuous take. Pauses are part of the script.
 
 *(Start on slide 1. Hold ~2 seconds. On screen: **Jarvis** — *Autonomy in thinking. Authority in action.*)*
 
-*(Optional, one quiet line:)* “This is the layer we’re here to prove.”
+*(Optional—silence is often stronger in mixed rooms:)* hold ~2s. *(If you want one line, stay concrete—no “layers”:)* “That sentence under the name—that’s what we’re here to show.”
 
 *(Advance to slide 2.)*
 
@@ -136,27 +138,22 @@ This is the same local system — proposal from OpenClaw, governed and executed 
 
 *(Optional.)*
 
-Most stacks give you logs. Jarvis gives you proof.
+Most systems show you what already happened. Jarvis shows what was allowed to happen.
 
-### Operator — OpenClaw + email (`send_email` proposal)
+### Operator — OpenClaw + email (`send_email` proposals)
 
-Run **once** before you **hard cut** to the real HUD (or immediately after the handoff above). Same signed ingress as Flow 1; proposal file is **`scripts/demos/send-email-proposal.json`** (allowlisted demo recipient — see [DEMO.md](../../DEMO.md)). Server must have **`DEMO_EMAIL_USER`** / **`DEMO_EMAIL_PASS`** for SMTP after you execute.
+**Recommended (investor room):** **One batch**, two `send_email` proposals — first **unsafe / wrong** (you **Reject** in the HUD), second **safe / right** (you **Approve** → **Execute**). The canonical **OpenClaw → Alfred** paste and the two-outcome **spoken** track live in [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts) — **`ALFRED_INVESTOR_DEMO_BATCH_EMAIL_PROMPT`**, plus **`ALFRED_INVESTOR_DEMO_FIXED_EMAIL_FILES_PROMPT`** (canned bad + good JSON, no LLM). **Order and pacing:** [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md).
 
-**Terminal (from `jarvis-hud`):**
+**Minimal single good send (legacy one-proposal path):** Same signed ingress; proposal file **`scripts/demos/send-email-proposal.json`** (allowlisted recipient — [DEMO.md](../../DEMO.md)). Server needs **`DEMO_EMAIL_USER`** / **`DEMO_EMAIL_PASS`** for SMTP after you execute.
 
 ```bash
 cd ~/Documents/jarvis-hud
 pnpm jarvis:submit --file scripts/demos/send-email-proposal.json
 ```
 
-**Same behavior, one wrapper** (loads `.env.local` like `pnpm openclaw:dev`):
+or `pnpm demo:send-email` (loads `.env.local`).
 
-```bash
-cd ~/Documents/jarvis-hud
-pnpm demo:send-email
-```
-
-**OpenClaw → Chat** (paste; adjust path if your clone is not `~/Documents/jarvis-hud`):
+**OpenClaw → Chat** (single file only; adjust path if your clone differs):
 
 ```
 Investor demo — submit governed send_email only.
@@ -171,7 +168,7 @@ pnpm jarvis:submit --file scripts/demos/send-email-proposal.json
 Reply with the Jarvis proposal id and trace id (pending). Do not claim execution—the HUD approves and executes.
 ```
 
-*(Then in the HUD: pending **`send_email`** → **Approve** → **Execute** → receipt/trace → **Gmail** proof below.)*
+*(In the HUD: two-outcome **batch** = **Reject** first row / **Approve → Execute** second; or single proposal = **Approve** → **Execute** once → receipt/trace → **Gmail** proof as applicable.)*
 
 ### Product *(on screen)*
 
@@ -179,17 +176,17 @@ Reply with the Jarvis proposal id and trace id (pending). Do not claim execution
 
 This is a governed action.
 
-The agent proposes the action.
+The agent brings something to the door.
 
-A human explicitly approves it.
+A human decides whether it crosses.
 
-Execution happens as a separate step.
+Execution happens separately.
 
-And we get a receipt and a trace tied to that action.
+The receipt and trace prove what moved forward.
 
 *(Pause.)*
 
-Not logs — proof.
+Not logs — **proof** (what was **allowed** to happen).
 
 ### Hard cut → real HUD
 
@@ -197,7 +194,7 @@ Not logs — proof.
 
 This is the same lifecycle running in the actual system.
 
-*(On screen: pending proposals — **Flow 1** uses two **`system.note`** cards; **`send_email`** path uses the governed email proposal. **Approve** → **Execute** → receipt in either case.)*
+*(On screen: pending proposals — **Path A:** two-outcome **`send_email`** batch (Reject first / Approve → Execute second) **or** **Path B:** two **`system.note`** cards. **Approve** (when applicable) **→** **Execute** → receipt.)*
 
 Every step is explicit.
 

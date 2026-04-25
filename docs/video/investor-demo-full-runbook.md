@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 1.9
+version: 2.0
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -11,12 +11,13 @@ related:
   - docs/strategy/flagship-team-bundle-v1.md
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/setup/local-stack-startup.md
+  - docs/video/investor-demo-rehearsal-run-sheet.md
   - DEMO.md
 ---
 
 # Investor demo — full operator runbook
 
-Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). **Six-slide + block-timed narration:** [gener8tor-pitch.md](../strategy/gener8tor-pitch.md). On-screen beats: **`/demo`** — **six full-screen slides** (hero **Jarvis** + thesis, then Gener8tor narrative), **transition** (“This is not a concept. This is running.”), then the **cinematic proof** scroll (lifecycle, mock, HUD link). Integration and origin banners are hidden on `/demo` for a clean recording surface.
+Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. **Operator run sheet (one page):** [investor-demo-rehearsal-run-sheet.md](./investor-demo-rehearsal-run-sheet.md). The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). **Six-slide + block-timed narration:** [gener8tor-pitch.md](../strategy/gener8tor-pitch.md). On-screen beats: **`/demo`** — **six full-screen slides** (hero **Jarvis** + thesis, then Gener8tor narrative), **transition** (“This is not a concept. This is running.”), then the **cinematic proof** scroll (door / authority boundary, lifecycle, mock, HUD link). Integration and origin banners are hidden on `/demo` for a clean recording surface. **Alfred pastes and live outline text** (canonical) are in `src/components/demo/investorDemoSpeakerNotes.ts` — do not maintain a second copy; link here only.
 
 **Thesis Lock:** [jarvis-hud-video-thesis.md](../strategy/jarvis-hud-video-thesis.md).
 
@@ -78,35 +79,25 @@ Use the **full woven script** in [investor-demo-narrative-script.md](../strategy
 **Demo handoff (short)**
 
 > Everything runs through a simple lifecycle: **propose**, **approve**, **execute**—then you get a **receipt** and a **trace** you can stand behind.  
-> Most stacks give you logs. Jarvis gives you proof.
+> Most systems show you what already happened. Jarvis shows what was allowed to happen.
+
+**Investor room — two-outcome `send_email` batch (recommended):** one OpenClaw → Alfred batch (unsafe draft vs safe draft; shared correlation); in the HUD, **Reject** the first, **Approve → Execute** the second. Full operator order, idle-banner note, and fallbacks: [investor-demo-rehearsal-run-sheet.md](./investor-demo-rehearsal-run-sheet.md). **Flagship `system.note` Flow 1** (two files, no email) remains in *OpenClaw Control UI* below.
 
 ---
 
-## Locked talk track — `/demo` → Flow 1 (~8–12 min)
+## Locked talk track — `/demo` → live HUD (~8–12 min)
 
-**Setup (before you speak):** `/demo` open; Jarvis HUD (**Activity** / queue); optional OpenClaw Control UI.
+**Setup (before you speak):** `/demo` open; Jarvis HUD (**Activity** / queue); **OpenClaw Control** if using Alfred paste.
 
-**Opening (~20–30 s):** Same spine as [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md): **hero (Jarvis + thesis)** → **three forces** (**Capability**, **Ungated execution**, **Governance pressure**) → **consequence / system.note** anchor → then gap, lock-in, handoff. Jarvis: agents **propose**, nothing executes without **explicit approval**, every real action produces a **receipt** and **trace**.
+**Opening (~20–30 s):** Same spine as [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md): **hero (Jarvis + thesis)** → **three forces** (**Capability**, **Ungated execution**, **Governance pressure**) → **consequence** anchor (slide 3) → then gap, lock-in, handoff. Jarvis: agents **propose**, nothing ships without **explicit** human gating, every real action produces a **receipt** and **trace**.
 
-**Slides (~1–2 min max):** Advance `/demo` through **six slides** in order (see script + [gener8tor-pitch.md](../strategy/gener8tor-pitch.md)); don’t skip naming the **three forces** on slide 2. After **Enter live system**, lifecycle is **propose → approve → execute → receipt → trace**. Keep it short; frame as control, not a feature tour.
+**Slides (~1–2 min max):** Advance `/demo` through **six slides** in order (see script + [gener8tor-pitch.md](../strategy/gener8tor-pitch.md)); don’t skip naming the **three forces** on slide 2. Cinematic scroll after transition uses **door / authority** language (same world as the deck). **Outline track** on `/demo` matches [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts).
 
-**Transition (before live HUD):** Two beats (don’t rush the line break):
+**Transition (before live proof in HUD):** Two beats (don’t rush the line break); then either continue **scrolling** `/demo` to the end of the cinematic block **or** hard cut to the HUD for the real two-outcome run.
 
-1. “This isn’t just a diagram—**this is running**.”
-2. “And **without this layer**… these actions would be **allowed to run immediately**—no human gate.” *(Optional second beat:)* “That could mean email, code, an API—**you’re seeing `system.note`, but the boundary is the same.**”
+**Path A — two-outcome `send_email` batch (typical investor room, ~5–7 min live):** Follow **line-for-line** the **Live proof** section in `investorDemoSpeakerNotes.ts` (scope → wrong vs right → consequence → **Reject** first → **Approve → Execute** second → inbox → receipt). Paste **`ALFRED_INVESTOR_DEMO_BATCH_EMAIL_PROMPT`** into OpenClaw → Alfred. **Fixed JSON** fallback: **`ALFRED_INVESTOR_DEMO_FIXED_EMAIL_FILES_PROMPT`** in the same file.
 
-**Then** switch to HUD (and OpenClaw Chat if driving Flow 1 from there).
-
-**Flow 1 — core (~5–7 min):**
-
-1. **Scope (say once):** “Today I’m showing this with **system notes**—but the **same boundary** applies to **email, code, and real external actions**.” (Stops the room from thinking this is only note-taking.)
-2. **Alfred intake** — first `system.note`: “Nothing has happened yet. This is just a proposal.”
-3. **Research digest** — second `system.note`.
-4. **Key moment (consequence):** Say: “**If this system didn’t exist, both of these would be allowed to run immediately**—**uncontrolled**.” **Micro-pause:** deliver the line → **look at them** → count **1… 2** in your head → then continue. That silence is where risk lands. Then: “**Instead, nothing happens until I explicitly approve**—and **even then, execution is a separate step**.” **Correlation / two-card detail (optional):** If the room is technical, add one line: two proposals, one **correlationId**, **independent** approve/execute—no fake batching. If not technical, **skip**—don’t trade momentum for explanation.
-5. **Pending** — Point at pending state. Say: “**This is the system holding the line.**” Then (if needed): “Nothing runs automatically.”
-6. **Approve** — “Approval is explicit—and it does **not** execute anything.” (**Slow down** here.)
-7. **Execute** — “Execution is a **separate** step.”
-8. **Proof** — receipt + trace; what was approved, what ran, reconstructable. **Slow down** on the reveal. **Stop talking when proof is visible.**
+**Path B — Flagship `system.note` (no email, two cards):** Use *OpenClaw Control UI* prompts below (Alfred + Research files). **Approve → Execute** each card; no Gmail beat unless you add `send_email` separately.
 
 **Close (sticky):** “**The agent generated the action. I controlled whether it ran. And now we have proof of what actually happened.**”
 
@@ -124,7 +115,7 @@ Run mentally (or tick on paper):
 
 - Gateway stable (**19001** confirmed — `pnpm local:stack:doctor`).
 - HUD **Activity** clean enough to narrate (no distracting noise).
-- Both Flow 1 proposals **reproducible fast** (OpenClaw prompts or fallback `jarvis:submit` commands).
+- Two-outcome run **reproducible** (Alfred batch paste + optional JSON fallback in `investorDemoSpeakerNotes.ts`) **or** flagship `system.note` files below.
 - You land: **consequence** → **intercept** → **approve ≠ execute** → **receipt + trace**.
 - You **stop talking** when proof is on screen.
 - **After one full dry run:** note where you **rushed**, felt **awkward**, or **explained instead of showed**—that becomes your holes list for the next pass.
@@ -226,6 +217,8 @@ Return to **Jarvis HUD**, then say:
 
 ## Related
 
+- [Rehearsal run sheet](./investor-demo-rehearsal-run-sheet.md)  
+- [Git / change snapshot (audit)](./investor-demo-git-snapshot.md)  
 - [90s proof demo](./90s-proof-demo.md)  
 - [DEMO.md](../../DEMO.md)  
 - [OpenClaw operator checklist](../setup/openclaw-jarvis-operator-checklist.md)

@@ -31,4 +31,4 @@ cp env.example .env.local   # optional; set vars as needed
 pnpm dev
 ```
 
-See [README.md](README.md) and [docs/setup/env.md](docs/setup/env.md) for more.
+See [README.md](README.md), [docs/setup/env.md](docs/setup/env.md), and [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) (**normal `pnpm dev`**, iCloud / `.next` stability, OpenClaw **`OPENCLAW_ROOT`**).

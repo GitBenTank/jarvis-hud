@@ -2,6 +2,30 @@
 
 Use this as the **single** routine for daily development. It avoids the common failure modes: **two gateways**, **mixed state directories**, and **Jarvis env pointing at the wrong Control UI port**.
 
+### Normal local dev (`pnpm dev`) — no demo scripts required
+
+Daily work is **`pnpm dev`** (Jarvis on **`http://127.0.0.1:3000`**) plus OpenClaw when you need ingress — not **`pnpm demo:boot`**. Demo scripts are for scripted smoke / ingress checks and port **3001**; they are optional for product-style dev.
+
+| Goal | What to do |
+|------|------------|
+| **Stable Next dev** | Keep **jarvis-hud** on a **local, non-cloud-synced** path. Repos under **iCloud-synced `~/Documents`** often see **`ENOENT`** under **`.next/dev`** (temp files moved or renamed by sync). **One-time:** e.g. `mkdir -p ~/Dev` and move the clone there (`~/Dev/jarvis-hud`), then `rm -rf .next && pnpm install && pnpm dev`. |
+| **Stable OpenClaw** | Use a **clean runtime clone** and **`OPENCLAW_ROOT`**: `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` from jarvis-hud (see **One-time: runtime clone**). If **`~/Documents/openclaw`** fails to build (e.g. **`Unknown module type: copy`**), do not block on that tree — fix **`pnpm install`** there or use **`openclaw-runtime`**. You can keep **`openclaw-runtime`** under **`~/Dev`** too if you moved Jarvis. |
+| **Port alignment** | With **`pnpm dev`**, set **`JARVIS_BASE_URL`** and **`JARVIS_HUD_BASE_URL`** in **`.env.local`** to **`http://127.0.0.1:3000`** (same host as the browser). Demo env uses **3001**; mixing 3000 dev with 3001 env causes confusing connector / cookie issues. |
+
+**Two terminals (canonical):**
+
+```text
+# Terminal 1 — from your jarvis-hud clone
+pnpm dev
+
+# Terminal 2 — same directory
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
+```
+
+(Adjust **`OPENCLAW_ROOT`** if your runtime clone lives elsewhere, e.g. **`~/Dev/openclaw-runtime`**.)
+
+Then **`pnpm local:stack:doctor`** from jarvis-hud.
+
 ### Blessed path (default — Jarvis + OpenClaw integration)
 
 | | |

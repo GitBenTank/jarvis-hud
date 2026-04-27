@@ -15,7 +15,7 @@ export function InvestorPitchSlides({
       ctaLabel="Enter live system"
       onCta={onEnterLive}
       onActiveSlideChange={onSlideChange}
-      footerHint="Scroll or arrow keys · notes beside you (mobile: N) · then continue"
+      footerHint="Enter live system → HUD home (/) · OpenClaw + proposals from run sheet / notes in code"
       slideNavClassName="right-0 max-sm:right-0 sm:right-[min(420px,40vw)]"
     />
   );

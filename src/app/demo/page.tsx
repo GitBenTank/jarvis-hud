@@ -4,7 +4,7 @@ import { DemoExperience } from "./DemoExperience";
 export const metadata: Metadata = {
   title: "Jarvis · Investor demo",
   description:
-    "Six-slide narrative, then live proof — control plane for AI execution (propose, approve, execute, receipt, trace).",
+    "Six-slide narrative; Enter live system opens HUD home (/) — then proposals, approval, and proof in the app.",
 };
 
 export default function DemoPage() {

@@ -288,7 +288,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "stage",
-        text: "Enter live system → transition → scroll / HUD.",
+        text: "Enter live system → same-origin HUD home (/) — live proof in Activity + run sheet, not a second in-page scroll.",
       },
     ],
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/components/demo/cn";
 import {
   DemoScriptBlocks,
@@ -17,15 +17,24 @@ export type DemoSpeakerNotesPhase = "slides" | "transition" | "live";
 /** Matches `slideNavClassName` inset on `InvestorPitchSlides` (split column width). */
 export const DEMO_NOTES_COLUMN_CLASS = "w-[min(420px,40vw)]" as const;
 
-function useNotesModel(phase: DemoSpeakerNotesPhase, slideIndex: number) {
+type NotesSubTab = "slides" | "postdeck";
+
+function useNotesModel(
+  phase: DemoSpeakerNotesPhase,
+  slideIndex: number,
+  opts?: { postDeckTabs: boolean; subTab: NotesSubTab },
+) {
   const safeSlide = Math.min(
     Math.max(slideIndex, 0),
     INVESTOR_SLIDE_SCRIPTS.length - 1,
   );
   const slideScript = INVESTOR_SLIDE_SCRIPTS[safeSlide];
+  const onPostDeck = Boolean(opts?.postDeckTabs && opts.subTab === "postdeck");
 
   let phaseLabel: string;
-  if (phase === "slides") {
+  if (onPostDeck) {
+    phaseLabel = "After handoff";
+  } else if (phase === "slides") {
     phaseLabel = `Slides · ${safeSlide + 1} / ${INVESTOR_SLIDE_SCRIPTS.length}`;
   } else if (phase === "transition") {
     phaseLabel = "Transition";
@@ -33,46 +42,102 @@ function useNotesModel(phase: DemoSpeakerNotesPhase, slideIndex: number) {
     phaseLabel = "Live proof";
   }
 
-  return { safeSlide, slideScript, phaseLabel };
+  const secondLine: string | null = onPostDeck
+    ? "OpenClaw → Activity. Same outline as in code + run sheet."
+    : phase === "slides"
+      ? slideScript.label
+      : null;
+
+  return { safeSlide, slideScript, phaseLabel, secondLine, onPostDeck };
+}
+
+function LiveOutlineSections() {
+  return (
+    <div>
+      {INVESTOR_LIVE_SCRIPT_SECTIONS.map((sec) => (
+        <div key={sec.title}>
+          <DemoScriptSectionTitle>{sec.title}</DemoScriptSectionTitle>
+          <DemoScriptBlocks blocks={sec.blocks} />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function NotesScrollBody({
   phase,
   slideScript,
+  postDeckTabs,
+  subTab,
 }: {
   phase: DemoSpeakerNotesPhase;
   slideScript: (typeof INVESTOR_SLIDE_SCRIPTS)[number];
+  postDeckTabs: boolean;
+  subTab: NotesSubTab;
 }) {
+  if (postDeckTabs && subTab === "postdeck") {
+    return (
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-10">
+        <p className="mb-4 border-l-2 border-sky-500/40 pl-3 text-[12px] leading-relaxed text-zinc-500">
+          After you tap <span className="text-zinc-300">Enter live system</span> you land on{" "}
+          <span className="text-zinc-300">HUD home (/)</span>—then OpenClaw → Activity, proposals, email. Same
+          sections as in{" "}
+          <span className="text-zinc-400">INVESTOR_LIVE_SCRIPT_SECTIONS</span> in the speaker notes file.
+        </p>
+        <LiveOutlineSections />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-10">
       {phase === "slides" ? <DemoScriptBlocks blocks={slideScript.blocks} /> : null}
+      {phase === "transition" ? <DemoScriptBlocks blocks={INVESTOR_TRANSITION_SCRIPT} /> : null}
+      {phase === "live" ? <LiveOutlineSections /> : null}
+    </div>
+  );
+}
 
-      {phase === "transition" ? (
-        <DemoScriptBlocks blocks={INVESTOR_TRANSITION_SCRIPT} />
-      ) : null}
-
-      {phase === "live"
-        ? INVESTOR_LIVE_SCRIPT_SECTIONS.map((sec) => (
-            <div key={sec.title}>
-              <DemoScriptSectionTitle>{sec.title}</DemoScriptSectionTitle>
-              <DemoScriptBlocks blocks={sec.blocks} />
-            </div>
-          ))
-        : null}
+function PostDeckSubTabBar({
+  subTab,
+  onSubTabChange,
+}: {
+  subTab: NotesSubTab;
+  onSubTabChange: (next: NotesSubTab) => void;
+}) {
+  const tab = (id: NotesSubTab, label: string) => (
+    <button
+      key={id}
+      type="button"
+      onClick={() => onSubTabChange(id)}
+      className={cn(
+        "flex-1 rounded-md py-1.5 text-center text-xs font-medium transition-colors",
+        subTab === id
+          ? "bg-zinc-800 text-zinc-100"
+          : "text-zinc-500 hover:bg-zinc-900/80 hover:text-zinc-300",
+      )}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div className="flex shrink-0 gap-1 border-b border-zinc-800 px-2 py-2">
+      {tab("slides", "Slides")}
+      {tab("postdeck", "After handoff")}
     </div>
   );
 }
 
 function NotesHeader({
   phaseLabel,
-  slideLabel,
-  showSlideLabel,
+  secondLine,
+  postDeckTabs,
   showClose,
   onClose,
 }: {
   phaseLabel: string;
-  slideLabel: string;
-  showSlideLabel: boolean;
+  secondLine: string | null;
+  postDeckTabs: boolean;
   showClose: boolean;
   onClose?: () => void;
 }) {
@@ -83,12 +148,12 @@ function NotesHeader({
           Outline track
         </p>
         <p className="mt-1 text-sm font-medium text-zinc-100">{phaseLabel}</p>
-        {showSlideLabel ? (
-          <p className="mt-0.5 text-xs text-zinc-500">{slideLabel}</p>
-        ) : null}
+        {secondLine ? <p className="mt-0.5 text-xs text-zinc-500">{secondLine}</p> : null}
         <p className="mt-2 text-[11px] leading-snug text-zinc-600">
-          Split beside deck · Mobile: Script / <span className="text-zinc-500">N</span> ·{" "}
-          <span className="text-zinc-500">Say</span> / <span className="text-zinc-500">Cue</span>
+          Split beside deck
+          {postDeckTabs ? " · tab After handoff for live script" : ""} · Mobile: Script /{" "}
+          <span className="text-zinc-500">N</span> · <span className="text-zinc-500">Say</span> /{" "}
+          <span className="text-zinc-500">Cue</span>
         </p>
       </div>
       {showClose ? (
@@ -110,13 +175,21 @@ export function DemoSpeakerNotesPanel({
   slideIndex,
   mobileOpen,
   onMobileOpenChange,
+  postDeckTabs = false,
 }: {
   phase: DemoSpeakerNotesPhase;
   slideIndex: number;
   mobileOpen: boolean;
   onMobileOpenChange: (next: boolean) => void;
+  /** When true (e.g. /demo), show Slides + After handoff so live script is visible beside the deck. */
+  postDeckTabs?: boolean;
 }) {
-  const { slideScript, phaseLabel } = useNotesModel(phase, slideIndex);
+  const [subTab, setSubTab] = useState<NotesSubTab>("slides");
+  const { slideScript, phaseLabel, secondLine } = useNotesModel(
+    phase,
+    slideIndex,
+    postDeckTabs ? { postDeckTabs, subTab } : undefined,
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -165,12 +238,20 @@ export function DemoSpeakerNotesPanel({
       >
         <NotesHeader
           phaseLabel={phaseLabel}
-          slideLabel={slideScript.label}
-          showSlideLabel={phase === "slides"}
+          secondLine={secondLine}
+          postDeckTabs={postDeckTabs}
           showClose
           onClose={() => onMobileOpenChange(false)}
         />
-        <NotesScrollBody phase={phase} slideScript={slideScript} />
+        {postDeckTabs ? (
+          <PostDeckSubTabBar subTab={subTab} onSubTabChange={setSubTab} />
+        ) : null}
+        <NotesScrollBody
+          phase={phase}
+          slideScript={slideScript}
+          postDeckTabs={postDeckTabs}
+          subTab={subTab}
+        />
       </aside>
 
       {mobileOpen ? (
@@ -192,11 +273,19 @@ export function DemoSpeakerNotesPanel({
       >
         <NotesHeader
           phaseLabel={phaseLabel}
-          slideLabel={slideScript.label}
-          showSlideLabel={phase === "slides"}
+          secondLine={secondLine}
+          postDeckTabs={postDeckTabs}
           showClose={false}
         />
-        <NotesScrollBody phase={phase} slideScript={slideScript} />
+        {postDeckTabs ? (
+          <PostDeckSubTabBar subTab={subTab} onSubTabChange={setSubTab} />
+        ) : null}
+        <NotesScrollBody
+          phase={phase}
+          slideScript={slideScript}
+          postDeckTabs={postDeckTabs}
+          subTab={subTab}
+        />
       </aside>
     </>
   );

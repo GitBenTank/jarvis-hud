@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Pre-demo checklist: verify server is reachable and endpoints return 200.
 # Usage: pnpm demo:verify
-# Requires: Jarvis dev server running (pnpm demo:boot)
+# Requires: Jarvis running (pnpm demo:boot or pnpm demo:start)
 # Retries up to 15 times (30s) to handle startup race.
 set -euo pipefail
 

@@ -31,6 +31,7 @@
     "openclaw:sync-openai-auth": "node scripts/sync-openclaw-openai-auth-from-env.mjs",
     "openclaw:dev": "bash scripts/openclaw-gateway-dev.sh",
     "demo:boot": "bash scripts/demo-boot.sh",
+    "demo:start": "bash scripts/demo-start-prod.sh",
     "demo:verify": "bash scripts/demo-verify.sh",
     "demo:smoke": "bash scripts/demo-smoke.sh",
     "demo:send-email": "bash scripts/demo-send-email.sh",

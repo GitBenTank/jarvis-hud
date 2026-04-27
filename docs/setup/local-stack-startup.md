@@ -18,6 +18,7 @@ Use this as the **single** routine for daily development. It avoids the common f
 | **OpenClaw checkout** | **`~/Documents/openclaw`** (or your fork) — omit **`OPENCLAW_ROOT`** or set it to this path |
 | **Expect** | **`dirty_watched_tree`**, long **`Building TypeScript…`** before **19001** listens |
 | **Rule** | This lane is for **runtime development**, not the default **integration / demo** proof |
+| **If `pnpm gateway:dev` fails** with **`Unknown module type: copy`** (rolldown/tsdown) | Your tree’s build toolchain is broken or mismatched—**do not** block demos on it. Use **`OPENCLAW_ROOT=~/Documents/openclaw-runtime`** (clean tag + `pnpm install`) for **`pnpm openclaw:dev`**, or fix **`pnpm install`** / pin the release in **`~/Documents/openclaw`**. |
 
 **TL;DR (this repo):** Terminal A — `pnpm dev` · Terminal B — **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (loads `JARVIS_BASE_URL` / ingress secret / `OPENAI_API_KEY` from `.env.local`; syncs **`auth-profiles.json`** for embedded chat when the key is set) · wait **gateway ready** + **19001** · check — `pnpm local:stack:doctor`. (**Locked-in** clean runtime clone — see **One-time: runtime clone** below. Hacking OpenClaw still uses **`~/Documents/openclaw`** without **`OPENCLAW_ROOT`**.)
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Clean boot: kill whatever is on 3000/3001, clear lock, start Jarvis with ingress.
 # Usage: pnpm demo:boot
+# If next dev crashes with ENOENT under .next/dev (tmp manifests), use: pnpm demo:start
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

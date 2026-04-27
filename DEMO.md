@@ -28,6 +28,15 @@ cd ~/Documents/jarvis-hud
 pnpm demo:boot
 ```
 
+**Shell:** Put `cd` on its own line. In **zsh**, a trailing `# comment` on the same line as `cd` can be parsed as extra arguments (`cd: too many arguments`) if interactive comments are off—run `cd ~/Documents/jarvis-hud` alone, then `pnpm demo:boot`.
+
+**If `demo:boot` / `pnpm dev` dies with `ENOENT` under `.next/dev`** (tmp `buildManifest`, manifests, or cache): use a **production** demo server (slower start, no dev cache writes):
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm demo:start
+```
+
 **Or manually:**
 
 ```bash
@@ -216,6 +225,8 @@ Action log entries (receipts) live in `{JARVIS_ROOT}/actions/{YYYY-MM-DD}.jsonl`
 |---------|--------|
 | **verify:** `/api/config` non-200 | Server not ready or wrong BASE_URL/PORT. Wait for boot or check `scripts/demo-env.sh`. |
 | **verify:** `/api/activity/stream` 404 | Stale dev server or build mismatch. Run `pnpm demo:boot`. |
+| **next dev:** `ENOENT` / `_buildManifest.js.tmp` under `.next/dev` | Often flaky dev writes (e.g. cloud-synced `Documents`). Run `pnpm demo:start` or move the repo to a non-synced path. |
+| **OpenClaw:** `Unknown module type: copy` (rolldown / tsdown) | Your **working** OpenClaw checkout toolchain is out of sync. For demos use a **clean** runtime clone: `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` (see `docs/setup/local-stack-startup.md`). |
 | **smoke:** cannot extract traceId | Smoke output format changed. Update regex in `scripts/demo-smoke.sh`. |
 | **Secret / env** | Run `pnpm jarvis:doctor`. Set `JARVIS_INGRESS_OPENCLAW_SECRET` (≥32 chars). Restart dev. |
 

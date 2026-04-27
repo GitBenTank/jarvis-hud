@@ -27,6 +27,13 @@ if [[ ! -f "$OPENCLAW_ROOT/package.json" ]]; then
 fi
 
 echo "openclaw-gateway-dev: OPENCLAW_STATE_DIR=$OPENCLAW_STATE_DIR"
+
+# Local Jarvis + Control UI does not need LAN Bonjour. mDNS (@homebridge/ciao) can throw
+# and kill the whole gateway on some macOS network/interface states. OpenClaw: OPENCLAW_DISABLE_BONJOUR=1
+# (https://openclaws.io/docs/gateway/discovery/). Override: OPENCLAW_DISABLE_BONJOUR=0 pnpm openclaw:dev
+export OPENCLAW_DISABLE_BONJOUR="${OPENCLAW_DISABLE_BONJOUR:-1}"
+echo "openclaw-gateway-dev: OPENCLAW_DISABLE_BONJOUR=$OPENCLAW_DISABLE_BONJOUR"
+
 if [[ -n "${OPENAI_API_KEY:-}" ]]; then
   node "$SCRIPT_DIR/sync-openclaw-openai-auth-from-env.mjs"
 else

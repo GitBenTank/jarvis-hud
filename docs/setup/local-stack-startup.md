@@ -225,6 +225,7 @@ Manual checks:
 | Symptom | Action |
 |---------|--------|
 | **Connection refused** on Control UI | Gateway not running, or wrong port in `OPENCLAW_CONTROL_UI_URL`. Run `pnpm local:stack:doctor`. |
+| **Gateway exits** with **`MDNSServer` / `@homebridge/ciao` / `IP address version must match`** | **`pnpm openclaw:dev`** now sets **`OPENCLAW_DISABLE_BONJOUR=1`** by default (local dev does not need LAN beacon). To re-enable Bonjour: **`OPENCLAW_DISABLE_BONJOUR=0 pnpm openclaw:dev`**. |
 | **Overview shows OK but Gateway Logs spam `Missing config` / `gateway.mode=local`** (stack traces from **`/opt/homebrew/.../openclaw`**) | Your **checkout** gateway is fine; a **second** Homebrew OpenClaw is crash-looping. **Stop** brew services / LaunchAgent for OpenClaw (`brew services list`, `~/Library/LaunchAgents`). Run **`pnpm local:stack:doctor`** — it prints Homebrew `openclaw` PSp lines if present. |
 | **`Missing config`** and the **only** gateway you want is Homebrew | Run **`openclaw setup`** or set **`gateway.mode`** to **`local`** in **`~/.openclaw`** (or your real state dir). |
 | **Token / URL mismatch** | CLI and gateway must share the same **`OPENCLAW_STATE_DIR`**. |

@@ -54,24 +54,19 @@ Chat: `hello`
 
 ## 3. Jarvis HUD
 
-From this repo:
+From this repo (canonical):
 
 ```bash
 cd ~/Documents/jarvis-hud
 pnpm dev
 ```
 
-Demo-style ingress on **3001**:
-
-```bash
-pnpm demo:boot
-```
+**Optional — [DEMO.md](../DEMO.md) on port 3001:** `pnpm demo:boot` instead of **`pnpm dev`**.
 
 **Want:** app loads; Activity responds:
 
 ```bash
-export JARVIS_URL=http://127.0.0.1:3000
-# or: export JARVIS_URL=http://127.0.0.1:3001
+export JARVIS_URL=http://127.0.0.1:3000   # must match your running dev server
 
 curl -sS -o /dev/null -w "%{http_code}\n" "$JARVIS_URL/activity"
 ```

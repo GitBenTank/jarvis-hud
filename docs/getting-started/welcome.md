@@ -4,7 +4,7 @@
 
 You do **not** need to run anything locally to understand the idea. Use **[About](/about)** in the app for a short surface tour, or **[Demo](/demo)** for the guided story.
 
-**Operators:** the blessed local flow is **[Local stack startup](../setup/local-stack-startup.md)** (clean **`openclaw-runtime`** + **`pnpm openclaw:dev`** from jarvis-hud)—not the whole docs grid.
+**Operators:** the blessed local flow is **[Local stack startup](../setup/local-stack-startup.md)** — **Terminal 1** `pnpm dev` (**http://127.0.0.1:3000**), **Terminal 2** `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`, then **`pnpm local:stack:doctor`**. Optional: **`pnpm dev:stack`** prints the same commands with env checks.
 
 ---
 

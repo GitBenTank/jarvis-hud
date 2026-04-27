@@ -21,45 +21,45 @@ This runbook proves the **OpenClaw → Jarvis ingress → approval → execution
 - [ ] `scripts/demo-env.sh` available (or env vars set manually)
 
 **Layout:**
-- **Terminal 1** → Jarvis (dev server)
-- **Terminal 2** → Smoke / OpenClaw
-- **Browser** → Jarvis UI (http://localhost:3001)
+- **Terminal 1** → **`pnpm dev`** (Jarvis **http://127.0.0.1:3000**)
+- **Terminal 2** → **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**
+- **Terminal 3** (optional) → smokes from jarvis-hud
+- **Browser** → Jarvis **http://127.0.0.1:3000**
+
+Canonical detail: [local stack startup](../setup/local-stack-startup.md).
 
 ---
 
 ## Section 1 — Start Jarvis (Terminal 1)
 
 ```bash
-cd ~/Documents/jarvis-hud   # or path to jarvis-hud
-source scripts/demo-env.sh
-killall node 2>/dev/null || true
-
-JARVIS_DEMO_LOG=1 pnpm demo:boot
+cd ~/Documents/jarvis-hud
+pnpm dev
 ```
 
-**Wait for:** `Ready` or `Local: http://localhost:3001`
+**Wait for:** Next **Ready** — **http://127.0.0.1:3000**
 
-**Success criteria:** Jarvis UI loads at http://localhost:3001. `pnpm jarvis:doctor` shows ingress enabled, secret present, allowlist includes openclaw.
+**Success criteria:** `.env.local` has ingress enabled, secret ≥32 chars, allowlist includes `openclaw`. **`pnpm jarvis:doctor`** / **`pnpm machine-wired`** pass when the server is up.
+
+**Optional — same as [DEMO.md](../../DEMO.md) on 3001:** `pnpm demo:boot` instead of **`pnpm dev`**.
 
 ---
 
-## Section 2 — Smoke Test (Terminal 2)
+## Section 2 — Smoke Test
 
-**Preferred (no OpenClaw repo):** From jarvis-hud, run ingress smoke. Same secret, same port.
+**From jarvis-hud** (Jarvis on **3000**; **`JARVIS_HUD_BASE_URL=http://127.0.0.1:3000`** in **`.env.local`**):
 
 ```bash
 cd ~/Documents/jarvis-hud
-source scripts/demo-env.sh
 pnpm ingress:smoke
+pnpm jarvis:smoke:apply
 ```
 
-**Fallback (with OpenClaw repo):** From openclaw, run jarvis smoke. Requires `JARVIS_BASE_URL` and `JARVIS_INGRESS_OPENCLAW_SECRET` to match Jarvis.
+**From OpenClaw checkout** (must match Jarvis origin and secret):
 
 ```bash
-cd ~/Documents/openclaw   # or path to OpenClaw repo
-source scripts/demo-env.sh   # if OpenClaw has it
-export JARVIS_BASE_URL="http://localhost:3001"
-export JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars"
+export JARVIS_BASE_URL="http://127.0.0.1:3000"
+export JARVIS_INGRESS_OPENCLAW_SECRET="<same as .env.local>"
 pnpm jarvis:smoke
 ```
 
@@ -85,7 +85,7 @@ POST /api/ingress/openclaw 200
 
 ## Section 4 — Pending Proposal (Browser)
 
-Open: http://localhost:3001
+Open: **http://127.0.0.1:3000** (or your live origin)
 
 **Success criteria:**
 - Pending proposal appears in Agent Proposals / Approvals panel
@@ -133,9 +133,9 @@ tail -n 3 ~/jarvis/actions/$(date +%Y-%m-%d).jsonl
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
-| Connection refused, curl fails | Jarvis not ready on port 3001 | Wait for `Ready`; confirm `pnpm demo:boot` finished; check `lsof -i :3001` |
-| 401 Unauthorized | Wrong `JARVIS_INGRESS_OPENCLAW_SECRET` | Ensure Jarvis and smoke client use the **same** secret (min 32 chars). Restart Jarvis after exporting env. |
-| 403 Forbidden | Wrong `JARVIS_BASE_URL` or ingress disabled | Set `JARVIS_BASE_URL=http://localhost:3001` (OpenClaw). For jarvis-hud smoke use `JARVIS_HUD_BASE_URL`. Run `pnpm jarvis:doctor` and restart Jarvis with env from `demo-env.sh`. |
+| Connection refused, curl fails | Jarvis not ready on **3000** (or wrong port) | Wait for Next **Ready**; **`lsof -nP -iTCP:3000 -sTCP:LISTEN`**; align **`.env.local`** and browser to the **live** port |
+| 401 Unauthorized | Wrong `JARVIS_INGRESS_OPENCLAW_SECRET` | Same secret in Jarvis **`.env.local`** and OpenClaw; ≥32 chars; restart **`pnpm dev`** and gateway |
+| 403 Forbidden | Wrong `JARVIS_BASE_URL` or ingress disabled | **`JARVIS_BASE_URL`** / **`JARVIS_HUD_BASE_URL`** = **`http://127.0.0.1:3000`** when using **`pnpm dev`**; ingress **on** in **`.env.local`** |
 | Plugin / gateway not working | OpenClaw plugin not enabled or gateway not restarted | Enable `jarvis-hud` (or equivalent) in `~/.openclaw/openclaw.json`; set `JARVIS_BASE_URL` in `~/.openclaw/.env`; restart OpenClaw Gateway. |
 | No pending proposal in Jarvis | Smoke succeeded but event not visible | Refresh page; check dateKey matches (same day); confirm storage path `~/jarvis` writable. |
 
@@ -156,9 +156,9 @@ Capture these for editing:
 
 | Var | Where | Example |
 |-----|-------|---------|
-| `JARVIS_INGRESS_OPENCLAW_SECRET` | Jarvis + OpenClaw / smoke | `openclaw-jarvis-demo-secret-minimum-32chars` (min 32 chars) |
-| `JARVIS_HUD_BASE_URL` | jarvis-hud scripts (ingress:smoke) | `http://localhost:3001` |
-| `JARVIS_BASE_URL` | OpenClaw (jarvis:smoke) | `http://localhost:3001` |
-| `PORT` | Jarvis dev server | `3001` (demo default) |
+| `JARVIS_INGRESS_OPENCLAW_SECRET` | Jarvis + OpenClaw / smoke | ≥32 chars, same everywhere |
+| `JARVIS_HUD_BASE_URL` | jarvis-hud **`.env.local`** | **`http://127.0.0.1:3000`** (`pnpm dev`) |
+| `JARVIS_BASE_URL` | OpenClaw (injected by **`pnpm openclaw:dev`**) | Same origin as HUD |
+| `PORT` | Jarvis | **`3000`** default; **3001** only for [DEMO.md](../../DEMO.md) **`demo:boot`** |
 
-Source `scripts/demo-env.sh` in both terminals to keep values in sync.
+For **3001** rehearsal, source [scripts/demo-env.sh](../../scripts/demo-env.sh) so smoke scripts match **`demo:boot`**.

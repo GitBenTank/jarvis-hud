@@ -1,6 +1,8 @@
 # Local dev truth map (Jarvis HUD + OpenClaw)
 
-This repo supports **two intentional local launch modes**. Neither is wrong. Problems happen when **config, scripts, and browsers** target a **different origin** than the **Next.js process that is actually listening**.
+**Default (documented everywhere):** **`pnpm dev`** on **http://127.0.0.1:3000** + **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** — [local stack startup](local-stack-startup.md).
+
+This page explains **why** things break when layers disagree. There is a second mode — **scripted demo on 3001** ([DEMO.md](../../DEMO.md)) — that is optional.
 
 **Jarvis rule:** The UI and `/api/config` must reflect reality. If `.env` intention and the running process disagree, **runtime wins** — fix URLs and scripts to match the live origin.
 
@@ -12,8 +14,8 @@ Find which port Jarvis is actually using, then align browser, OpenClaw, `JARVIS_
 
 ```bash
 # Which port is Jarvis listening on right now?
-curl -sS http://localhost:3000/api/config || true
-curl -sS http://localhost:3001/api/config || true
+curl -sS http://127.0.0.1:3000/api/config || true
+curl -sS http://127.0.0.1:3001/api/config || true
 ```
 
 Whichever request returns JSON is your current Jarvis base URL for this session. Point everything there.
@@ -57,8 +59,8 @@ Discover the real origin with `curl`, `lsof`, or the browser URL bar, then align
 
 Pick **one** canonical origin per session:
 
-- `http://localhost:3000` for standard dev, **or**
-- `http://localhost:3001` for demo mode.
+- **`http://127.0.0.1:3000`** for **`pnpm dev`**, **or**
+- **`http://127.0.0.1:3001`** for [DEMO.md](../../DEMO.md) / **`demo:boot`**.
 
 **Do not mix them:** if the process is on **3000**, do not leave `.env.local`, OpenClaw, or smoke scripts pointed at **3001**, and vice versa.
 
@@ -75,9 +77,9 @@ Quick checklist:
 ## Validation (config only)
 
 ```bash
-curl -sS "http://localhost:3000/api/config"
+curl -sS "http://127.0.0.1:3000/api/config"
 # or, if you intentionally run on 3001:
-curl -sS "http://localhost:3001/api/config"
+curl -sS "http://127.0.0.1:3001/api/config"
 ```
 
 Use the origin that matches **your** running server.

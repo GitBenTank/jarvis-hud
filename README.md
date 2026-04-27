@@ -4,7 +4,7 @@ Jarvis HUD is a control plane that enforces approval before action and produces 
 
 ```bash
 pnpm dev
-# open http://localhost:3000
+# open http://127.0.0.1:3000
 ```
 
 **In the browser:** `/docs` is the documentation home—**audience-first** (newcomers, investors, trust story, operators) plus a **curated** file index; use **`/docs?library=all`** for every markdown file. Rendered prose with optional **Slides** mode (split on `##`). New to the product: **`/docs/getting-started/welcome`**. **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) matches the cinematic deck from `/demo` (`?view=markdown` for markdown). Short redirects: `/library` → `/docs`, plus `/pitch`, `/playbook`, `/thesis`.
@@ -125,59 +125,31 @@ Control plane at a glance (click through for architecture detail):
 
 ## Local development
 
-This repo supports **two intentional** local launch modes. Neither is wrong; drift happens when the browser, OpenClaw, and env disagree about **which origin is live**.
+**Default (documented everywhere):** two terminals from this repo — **`pnpm dev`** (Jarvis, **http://127.0.0.1:3000**) then **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, then **`pnpm local:stack:doctor`**. Optional: **`pnpm dev:stack`** prints exact lines and checks `.env.local`.
 
-### Standard dev
+Full walkthrough: **[docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md)** · drift / ports: [docs/setup/local-dev-truth-map.md](docs/setup/local-dev-truth-map.md) · OpenClaw checks: [docs/local-verification-openclaw-jarvis.md](docs/local-verification-openclaw-jarvis.md).
 
-```bash
-pnpm dev
-```
+**`.env.local`:** use **`http://127.0.0.1:3000`** for **`JARVIS_BASE_URL`** and **`JARVIS_HUD_BASE_URL`** (same host as the browser). Same ingress **secret** on Jarvis and OpenClaw or signed ingress fails (**401**): [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md).
 
-- **Expected URL:** http://localhost:3000
+**Optional — scripted demo on port 3001:** [DEMO.md](DEMO.md) (`pnpm demo:boot`, `pnpm demo:verify`, `pnpm demo:smoke`). Only when you want that flow; normal day-to-day is **3000** + **`pnpm dev`** above.
 
-### Demo / ingress mode
+### Quick check (when things feel off)
 
 ```bash
-PORT=3001 pnpm dev:port
-# or
-pnpm demo:boot
+curl -sS http://127.0.0.1:3000/api/config | head -c 200 || true
 ```
 
-- **Expected URL:** http://localhost:3001 (`demo:boot` loads `scripts/demo-env.sh`: ingress **on**, shared **secret**, `PORT=3001`.)
-
-### Source of truth
-
-The **running Jarvis process** (listening port) is the authority. If config and runtime disagree: **runtime wins.**
-
-### Quick reset (when things feel off)
-
-```bash
-curl -sS http://localhost:3000/api/config || true
-curl -sS http://localhost:3001/api/config || true
-```
-
-Whichever returns JSON is your current Jarvis origin. Align the browser, OpenClaw, env vars, and scripts to **that** origin.
-
-### Docs
-
-- **Local dev truth map** — [docs/setup/local-dev-truth-map.md](docs/setup/local-dev-truth-map.md)
-- **OpenClaw verification** — [docs/local-verification-openclaw-jarvis.md](docs/local-verification-openclaw-jarvis.md)
-
-Use the **same** base URL and ingress **secret** on the OpenClaw side as on Jarvis, or signed ingress will fail (usually **401**). Details: [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md).
+If you intentionally run Jarvis on another port, curl **that** origin instead — runtime wins over stale env.
 
 ---
 
 ## Investor / demo path
 
-**Goal:** The story is obvious on the first screen here; **proof** is a **repeatable** OpenClaw → Jarvis **proposal** → human **approve** → explicit **execute** → **receipt** path — not “it worked once.”
+**Runtime:** Same as **Local development** — **`pnpm dev`** + **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, then drive proposals from OpenClaw (Alfred) or scripts.
 
-1. **Boot Jarvis for demo:** `pnpm demo:boot` (wait for Ready / Local URL).
-2. **Preflight:** `pnpm demo:verify` → expect `OK: config + stream reachable`.
-3. **Create proposals from this repo:** `pnpm demo:smoke` (ingress + apply smoke; note **`traceId`** in output).
-4. **OpenClaw (separate checkout):** same **`JARVIS_INGRESS_OPENCLAW_SECRET`** and **`JARVIS_BASE_URL`** as Jarvis → run **`pnpm jarvis:smoke`** (or your packaged smoke) **twice in a row** until it’s boring.
-5. **In the UI:** Approvals → approve → execute (per action type) → show **receipt** and **Activity / trace** for that **`traceId`**.
+**Optional scripted rehearsal (port 3001):** **[DEMO.md](DEMO.md)** — `pnpm demo:boot`, `pnpm demo:verify`, `pnpm demo:smoke`, and the failure table. Use when you want a fixed demo port and pre-wired `demo-env.sh`.
 
-Full script, receipt shapes, and failure table: **[DEMO.md](DEMO.md)** · OpenClaw handoff: **[docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md)**.
+**In-room proof:** OpenClaw → Jarvis proposal → human **approve** → **execute** → **receipt** / **trace** — [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md).
 
 ---
 
@@ -189,9 +161,9 @@ cp env.example .env.local   # optional; see docs/setup/env.md
 pnpm dev
 ```
 
-Open **http://localhost:3000**. For a **production-style** build: `pnpm build && pnpm start`. For a **guided demo** with ingress env pre-wired, use **`pnpm demo:boot`** and the [Investor / demo path](#investor--demo-path) above.
+Open **http://127.0.0.1:3000**. Production-style: `pnpm build && pnpm start`. Scripted demo on **3001**: [DEMO.md](DEMO.md) and [Investor / demo path](#investor--demo-path).
 
-**Jarvis + OpenClaw together:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md). **OpenClaw terminal (from this repo):** **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (locked-in clean clone; see doc) · **Jarvis:** `pnpm dev` · **Check:** `pnpm local:stack:doctor` · **Phase 1 pass/fail:** `pnpm machine-wired` (with both running) · **Phase 2 auth:** `pnpm auth-posture` · **VS Code:** Run Task → `Local stack: both (parallel)`.
+**Jarvis + OpenClaw:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) — **`pnpm dev`**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, **`pnpm local:stack:doctor`**, **`pnpm machine-wired`**, **`pnpm auth-posture`**. VS Code: Task **Local stack: both (parallel)**.
 
 ---
 
@@ -256,9 +228,11 @@ Jarvis sits between AI agents and system execution:
 
 | Command              | Purpose                              |
 |----------------------|--------------------------------------|
-| `pnpm dev`           | Dev server (**port 3000** by default) |
+| `pnpm dev`           | Dev server (**127.0.0.1:3000** default) |
+| `pnpm dev:stack`     | Print two-terminal commands + env checks |
 | `pnpm dev:port`      | Uses `PORT` from environment         |
-| `pnpm demo:boot`     | Clean boot + **demo env** (ingress, **3001**) |
+| `pnpm local:stack:doctor` | Jarvis + OpenClaw ports + config sanity |
+| `pnpm demo:boot`     | Optional: demo env + **3001** ([DEMO.md](DEMO.md)) |
 | `pnpm demo:verify`   | Pre-demo: config + activity stream   |
 | `pnpm demo:smoke`    | Ingress + apply smoke tests          |
 | `pnpm ingress:smoke` | `system.note` ingress smoke          |

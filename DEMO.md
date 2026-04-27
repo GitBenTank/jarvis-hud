@@ -1,5 +1,7 @@
 # Jarvis HUD v0.1 — Control Plane Demo Runbook
 
+**Daily dev + OpenClaw (normal commands, port 3000):** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) — `pnpm dev`, `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`, `pnpm local:stack:doctor`. **This file** is the **optional** scripted path on **3001** (`demo:boot`, `demo:verify`, `demo:smoke`).
+
 **Mission:** Prove the control-plane thesis in 60 seconds.
 
 1. Agent proposes an action (`code.apply`).
@@ -28,7 +30,7 @@ cd ~/Documents/jarvis-hud
 pnpm demo:boot
 ```
 
-**Shell:** Put `cd` on its own line. In **zsh**, a trailing `# comment` on the same line as `cd` can be parsed as extra arguments (`cd: too many arguments`) if interactive comments are off—run `cd ~/Documents/jarvis-hud` alone, then `pnpm demo:boot`.
+Use your real clone path. In **zsh**, keep **`cd`** on its own line (a same-line `# comment` can become extra `cd` args if interactive comments are off).
 
 **If `demo:boot` / `pnpm dev` dies with `ENOENT` under `.next/dev`** (tmp `buildManifest`, manifests, or cache): use a **production** demo server (slower start, no dev cache writes):
 
@@ -48,7 +50,7 @@ source scripts/demo-env.sh
 pnpm dev
 ```
 
-**Expected:** `Local: http://localhost:3001` (demo-env uses PORT=3001)
+**Expected:** `Local: http://127.0.0.1:3001` (demo-env uses PORT=3001)
 
 ---
 
@@ -64,7 +66,7 @@ pnpm demo:verify
 **Good:** `OK: config + stream reachable`
 
 Output also prints:
-- `BASE_URL=http://localhost:<PORT>`
+- `BASE_URL=http://127.0.0.1:<PORT>`
 - `JARVIS_ROOT=<path>`
 
 ---
@@ -102,8 +104,8 @@ Use this traceId to select the trace in `/activity` → Replay.
 ## One command: Open demo pages
 
 ```bash
-open http://localhost:3001
-open http://localhost:3001/activity
+open http://127.0.0.1:3001
+open http://127.0.0.1:3001/activity
 ```
 
 (Use 3000 if you overrode `PORT` in demo-env.)
@@ -165,7 +167,7 @@ If you can do that twice in a row, you're demo-proof.
 cd ~/Documents/jarvis-hud
 pnpm demo:boot
 ```
-Wait for "Ready" / "Local: http://localhost:3001".
+Wait for "Ready" / "Local: http://127.0.0.1:3001".
 
 **Terminal 2 — Verify + create proposals:**
 ```bash
@@ -176,7 +178,7 @@ pnpm demo:smoke
 Expected: verify prints ✅; stage prints ✅ for each smoke. Note the traceId from smoke output.
 
 **Browser:**
-1. Open http://localhost:3001 and http://localhost:3001/activity (two tabs)
+1. Open http://127.0.0.1:3001 and http://127.0.0.1:3001/activity (two tabs)
 2. **Approvals** panel: see pending proposal(s)
 3. **Approve** the `code.apply` proposal
 4. For `code.apply`: check "I understand..." + type `APPLY`
@@ -239,5 +241,5 @@ read -s JARVIS_INGRESS_OPENCLAW_SECRET
 export JARVIS_INGRESS_OPENCLAW_SECRET
 export JARVIS_INGRESS_OPENCLAW_ENABLED=true
 export JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw
-export JARVIS_HUD_BASE_URL="http://localhost:3001"
+export JARVIS_HUD_BASE_URL="http://127.0.0.1:3001"
 ```

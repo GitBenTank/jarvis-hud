@@ -29,7 +29,7 @@ Agent → Proposal → Approval → Execution → Receipt → Trace
 **Command:**
 ```bash
 # From OpenClaw repo, with Jarvis running:
-JARVIS_BASE_URL=http://localhost:3001 JARVIS_INGRESS_OPENCLAW_SECRET="..." pnpm jarvis:smoke
+JARVIS_BASE_URL=http://127.0.0.1:3000 JARVIS_INGRESS_OPENCLAW_SECRET="..." pnpm jarvis:smoke
 ```
 
 **Expected output:**
@@ -53,7 +53,7 @@ Pause ~1 second so viewers can read it.
 
 ## Scene 2 — Jarvis approval UI (2s)
 
-**Cut to:** Jarvis HUD browser window (http://localhost:3001)
+**Cut to:** Jarvis HUD browser window (**http://127.0.0.1:3000** — match **`JARVIS_BASE_URL`**)
 
 **Show:** Approval card with:
 - `system.note`
@@ -146,7 +146,7 @@ That's the core idea in 7 seconds.
 
 ## Checklist before recording
 
-- [ ] Jarvis running on http://localhost:3001
+- [ ] Jarvis running (**http://127.0.0.1:3000** with **`pnpm dev`**, or your chosen origin)
 - [ ] OpenClaw smoke ready (env vars set)
 - [ ] Browser on Jarvis dashboard, approval panel visible
 - [ ] Terminal positioned for Scene 1

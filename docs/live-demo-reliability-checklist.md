@@ -2,9 +2,11 @@
 
 The goal is **not** perfection — the goal is **deterministic behavior under failure**. When something breaks, you name it, recover, and continue — without panic.
 
-Run the **same path every time** so the demo is boring before you show it to anyone. This checklist matches the repo scripts (`pnpm demo:*`) and the investor-style flow in [DEMO.md](../DEMO.md).
+**Default path (same as [local stack startup](setup/local-stack-startup.md)):** **`pnpm dev`** on **http://127.0.0.1:3000**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, **`pnpm local:stack:doctor`**. Optional helper: **`pnpm dev:stack`**.
 
-**Tune this file** as your machine paths, ports, or OpenClaw package names change.
+**Optional scripted path on port 3001:** [DEMO.md](../DEMO.md) (`pnpm demo:boot`, `pnpm demo:verify`, `pnpm demo:smoke`) — use only when you want that flow.
+
+**Tune this file** as your machine paths or ports change.
 
 ---
 
@@ -23,91 +25,128 @@ Use this as the narrative backbone so you don’t ramble or get lost in the UI:
 ## Preconditions (once per machine / session)
 
 - [ ] `pnpm install` completed in the Jarvis HUD repo
-- [ ] Nothing else must steal **port 3001** (demo default) — `demo:boot` tries to clear 3000/3001; confirm if you use a custom `PORT`
+- [ ] **`.env.local`:** `JARVIS_BASE_URL` and `JARVIS_HUD_BASE_URL` = **http://127.0.0.1:3000** when using **`pnpm dev`**; `OPENCLAW_CONTROL_UI_URL` matches the gateway (often **http://127.0.0.1:19001**); ingress enabled + secret + allowlist (see [env.md](setup/env.md))
+- [ ] Clean OpenClaw runtime: **`OPENCLAW_ROOT=~/Documents/openclaw-runtime`** (or your path) — see [local-stack-startup.md](setup/local-stack-startup.md)
 - [ ] `JARVIS_ROOT` is intentional (default `~/jarvis`); old events can clutter Approvals — acceptable if you filter by `traceId`
 - [ ] For **code.apply** execution: `JARVIS_REPO_ROOT` points at a **clean** git repo (policy + adapter require it)
-- [ ] Optional: `pnpm jarvis:doctor` — ingress secret length, allowlist, base URL hints
 
 ---
 
-## Terminal 1 — Boot Jarvis
+## Terminal 1 — Jarvis
 
 From the **jarvis-hud** repo root:
 
 ```bash
-pnpm demo:boot
+pnpm dev
 ```
 
-- [ ] Dev server reaches **Ready** / shows **Local: `http://localhost:3001`** (or your `PORT`)
-- [ ] No fatal compile errors in the terminal
-
-`demo:boot` sources [scripts/demo-env.sh](../scripts/demo-env.sh): ingress **on**, demo secret (≥32 chars), allowlist `openclaw`, `JARVIS_HUD_BASE_URL` aligned with `PORT`.
+- [ ] Dev server **Ready** — **http://127.0.0.1:3000**
+- [ ] No fatal compile errors
 
 ---
 
-## Terminal 2 — Sanity check (do this first, every time)
-
-**Right after boot** — ~5 seconds, blocks the whole demo if the base is wrong:
+## Terminal 2 — OpenClaw
 
 ```bash
-pnpm demo:verify
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
 ```
 
-- [ ] **`OK: config + stream reachable`** (or equivalent success lines)
-- [ ] Note printed **`BASE_URL`** — use this exact origin in browser and OpenClaw config
+- [ ] Log shows **`[gateway] ready`** before you open the Control UI
+- [ ] Control UI origin matches **`OPENCLAW_CONTROL_UI_URL`** in `.env.local`; restart **`pnpm dev`** if you change it
 
-**If this fails → do not proceed.** Fix boot, port, or env; run `pnpm demo:verify` again until it passes.
+---
 
-Checks performed: `GET /api/config` → 200, `GET /api/activity/stream` → 200 (see [scripts/demo-verify.sh](../scripts/demo-verify.sh)).
+## Verify (every session, ~5 seconds)
+
+```bash
+pnpm local:stack:doctor
+```
+
+- [ ] **3000** and **19001** (or your configured Control UI port) show listeners as expected
+- [ ] **`GET /api/config`** on Jarvis returns 200 — if not, fix env and restart **`pnpm dev`**
+
+**Stricter checks (optional):** `pnpm machine-wired` · `pnpm auth-posture`
 
 ---
 
 ## Browser — Operator ritual: runtime alive (before you “do” the demo)
 
-Open **`{BASE_URL}/activity`** (e.g. `http://localhost:3001/activity`).
+Open **http://127.0.0.1:3000/activity** (or your live Jarvis origin + `/activity`).
 
 **Say:** *Before I do anything, I check whether my runtime connector is alive.*
 
 - [ ] Click **Refresh** on the **OpenClaw** health badge
-- [ ] After smokes (next section), expect **Connected** (green) when proposals just landed inside the liveness window (see [connectors.md](connectors.md))
+- [ ] After proposals land, expect **Connected** when inside the liveness window (see [connectors.md](connectors.md))
 - [ ] If **Degraded** / **Disconnected**: read badge subtext; fix env or confirm you’re hitting the right server — **do not** narrate past it as “fine”
-
-This is **operator behavior**, not decoration.
 
 ---
 
-## Terminal 2 — Smoke (signed proposals into Jarvis)
+## Smoke proposals (optional, from jarvis-hud)
+
+With Jarvis running on the same origin as **`JARVIS_HUD_BASE_URL`**:
 
 ```bash
-pnpm demo:smoke
+pnpm ingress:smoke
+pnpm jarvis:smoke:apply
 ```
 
-Runs, in order:
+- [ ] Output shows **Ingress smoke OK** and **code.apply ingress smoke OK** with **`traceId`** / **pending**
+- [ ] Visible in HUD **Activity** / traces
 
-1. `pnpm ingress:smoke` — **system.note**-style ingress smoke  
-2. `pnpm jarvis:smoke:apply` — **code.apply** ingress smoke  
+For the packaged pair + assertions: **`pnpm demo:smoke`** (expects **demo-env** / **3001** unless you align env — prefer **`ingress:smoke`** + **`jarvis:smoke:apply`** on **3000** for the default stack).
 
-**Terminal 2 success = all three:**
+---
 
-- [ ] **Ingress accepted** — output includes **`Ingress smoke OK`** and **`code.apply ingress smoke OK`**
-- [ ] **`traceId` returned** — both runs show a `traceId` and **`pending`**
-- [ ] **Visible in the HUD** — open **`{BASE_URL}/activity`**: the run appears under **Recent traces** and/or you can **Fetch** with the printed `traceId` (proves it isn’t a silent no-op)
+## Optional appendix — Scripted demo on 3001
 
-- [ ] **Copy the printed `traceId`** (from the apply smoke) and keep **`BASE_URL`** handy for the deep-link moment below
+When you intentionally use [DEMO.md](../DEMO.md):
 
-If any step fails: **Quick reset** or **Abort / recover** at the bottom.
+**Terminal 1:** `pnpm demo:boot` → **http://127.0.0.1:3001** (or printed URL)
+
+**Terminal 2:** `pnpm demo:verify` then `pnpm demo:smoke`
+
+- [ ] Nothing else steals **3001**
+- [ ] OpenClaw **`JARVIS_BASE_URL`** matches **3001** if Jarvis is on **3001**
+
+---
+
+## Quick reset (when things feel off)
+
+1. Ctrl+C both terminals
+2. `pnpm local:stack:doctor` (expect failures if nothing is up — that is fine)
+3. Restart **Terminal 1** `pnpm dev`, **Terminal 2** `OPENCLAW_ROOT=… pnpm openclaw:dev`
+4. `pnpm local:stack:doctor` again
+
+---
+
+## Abort / recover (short)
+
+| Failure | Action |
+|---------|--------|
+| **verify** / doctor: config not 200 | Jarvis not ready; wrong `JARVIS_HUD_BASE_URL`; restart **`pnpm dev`** |
+| **Connection refused** on Control UI | Gateway not ready or wrong port; wait for **`[gateway] ready`**; run doctor |
+| **Smoke** fails | Read message; align secret and base URL; see [DEMO.md](../DEMO.md) failure table for **demo:** scripts |
+
+---
+
+## Definition of “demo ready”
+
+1. **`pnpm local:stack:doctor`** passes with both processes up
+2. HUD loads on **127.0.0.1:3000** (or your chosen origin); OpenClaw Control loads
+3. At least one ingress smoke shows **pending** in the HUD when you need scripted proof
+4. **Optional (investor bar):** after **`pnpm demo:smoke`** on **3001**, **`pnpm demo:verify`** passes, **approve → execute** the `code.apply` smoke, open **`/activity?trace=<id>`** in a fresh tab — see [DEMO.md](../DEMO.md)
 
 ---
 
 ## Browser — Approve → Execute (human gate)
 
-Open **`{BASE_URL}/`** (dashboard).
+Open **`http://127.0.0.1:3000/`** (or your live Jarvis origin).
 
-- [ ] **Approvals** shows pending proposal(s) from smoke (at least the `code.apply` if you plan to execute it)
+- [ ] **Approvals** shows pending proposal(s) from smoke
 - [ ] **Approve** the target proposal
-- [ ] For **`code.apply`**: complete **irreversible** confirmation (checkbox + type **`APPLY`**)
+- [ ] For **`code.apply`**: complete confirmation (checkbox + type **`APPLY`**)
 - [ ] **Execute**
-- [ ] UI shows **executed** / success state (not stuck on executing / failed)
+- [ ] UI shows **executed** / success state
 
 ---
 
@@ -115,123 +154,62 @@ Open **`{BASE_URL}/`** (dashboard).
 
 **Receipt**
 
-- [ ] Executed action shows **receipt**-style details where the UI surfaces them (e.g. commit hash / rollback for `code.apply`)
+- [ ] Executed action shows **receipt**-style details (e.g. commit hash / rollback for `code.apply`)
 - [ ] Optional: tail `~/jarvis/actions/$(date +%Y-%m-%d).jsonl` — new line with matching `traceId` / `approvalId`
 
-**Trace — single source of truth (fresh tab)**
+**Trace — fresh tab**
 
-Prove **stateless reproducibility** — not a trick of “already being on the right screen”:
-
-- [ ] Open a **new browser tab** (or window)
-- [ ] **Paste the full URL:** `{BASE_URL}/activity?trace=<traceId>` (replace `<traceId>` with the UUID you copied)
-- [ ] Confirm the timeline loads **without** clicking through from the dashboard first
-- [ ] Lifecycle reads **proposed → approved → executed → receipt** and matches this run
-
-You may still use **Recent traces** or **Fetch** for convenience — the **paste-in-fresh-tab** step is the investor-grade moment.
+- [ ] Open a **new** tab; paste **`http://127.0.0.1:3000/activity?trace=<traceId>`** (use your origin + printed `traceId`)
+- [ ] Timeline loads **without** navigating from the dashboard first
+- [ ] Lifecycle reads **proposed → approved → executed → receipt**
 
 ---
 
-## Repeatability proof (pipeline, not one-off)
+## Repeatability proof
 
-Still in the same session (server still up):
+Same session, Jarvis still up:
 
 ```bash
-pnpm demo:smoke
+pnpm ingress:smoke
+pnpm jarvis:smoke:apply
 ```
 
-- [ ] Smoke passes again
-- [ ] On **`/activity`**, **Recent traces** shows **another** row (second run) — the pipeline is repeatable, not a single happy accident
+(or **`pnpm demo:smoke`** when using **3001** / [DEMO.md](../DEMO.md))
+
+- [ ] Second run succeeds; **Recent traces** shows another row
 
 ---
 
-## Optional path — Real OpenClaw connector (separate repo)
+## OpenClaw → Jarvis (connector proof)
 
-When the demo story includes **OpenClaw → Jarvis** (not only Node smokes):
+- [ ] Gateway env **`JARVIS_BASE_URL`** = same origin as the HUD (**http://127.0.0.1:3000** when using **`pnpm dev`**)
+- [ ] **`JARVIS_INGRESS_OPENCLAW_SECRET`** matches **`.env.local`**
+- [ ] From OpenClaw tooling: **`pnpm jarvis:smoke`** (or Alfred) twice; both **pending** + **`traceId`**
 
-- [ ] OpenClaw checkout has **`JARVIS_BASE_URL`** (or your tool’s equivalent) = same origin as **`demo:verify`** printed `BASE_URL`
-- [ ] Secret matches Jarvis: **`JARVIS_INGRESS_OPENCLAW_SECRET`** (same value Jarvis loaded — demo uses [demo-env.sh](../scripts/demo-env.sh) `DEMO_SECRET` unless you overrode)
-- [ ] From OpenClaw: run your packaged smoke (e.g. **`pnpm jarvis:smoke`**) **twice**; both should return pending + `traceId`
-- [ ] Repeat **Approve → Execute → trace** for that proposal if you want a second narrative beat
-
-Details: [openclaw-integration-verification.md](openclaw-integration-verification.md).
+[openclaw-integration-verification.md](openclaw-integration-verification.md)
 
 ---
 
-## Optional — 3× reliability (same session)
+## Optional — 3× reliability (scripted 3001 only)
 
-Prove the loop is stable without restarting the server (from [DEMO.md](../DEMO.md)):
+From [DEMO.md](../DEMO.md), when Jarvis is on **3001**:
 
 ```bash
 for i in 1 2 3; do echo "== run $i =="; pnpm demo:verify && pnpm demo:smoke || exit 1; sleep 5; done
 ```
 
-- [ ] All three runs: **verify** OK + **smoke** OK
-
 ---
 
-## Quick reset (~30 seconds, muscle memory)
-
-If anything is weird and you need a clean runtime:
-
-1. **Stop** the dev server: `Ctrl+C` in the terminal running `demo:boot`
-2. **Restart:**
-
-```bash
-pnpm demo:boot
-```
-
-3. **Sanity gate** (do not skip):
-
-```bash
-pnpm demo:verify
-```
-
-If verify fails, fix before smoke or UI. This is your **panic button** — one path, every time.
-
----
-
-## Abort / recover (symptoms)
-
-| Symptom | Likely fix |
-|--------|------------|
-| `demo:verify` /api/config not 200 | Wait for boot; correct `JARVIS_HUD_BASE_URL` / `PORT`; **Quick reset** |
-| `demo:verify` stream not 200 | Stale Next build / wrong server — **Quick reset** |
-| Smoke 401 / signature | Secret mismatch between smoke script env and server |
-| Smoke 403 ingress disabled | `JARVIS_INGRESS_OPENCLAW_ENABLED` not true on server |
-| Execute fails policy / scope | `JARVIS_REPO_ROOT`, clean tree, execution allowlists, optional `JARVIS_EXEC_ALLOWED_ROOTS` |
-| OpenClaw badge wrong after smoke | **Refresh** badge; confirm smokes hit this instance |
-
-Full table: [DEMO.md](../DEMO.md) (section *If it fails*).
-
----
-
-## Definition of “demo ready”
-
-You are ready when:
-
-1. **`pnpm demo:verify`** passes immediately after boot, then **`pnpm demo:smoke`** passes once with **all three** terminal success checks above.  
-2. You can **approve → execute** the `code.apply` smoke proposal and see a **receipt**.  
-3. You can open **`/activity?trace=<id>` in a fresh tab** and the story matches that run.  
-4. A **second** `pnpm demo:smoke` shows up in **Recent traces**.
-
-Optional bar: run the **3× loop**; optional **OpenClaw** smoke twice from the connector repo.
-
----
-
-## Closing line (optional, high impact)
+## Closing line (optional)
 
 **Say:** *Everything you just saw is reproducible from a single trace link.*
 
-Then **paste** (or show the bar):
-
-`{BASE_URL}/activity?trace=<traceId>`
-
-That’s the closing shot: proof without the app already being “warmed up” on the right screen.
+Paste: `http://127.0.0.1:3000/activity?trace=<traceId>` (adjust origin if needed).
 
 ---
 
 ## Related docs
 
-- [DEMO.md](../DEMO.md) — runbook, receipt shape, 3× test  
-- [OpenClaw integration verification](openclaw-integration-verification.md)  
-- [OpenClaw connector health](connectors.md) — badge semantics and time windows  
+- [DEMO.md](../DEMO.md) — scripted **3001** runbook, receipt shape, failure table
+- [local-stack-startup.md](setup/local-stack-startup.md) — canonical **3000** + OpenClaw
+- [connectors.md](connectors.md) — badge semantics

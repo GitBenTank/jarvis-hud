@@ -13,7 +13,7 @@ Use the Activity page with a query parameter:
 Example:
 
 ```text
-http://localhost:3000/activity?trace=a1b2c3d4-e5f6-7890-abcd-ef1234567890
+http://127.0.0.1:3000/activity?trace=a1b2c3d4-e5f6-7890-abcd-ef1234567890
 ```
 
 The Activity Timeline loads that trace without extra clicks. The same panel appears on the **Dashboard** and **Activity** pages; **Recent traces** always navigates here so links stay shareable.

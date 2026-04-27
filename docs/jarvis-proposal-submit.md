@@ -17,8 +17,8 @@ Same as `pnpm ingress:smoke`:
 - `JARVIS_INGRESS_OPENCLAW_SECRET` (≥ 32 chars)  
 - `JARVIS_INGRESS_OPENCLAW_ENABLED=true`  
 - `JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw`  
-- Jarvis dev server reachable (`pnpm dev` or `pnpm demo:boot`)  
-- `JARVIS_BASE_URL` or `JARVIS_HUD_BASE_URL` (default `http://localhost:3000`)  
+- Jarvis dev server reachable (**`pnpm dev`**; optional **`pnpm demo:boot`** on **3001** per [DEMO.md](DEMO.md))  
+- `JARVIS_BASE_URL` or `JARVIS_HUD_BASE_URL` — use **`http://127.0.0.1:3000`** with **`pnpm dev`**  
 
 Signing and headers match [openclaw-ingress-signing.md](security/openclaw-ingress-signing.md) and `scripts/ingress-smoke.mjs` (shared `scripts/lib/openclaw-ingress-fetch.mjs`). Submission logic lives in `src/jarvis/submitProposal.ts`; normalization in `src/jarvis/normalizeProposal.ts`. The CLI is `scripts/jarvis-submit.ts` (run with **tsx** so imports resolve reliably).
 
@@ -27,7 +27,7 @@ Signing and headers match [openclaw-ingress-signing.md](security/openclaw-ingres
 ```bash
 cd ~/Documents/jarvis-hud
 export JARVIS_INGRESS_OPENCLAW_SECRET="…same as Jarvis .env.local…"
-export JARVIS_BASE_URL=http://localhost:3001   # if not using default :3000
+export JARVIS_BASE_URL=http://127.0.0.1:3000   # must match live Jarvis
 pnpm jarvis:submit --file examples/openclaw-proposal-alfred-nested.sample.json
 ```
 
@@ -37,7 +37,7 @@ From another repo (OpenClaw), env vars must still be set in **that** shell (they
 
 ```bash
 export JARVIS_INGRESS_OPENCLAW_SECRET="…"
-export JARVIS_BASE_URL=http://localhost:3001
+export JARVIS_BASE_URL=http://127.0.0.1:3000
 pnpm --dir ~/Documents/jarvis-hud jarvis:submit --file ~/Documents/jarvis-hud/examples/openclaw-proposal-alfred-nested.sample.json
 ```
 

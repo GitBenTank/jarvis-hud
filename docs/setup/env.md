@@ -2,7 +2,7 @@
 
 Jarvis HUD configuration is driven by environment variables. Never commit secrets to the repo. Use `.env.local` (git-ignored) for local overrides.
 
-**Ports and base URLs:** Standard dev often uses **:3000**; demo / ingress rehearsal often uses **:3001**. The running Next.js process is the authority — align `JARVIS_HUD_BASE_URL`, OpenClaw, and scripts to the **live** origin. See [Local dev truth map](local-dev-truth-map.md).
+**Ports and base URLs:** Default docs use **`pnpm dev`** → **http://127.0.0.1:3000**. Optional [DEMO.md](../../DEMO.md) flow uses **3001**. The **listening** Next.js process is the authority — align `JARVIS_HUD_BASE_URL`, OpenClaw, and scripts to that origin. See [Local stack startup](local-stack-startup.md) and [Local dev truth map](local-dev-truth-map.md).
 
 ---
 
@@ -69,13 +69,13 @@ Used by `src/openclaw-strict-governed` when wiring OpenClaw-style tools. Same in
 
 ---
 
-## Ingress workflow
+## Ingress workflow (local)
 
-Use `dev:port` when running with ingress to avoid port collisions:
+**Default:** set **`JARVIS_INGRESS_*`** in **`.env.local`**, run **`pnpm dev`**, then **`pnpm ingress:smoke`** (see [local stack startup](local-stack-startup.md)).
+
+**Optional — port 3001:** `PORT=3001 pnpm dev:port` with **`JARVIS_HUD_BASE_URL=http://127.0.0.1:3001`**, or **`pnpm demo:boot`** ([DEMO.md](../../DEMO.md)).
 
 ```bash
-PORT=3001 pnpm dev:port   # with JARVIS_INGRESS_* env set
-JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" pnpm ingress:smoke
-pnpm jarvis:doctor       # preflight before demos
-pnpm auth-posture        # Phase 2: convenience vs serious-mode guard
+pnpm jarvis:doctor
+pnpm auth-posture
 ```

@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — rehearsal run sheet (operator)"
 status: living-document
-version: 1.0
+version: 1.1
 owner: Ben Tankersley
 category: video
 related:
@@ -22,9 +22,9 @@ related:
 
 1. **Optional:** [Investor read pack](../strategy/investor-read-pack.md) / **`/docs/tati`** — 15 min path; **Operator notes** = slide + live script.
 2. **Front door:** **`/docs`** — **Start here** CTA → **`/demo`**.  
-3. **Canonical walkthrough:** **`/demo`** — six slides → transition → cinematic scroll (door / authority / “allowed to happen”).  
-4. **Read-only deck only:** **`/pitch`** (not where notes or execution live; live path = **`/demo`** then HUD).  
-5. **Proof surface:** **`/activity`** — Reject / Approve / Execute, receipts, traces.  
+3. **Canonical walkthrough:** **`/demo`** — six slides, then **Enter live system** → **`/`** (HUD home, same origin). In-page cinematic scroll after the deck is **not** on this path.  
+4. **Read-only deck only:** **`/pitch`** (not where notes or execution live; handoff: **`/demo`** then **`/`** for live).  
+5. **Proof surface:** navigate from home to **`/activity`** as needed — Reject / Approve / Execute, receipts, traces.  
 6. **Runtime (paste):** **OpenClaw Control → Chat (Alfred)**.
 
 ---
@@ -33,7 +33,7 @@ related:
 
 | Check | |
 |--------|---|
-| Two terminals | `pnpm openclaw:dev` (gateway up) · `pnpm dev` (Jarvis) |
+| Two terminals | **`pnpm dev`** (Jarvis) · **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (gateway) |
 | Doctor | `pnpm local:stack:doctor` |
 | Browser tabs | **Jarvis** (`/` or Home + **`/activity`**) · **OpenClaw Control** |
 | Email (if real send) | `DEMO_EMAIL_*` in `.env.local` per [DEMO.md](../../DEMO.md) |
@@ -46,8 +46,8 @@ related:
 ## 2) `/demo` (rehearsal, not a race)
 
 - Advance **all six** slides; don’t read bullets as a script.  
-- **Outline track:** **Slides** = house / river / door; **Live proof** = Flow 1 + operator pastes. Mobile: **N** for notes.  
-- **After** the cinematic scroll: you’re **not** done—live proof is in the HUD, not the scroll.
+- **Outline track:** **Slides** = house / river / door (live Flow 1 + Alfred pastes live in code / runbook—use after **`/`**). Mobile: **N** for notes.  
+- **After** you hit **Enter live system**: you’re in the **HUD** at **`/`**—open OpenClaw, then **Activity** for the queue, proposals, and proof.
 
 ---
 

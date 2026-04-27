@@ -29,7 +29,10 @@ Until a separate production promotion branch exists (e.g. post–Vercel deploy f
 pnpm install
 cp env.example .env.local   # optional; set vars as needed
 pnpm dev:stack   # optional: prints two-terminal commands + env warnings
-pnpm dev
+pnpm dev         # Terminal 1 — Jarvis http://127.0.0.1:3000
+# Terminal 2 (same clone):
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
+pnpm local:stack:doctor
 ```
 
 See [README.md](README.md), [docs/setup/env.md](docs/setup/env.md), and [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) (**normal `pnpm dev`**, iCloud / `.next` stability, OpenClaw **`OPENCLAW_ROOT`**).

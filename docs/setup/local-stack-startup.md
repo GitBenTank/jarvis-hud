@@ -2,6 +2,22 @@
 
 Use this as the **single** routine for daily development. It avoids the common failure modes: **two gateways**, **mixed state directories**, and **Jarvis env pointing at the wrong Control UI port**.
 
+## Canonical commands (same everywhere in this repo)
+
+Run from your **jarvis-hud** clone (`cd` there first in both terminals):
+
+| Step | Command |
+|------|---------|
+| **1 — Jarvis** | `pnpm dev` → **http://127.0.0.1:3000** |
+| **2 — OpenClaw** | `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` → wait for **`[gateway] ready`**, then Control UI (often **http://127.0.0.1:19001**) |
+| **3 — Check** | `pnpm local:stack:doctor` |
+
+**Helper:** `pnpm dev:stack` prints these lines with your real paths and env warnings.
+
+**`.env.local`:** `JARVIS_BASE_URL=http://127.0.0.1:3000`, `JARVIS_HUD_BASE_URL=http://127.0.0.1:3000`, `OPENCLAW_CONTROL_UI_URL` = gateway origin from the log or doctor. Ingress: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, secret ≥32 chars, allowlist includes `openclaw`.
+
+**Optional scripted demo (port 3001):** [DEMO.md](../../DEMO.md) — `pnpm demo:boot`, `demo:verify`, `demo:smoke`. Use only when you want that flow; normal integration is **`pnpm dev`** on **3000** above.
+
 ### Normal local dev (`pnpm dev`) — no demo scripts required
 
 Daily work is **`pnpm dev`** (Jarvis on **`http://127.0.0.1:3000`**) plus OpenClaw when you need ingress — not **`pnpm demo:boot`**. Demo scripts are for scripted smoke / ingress checks and port **3001**; they are optional for product-style dev.
@@ -12,19 +28,7 @@ Daily work is **`pnpm dev`** (Jarvis on **`http://127.0.0.1:3000`**) plus OpenCl
 | **Stable OpenClaw** | Use a **clean runtime clone** and **`OPENCLAW_ROOT`**: `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` from jarvis-hud (see **One-time: runtime clone**). If **`~/Documents/openclaw`** fails to build (e.g. **`Unknown module type: copy`**), do not block on that tree — fix **`pnpm install`** there or use **`openclaw-runtime`**. You can keep **`openclaw-runtime`** under **`~/Dev`** too if you moved Jarvis. |
 | **Port alignment** | With **`pnpm dev`**, set **`JARVIS_BASE_URL`** and **`JARVIS_HUD_BASE_URL`** in **`.env.local`** to **`http://127.0.0.1:3000`** (same host as the browser). Demo env uses **3001**; mixing 3000 dev with 3001 env causes confusing connector / cookie issues. |
 
-**Two terminals (canonical):**
-
-```text
-# Terminal 1 — from your jarvis-hud clone
-pnpm dev
-
-# Terminal 2 — same directory
-OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
-```
-
-(Adjust **`OPENCLAW_ROOT`** if your runtime clone lives elsewhere, e.g. **`~/Dev/openclaw-runtime`**.)
-
-Then **`pnpm local:stack:doctor`** from jarvis-hud.
+Same as **Canonical commands** at the top (Terminal 1 = `pnpm dev`, Terminal 2 = `OPENCLAW_ROOT=… pnpm openclaw:dev`). Adjust **`OPENCLAW_ROOT`** if your runtime clone is not under **`~/Documents/openclaw-runtime`**.
 
 **Copy-paste helper:** **`pnpm dev:stack`** prints these two commands with your real paths, checks **`.env.local`** (**`JARVIS_BASE_URL`**, **`JARVIS_HUD_BASE_URL`**, **`OPENCLAW_ROOT`**), and warns on common mismatches. **`pnpm dev:stack --start-jarvis`** runs **`pnpm dev`** here after the banner (OpenClaw still in a second terminal).
 
@@ -155,41 +159,29 @@ Until only **one** process owns the Control UI port, you will see confusing log 
 
 ## Every session: start order
 
-### Terminal 1 — OpenClaw gateway
-
-**From this repo (locked-in):**
+### Terminal 1 — Jarvis HUD
 
 ```bash
-cd /path/to/jarvis-hud
-pnpm openclaw:dev
-```
-
-This runs `scripts/openclaw-gateway-dev.sh`: loads **`JARVIS_BASE_URL`** (from **`JARVIS_HUD_BASE_URL`**), **`JARVIS_INGRESS_OPENCLAW_SECRET`**, and **`OPENAI_API_KEY`** from **jarvis-hud `.env.local`**. When **`OPENAI_API_KEY`** is set, it also writes **`openai:default`** into **`$OPENCLAW_STATE_DIR/agents/dev/agent/auth-profiles.json`** (OpenClaw embedded chat reads that file, not env alone). Run **`pnpm openclaw:sync-openai-auth`** anytime after you rotate the key. Then it sets **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`**, **`cd ~/Documents/openclaw`** (override with **`OPENCLAW_ROOT`**), and **`pnpm gateway:dev`**. Override env file: **`JARVIS_HUD_ENV_FILE=/path/.env.local`**.
-
-**Or** manually:
-
-```bash
-export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"
-cd ~/Documents/openclaw   # or your clone path
-pnpm gateway:dev
-```
-
-Leave this running. The first time (or after a dirty tree), you may see **`Building TypeScript…`** for several minutes — **no port listens until** the log shows something like **`[gateway] starting HTTP server`** and **`[gateway] ready`**.
-
-**Do not open the Control UI** (`OPENCLAW_CONTROL_UI_URL`) until you see **gateway ready** in the log **and** the **port** is bound (e.g. **19001** — yours is authoritative; note it in the log). Opening the UI earlier yields **connection refused** and wastes time. Confirm with **`pnpm local:stack:doctor`** or **`lsof -nP -iTCP:19001 -sTCP:LISTEN`** if unsure.
-
-**VS Code / Cursor:** **Terminal → Run Task… →** `OpenClaw: gateway:dev` (or **Local stack: both (parallel)** for gateway + Jarvis).
-
-Override clone path: `OPENCLAW_ROOT=~/src/openclaw pnpm openclaw:dev`
-
-### Terminal 2 — Jarvis HUD
-
-From **this** repo:
-
-```bash
-cd /path/to/jarvis-hud
 pnpm dev
 ```
+
+Wait for Next **Ready** and open **http://127.0.0.1:3000**.
+
+### Terminal 2 — OpenClaw gateway
+
+```bash
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
+```
+
+This runs `scripts/openclaw-gateway-dev.sh`: loads **`JARVIS_BASE_URL`** (from **`JARVIS_HUD_BASE_URL`**), **`JARVIS_INGRESS_OPENCLAW_SECRET`**, and **`OPENAI_API_KEY`** from **jarvis-hud `.env.local`**. When **`OPENAI_API_KEY`** is set, it also writes **`openai:default`** into **`$OPENCLAW_STATE_DIR/agents/dev/agent/auth-profiles.json`**. Run **`pnpm openclaw:sync-openai-auth`** after rotating the key. It sets **`OPENCLAW_STATE_DIR=$HOME/.openclaw-dev`**, **`OPENCLAW_DISABLE_BONJOUR=1`** (stable local dev), then **`pnpm gateway:dev`** in **`OPENCLAW_ROOT`**. Override env file: **`JARVIS_HUD_ENV_FILE=/path/.env.local`**.
+
+**Without** **`OPENCLAW_ROOT`**, the script defaults to **`~/Documents/openclaw`** (hacking clone — expect rebuilds).
+
+Leave this terminal running. First start (or dirty OpenClaw tree) may show **`Building TypeScript…`** for a long time — **no Control UI** until **`[gateway] ready`** and the HTTP port binds. Confirm with **`pnpm local:stack:doctor`**.
+
+**Do not open the Control UI** until the gateway is ready — early opens → **connection refused**.
+
+**VS Code / Cursor:** **Terminal → Run Task… →** `OpenClaw: gateway:dev` or **Local stack: both (parallel)**.
 
 ### `.env.local` (Jarvis)
 
@@ -278,7 +270,7 @@ Separate these three—they point to different fixes:
 
 ### Hack / build OpenClaw (working clone)
 
-**Startup:** **`pnpm dev`** → **`pnpm openclaw:dev`** (uses default **`~/Documents/openclaw`** unless **`OPENCLAW_ROOT`** is set). Accept **`Building TypeScript…`** when the tree is dirty—**do not** treat that as Jarvis instability.
+**Startup:** **`pnpm dev`** (Jarvis) → **`pnpm openclaw:dev`** (omit **`OPENCLAW_ROOT`** to use **`~/Documents/openclaw`**). Accept **`Building TypeScript…`** when the tree is dirty—**do not** treat that as Jarvis instability.
 
 **Shutdown:** **Ctrl+C** gateway; stop or keep HUD as needed.
 
@@ -291,7 +283,7 @@ Separate these three—they point to different fixes:
 ## Summary checklist
 
 1. **One** gateway process; **one** `OPENCLAW_STATE_DIR`.
-2. Terminal A: **`pnpm openclaw:dev`** (from jarvis-hud) or manual `pnpm gateway:dev` in the OpenClaw clone.
-3. Terminal B: `pnpm dev` (jarvis-hud).
-4. `OPENCLAW_CONTROL_UI_URL` = listener origin; OpenClaw env has `JARVIS_BASE_URL`, shared secret, and `OPENAI_API_KEY`.
-5. `pnpm local:stack:doctor` before demos.
+2. Terminal A: **`pnpm dev`** (jarvis-hud).
+3. Terminal B: **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** (from jarvis-hud), or manual `pnpm gateway:dev` in the OpenClaw clone with the same state dir.
+4. `OPENCLAW_CONTROL_UI_URL` = listener origin; **`JARVIS_BASE_URL`** / **`JARVIS_HUD_BASE_URL`** match the HUD origin; shared ingress secret; `OPENAI_API_KEY` when using embedded chat.
+5. **`pnpm local:stack:doctor`** before demos.

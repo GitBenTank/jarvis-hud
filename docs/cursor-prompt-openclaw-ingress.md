@@ -18,7 +18,7 @@
 
 | Variable | Default | Notes |
 |----------|--------|------|
-| `JARVIS_BASE_URL` | `http://localhost:3001` | Prefer 3001 to match Jarvis `dev:port` workflow |
+| `JARVIS_BASE_URL` | `http://127.0.0.1:3000` | Must match the running Jarvis origin ([local stack startup](setup/local-stack-startup.md)) |
 | `JARVIS_INGRESS_OPENCLAW_SECRET` | (required) | Min 32 chars |
 | `JARVIS_PREFLIGHT` | `true` | Set to `"false"` to skip preflight |
 
@@ -177,7 +177,7 @@ Mirror `skills/github/SKILL.md` style:
 
 Create: `scripts/jarvis-ingress-smoke.mjs`
 
-- Read: `JARVIS_BASE_URL` (default `http://localhost:3001`), `JARVIS_INGRESS_OPENCLAW_SECRET`
+- Read: `JARVIS_BASE_URL` (default `http://127.0.0.1:3000`), `JARVIS_INGRESS_OPENCLAW_SECRET`
 - Send one `system.note`
 - Log **only**: `ok`, `id`, `traceId`, `status`, `baseUrl` — **no secrets, no raw body, no response body**
 
@@ -194,7 +194,7 @@ After Cursor scaffolds, run:
 
 - `pnpm typecheck`
 - `pnpm build`
-- `pnpm jarvis:smoke` (with Jarvis running on 3001, ingress env set)
+- `pnpm jarvis:smoke` (with Jarvis running and ingress env set; origin must match **`JARVIS_BASE_URL`**)
 
 If anything fails, capture:
 

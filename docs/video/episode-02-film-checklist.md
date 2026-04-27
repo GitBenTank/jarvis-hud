@@ -25,44 +25,49 @@ Before recording:
 
 ### 1 — Preflight
 
+From **jarvis-hud** (ingress vars in **`.env.local`**):
+
 ```bash
-source scripts/demo-env.sh && pnpm jarvis:doctor
+pnpm jarvis:doctor
 ```
 
 **Expected:** Ready for ingress
 
 ---
 
-### 2 — Terminal 1: Start Jarvis
+### 2 — Terminal 1: Jarvis
 
 ```bash
-JARVIS_DEMO_LOG=1 pnpm demo:boot
+cd ~/Documents/jarvis-hud
+pnpm dev
 ```
 
-**Wait for:** Ready
+**Wait for:** Next **Ready** — **http://127.0.0.1:3000**
 
 ---
 
-### 3 — Terminal 2: OpenClaw env
-
-From the OpenClaw repo, set env vars (use same secret as Jarvis):
+### 3 — Terminal 2: OpenClaw gateway
 
 ```bash
-cd openclaw   # or path to your OpenClaw repo
-source scripts/demo-env.sh   # if OpenClaw has it
-# Or inline:
-export JARVIS_BASE_URL="http://localhost:3001"
-export JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars"
+cd ~/Documents/jarvis-hud
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
 ```
+
+**Wait for:** **`[gateway] ready`**
 
 ---
 
-### 4 — Terminal 2: Smoke test
+### 4 — Smoke test (OpenClaw → Jarvis)
+
+Same secret as **`.env.local`**. From **openclaw-runtime** (or your OpenClaw clone):
 
 ```bash
-cd openclaw
+export JARVIS_BASE_URL="http://127.0.0.1:3000"
+export JARVIS_INGRESS_OPENCLAW_SECRET="<same as jarvis-hud .env.local>"
 pnpm jarvis:smoke
 ```
+
+**Or** from **jarvis-hud** only: `pnpm ingress:smoke` (no OpenClaw repo needed).
 
 **Expected output:**
 
@@ -88,7 +93,7 @@ That proves the proposal reached Jarvis. Capture this moment.
 
 ### 6 — Browser: Jarvis dashboard
 
-Open: http://localhost:3001
+Open: **http://127.0.0.1:3000**
 
 Show:
 

@@ -84,41 +84,42 @@ Use this when logs show **mixed** paths (`~/Documents/openclaw/dist` vs `/opt/ho
 
 **Rule of thumb:** **Config → Environment** and **AI & Agents** apply to the **state directory** of the gateway you started. If **`pnpm gateway:dev`** uses **`~/.openclaw-dev`**, a Control UI session tied only to **`~/.openclaw`** will **not** update the dev gateway’s env.
 
-## Demo flow (video prep)
+## Default local flow (same as [local stack startup](setup/local-stack-startup.md))
 
-**Secret lock:** Source `scripts/demo-env.sh` in both terminals so nothing can drift.
-
-**Terminal 1 (Jarvis):**
-```bash
-cd ~/Documents/jarvis-hud
-source scripts/demo-env.sh
-killall node 2>/dev/null || true
-node -e 'console.log("Jarvis secret len:", process.env.JARVIS_INGRESS_OPENCLAW_SECRET?.length, "PORT:", process.env.PORT)'
-pnpm dev:port
-```
-
-**Terminal 2 (OpenClaw):** use the **same** checkout the gateway uses — blessed default is **`~/Documents/openclaw-runtime`** (see [local stack startup](setup/local-stack-startup.md)); `~/Documents/openclaw` is fine if that is your `OPENCLAW_ROOT`.
-
-```bash
-source ~/Documents/jarvis-hud/scripts/demo-env.sh   # adjust path if needed
-cd ~/Documents/openclaw-runtime   # or your OpenClaw clone / OPENCLAW_ROOT
-node -e 'console.log("OpenClaw secret len:", process.env.JARVIS_INGRESS_OPENCLAW_SECRET?.length, "base:", process.env.JARVIS_BASE_URL)'
-curl -s "$JARVIS_BASE_URL/api/config" | head -c 120; echo
-pnpm jarvis:smoke
-```
-
-If the curl doesn't return JSON-ish immediately, you're not talking to the Jarvis you think you are.
-
-**401 after this?** Almost certainly allowlist connector mismatch (`source.connector` must be `"openclaw"`) or the Jarvis process was started earlier without the demo env—restart and retry.
-
-### Fastest fix when 401 persists: inline env
-
-Don't rely on `source`; start Jarvis with inline env so the process gets the exact vars:
+**Terminal 1 — Jarvis**
 
 ```bash
 cd ~/Documents/jarvis-hud
-killall node 2>/dev/null || true
+pnpm dev
+```
 
+**Terminal 2 — OpenClaw**
+
+```bash
+cd ~/Documents/jarvis-hud
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
+```
+
+**Verify**
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm local:stack:doctor
+curl -sS http://127.0.0.1:3000/api/config | head -c 120; echo
+```
+
+**Smoke from OpenClaw checkout** (optional): `export JARVIS_BASE_URL=http://127.0.0.1:3000` and match **`JARVIS_INGRESS_OPENCLAW_SECRET`** to **`.env.local`**, then **`pnpm jarvis:smoke`**.
+
+## Optional — Scripted demo on 3001 ([DEMO.md](../DEMO.md))
+
+Source **`scripts/demo-env.sh`** in terminals that run **`pnpm demo:boot`**, **`pnpm demo:verify`**, **`pnpm demo:smoke`** so **`PORT`** and base URLs stay aligned. Do **not** mix **3000** `pnpm dev` with **3001** smoke env without updating **`JARVIS_HUD_BASE_URL`**.
+
+**401 after smoke?** Allowlist / connector mismatch (`source.connector` must be `"openclaw"`), wrong secret, or Jarvis started without ingress env in **`.env.local`** — fix and restart **`pnpm dev`**.
+
+### Troubleshooting 401 on port 3001 only (`demo-env.sh` / [DEMO.md](../DEMO.md))
+
+```bash
+cd ~/Documents/jarvis-hud
 PORT=3001 \
 JARVIS_INGRESS_OPENCLAW_ENABLED=true \
 JARVIS_INGRESS_OPENCLAW_SECRET="openclaw-jarvis-demo-secret-minimum-32chars" \

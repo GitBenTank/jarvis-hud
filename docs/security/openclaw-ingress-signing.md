@@ -8,18 +8,28 @@ How to sign requests to `POST /api/ingress/openclaw` for Jarvis HUD integration.
 
 ## Smoke Test (Local Validation)
 
-Validate ingress end-to-end without OpenClaw. Use `dev:port` to avoid port collisions:
+**Default:** Jarvis on **3000** ([local stack startup](../setup/local-stack-startup.md)). Put ingress vars in **`.env.local`**, then:
 
 ```bash
-# Terminal 1: start dev on desired port (e.g. 3001)
+# Terminal 1
+pnpm dev
+
+# Terminal 2 (same repo)
+pnpm ingress:smoke
+```
+
+**Alternate — explicit port (e.g. 3001 for [DEMO.md](../../DEMO.md)):**
+
+```bash
+# Terminal 1
 JARVIS_INGRESS_OPENCLAW_ENABLED=true \
 JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-minimum" \
 JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw \
 PORT=3001 pnpm dev:port
 
-# Terminal 2: smoke (point at same port)
+# Terminal 2
 JARVIS_INGRESS_OPENCLAW_SECRET="your-32-char-secret-minimum" \
-JARVIS_HUD_BASE_URL="http://localhost:3001" \
+JARVIS_HUD_BASE_URL="http://127.0.0.1:3001" \
 pnpm ingress:smoke
 ```
 
@@ -127,7 +137,7 @@ const msg = process.argv[1] + '.' + process.argv[2] + '.' + process.argv[3];
 console.log(crypto.createHmac('sha256', process.argv[4]).update(msg).digest('hex'));
 " "$TIMESTAMP" "$NONCE" "$BODY" "$SECRET")
 
-curl -X POST http://localhost:3000/api/ingress/openclaw \
+curl -X POST http://127.0.0.1:3000/api/ingress/openclaw \
   -H "Content-Type: application/json" \
   -H "X-Jarvis-Timestamp: $TIMESTAMP" \
   -H "X-Jarvis-Nonce: $NONCE" \

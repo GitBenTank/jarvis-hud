@@ -8,16 +8,21 @@
 
 ## Pre-Roll (Before Recording)
 
+**Stack:** [local stack startup](../setup/local-stack-startup.md) — **`pnpm dev`** (Jarvis **http://127.0.0.1:3000**), **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, **`pnpm local:stack:doctor`**.
+
+**Create pending proposals** (from jarvis-hud, with **`.env.local`** aligned to **3000**):
+
 ```bash
 cd ~/Documents/jarvis-hud
-pnpm demo:boot      # wait for "Local: http://localhost:3001"
-pnpm demo:smoke     # creates pending proposal, prints traceId
+pnpm ingress:smoke
+pnpm jarvis:smoke:apply
 ```
 
+**Optional scripted 3001 path:** [DEMO.md](../../DEMO.md) — `pnpm demo:boot`, `pnpm demo:smoke`.
+
 **Layout:**
-- **Left:** Terminal (Jarvis logs or smoke output)
-- **Right:** Browser — Jarvis UI at http://localhost:3001
-- **Activity tab** ready: http://localhost:3001/activity
+- **Left:** Terminals (Jarvis + smoke output)
+- **Right:** Browser — **http://127.0.0.1:3000** and **http://127.0.0.1:3000/activity**
 
 ---
 

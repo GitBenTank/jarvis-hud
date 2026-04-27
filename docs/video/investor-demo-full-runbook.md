@@ -32,23 +32,23 @@ Single place for **boot discipline**, **spoken narrative**, and **camera choreog
 
 ## Boot (two terminals)
 
-Paths below use `~/Documents/jarvis-hud`; adjust for your clone.
+Paths below use `~/Documents/jarvis-hud`; adjust for your clone. **Same order as [local stack startup](../setup/local-stack-startup.md).**
 
-**Terminal 1 — OpenClaw** (from jarvis-hud; loads `.env.local` for gateway)
-
-```bash
-cd ~/Documents/jarvis-hud
-pnpm openclaw:dev
-```
-
-Wait until the gateway is **ready** / HTTP listening. If `OPENCLAW_CONTROL_UI_URL` is wrong, fix `.env.local` and restart **`pnpm dev`**.
-
-**Terminal 2 — Jarvis HUD**
+**Terminal 1 — Jarvis HUD**
 
 ```bash
 cd ~/Documents/jarvis-hud
 pnpm dev
 ```
+
+**Terminal 2 — OpenClaw** (from jarvis-hud; loads `.env.local` for gateway)
+
+```bash
+cd ~/Documents/jarvis-hud
+OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
+```
+
+Wait until the gateway is **ready** / HTTP listening. If `OPENCLAW_CONTROL_UI_URL` is wrong, fix `.env.local` and restart **`pnpm dev`**.
 
 **Sanity check**
 

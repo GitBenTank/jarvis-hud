@@ -156,7 +156,7 @@ On the **OpenClaw** side (env or `~/.openclaw/.env`, depending on your setup):
 
 | Variable | Purpose |
 |----------|---------|
-| `JARVIS_BASE_URL` | Must match the **listening** Jarvis origin (e.g. `http://localhost:3000`). |
+| `JARVIS_BASE_URL` | Must match the **listening** Jarvis origin (e.g. **`http://127.0.0.1:3000`** for **`pnpm dev`**). |
 | `JARVIS_INGRESS_OPENCLAW_SECRET` | Same shared secret as Jarvis (≥ 32 chars). |
 
 Then run **`pnpm jarvis:smoke`** from OpenClaw (or use the jarvis-hud skill) and confirm proposals appear in Jarvis. See [Local verification: OpenClaw → Jarvis HUD](../local-verification-openclaw-jarvis.md).
@@ -168,7 +168,7 @@ Then run **`pnpm jarvis:smoke`** from OpenClaw (or use the jarvis-hud skill) and
 | Check | Command or action |
 |-------|-------------------|
 | Gateway up | Control UI loads; chat `hello` gets a normal reply (no “unauthorized” wall). |
-| Jarvis link | `curl -sS http://localhost:3000/api/config \| jq .openclawControlUiUrl` matches your gateway URL. |
+| Jarvis link | `curl -sS http://127.0.0.1:3000/api/config \| jq .openclawControlUiUrl` matches your gateway URL. |
 | Ingress | From OpenClaw, `pnpm jarvis:smoke` → pending proposal in Jarvis (same secret + base URL). |
 
 ---

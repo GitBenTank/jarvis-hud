@@ -9,6 +9,7 @@
     "dev:turbo": "next dev -H 127.0.0.1 -p ${PORT:-3000}",
     "dev:3001": "next dev -H 127.0.0.1 -p 3001",
     "dev:port": "node scripts/dev-port.mjs",
+    "dev:stack": "node scripts/dev-stack.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

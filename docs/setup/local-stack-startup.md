@@ -26,6 +26,8 @@ OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
 
 Then **`pnpm local:stack:doctor`** from jarvis-hud.
 
+**Copy-paste helper:** **`pnpm dev:stack`** prints these two commands with your real paths, checks **`.env.local`** (**`JARVIS_BASE_URL`**, **`JARVIS_HUD_BASE_URL`**, **`OPENCLAW_ROOT`**), and warns on common mismatches. **`pnpm dev:stack --start-jarvis`** runs **`pnpm dev`** here after the banner (OpenClaw still in a second terminal).
+
 ### Blessed path (default — Jarvis + OpenClaw integration)
 
 | | |

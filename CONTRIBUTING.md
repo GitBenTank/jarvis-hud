@@ -28,6 +28,7 @@ Until a separate production promotion branch exists (e.g. post–Vercel deploy f
 ```bash
 pnpm install
 cp env.example .env.local   # optional; set vars as needed
+pnpm dev:stack   # optional: prints two-terminal commands + env warnings
 pnpm dev
 ```
 

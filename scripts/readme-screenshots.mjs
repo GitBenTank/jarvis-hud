@@ -191,7 +191,7 @@ async function waitForOk(url, timeoutMs) {
 function startNextChild() {
   const child = spawn(
     "pnpm",
-    ["exec", "next", "dev", "--webpack", "-H", "127.0.0.1", "-p", port],
+    ["exec", "next", "dev", "-H", "127.0.0.1", "-p", port],
     {
       cwd: root,
       env: {

@@ -9,6 +9,7 @@ import {
 import {
   INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT,
   INVESTOR_LIVE_SCRIPT_SECTIONS,
+  INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT,
   INVESTOR_SLIDE_SCRIPTS,
   INVESTOR_TRANSITION_SCRIPT,
 } from "@/components/demo/investorDemoSpeakerNotes";
@@ -102,8 +103,16 @@ function NotesScrollBody({
             Locked opener (~2 min) · Before deck / demo
           </summary>
           <DemoScriptBlocks blocks={INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT} />
+        </details>
+      ) : null}
+      {phase === "slides" && showLockedOpener ? (
+        <details open className="mb-6 rounded-lg border border-violet-500/20 bg-violet-950/15 px-3 py-2">
+          <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-violet-200/95 [&::-webkit-details-marker]:hidden">
+            Scale (~30–45 sec) · After opener, before Alfred
+          </summary>
+          <DemoScriptBlocks blocks={INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT} />
           <p className="mb-4 border-l-2 border-zinc-600 pl-3 text-[11px] leading-relaxed text-zinc-500">
-            Then run the Hero slide narration below—or advance if you led with straight talk only.
+            Then Hero slide narration below—or jump to live if you skipped the deck.
           </p>
         </details>
       ) : null}

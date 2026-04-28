@@ -5,6 +5,8 @@
  *
  * `say` = out loud · `stage` = timing / screen / operator
  * **`INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT`** = ~2 min opener before Slide 1 (program/routing conversations).
+ * **`INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT`** = ~30–45 s after opener, before Alfred / Hero deck.
+ * **`INVESTOR_LIVE_SCRIPT_SECTIONS`** = locked ~4–5 min live demo timing after handoff (+ operator prompts).
  */
 
 export type DemoScriptBlock =
@@ -128,6 +130,42 @@ export const INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT: readonly DemoScriptBlock[] =
   {
     kind: "stage",
     text: "Delivery: no hype voice, no stacking explanations—let silence land after key lines.",
+  },
+];
+
+/** ~30–45 s after programmatic opener · before Alfred (live) or Hero deck narration. */
+export const INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT: readonly DemoScriptBlock[] = [
+  {
+    kind: "stage",
+    text: "~30–45 sec — Agent team & scale bridge (say after opener, before Alfred).",
+  },
+  {
+    kind: "say",
+    text: "This is not just one chatbot taking one command. The product assumes an agent team: Alfred routes, specialists prepare work, and proposals can arrive as often as the workflow requires.",
+  },
+  {
+    kind: "stage",
+    text: "Short pause.",
+  },
+  {
+    kind: "say",
+    text: "Locally, that is powerful because the runtime sits close to files, tools, code, email, and APIs.",
+  },
+  {
+    kind: "stage",
+    text: "Beat.",
+  },
+  {
+    kind: "say",
+    text: "In enterprise, that becomes the danger: persistent agents need a governed boundary before certain actions execute.",
+  },
+  {
+    kind: "stage",
+    text: "Pause — let the wedge land.",
+  },
+  {
+    kind: "say",
+    text: "That is where Jarvis sits — between continuous agent thinking and authorized action.",
   },
 ];
 
@@ -377,16 +415,157 @@ export const INVESTOR_TRANSITION_SCRIPT: readonly DemoScriptBlock[] = [
   },
 ] as const;
 
+/**
+ * Live phase after "Enter live system" — locked ~4–5 min: when to pause, what to notice on screen.
+ * Works with deck (Alfred → Research → Creative) and Activity queue; do not rush approval.
+ */
 export const INVESTOR_LIVE_SCRIPT_SECTIONS: readonly {
   readonly title: string;
   readonly blocks: readonly DemoScriptBlock[];
 }[] = [
   {
-    title: "Operators — two proposals (real path)",
+    title: "~30–45 sec — Agent team scale (after opener, before Alfred)",
+    blocks: [...INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT],
+  },
+  {
+    title: "0:00 — Enter demo (Alfred / intake)",
+    blocks: [
+      { kind: "say", text: "So this is Alfred—intake." },
+      { kind: "stage", text: "Short pause." },
+      { kind: "say", text: "This is a proposal. Nothing has happened yet." },
+      {
+        kind: "stage",
+        text: "Pause — let her look at the UI.",
+      },
+      {
+        kind: "say",
+        text: "This is a knock. Not a foot through the door.",
+      },
+    ],
+  },
+  {
+    title: "0:45 — Research",
+    blocks: [
+      { kind: "stage", text: "Move forward (Research step)." },
+      { kind: "say", text: "Now we add evidence." },
+      { kind: "say", text: "Still just a proposal." },
+      { kind: "stage", text: "Micro pause — don't over-explain." },
+    ],
+  },
+  {
+    title: "1:15 — Creative / wedge",
+    blocks: [
+      { kind: "say", text: "Now it's shaped into something executable." },
+      {
+        kind: "say",
+        text: "At this point, most systems would just run this.",
+      },
+      { kind: "stage", text: "Pause." },
+      { kind: "say", text: "Jarvis does not." },
+    ],
+  },
+  {
+    title: "1:45 — Approval (most important)",
+    blocks: [
+      { kind: "stage", text: "Slow down. Hover before clicking." },
+      { kind: "say", text: "Nothing happens until someone approves." },
+      { kind: "stage", text: "Click approve." },
+      {
+        kind: "stage",
+        text: "Hard pause — 1–2 s. Nothing auto-ran; you had control.",
+      },
+    ],
+  },
+  {
+    title: "2:15 — Execution",
+    blocks: [
+      {
+        kind: "say",
+        text: "Now execution happens—separately.",
+      },
+      { kind: "stage", text: "Don't talk over it too much—let it run." },
+    ],
+  },
+  {
+    title: "2:45 — Receipt + trace",
+    blocks: [
+      { kind: "stage", text: "Point visually at receipt / trace." },
+      { kind: "say", text: "And now we have proof." },
+      {
+        kind: "say",
+        text: "Who approved it. Who executed it. What actually happened.",
+      },
+      { kind: "stage", text: "Pause." },
+      { kind: "say", text: "This can be reconstructed at any time." },
+    ],
+  },
+  {
+    title: "3:30 — House + river",
+    blocks: [
+      {
+        kind: "say",
+        text: "Most systems today are like a river.",
+      },
+      {
+        kind: "say",
+        text: "Things are flowing… but you don't really control where it goes.",
+      },
+      { kind: "stage", text: "Pause." },
+      {
+        kind: "say",
+        text: "Jarvis is the house on the river.",
+      },
+      {
+        kind: "say",
+        text: "Nothing comes in or out without going through it.",
+      },
+      {
+        kind: "say",
+        text: "It doesn't stop the river.",
+      },
+      {
+        kind: "say",
+        text: "It gives you authority over what crosses the boundary.",
+      },
+    ],
+  },
+  {
+    title: "4:15 — Close the loop",
+    blocks: [
+      {
+        kind: "say",
+        text: "Jarvis doesn't try to make models more trustworthy.",
+      },
+      { kind: "stage", text: "Pause." },
+      {
+        kind: "say",
+        text: "It removes the need to trust them.",
+      },
+    ],
+  },
+  {
+    title: "Delivery — room rules",
     blocks: [
       {
         kind: "stage",
-        text: "Activity / queue: one review batch, two items—first unsafe draft (**Reject**), second safe (**Approve** → **Execute**). OpenClaw idle banner after ~5m is recency only; traces on disk are source of truth.",
+        text: "Don't rush the approval click—that's the product.",
+      },
+      {
+        kind: "stage",
+        text: "Don't narrate everything; let the UI carry weight.",
+      },
+      {
+        kind: "stage",
+        text: "Silence = confidence. Receipt: point → state → pause.",
+      },
+    ],
+  },
+  {
+    title: "Operators — queue + prompts (reference)",
+    blocks: [
+      {
+        kind: "stage",
+        text: "Activity / queue: review batch—often first unsafe draft (**Reject**), second safe (**Approve** → **Execute**). OpenClaw idle banner after ~5m is recency only; traces on disk are source of truth.",
       },
       {
         kind: "stage",
@@ -398,217 +577,6 @@ export const INVESTOR_LIVE_SCRIPT_SECTIONS: readonly {
         text: "Optional fallback — fixed JSON files (deterministic content):",
       },
       { kind: "stage", text: ALFRED_INVESTOR_DEMO_FIXED_EMAIL_FILES_PROMPT },
-    ],
-  },
-  {
-    title: "Flow 1 — scope (say once)",
-    blocks: [
-      {
-        kind: "say",
-        text: "I’m going to show this with something real.",
-      },
-      {
-        kind: "say",
-        text: "Two proposals. Same system.",
-      },
-      {
-        kind: "say",
-        text: "One should never happen. One is correct.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — Alfred (first card — bad)",
-    blocks: [
-      {
-        kind: "say",
-        text: "First proposal — Alfred.",
-      },
-      {
-        kind: "say",
-        text: "This is the intake. What the system thinks should happen.",
-      },
-      {
-        kind: "say",
-        text: "But this one is wrong.",
-      },
-      { kind: "stage", text: "Pause." },
-      {
-        kind: "say",
-        text: "If this system didn’t exist, this would already be on its way out.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — Research (second card — good)",
-    blocks: [
-      {
-        kind: "say",
-        text: "Second proposal — Research.",
-      },
-      {
-        kind: "say",
-        text: "This one is grounded. It’s the right version of the action.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — consequence (key moment)",
-    blocks: [
-      {
-        kind: "say",
-        text: "Now here’s the difference.",
-      },
-      {
-        kind: "say",
-        text: "Both of these are ready to act.",
-      },
-      { kind: "stage", text: "Pause." },
-      {
-        kind: "say",
-        text: "But only one of them ever will.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — pending",
-    blocks: [
-      {
-        kind: "say",
-        text: "Right now, nothing is happening.",
-      },
-      {
-        kind: "say",
-        text: "The house is holding the line.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — deny the bad one",
-    blocks: [
-      {
-        kind: "say",
-        text: "This one should not happen.",
-      },
-      {
-        kind: "stage",
-        text: "Reject — don’t linger; it should feel obvious.",
-      },
-      {
-        kind: "say",
-        text: "So it doesn’t.",
-      },
-      { kind: "stage", text: "Short pause." },
-      {
-        kind: "say",
-        text: "It never executes. It never leaves the system.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — approve + execute the good one",
-    blocks: [
-      {
-        kind: "say",
-        text: "This one is correct.",
-      },
-      {
-        kind: "stage",
-        text: "Approve — approval says it’s allowed.",
-      },
-      {
-        kind: "stage",
-        text: "Small pause — slow down before Execute; this is the weight moment.",
-      },
-      {
-        kind: "stage",
-        text: "Execute — the moment it actually happens.",
-      },
-      {
-        kind: "say",
-        text: "Execution is the separate step where the system actually does it.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — proof (real email)",
-    blocks: [
-      {
-        kind: "stage",
-        text: "Show the inbox — stop talking; let reality land (second screen or tab is fine).",
-      },
-      {
-        kind: "say",
-        text: "This exists because I allowed it.",
-      },
-      {
-        kind: "stage",
-        text: "Optional power line (once): not because the system decided to send it—because I approved and executed it here.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — return to HUD",
-    blocks: [
-      {
-        kind: "say",
-        text: "And now we can prove it.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — proof (receipt)",
-    blocks: [
-      {
-        kind: "say",
-        text: "What was proposed. What I approved. What actually ran.",
-      },
-      {
-        kind: "say",
-        text: "Tied together.",
-      },
-      {
-        kind: "stage",
-        text: "Receipt + trace on screen — let them read; don’t talk over the proof.",
-      },
-    ],
-  },
-  {
-    title: "Flow 1 — close",
-    blocks: [
-      {
-        kind: "say",
-        text: "One action was stopped completely.",
-      },
-      {
-        kind: "say",
-        text: "One action actually happened.",
-      },
-      {
-        kind: "say",
-        text: "Same system.",
-      },
-      {
-        kind: "say",
-        text: "The difference is authority.",
-      },
-    ],
-  },
-  {
-    title: "Delivery (read once)",
-    blocks: [
-      {
-        kind: "stage",
-        text: "One voice: house, river, door—slides 2–6 stay in that world; no consulting stack-speak.",
-      },
-      {
-        kind: "stage",
-        text: "Trust the room: let pauses land before ‘That’s where things start to break,’ ‘That’s the gap,’ and ‘activity… and control.’",
-      },
-      {
-        kind: "stage",
-        text: "Two-outcome path: don’t imply a hypothetical email—you’re proving one outcome never ships and one does. Deny fast; slow down before Execute; silence when the inbox appears. Runbook: investor-demo-full-runbook.md § Flow 1.",
-      },
     ],
   },
 ] as const;

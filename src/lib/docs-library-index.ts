@@ -201,6 +201,8 @@ function categorize(segments: string[]): CategoryId {
       return "setup";
     case "strategy":
       return "narrative";
+    case "system":
+      return "narrative";
     case "architecture":
       return "architecture";
     case "security":
@@ -326,6 +328,12 @@ export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
     title: "Review the flagship team bundle",
     description:
       "Alfred, Research, Creative—multiple agents as one governed system.",
+  },
+  {
+    href: "/docs/system/full-ecosystem-tree",
+    title: "CTRL+STRUM / DEVHOUSE ecosystem",
+    description:
+      "Publishing vs build layers, content system, and where Jarvis HUD fits. Context for how the ecosystem scales.",
   },
 ];
 

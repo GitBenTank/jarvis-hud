@@ -254,6 +254,10 @@ export function DocsLibraryIndex({
               <RouteLink href="/pitch">/pitch</RouteLink>
               <RouteLink href="/playbook">/playbook</RouteLink>
               <RouteLink href="/thesis">/thesis</RouteLink>
+              <RouteLink href="/docs/system/full-ecosystem-tree">
+                Ecosystem
+              </RouteLink>
+              <RouteLink href="/docs/system/full-ecosystem-tree">System</RouteLink>
             </RouteRow>
             <p className="mt-4 max-w-xl text-[13px] leading-relaxed text-zinc-500">
               <span className="font-medium text-zinc-400">Investor pitch</span> (

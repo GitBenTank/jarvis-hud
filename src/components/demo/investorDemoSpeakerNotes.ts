@@ -133,39 +133,62 @@ export const INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT: readonly DemoScriptBlock[] =
   },
 ];
 
-/** ~30–45 s after programmatic opener · before Alfred (live) or Hero deck narration. */
+/**
+ * ~30–45 s after programmatic opener · before Alfred (live) or Hero deck narration.
+ * Delivery: realization, not a mini-pitch · zoom out · behavior + inevitability, not architecture.
+ */
 export const INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT: readonly DemoScriptBlock[] = [
   {
     kind: "stage",
-    text: "~30–45 sec — Agent team & scale bridge (say after opener, before Alfred).",
+    text: "~30–45 sec — Scale bridge · after opener, before Alfred (not explaining OpenClaw guts).",
+  },
+  {
+    kind: "stage",
+    text: "After opener: micro pause (~1 sec). Don’t jump straight in.",
+  },
+  {
+    kind: "say",
+    text: "The important thing here is—this isn't just one chat request.",
+  },
+  {
+    kind: "stage",
+    text: "Slow slightly — widen the lens. Then:",
   },
   {
     kind: "say",
     text: "This is not just one chatbot taking one command. The product assumes an agent team: Alfred routes, specialists prepare work, and proposals can arrive as often as the workflow requires.",
   },
   {
-    kind: "stage",
-    text: "Short pause.",
+    kind: "say",
+    text: "The runtime sits close to files, tools, code, email, and APIs.",
   },
   {
     kind: "say",
-    text: "Locally, that is powerful because the runtime sits close to files, tools, code, email, and APIs.",
+    text: "Locally, that's powerful… but that's also where the danger starts.",
   },
   {
     kind: "stage",
-    text: "Beat.",
+    text: "Slight pause after “powerful”—let “danger” land.",
   },
   {
     kind: "say",
-    text: "In enterprise, that becomes the danger: persistent agents need a governed boundary before certain actions execute.",
+    text: "As this moves into enterprise… that risk gets bigger.",
   },
   {
     kind: "stage",
-    text: "Pause — let the wedge land.",
+    text: "Don’t over-explain enterprise—let her connect the dots.",
   },
   {
     kind: "say",
     text: "That is where Jarvis sits — between continuous agent thinking and authorized action.",
+  },
+  {
+    kind: "stage",
+    text: "Optional tie-in (say only if it feels natural) — then Alfred:",
+  },
+  {
+    kind: "say",
+    text: "So instead of stopping agents, we let them run—and govern what actually executes.",
   },
 ];
 

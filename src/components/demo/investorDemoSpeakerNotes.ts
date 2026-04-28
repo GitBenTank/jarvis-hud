@@ -4,6 +4,7 @@
  * investor clarity—no tone whiplash. Live = proof. Long-form: investor-demo-narrative-script.md
  *
  * `say` = out loud · `stage` = timing / screen / operator
+ * **`INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT`** = ~2 min opener before Slide 1 (program/routing conversations).
  */
 
 export type DemoScriptBlock =
@@ -58,6 +59,77 @@ pnpm jarvis:submit --file scripts/demos/send-email-proposal-bad.json
 pnpm jarvis:submit --file scripts/demos/send-email-proposal.json
 
 Submit only—don’t send mail from here.` as const;
+
+/**
+ * ~120s opener for program / routing conversations (calm authority story before the deck).
+ * Say it like explaining something obvious—not pitching something fragile.
+ * Alternate line for “what Jarvis is”: see `{ kind: \"stage\", text: ALT_JARVIS_IS_LINE }` below.
+ */
+export const ALT_JARVIS_IS_LINE =
+  "Alt line — “Jarvis is the system that decides what AI is allowed to do.”" as const;
+
+export const INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT: readonly DemoScriptBlock[] = [
+  {
+    kind: "stage",
+    text: "Locked opener (~2 min) · Program / PM path — Reality → transition to demo.",
+  },
+  { kind: "stage", text: "0:00 — Reality (15–20 sec)" },
+  {
+    kind: "say",
+    text: "Agents are starting to do real work—sending emails, modifying code, triggering APIs.",
+  },
+  { kind: "stage", text: "Half beat." },
+  {
+    kind: "say",
+    text: "They're actually pretty good at proposing what should happen.",
+  },
+  { kind: "stage", text: "0:20 — Problem (15–20 sec)" },
+  {
+    kind: "say",
+    text: "The problem shows up when those actions touch real systems.",
+  },
+  {
+    kind: "say",
+    text: "An agent sends the wrong email, changes production code, or triggers something without visibility.",
+  },
+  { kind: "stage", text: "Small pause." },
+  {
+    kind: "say",
+    text: "At that point, the issue isn't intelligence—it's authority.",
+  },
+  { kind: "stage", text: "0:40 — Insight (10 sec)" },
+  { kind: "say", text: "The model is not the authority." },
+  { kind: "stage", text: "Let it sit. Don't rush." },
+  { kind: "stage", text: "0:50 — What Jarvis is (20–25 sec)" },
+  {
+    kind: "say",
+    text: "Jarvis is a control layer for that boundary.",
+  },
+  { kind: "stage", text: ALT_JARVIS_IS_LINE },
+  {
+    kind: "say",
+    text: "Agents can propose work, but nothing executes until it's explicitly approved.",
+  },
+  {
+    kind: "say",
+    text: "Execution is separate—and every action leaves a receipt and a trace.",
+  },
+  { kind: "stage", text: "1:15 — Anchor (~10 sec)" },
+  {
+    kind: "say",
+    text: "Autonomy in thinking. Authority in action.",
+  },
+  { kind: "stage", text: "1:25 — Transition (10–15 sec)" },
+  {
+    kind: "say",
+    text: "The easiest way to understand it is to watch that boundary happen.",
+  },
+  { kind: "stage", text: "Then move into demo immediately." },
+  {
+    kind: "stage",
+    text: "Delivery: no hype voice, no stacking explanations—let silence land after key lines.",
+  },
+];
 
 /** Six slides — indices match Gener8torPitchSlideDeck */
 export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [

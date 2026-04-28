@@ -7,6 +7,7 @@ import {
   DemoScriptSectionTitle,
 } from "@/components/demo/demoScriptRendering";
 import {
+  INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT,
   INVESTOR_LIVE_SCRIPT_SECTIONS,
   INVESTOR_SLIDE_SCRIPTS,
   INVESTOR_TRANSITION_SCRIPT,
@@ -66,11 +67,13 @@ function LiveOutlineSections() {
 
 function NotesScrollBody({
   phase,
+  slideIndex,
   slideScript,
   postDeckTabs,
   subTab,
 }: {
   phase: DemoSpeakerNotesPhase;
+  slideIndex: number;
   slideScript: (typeof INVESTOR_SLIDE_SCRIPTS)[number];
   postDeckTabs: boolean;
   subTab: NotesSubTab;
@@ -89,8 +92,21 @@ function NotesScrollBody({
     );
   }
 
+  const showLockedOpener = phase === "slides" && slideIndex === 0 && subTab === "slides";
+
   return (
     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-10">
+      {phase === "slides" && showLockedOpener ? (
+        <details open className="mb-6 rounded-lg border border-sky-500/20 bg-sky-950/20 px-3 py-2">
+          <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-sky-200/95 [&::-webkit-details-marker]:hidden">
+            Locked opener (~2 min) · Before deck / demo
+          </summary>
+          <DemoScriptBlocks blocks={INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT} />
+          <p className="mb-4 border-l-2 border-zinc-600 pl-3 text-[11px] leading-relaxed text-zinc-500">
+            Then run the Hero slide narration below—or advance if you led with straight talk only.
+          </p>
+        </details>
+      ) : null}
       {phase === "slides" ? <DemoScriptBlocks blocks={slideScript.blocks} /> : null}
       {phase === "transition" ? <DemoScriptBlocks blocks={INVESTOR_TRANSITION_SCRIPT} /> : null}
       {phase === "live" ? <LiveOutlineSections /> : null}
@@ -185,7 +201,7 @@ export function DemoSpeakerNotesPanel({
   postDeckTabs?: boolean;
 }) {
   const [subTab, setSubTab] = useState<NotesSubTab>("slides");
-  const { slideScript, phaseLabel, secondLine } = useNotesModel(
+  const { safeSlide, slideScript, phaseLabel, secondLine } = useNotesModel(
     phase,
     slideIndex,
     postDeckTabs ? { postDeckTabs, subTab } : undefined,
@@ -248,6 +264,7 @@ export function DemoSpeakerNotesPanel({
         ) : null}
         <NotesScrollBody
           phase={phase}
+          slideIndex={safeSlide}
           slideScript={slideScript}
           postDeckTabs={postDeckTabs}
           subTab={subTab}
@@ -282,6 +299,7 @@ export function DemoSpeakerNotesPanel({
         ) : null}
         <NotesScrollBody
           phase={phase}
+          slideIndex={safeSlide}
           slideScript={slideScript}
           postDeckTabs={postDeckTabs}
           subTab={subTab}

@@ -1,10 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type {
-  DocsLibraryCategory,
-  DocsLibraryStartItem,
-  DocsLibraryBuild,
-} from "@/lib/docs-library-index";
+import type { DocsLibraryBuild, DocsLibraryCategory } from "@/lib/docs-library-index";
 
 const mono =
   "[font-family:var(--font-docs-mono),ui-monospace,monospace]" as const;
@@ -12,37 +8,12 @@ const mono =
 const hudRouteLink =
   "text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-200" as const;
 
-const hudRouteLinkActivity =
-  "text-sm font-medium text-amber-400 transition-colors hover:text-amber-300" as const;
-
-function RouteLink({
-  href,
-  children,
-  accent,
+/** Curated onboarding home — excludes ?library=all mega-index (see DocsTechnicalLibraryPage). */
+function CardGrid({
+  items,
 }: {
-  href: string;
-  children: ReactNode;
-  accent?: "activity";
+  items: { href: string; title: string; description: string }[];
 }) {
-  return (
-    <Link
-      href={href}
-      className={accent === "activity" ? hudRouteLinkActivity : hudRouteLink}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function RouteRow({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex max-w-3xl flex-wrap items-center gap-x-5 gap-y-2.5">
-      {children}
-    </div>
-  );
-}
-
-function CardGrid({ items }: { items: DocsLibraryStartItem[] }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
@@ -64,7 +35,11 @@ function CardGrid({ items }: { items: DocsLibraryStartItem[] }) {
   );
 }
 
-function InvestorFifteenMinutePath({ items }: { items: DocsLibraryStartItem[] }) {
+function InvestorFifteenMinutePath({
+  items,
+}: {
+  items: { href: string; title: string; description: string }[];
+}) {
   return (
     <ol className="max-w-3xl list-none space-y-5">
       {items.map((item, index) => (
@@ -143,17 +118,87 @@ function DocLinkRow({
   );
 }
 
-export function DocsLibraryIndex({
-  library,
-  showFullTechnicalIndex,
-}: {
-  library: DocsLibraryBuild;
-  showFullTechnicalIndex: boolean;
-}) {
-  const categories = showFullTechnicalIndex
-    ? library.fullCategories
-    : library.publicCategories;
-  const { stats } = library;
+function RouteRow({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex max-w-3xl flex-wrap items-center gap-x-5 gap-y-2.5">{children}</div>
+  );
+}
+
+function ExploreAdvancedSection({ stats }: Pick<DocsLibraryBuild, "stats">) {
+  const links = [
+    {
+      label: "Technical library",
+      href: "/docs?library=all",
+      hint: `${stats.totalFiles} markdown files grouped by topic`,
+    },
+    {
+      label: "Setup & operations",
+      href: "/docs/setup/local-stack-startup",
+      hint: "Local stack startup, terminals, blessed paths",
+    },
+    {
+      label: "Architecture",
+      href: "/docs/architecture/jarvis-openclaw-system-overview",
+      hint: "Capability vs control plane — how components connect",
+    },
+    {
+      label: "Security",
+      href: "/docs/architecture/security-model",
+      hint: "Execution risk, ingress, enforcement",
+    },
+    {
+      label: "Integrations",
+      href: "/docs/openclaw-integration-verification",
+      hint: "OpenClaw ↔ Jarvis ingress, signing, troubleshooting",
+    },
+    {
+      label: "Runbooks",
+      href: "/docs/live-demo-reliability-checklist",
+      hint: "Demos and rehearsal drills",
+    },
+  ] as const;
+
+  return (
+    <details className="group mt-16 rounded-2xl border border-white/[0.08] bg-zinc-950/25 [&_summary::-webkit-details-marker]:hidden">
+      <summary
+        id="explore-deeper-heading"
+        className={`cursor-pointer list-none px-6 py-5 sm:px-8 sm:py-6 ${mono} flex items-center justify-between gap-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400 transition-colors hover:text-zinc-200`}
+      >
+        <span>Explore deeper · advanced</span>
+        <span
+          aria-hidden
+          className="text-[10px] text-zinc-500 transition-transform group-open:rotate-180"
+        >
+          ▼
+        </span>
+      </summary>
+      <div className="border-t border-white/[0.06] px-6 pb-8 pt-2 sm:px-8 sm:pb-10">
+        <p className="mb-6 max-w-2xl text-[13px] leading-relaxed text-zinc-500">
+          Operators, integrators, and diligence-heavy readers skip here—not part of onboarding or
+          the investor-first path.
+        </p>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {links.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="block rounded-xl border border-white/[0.06] bg-black/25 px-4 py-4 transition-colors hover:border-sky-500/20 hover:bg-zinc-950/60"
+              >
+                <span className="block text-[15px] font-medium text-zinc-100">{item.label}</span>
+                <span className={`${mono} mt-1.5 block text-[11px] leading-relaxed text-zinc-500`}>
+                  {item.hint}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </details>
+  );
+}
+
+function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
+  const { newcomers, investors, stats } = library;
 
   return (
     <div className="min-h-dvh px-4 pb-20 pt-8 sm:px-8 sm:pb-24 sm:pt-10">
@@ -164,21 +209,14 @@ export function DocsLibraryIndex({
               ← HUD
             </Link>
           </RouteRow>
-          {showFullTechnicalIndex ? (
-            <Link
-              href="/docs"
-              className={`${mono} text-[11px] font-medium text-sky-400/90 hover:text-sky-300`}
-            >
-              Curated docs home
-            </Link>
-          ) : (
+          <RouteRow>
             <Link
               href="/docs?library=all"
               className={`${mono} text-[11px] font-medium text-zinc-500 hover:text-zinc-300`}
             >
-              Complete index ({stats.totalFiles} files)
+              Full library index ({stats.totalFiles} files)
             </Link>
-          )}
+          </RouteRow>
         </nav>
 
         <header className="mt-10 max-w-3xl border-b border-white/[0.08] pb-10">
@@ -198,11 +236,11 @@ export function DocsLibraryIndex({
             sounding confident.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500">
-            This page is organized{" "}
-            <strong className="font-medium text-zinc-400">by audience</strong> first (newcomers,
-            investors, trust story, operators). The technical file index at the bottom defaults to
-            a <strong className="font-medium text-zinc-400">curated list</strong>—good for diligence
-            without internal research notes cluttering the view.
+            This landing page is paced for onboarding and diligence:{" "}
+            <strong className="font-medium text-zinc-400">see it work</strong>, skim what Jarvis
+            is without installing, then walk the numbered investor sequence. Operators and stacks live
+            under <strong className="font-medium text-zinc-400">Explore deeper · advanced</strong>{" "}
+            below—not on this fold.
           </p>
         </header>
 
@@ -219,9 +257,7 @@ export function DocsLibraryIndex({
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-[1.7]">
             A six-slide walkthrough into the live HUD: agents propose, humans approve, execution
             stays separate, and every outcome leaves a receipt and trace.{" "}
-            <span className="text-zinc-300">
-              Autonomy in thinking; authority in action.
-            </span>
+            <span className="text-zinc-300">Autonomy in thinking; authority in action.</span>
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
@@ -231,68 +267,11 @@ export function DocsLibraryIndex({
               Open live demo
             </Link>
             <Link
-              href="/docs"
+              href="/docs/tati"
               className={`${mono} inline-flex items-center justify-center rounded-xl border border-white/[0.12] bg-zinc-950/50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-300 transition hover:border-zinc-500 hover:text-zinc-100`}
             >
-              Browse docs
+              Investor pack (15 min)
             </Link>
-          </div>
-        </section>
-
-        <section
-          aria-label="Shortcuts"
-          className="mt-10 grid gap-8 border-b border-white/[0.06] pb-10 sm:grid-cols-2"
-        >
-          <div>
-            <h2
-              className={`${mono} mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500`}
-            >
-              Short paths
-            </h2>
-            <RouteRow>
-              <RouteLink href="/library">/library</RouteLink>
-              <RouteLink href="/pitch">/pitch</RouteLink>
-              <RouteLink href="/playbook">/playbook</RouteLink>
-              <RouteLink href="/thesis">/thesis</RouteLink>
-              <RouteLink href="/docs/system/full-ecosystem-tree">
-                Ecosystem
-              </RouteLink>
-            </RouteRow>
-            <p className="mt-4 max-w-xl text-[13px] leading-relaxed text-zinc-500">
-              <span className="font-medium text-zinc-400">Investor pitch</span> (
-              <Link href="/pitch" className="text-zinc-300 underline-offset-2 hover:text-white">
-                /pitch
-              </Link>
-              ,{" "}
-              <Link
-                href="/docs/strategy/gener8tor-pitch"
-                className="text-zinc-300 underline-offset-2 hover:text-white"
-              >
-                docs
-              </Link>
-              ): Read-only deck. For the live investor demo with speaker notes and governed
-              execution flow, open{" "}
-              <Link href="/demo" className="font-medium text-sky-300/90 underline-offset-2 hover:text-sky-200">
-                /demo
-              </Link>
-              .
-            </p>
-          </div>
-          <div>
-            <h2
-              className={`${mono} mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500`}
-            >
-              In the app
-            </h2>
-            <RouteRow>
-              <RouteLink href="/">HUD</RouteLink>
-              <RouteLink href="/activity" accent="activity">
-                Activity
-              </RouteLink>
-              <RouteLink href="/docs">Docs</RouteLink>
-              <RouteLink href="/demo">Demo</RouteLink>
-              <RouteLink href="/about">About</RouteLink>
-            </RouteRow>
           </div>
         </section>
 
@@ -303,7 +282,7 @@ export function DocsLibraryIndex({
             title="Start without the stack"
             subtitle="No install required to understand what Jarvis is and why it exists."
           />
-          <CardGrid items={library.newcomers} />
+          <CardGrid items={newcomers} />
         </section>
 
         <section className="mt-14" aria-labelledby="investors-heading">
@@ -311,66 +290,85 @@ export function DocsLibraryIndex({
             eyebrow="Investors"
             sectionId="investors-heading"
             title="For investors — 15 minute path"
-            subtitle="One sequence—live demo first, then pack, Thesis Lock, team bundle. Deeper narrative and runbooks live in the library below."
+            subtitle="One sequence—live demo first, investor pack (/docs/tati), Thesis Lock, team bundle—before you touch checklists."
           />
-          <InvestorFifteenMinutePath items={library.investors} />
+          <InvestorFifteenMinutePath items={investors} />
         </section>
 
-        <section className="mt-14" aria-labelledby="trust-heading">
-          <SectionTitle
-            eyebrow="Trust & architecture"
-            sectionId="trust-heading"
-            title="Why this is safe to take seriously"
-            subtitle="Governance rules and system maps you can share with technical advisors."
-          />
-          <CardGrid items={library.trust} />
-        </section>
+        <ExploreAdvancedSection stats={stats} />
 
-        <section className="mt-14" aria-labelledby="operators-heading">
-          <SectionTitle
-            eyebrow="Operators & builders"
-            sectionId="operators-heading"
-            title="Run it locally and wire integrations"
-            subtitle="Checklists, blessed stack, and ingress protocol—once you are ready to touch terminals."
-          />
-          <CardGrid items={library.operators} />
-        </section>
+        <p
+          className={`${mono} mx-auto mt-16 max-w-lg text-center text-[11px] leading-relaxed text-zinc-600`}
+        >
+          Policy:{" "}
+          <Link href="/docs/README" className="text-zinc-500 underline-offset-2 hover:text-zinc-400">
+            what we show in this UI vs. repo-only
+          </Link>
+          . Example path{" "}
+          <code className="text-zinc-500">docs/strategy/thesis.md</code>
+          {" → "}
+          <code className="text-zinc-500">/docs/strategy/thesis</code>
+        </p>
+      </div>
+    </div>
+  );
+}
 
-        <section className="mt-16" aria-labelledby="index-heading">
-          <SectionTitle
-            eyebrow={showFullTechnicalIndex ? "Complete index" : "Technical library"}
-            sectionId="index-heading"
-            title={
-              showFullTechnicalIndex
-                ? "All markdown files"
-                : "Curated file browser"
-            }
-            subtitle={
-              showFullTechnicalIndex
-                ? "Everything under docs/, grouped by area. Titles come from each file’s first heading when present."
-                : `Showing ${stats.listedInPublicIndex} of ${stats.totalFiles} files. ${stats.hiddenFromPublicIndex} internal or research drafts are hidden from this list but still available via direct links and the repo.`
-            }
-          />
-          {!showFullTechnicalIndex && stats.hiddenFromPublicIndex > 0 ? (
-            <p className={`${mono} mb-8 text-[11px] text-zinc-600`}>
-              <Link href="/docs?library=all" className="text-sky-400/85 hover:text-sky-300">
-                Browse all {stats.totalFiles} files including internal notes →
-              </Link>
-            </p>
-          ) : null}
+function DocsTechnicalLibraryPage({ library }: { library: DocsLibraryBuild }) {
+  const categories: DocsLibraryCategory[] = library.fullCategories;
+  const { stats } = library;
 
+  return (
+    <div className="min-h-dvh px-4 pb-20 pt-8 sm:px-8 sm:pb-24 sm:pt-10">
+      <div className="mx-auto max-w-6xl">
+        <nav aria-label="Docs navigation" className="flex flex-wrap items-center justify-between gap-4">
+          <RouteRow>
+            <Link href="/" className={hudRouteLink}>
+              ← HUD
+            </Link>
+            <Link href="/demo" className={hudRouteLink}>
+              Live demo
+            </Link>
+          </RouteRow>
+          <RouteRow>
+            <Link
+              href="/docs"
+              className={`${mono} text-[11px] font-medium text-sky-400/90 hover:text-sky-300`}
+            >
+              Curated docs home
+            </Link>
+          </RouteRow>
+        </nav>
+
+        <header className="mt-10 max-w-3xl border-b border-white/[0.08] pb-10">
+          <p
+            className={`${mono} mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}
+          >
+            Advanced
+          </p>
+          <h1 className="text-3xl font-medium tracking-tight text-zinc-50 sm:text-[2.25rem] sm:leading-tight">
+            Technical library
+          </h1>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500">
+            Everything under <code className={`${mono} text-[12px] text-zinc-400`}>docs/</code>,
+            grouped by area. Internal or research drafts may still resolve via URL or repo; titles
+            default to each file’s first heading.
+          </p>
+          <p className={`${mono} mt-3 text-[11px] text-zinc-600`}>
+            {stats.totalFiles} markdown files indexed · curated view listed {stats.listedInPublicIndex}{" "}
+            publicly
+          </p>
+        </header>
+
+        <section className="mt-12" aria-label="Markdown files grouped by category">
           <div className="grid gap-6 lg:grid-cols-2">
             {categories.map((cat: DocsLibraryCategory) => (
               <div
                 key={cat.id}
                 className="flex flex-col rounded-2xl border border-white/[0.06] bg-black/25 p-6 sm:p-7"
               >
-                <h3 className="text-lg font-medium tracking-tight text-zinc-100">
-                  {cat.label}
-                </h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-zinc-500">
-                  {cat.description}
-                </p>
+                <h3 className="text-lg font-medium tracking-tight text-zinc-100">{cat.label}</h3>
+                <p className="mt-2 text-[13px] leading-relaxed text-zinc-500">{cat.description}</p>
                 <p
                   className={`${mono} mt-4 text-[11px] text-zinc-600`}
                   aria-label={`${cat.entries.length} documents in this section`}
@@ -393,14 +391,24 @@ export function DocsLibraryIndex({
         >
           Policy:{" "}
           <Link href="/docs/README" className="text-zinc-500 underline-offset-2 hover:text-zinc-400">
-            what we show in this UI vs. repo-only
+            what we show in curated vs index views
           </Link>
-          . Example path{" "}
-          <code className="text-zinc-500">docs/strategy/thesis.md</code>
-          {" → "}
-          <code className="text-zinc-500">/docs/strategy/thesis</code>
+          .
         </p>
       </div>
     </div>
   );
+}
+
+export function DocsLibraryIndex({
+  library,
+  showFullTechnicalIndex,
+}: {
+  library: DocsLibraryBuild;
+  showFullTechnicalIndex: boolean;
+}) {
+  if (showFullTechnicalIndex) {
+    return <DocsTechnicalLibraryPage library={library} />;
+  }
+  return <DocsOnboardingHub library={library} />;
 }

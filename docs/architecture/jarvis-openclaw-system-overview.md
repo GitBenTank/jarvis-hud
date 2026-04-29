@@ -26,6 +26,8 @@ This page shows how that boundary works end-to-end. [Documentation hub](../READM
 
 Most systems let the model both decide and act. This system does not.
 
+Without this separation, models can trigger real-world effects without clear approval, accountability, or auditability.
+
 - **OpenClaw** is the **capability** layer — models, tools, workspace, drafting, orchestration.
 - **Jarvis** is the **authority** layer — signed ingress, approval queue, policy, execution, receipts, traces.
 - **Separation is intentional:** cognition and gateways are not substitutes for audited, human-governed outcomes.

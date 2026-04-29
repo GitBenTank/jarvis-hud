@@ -1,181 +1,295 @@
 import Link from "next/link";
-import SystemStatus from "@/components/SystemStatus";
+import { AboutOperatorsPanel } from "@/components/about/AboutOperatorsPanel";
+
+const mono =
+  "[font-family:var(--font-docs-mono),ui-monospace,monospace]" as const;
+
+function RouteLink({
+  href,
+  children,
+  accent,
+}: {
+  href: string;
+  children: React.ReactNode;
+  accent?: "activity";
+}) {
+  const base =
+    accent === "activity"
+      ? "text-sm font-medium text-amber-400 transition-colors hover:text-amber-300"
+      : "text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-200";
+  return (
+    <Link href={href} className={base}>
+      {children}
+    </Link>
+  );
+}
+
+function SectionTitle({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div className="mb-5">
+      <p className={`${mono} mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}>
+        {eyebrow}
+      </p>
+      <h2 className="text-xl font-medium tracking-tight text-zinc-50 sm:text-2xl">{title}</h2>
+      {subtitle ? <p className="mt-3 text-sm leading-relaxed text-zinc-500">{subtitle}</p> : null}
+    </div>
+  );
+}
+
+const LIFECYCLE = ["Propose", "Approve", "Execute", "Receipt"] as const;
+
+const DIG_DEEPER = [
+  {
+    href: "/demo",
+    title: "Demo",
+    description: "See the HUD path end-to-end in a rehearsal flow.",
+  },
+  {
+    href: "/docs/tati",
+    title: "Investor read path",
+    description: "A tight curated route through positioning and readiness.",
+  },
+  {
+    href: "/docs/getting-started/welcome",
+    title: "Welcome",
+    description: "On-ramp vocabulary and where things live.",
+  },
+  {
+    href: "/docs/strategy/competitive-landscape-2026",
+    title: "Market context",
+    description: "How this category is evolving and why the boundary matters.",
+  },
+  {
+    href: "/docs",
+    title: "Documentation home",
+    description: "Full library — architecture, ops, governance.",
+  },
+] as const;
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <main className="mx-auto max-w-2xl px-4 py-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <Link
-            href="/"
-            className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-          >
-            ← Back to HUD
-          </Link>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <Link
-              href="/docs"
-              className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-            >
-              Docs
-            </Link>
-            <Link
-              href="/demo"
-              className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-            >
-              Demo
-            </Link>
-            <Link
-              href="/activity"
-              className="text-sm font-medium text-amber-500 hover:text-amber-400 dark:text-amber-400 dark:hover:text-amber-300"
-            >
+    <div className="relative min-h-screen">
+      <main className="relative z-10 mx-auto max-w-3xl px-5 py-12 sm:px-8">
+        <div className="mb-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          <RouteLink href="/">← Back to HUD</RouteLink>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <RouteLink href="/docs">Docs</RouteLink>
+            <RouteLink href="/demo">Demo</RouteLink>
+            <RouteLink href="/activity" accent="activity">
               Activity
-            </Link>
+            </RouteLink>
           </div>
         </div>
 
-        <h1 className="mb-6 text-xl font-semibold text-zinc-800 dark:text-zinc-200">
-          About Jarvis HUD
-        </h1>
+        <header className="mb-12">
+          <p className={`${mono} mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500`}>
+            Narrative HUD
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">About Jarvis HUD</h1>
+          <p className="mt-5 text-[15px] leading-relaxed text-zinc-400">
+            Assistants don&apos;t stop at chat anymore—they suggest emails, edits, tickets, deploys. The awkward
+            question isn&apos;t intelligence; it&apos;s{" "}
+            <strong className="font-medium text-zinc-100">
+              who said yes, what actually ran, and whether you can show that later.
+            </strong>{" "}
+            Jarvis is the HUD for that boundary: propose, approve, execute—then{" "}
+            <strong className="font-medium text-zinc-100">receipt and trace</strong>, not a story you half-remember.
+          </p>
 
-        <p className="mb-8 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Jarvis is the{" "}
-          <span className="font-medium text-zinc-800 dark:text-zinc-200">
-            approval and proof layer
-          </span>{" "}
-          for agent systems: explicit authority boundaries, separated approve and execute steps, and
-          reconstructable receipts and traces—not an agent builder. For positioning and competitive
-          context, see{" "}
-          <Link
-            href="/docs/strategy/competitive-landscape-2026"
-            className="font-medium text-amber-600 underline underline-offset-2 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
+          <div
+            aria-label="Governed lifecycle"
+            className={`${mono} mt-8 flex flex-wrap items-center gap-y-3 text-[11px]`}
           >
-            Competitive landscape (2026)
-          </Link>
-          .
-        </p>
-
-        <div className="space-y-8">
-          <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <h2 className="text-lg font-semibold">Runtime Control Plane</h2>
-            <div className="mt-3 flex flex-col gap-1 text-sm">
-              <div>
-                <span className="font-medium text-zinc-500">Agent:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Local runtime active</span>
-              </div>
-              <div>
-                <span className="font-medium text-zinc-500">Execution Mode:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Dry Run</span>
-              </div>
-              <div>
-                <span className="font-medium text-zinc-500">Authority Model:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Human-gated</span>
-              </div>
-              <div>
-                <span className="font-medium text-zinc-500">Cognition Layer:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Background agent loop</span>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <h2 className="text-lg font-semibold">Execution Authority (Thesis Lock)</h2>
-            <ul className="mt-3 space-y-1.5 text-sm">
-              <li>
-                <span className="font-medium text-zinc-500">Mode:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Human-gated</span>
-              </li>
-              <li>
-                <span className="font-medium text-zinc-500">Approval ≠ Execution</span>
-              </li>
-              <li>
-                <span className="font-medium text-zinc-500">Posting adapters:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Disabled (no external posting)</span>
-              </li>
-              <li>
-                <span className="font-medium text-zinc-500">External API access:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Off (for now)</span>
-              </li>
-              <li>
-                <span className="font-medium text-zinc-500">Receipts:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Required (artifact + action log)</span>
-              </li>
-              <li>
-                <span className="font-medium text-zinc-500">Trusted principal:</span>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">Human (not the model)</span>
-              </li>
-            </ul>
-            <hr className="mt-4 mb-3 border-t border-zinc-300 dark:border-zinc-700" />
-            <div className="text-center">
-              <div className="mb-2 text-[10px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
-                — EXECUTION BOUNDARY —
-              </div>
-              <div className="space-y-0.5 text-base font-bold text-zinc-800 dark:text-zinc-200">
-                <div>Autonomy in thinking.</div>
-                <div>Authority in action.</div>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <h2 className="text-lg font-semibold">Security Posture (Zero Trust)</h2>
-            <div className="mt-3 space-y-3 text-sm">
-              <div>
-                <p className="font-medium text-zinc-600 dark:text-zinc-400">Threats we defend against</p>
-                <ul className="mt-1 list-inside list-disc space-y-0.5 text-zinc-600 dark:text-zinc-400">
-                  <li>Prompt injection / tool misuse</li>
-                  <li>Stolen session / stolen account</li>
-                  <li>Data exfil via tool outputs</li>
-                  <li>Confused deputy (model tricks tool permissions)</li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-medium text-zinc-600 dark:text-zinc-400">
-                  Current controls{" "}
-                  <span className="inline-block rounded border border-emerald-500 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:border-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-300">
-                    Execution Policy: enforced
+            {LIFECYCLE.map((step, index) => (
+              <span key={step} className="flex items-center">
+                <span
+                  className="rounded-full border border-white/[0.12] bg-zinc-950/80 px-3.5 py-2 font-semibold uppercase tracking-[0.14em] text-zinc-300 shadow-[0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-sky-400/35 hover:bg-zinc-900/70 hover:text-zinc-100"
+                >
+                  {step}
+                </span>
+                {index < LIFECYCLE.length - 1 ? (
+                  <span aria-hidden className="mx-2 shrink-0 text-zinc-600 sm:mx-2.5">
+                    →
                   </span>
-                </p>
-                <ul className="mt-1 list-inside list-disc space-y-0.5 text-zinc-600 dark:text-zinc-400">
-                  <li>Human-gated execution (approve ≠ execute)</li>
-                  <li>External API access: OFF (for now)</li>
-                  <li>Posting adapters: disabled</li>
-                  <li>Receipts: required (artifact + action log)</li>
-                  <li>Deterministic packaging (local files only)</li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-medium text-zinc-500 dark:text-zinc-500">
-                  Controls (planned) <span className="text-xs italic">(roadmap, not implemented)</span>
-                </p>
-                <ul className="mt-1 list-inside list-disc space-y-0.5 text-xs text-zinc-500 dark:text-zinc-500">
-                  <li>Re-authentication to execute (step-up)</li>
-                  <li>Execution allowlist per kind (capabilities)</li>
-                  <li>Trusted ingress allowlists (reduce prompt injection surface)</li>
-                  <li>Scoped connector identities (separate accounts / service principals)</li>
-                  <li>Key limits and alerts (policy-gated outbound)</li>
-                  <li>Session TTL + device binding</li>
-                  <li>Rate limits + audit alerts</li>
-                  <li>Sanitization / injection checks on rendered content</li>
-                </ul>
-              </div>
-            </div>
-            <p className="mt-4 text-xs italic text-zinc-500 dark:text-zinc-400">
-              Zero Trust: never trust, always verify.
+                ) : null}
+              </span>
+            ))}
+          </div>
+          <p className={`${mono} mt-4 text-[11px] text-zinc-600`}>
+            Prefer hands-on? Open{" "}
+            <Link
+              href="/activity"
+              className="font-medium text-amber-400/90 transition-colors hover:text-amber-300"
+            >
+              Activity
+            </Link>{" "}
+            and walk the stream as it happens.
+          </p>
+        </header>
+
+        <blockquote className="rounded-2xl border border-white/[0.09] bg-gradient-to-br from-zinc-950/85 to-zinc-900/35 p-6 ring-1 ring-inset ring-white/[0.04]">
+          <div className="border-l-2 border-amber-500/55 pl-4">
+            <p className={`${mono} text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-500/90`}>
+              Thesis lock framing
             </p>
+            <p className="mt-3 text-base font-semibold text-zinc-50">Autonomy in thinking. Authority in action.</p>
+            <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+              Agents can suggest anything. Serious outcomes wait for explicit human approval; execution stays a separate
+              step with proof.
+            </p>
+          </div>
+        </blockquote>
+
+        <div className="mt-14 space-y-14">
+          <section>
+            <SectionTitle eyebrow="Outcomes" title="What you use Jarvis for" />
+            <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-6 transition-colors hover:border-white/[0.12] hover:bg-zinc-900/[0.35]">
+              <ul className="space-y-4 text-[15px] leading-relaxed text-zinc-400">
+                <li className="flex gap-4">
+                  <span className={`${mono} mt-1 shrink-0 text-amber-400/90`}>01</span>
+                  <span>
+                    See what was <strong className="text-zinc-200">proposed</strong> — before an effect hits mail, repos,
+                    or tools you care about.
+                  </span>
+                </li>
+                <li className="flex gap-4">
+                  <span className={`${mono} mt-1 shrink-0 text-amber-400/90`}>02</span>
+                  <span>
+                    Decide with a clear <strong className="text-zinc-200">approval moment</strong> — not vibes in a
+                    thread.
+                  </span>
+                </li>
+                <li className="flex gap-4">
+                  <span className={`${mono} mt-1 shrink-0 text-amber-400/90`}>03</span>
+                  <span>
+                    Walk away with a <strong className="text-zinc-200">receipt and trace</strong> — reconstruct who
+                    approved what actually ran when someone asks tomorrow.
+                  </span>
+                </li>
+              </ul>
+            </div>
           </section>
 
-          <section
-            id="system-status"
-            className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <h2 className="text-lg font-semibold">System</h2>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Auth, config, and dev reset controls.
-            </p>
-            <div className="mt-4">
-              <SystemStatus />
+          <section>
+            <SectionTitle eyebrow="Boundaries" title="What Jarvis isn&apos;t" />
+            <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-6 transition-colors hover:border-white/[0.12] hover:bg-zinc-900/[0.35]">
+              <ul className="space-y-3 text-sm leading-relaxed text-zinc-500">
+                <li className="flex gap-2">
+                  <span aria-hidden className="text-zinc-600">
+                    —
+                  </span>
+                  Another model vendor or “make the AI nicer” checkbox.
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden className="text-zinc-600">
+                    —
+                  </span>
+                  A guarantee that nobody can misuse software elsewhere — it&apos;s honest about boundaries (
+                  <Link
+                    href="/docs/trust-boundary"
+                    className="font-medium text-amber-400/90 underline-offset-4 transition-colors hover:text-amber-300 hover:underline"
+                  >
+                    trust boundary
+                  </Link>
+                  ).
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden className="text-zinc-600">
+                    —
+                  </span>
+                  A replacement for agents or frameworks — Jarvis sits where{" "}
+                  <strong className="text-zinc-300">decisions become real</strong>.
+                </li>
+              </ul>
             </div>
+          </section>
+
+          <section>
+            <SectionTitle
+              eyebrow="Explore"
+              title="Dig deeper"
+              subtitle="Same spirit as Documentation — tactile cards instead of an inline laundry list."
+            />
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {DIG_DEEPER.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="flex h-full min-h-[7.75rem] flex-col rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-5 transition-colors hover:border-sky-500/20 hover:bg-zinc-900/35"
+                  >
+                    <span className="text-[15px] font-medium leading-snug text-zinc-100">{item.title}</span>
+                    <span className="mt-2 flex-1 text-[13px] leading-relaxed text-zinc-500">{item.description}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section>
+            <SectionTitle eyebrow="Trust" title="Trust — in plain English" />
+            <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-6 transition-colors hover:border-white/[0.12]">
+              <p className="text-sm leading-relaxed text-zinc-400">
+                <strong className="text-zinc-100">Approve is not execute.</strong> Saying yes to a proposal and running the
+                effect are intentionally separate — you can inspect, simulate, then commit. Outcomes worth defending leave{" "}
+                <strong className="text-zinc-200">receipts and traces</strong> so audits and postmortems have something
+                solid to bite.
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+                The model isn&apos;t the trusted principal — you are. Formal rules live in{" "}
+                <Link
+                  href="/docs/decisions/0001-thesis-lock"
+                  className="font-medium text-amber-400/90 underline-offset-4 transition-colors hover:text-amber-300 hover:underline"
+                >
+                  Thesis Lock
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle eyebrow="Threat model" title="What we design against" />
+            <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-6 transition-colors hover:border-white/[0.12]">
+              <p className="text-sm leading-relaxed text-zinc-400">
+                The usual failure modes aren&apos;t hypothetical — misused tools, leaked sessions, exfiltration through
+                outputs, and models that stretch permissions they shouldn&apos;t. Jarvis biases toward humans in the loop,
+                enforced policy, and records you can reconcile — not vibes.
+              </p>
+              <p className="mt-4 text-sm text-zinc-500">
+                Detailed threats, ingress, and policy:{" "}
+                <Link
+                  href="/docs/architecture/security-model"
+                  className="font-medium text-amber-400/90 underline-offset-4 transition-colors hover:text-amber-300 hover:underline"
+                >
+                  Security model
+                </Link>{" "}
+                ·{" "}
+                <Link
+                  href="/docs/decisions/0003-execution-policy-v1"
+                  className="font-medium text-amber-400/90 underline-offset-4 transition-colors hover:text-amber-300 hover:underline"
+                >
+                  Execution policy
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
+
+          <section id="system-status" className="scroll-mt-8">
+            <SectionTitle
+              eyebrow="Environment"
+              title="Connection, auth & environment"
+              subtitle="Operator controls stay one layer down so the story reads clean — open the panel when you need the HUD."
+            />
+            <AboutOperatorsPanel />
           </section>
         </div>
       </main>

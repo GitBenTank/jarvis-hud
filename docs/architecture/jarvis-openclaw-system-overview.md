@@ -14,11 +14,17 @@ related:
 
 # Jarvis HUD ↔ OpenClaw — system overview
 
-**Purpose:** A **stable map** of how the two systems relate, how data flows, and where truth lives. [Documentation hub](../README.md). For time-stamped product defaults, see [Operating assumptions](../strategy/operating-assumptions.md).
+This is the **boundary** that makes the system safe and usable in the real world.
+
+OpenClaw can think, draft, and propose actions. Jarvis is where **authority** lives: humans approve, execution is separate, and every outcome is recorded.
+
+This page shows how that boundary works end-to-end. [Documentation hub](../README.md) · [Operating assumptions](../strategy/operating-assumptions.md) for time-stamped defaults.
 
 ---
 
 ## What this page shows
+
+Most systems let the model both decide and act. This system does not.
 
 - **OpenClaw** is the **capability** layer — models, tools, workspace, drafting, orchestration.
 - **Jarvis** is the **authority** layer — signed ingress, approval queue, policy, execution, receipts, traces.
@@ -32,7 +38,7 @@ related:
 
 Two layers exist so **“the model routed it”** never passes for **“a person authorized real-world effects.”** Without that fork, drafts and guesses would blur into irreversible outcomes.
 
-OpenClaw figures out **what should happen**. Jarvis decides **what actually happens.**
+OpenClaw determines what *could* happen. Jarvis determines what *actually* happens.
 
 | Layer | System | Responsibility |
 |--------|--------|----------------|
@@ -47,7 +53,7 @@ OpenClaw figures out **what should happen**. Jarvis decides **what actually happ
 
 ### Five-step path
 
-1. Work runs in OpenClaw; the runtime assembles a **proposal** for effects that belong in Jarvis.
+1. An agent (in OpenClaw) proposes an action.
 2. The proposal crosses **ingress** — signed HTTP into Jarvis, not invisible side-effects.
 3. It lands as **pending** with stable **ids** (`proposal id`, **trace**) for continuity.
 4. A **human** approves intent; **execute** is invoked **separately** when you’re ready for real adapters.
@@ -83,7 +89,7 @@ OpenClaw is documented upstream as a **gateway** with configuration under **`~/.
 
 ## Governance artifacts (Jarvis)
 
-Below are normative anchors for **policy and auditability**: batches, execution rules, specialist workflows, proposal identity—not generic marketing. They support “what we agreed” and “what ran.”
+These are the rules that make the system **enforceable** — not just descriptive. Batches, execution rules, specialist workflows, proposal identity—not generic marketing. They support “what we agreed” and “what ran.”
 
 | Topic | Doc |
 |--------|-----|

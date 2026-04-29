@@ -272,27 +272,34 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     label: "Consequence",
     blocks: [
       {
-        kind: "stage",
-        text: "Slide 3 · Consequence — let headline + typewriter land with short beats—don’t talk over the reveal.",
-      },
-      {
         kind: "say",
-        text: "There’s no moment where a human owns the decision — emphasize owns (authority, not vibes).",
+        text: "There’s no moment where a human owns the decision.",
       },
       {
         kind: "stage",
-        text: "HARD pause · say nothing · ~3–5 sec — email, code, API examples can land · freeze: hold eye contact/camera · don’t nod or refill silence.",
+        text: "HARD pause · 3–5 sec · hold eye contact · stay still",
       },
       {
         kind: "say",
-        text: "The failure mode is simple: a proposal becomes execution before anyone has clearly authorized the run.",
+        text: "The failure mode is simple:",
       },
       {
         kind: "say",
-        text: "By the time it shows up in activity or logs—it’s already happened.",
+        text: "a proposal becomes execution before anyone has clearly authorized the run.",
+      },
+      {
+        kind: "say",
+        text: "By the time it shows up in activity… or logs…",
+      },
+      {
+        kind: "say",
+        text: "it’s already happened.",
       },
       { kind: "stage", text: "Short pause." },
-      { kind: "say", text: "That’s the problem on screen." },
+      {
+        kind: "say",
+        text: "That’s the problem on screen.",
+      },
     ],
   },
   {

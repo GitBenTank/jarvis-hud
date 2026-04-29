@@ -14,11 +14,25 @@ related:
 
 # Jarvis HUD ↔ OpenClaw — system overview
 
-**Purpose:** A **stable map** of how the two systems relate, how data flows, and where truth lives. **Doc navigation:** [Documentation hub](../README.md). Product posture and “what we assume this quarter” belong in [Operating assumptions](../strategy/operating-assumptions.md), not here—so this file does not need to change every time defaults shift.
+**Purpose:** A **stable map** of how the two systems relate, how data flows, and where truth lives. [Documentation hub](../README.md). For time-stamped product defaults, see [Operating assumptions](../strategy/operating-assumptions.md).
+
+---
+
+## What this page shows
+
+- **OpenClaw** is the **capability** layer — models, tools, workspace, drafting, orchestration.
+- **Jarvis** is the **authority** layer — signed ingress, approval queue, policy, execution, receipts, traces.
+- **Separation is intentional:** cognition and gateways are not substitutes for audited, human-governed outcomes.
+- **Agents propose**, **humans approve**, **execution is distinct** from approval (see [Thesis Lock](../strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift)).
+- **Receipts** and **traces** are the **proof**: what crossed the boundary, under which approval, with what artifact.
 
 ---
 
 ## Roles
+
+Two layers exist so **“the model routed it”** never passes for **“a person authorized real-world effects.”** Without that fork, drafts and guesses would blur into irreversible outcomes.
+
+OpenClaw figures out **what should happen**. Jarvis decides **what actually happens.**
 
 | Layer | System | Responsibility |
 |--------|--------|----------------|
@@ -31,6 +45,16 @@ related:
 
 ## End-to-end flow
 
+### Five-step path
+
+1. Work runs in OpenClaw; the runtime assembles a **proposal** for effects that belong in Jarvis.
+2. The proposal crosses **ingress** — signed HTTP into Jarvis, not invisible side-effects.
+3. It lands as **pending** with stable **ids** (`proposal id`, **trace**) for continuity.
+4. A **human** approves intent; **execute** is invoked **separately** when you’re ready for real adapters.
+5. **Policy**, then adapters run; outcomes show up as **receipts**, **activity**, and **traces**.
+
+### Technical sequence
+
 1. **OpenClaw** (or any signed client) builds a **proposal** JSON and `POST`s to **`/api/ingress/openclaw`**.
 2. **Jarvis** verifies **HMAC**, **nonce**, **allowlist**, and **body validation** (including optional strict **`batch`**). See [Ingress signing](../security/openclaw-ingress-signing.md), [validate-openclaw-proposal](../../src/lib/ingress/validate-openclaw-proposal.ts), [proposal-batch](../../src/lib/proposal-batch.ts).
 3. A **pending event** is appended (proposal **`id`** + **`traceId`** are the audit spine for that row).
@@ -41,9 +65,11 @@ Deeper diagrams: [Control plane architecture](./control-plane.md).
 
 ---
 
-## OpenClaw (external reference)
+## OpenClaw — external capability layer
 
-OpenClaw is documented upstream as a **gateway** with configuration under **`~/.openclaw/openclaw.json`** (JSON5), Control UI, CLI, and strict config validation. It is **not** defined by Jarvis; Jarvis defines **only** how proposals enter the control plane.
+OpenClaw is the **upstream** agent runtime — **gateway**, workspace under state/config, Control UI, models, tooling. It excels at cognition and drafts; it does **not** own **approval**, **execution**, or durable **truth** after a risky effect. Jarvis holds that boundary: proposals **exit** capability space and enter the **authority** plane through signed ingress **only**.
+
+OpenClaw is documented upstream as a **gateway** with configuration under **`~/.openclaw/openclaw.json`** (JSON5), Control UI, CLI, and strict config validation. Jarvis does not define OpenClaw; Jarvis defines how proposals enter the control plane and what becomes binding.
 
 **Official docs (bookmark):**
 
@@ -56,6 +82,8 @@ OpenClaw is documented upstream as a **gateway** with configuration under **`~/.
 ---
 
 ## Governance artifacts (Jarvis)
+
+Below are normative anchors for **policy and auditability**: batches, execution rules, specialist workflows, proposal identity—not generic marketing. They support “what we agreed” and “what ran.”
 
 | Topic | Doc |
 |--------|-----|

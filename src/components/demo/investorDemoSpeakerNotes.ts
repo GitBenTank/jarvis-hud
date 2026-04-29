@@ -1,7 +1,7 @@
 /**
- * /demo outline track — one voice: **house** (boundary / governance), **river** (reality / flow),
- * **door** (execution). Slide 1 sets the hook; slides 2–6 continue the same metaphor with
- * investor clarity—no tone whiplash. Live = proof. Long-form: investor-demo-narrative-script.md
+ * /demo outline track — thesis voice: explicit authority at execution, proposals vs run, receipts.
+ * Slide 1 (Hero) = short deck cues; slides 2–6 follow on-screen headlines and bullets (no extended metaphor).
+ * Live = proof. Long-form: investor-demo-narrative-script.md
  *
  * `say` = out loud · `stage` = timing / screen / operator
  * **`INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT`** = ~2 min opener before Slide 1 (program/routing conversations).
@@ -216,67 +216,23 @@ export const INVESTOR_ALFRED_BATCH_EMAIL_OUTLINE_BLOCKS: readonly DemoScriptBloc
   { kind: "stage", text: ALFRED_INVESTOR_DEMO_FIXED_EMAIL_FILES_PROMPT },
 ] as const;
 
-/** Deck-only narration for slide 1 (Hero) — house / river / door. Shown separately from pre-deck opener + scale in the outline UI (`DemoSpeakerNotesPanel`). */
+/** Deck-only cues for slide 1 (Hero)—thesis-only; optional versus pre-deck locked opener + scale (`DemoSpeakerNotesPanel` · Hero tab). */
 export const INVESTOR_HERO_DECK_NARRATION_SCRIPT: readonly DemoScriptBlock[] = [
   {
     kind: "stage",
-    text: "Slide 1 · Let the title and subtitle land. Then tell the story below—don’t read the screen aloud.",
+    text: "Slide 1 · Let **Jarvis** land, then let the subtitle—often best partly in silence.",
   },
   {
     kind: "say",
-    text: "Imagine you have a house that’s become incredibly capable.",
-  },
-  {
-    kind: "say",
-    text: "It can turn lights on and off while you’re not even in the room… send messages from your address… even move money in and out of your wallet—because it’s connected to the systems around it.",
-  },
-  {
-    kind: "say",
-    text: "At first, that feels like control.",
-  },
-  {
-    kind: "say",
-    text: "But over time… the house doesn’t just assist you—it starts acting on its own.",
-  },
-  { kind: "stage", text: "Pause." },
-  { kind: "say", text: "The house is autonomous." },
-  {
-    kind: "say",
-    text: "And everything it does doesn’t stay inside the house.",
-  },
-  {
-    kind: "say",
-    text: "Outside, there’s a river of information—everything flowing between your systems, your data, your tools.",
-  },
-  {
-    kind: "say",
-    text: "The more connected the house becomes… the wider that river gets.",
-  },
-  { kind: "stage", text: "Pause." },
-  {
-    kind: "say",
-    text: "More signals. More actions. More things moving.",
-  },
-  {
-    kind: "say",
-    text: "And as that river widens… it becomes harder to see what’s actually happening—and harder to stop something once it starts moving.",
-  },
-  { kind: "stage", text: "Slight pause." },
-  {
-    kind: "say",
-    text: "At some point, you’re no longer deciding what happens—you’re just watching the results come back.",
-  },
-  {
-    kind: "say",
-    text: "The system can think on its own… but there’s no clear place where you still have authority over what it does.",
-  },
-  {
-    kind: "say",
-    text: "Jarvis separates those two things: autonomy in thinking… and authority in action.",
+    text: "The subtitle carries the thesis: autonomy in thinking, authority in action.",
   },
   {
     kind: "stage",
-    text: "That last line should land with the subtitle on screen—then advance to slide 2.",
+    text: "Don’t flatten it with narration on top unless you need one line—otherwise advance into the deck.",
+  },
+  {
+    kind: "say",
+    text: "Slide 2 names the squeeze in plain language: three forces on screen at once.",
   },
 ];
 
@@ -291,27 +247,25 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 2 · Open — three forces on screen (don’t read bullets aloud); continue the house story.",
-      },
-      { kind: "say", text: "The house is getting more capable." },
-      {
-        kind: "say",
-        text: "It can act faster… across more systems… with more reach.",
+        text: "Slide 2 · Open — three bullets on screen; don’t read them verbatim—point at the collision.",
       },
       {
         kind: "say",
-        text: "And the flow around it — the signals, the inputs — that’s accelerating too.",
+        text: "Capability: agents take real actions—email, systems, workflows, APIs.",
       },
       {
         kind: "say",
-        text: "So more is happening… faster than we can follow.",
+        text: "Ungated execution: without a control layer, those actions can be allowed to run immediately—no human gate.",
       },
       {
         kind: "say",
-        text: "And control isn’t keeping up.",
+        text: "Governance pressure: programs and regulation are converging—while control at the moment of execution is still what’s missing.",
       },
-      { kind: "stage", text: "Pause." },
-      { kind: "say", text: "That’s where things start to break." },
+      { kind: "stage", text: "Pause—let “Three forces collide at once” land." },
+      {
+        kind: "say",
+        text: "That’s the squeeze—three forces hitting together.",
+      },
     ],
   },
   {
@@ -319,7 +273,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 3 · Consequence — let headline + typewriter land with short beats—don’t talk over it.",
+        text: "Slide 3 · Consequence — let headline + typewriter land with short beats—don’t talk over the reveal.",
       },
       {
         kind: "say",
@@ -327,22 +281,18 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "stage",
-        text: "HARD pause · say nothing · ~3–5 sec — emails, code pushes, APIs land · freeze: hold eye contact/camera · don’t nod or refill silence.",
+        text: "HARD pause · say nothing · ~3–5 sec — email, code, API examples can land · freeze: hold eye contact/camera · don’t nod or refill silence.",
       },
       {
         kind: "say",
-        text: "The house suggests something…",
+        text: "The failure mode is simple: a proposal becomes execution before anyone has clearly authorized the run.",
       },
       {
         kind: "say",
-        text: "And then something runs.",
-      },
-      {
-        kind: "say",
-        text: "And by the time you see it… it’s already happened.",
+        text: "By the time it shows up in activity or logs—it’s already happened.",
       },
       { kind: "stage", text: "Short pause." },
-      { kind: "say", text: "That’s the problem." },
+      { kind: "say", text: "That’s the problem on screen." },
     ],
   },
   {
@@ -350,38 +300,29 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 4 · The gap — house / river / door mental model; bullets on screen.",
+        text: "Slide 4 · The gap — bullets match enterprise reality: tracking vs execution.",
       },
       {
         kind: "say",
-        text: "Inside the house… you’ve done everything right.",
+        text: "Enterprises track agents—registries, catalogs, governance layers.",
       },
       {
         kind: "say",
-        text: "You’ve added rules.",
-      },
-      {
-        kind: "say",
-        text: "You’ve added tracking.",
-      },
-      {
-        kind: "say",
-        text: "You’ve added oversight.",
+        text: "Most of that is visibility—not what happens at execution.",
       },
       { kind: "stage", text: "Beat." },
       {
         kind: "say",
-        text: "But outside… the river doesn’t care about your rules.",
-      },
-      {
-        kind: "say",
-        text: "And at the moment something actually runs… there’s no one standing at the door.",
+        text: "In real systems, risk is in real actions—especially when they aren’t independently verified before they run.",
       },
       { kind: "stage", text: "Pause." },
-      { kind: "say", text: "That’s the gap." },
+      {
+        kind: "say",
+        text: "What’s missing is control at the moment of execution—that’s the gap.",
+      },
       {
         kind: "stage",
-        text: "HARD pause · say nothing · visibility vs execution — registry/dashboard fatigue should click · freeze: eye contact · don’t look down.",
+        text: "HARD pause · say nothing · ~3 sec — visibility vs execution should click · eye contact · don’t look down.",
       },
     ],
   },
@@ -390,24 +331,20 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 5 · Jarvis — rule-like delivery; Approval ≠ execution matches screen.",
+        text: "Slide 5 · Jarvis — headline Approval ≠ execution — plus proof; subtitle: governs execution, not “manages agents.”",
       },
       {
         kind: "say",
-        text: "Jarvis puts a door back in the house.",
+        text: "Jarvis is the control layer at that boundary: proposal is not the same as run.",
       },
       {
         kind: "say",
-        text: "Nothing crosses it by accident.",
+        text: "Nothing should execute by accident through this path—you decide what’s allowed to cross.",
       },
       { kind: "say", text: "Agents can propose." },
       {
         kind: "say",
-        text: "You decide what’s allowed.",
-      },
-      {
-        kind: "say",
-        text: "And nothing runs… unless you actually run it.",
+        text: "You decide what runs—and run is a distinct step.",
       },
       {
         kind: "stage",
@@ -424,16 +361,12 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 6 · Handoff — lifecycle strip on screen, then CTA / live.",
+        text: "Slide 6 · Handoff — lifecycle on screen; subtitle: OpenClaw proposes, Jarvis governs.",
       },
-      { kind: "say", text: "This is the loop." },
+      { kind: "say", text: "This is the loop on the slide: propose → approve → execute → receipt → trace." },
       {
         kind: "say",
-        text: "From idea… to action… to proof.",
-      },
-      {
-        kind: "say",
-        text: "Nothing hidden. Nothing assumed. Nothing automatic.",
+        text: "Most systems show you what already happened—you want attributable control over what was allowed.",
       },
       { kind: "stage", text: "Beat." },
       {
@@ -446,7 +379,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "say",
-        text: "And every action leaves a trace you can follow.",
+        text: "Every action leaves a trace you can follow.",
       },
       { kind: "stage", text: "Pause." },
       {
@@ -561,32 +494,28 @@ export const INVESTOR_LIVE_SCRIPT_SECTIONS: readonly {
     ],
   },
   {
-    title: "3:30 — House + river",
+    title: "3:30 — Flow vs gated execution",
     blocks: [
       {
         kind: "say",
-        text: "Most systems today are like a river.",
+        text: "Most environments feel like unmanaged flow—things keep moving through tools and integrations.",
       },
       {
         kind: "say",
-        text: "Things are flowing… but you don't really control where it goes.",
+        text: "Visibility into activity isn’t control at the instant something executes.",
       },
       { kind: "stage", text: "Pause." },
       {
         kind: "say",
-        text: "Jarvis is the house on the river.",
+        text: "Jarvis is the governance layer at that crossing: proposals can still churn; execution is what you authorize.",
       },
       {
         kind: "say",
-        text: "Nothing comes in or out without going through it.",
+        text: "Traffic doesn’t have to stop—but what actually runs separates from suggestion.",
       },
       {
         kind: "say",
-        text: "It doesn't stop the river.",
-      },
-      {
-        kind: "say",
-        text: "It gives you authority over what crosses the boundary.",
+        text: "That’s authority at the boundary—what you watched on the slides, now observable in queue and trace.",
       },
     ],
   },
@@ -644,7 +573,7 @@ export const INVESTOR_LIVE_SCRIPT_SECTIONS: readonly {
 
 /**
  * `/docs/tati` operator panel — **after** the six-slide handoff: Jarvis, OpenClaw, two email proposals (deny / approve), Gmail.
- * Pre-slide house/river copy lives in `INVESTOR_SLIDE_SCRIPTS` (same as `/demo`).
+ * Pre-slide speaker copy for the six-slide deck lives in `INVESTOR_SLIDE_SCRIPTS` (same as `/demo`).
  */
 export const INVESTOR_TATI_POST_DECK_SECTIONS: readonly {
   readonly title: string;

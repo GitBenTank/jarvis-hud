@@ -59,7 +59,7 @@ function useNotesModel(
     if (safeSlide === 0 && opts?.slideZeroScriptTab === "opener") {
       secondLine = "Before deck · opener, scale bridge, Alfred batch prompts";
     } else if (safeSlide === 0 && opts?.slideZeroScriptTab === "hero") {
-      secondLine = "Slide 1 · Hero — house metaphor (deck only)";
+      secondLine = "Slide 1 · Hero — deck cues (optional)";
     } else {
       secondLine = slideScript.label;
     }
@@ -175,10 +175,10 @@ function NotesScrollBody({
       {showSlideZeroPanels && slideZeroScriptTab === "hero" ? (
         <section
           className="rounded-lg border border-zinc-600/50 bg-zinc-950/50 px-3 py-3"
-          aria-label="Hero slide house metaphor"
+          aria-label="Hero slide deck narration"
         >
           <p className="mb-3 text-[11px] leading-relaxed text-zinc-500">
-            Deck-only narration for Hero (slide 1). Separate panel from Outline + prompts.
+            Deck-only cues for Hero (slide 1)—separate from Outline + prompts and the locked opener track.
           </p>
           <DemoScriptBlocks blocks={INVESTOR_HERO_DECK_NARRATION_SCRIPT} />
         </section>

@@ -11,13 +11,55 @@ related:
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
   - ../roadmap/0004-phased-platform-plan.md
   - ./runtime-openclaw-jarvis-team-loop-v1.md
+  - ../architecture/openclaw-proposal-identity-and-contract.md
 ---
 
 # Flagship team bundle v1 — Alfred + Research + Creative
 
-**Purpose:** Define the **first intentional, composable team** for Jarvis HUD: who owns **intake**, **evidence**, and **variants**; what lands in **Jarvis** as proposals; and why this bundle is valuable **without** an Operator role. **Normative operating law** remains [Agent team contract v1](./agent-team-contract-v1.md); [Thesis Lock](../decisions/0001-thesis-lock.md) and [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md) bound execution.
+## What this page is
 
-**Reading order:** [Contract](./agent-team-contract-v1.md) first → [Agent team v1](./agent-team-v1.md) for broader framing → this bundle → [Research](./research-agent-v1.md) / [Creative](./creative-agent-v1.md) for role detail.
+This is **not** another OpenClaw ingress tutorial. It defines the **flagship bundle**: a named, repeatable **three-role agent roster** (plus Jarvis as the gate) used for demos, docs, and go-to-market. Think of it as a **SKU** for humans: *Alfred × Research × Creative wired so every serious effect crosses the HUD*.
+
+Concrete outcomes it names:
+
+| Question this answers | Answer in one line |
+|------------------------|---------------------|
+| **What is being “sold”?** | A **team archetype**: intake → evidence → variants → **proposal → approve → execute → receipt**, not a vague “agents.” |
+| **Where is the boundary?** | OpenClaw-side roles **only propose**. [Thesis Lock](../decisions/0001-thesis-lock.md) + [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md) decide execution truth. |
+
+**Normative law** on roles and handoffs: [Agent team contract v1](./agent-team-contract-v1.md).
+
+**Reading order:** [Contract](./agent-team-contract-v1.md) → [Agent team v1](./agent-team-v1.md) (breadth) → **this bundle** → [Research](./research-agent-v1.md) / [Creative](./creative-agent-v1.md) (depth).
+
+---
+
+## `agent`, `builder`, and Forge (HUD vs this bundle)
+
+In the HUD and traces you will often see **`agent`** and optional **`builder`** on a proposal ([OpenClaw proposal identity](../architecture/openclaw-proposal-identity-and-contract.md)). Those fields are **display and provenance metadata** only — they never grant approval or execution.
+
+| Concept | Meaning |
+|---------|---------|
+| **`agent`** | Who Jarvis treats as the **logical proposing / coordinator label** (`alfred`, `research`, …). |
+| **`builder`** | Optional label for **who drafted** or shaped proposal text (“drafting specialist”). Same wire field name as in tooling. |
+| **Forge** (architecture docs) | A **documented drafting role** Alfred can pair with inside OpenClaw (see [OpenClaw/Jarvis trust contract](../architecture/openclaw-jarvis-trust-contract.md)). **Not shipped as its own SKU in flagship bundle v1.** Demos often default `builder` to the string **`forge`** (e.g. `META_DEFAULTS` in [`src/jarvis/normalizeProposal.ts`](../../src/jarvis/normalizeProposal.ts)) — that preserves **grep-able examples and UI labels**, not “Forge is teammate number four.” |
+
+So: **Seeing “builder: forge” next to Alfred is expected** in samples; it does **not** contradict the three-role bundle. A future Forge-first product arc can layer in without ripping out those strings.
+
+---
+
+## Packaging and workflows (sell / deploy modularly)
+
+The **bundle** is the full story — but **roles are composable** when your buyer cares about one wedge:
+
+| Wedge | Who buys | What ships first |
+|--------|-----------|-------------------|
+| **Evidence desk** | Research-heavy teams, compliance-facing questions | Research + Jarvis (+ Alfred only as needed for intake / consent framing). |
+| **Content / creative pipeline** | Marketing, founders shipping narrative | Creative + Jarvis (+ Alfred for briefs). |
+| **Full flagship** | Demos + “agent team” narrative | Alfred + Research + Creative as below — *this page*. |
+
+Positioning: specialists **stack**; Jarvis stays the **single choke point**. Sell **workflow packs** grounded in kinds and runbooks (`system.note`, `content.publish`, `youtube.package`, … — see **Proposal-shape examples** later in this page), not interchangeable API seats.
+
+**Operator v1 remains out** of this bundle on purpose (see **Composition** below); add only if recurring queue / packaging pain justifies a contract-level spin.
 
 ---
 

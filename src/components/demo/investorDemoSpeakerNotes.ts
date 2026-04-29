@@ -300,7 +300,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "stage",
-        text: "HARD pause · say nothing · ~3–5 sec — emails, code pushes, APIs land.",
+        text: "HARD pause · say nothing · ~3–5 sec — emails, code pushes, APIs land · freeze: hold eye contact/camera · don’t nod or refill silence.",
       },
       {
         kind: "say",
@@ -354,7 +354,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       { kind: "say", text: "That’s the gap." },
       {
         kind: "stage",
-        text: "HARD pause · say nothing · visibility vs execution — let registry/dashboard fatigue click.",
+        text: "HARD pause · say nothing · visibility vs execution — registry/dashboard fatigue should click · freeze: eye contact · don’t look down.",
       },
     ],
   },
@@ -384,7 +384,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "stage",
-        text: "HARD pause — authority moment · speak slowly · ~3 sec before proof.",
+        text: "HARD pause — authority moment · ~3 sec · hold still · eye contact · then proof line.",
       },
       {
         kind: "say",

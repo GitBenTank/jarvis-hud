@@ -37,7 +37,7 @@ related:
 | 1 | [Gener8tor pitch](./gener8tor-pitch.md) | ~5 min | Slide copy + demo beats for investor rooms. |
 | 2 | [Room playbook](./room-playbook-v1.md) | ~3 min | How we show up: restraint, opener, Q&A. |
 | 3 | [Thesis Lock (ADR)](../decisions/0001-thesis-lock.md) | ~4 min | The non‑negotiable rules of the product (law, not marketing). |
-| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~5 min | How multiple agents work as a **system** (not one magic bot). |
+| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~3 min | What the **agent team** is and why **Jarvis** is the gate — not a runbook. |
 
 ### 1. Gener8tor pitch
 

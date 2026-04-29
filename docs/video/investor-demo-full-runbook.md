@@ -124,7 +124,7 @@ Run mentally (or tick on paper):
 
 ## OpenClaw Control UI — Flagship Flow 1 (chat prompts)
 
-**Canonical bundle:** [Flagship team bundle v1](../strategy/flagship-team-bundle-v1.md) Flow 1 — Alfred intake `system.note`, then Research digest `system.note`, shared **`correlationId`: `flagship-bundle-eu-ai-act-001`**, two traces, two approve/execute cycles in the HUD.
+**Canonical bundle (narrative):** [Flagship team bundle v1](../strategy/flagship-team-bundle-v1.md). **Flow 1 shape** — Alfred intake `system.note`, then Research digest `system.note`, shared **`correlationId`: `flagship-bundle-eu-ai-act-001`**, two traces, two approve/execute cycles in the HUD. **Grep anchors + policy fields:** [Flagship proposal shapes (appendix)](../architecture/flagship-proposal-shape-examples-v1.md).
 
 Workspace **`~/.openclaw/workspace-dev/JARVIS.md`** requires submissions via **`pnpm jarvis:submit --file …`** from **`jarvis-hud`** (same as [local verification §4b](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--alfred-intake--research-digest-full-bundle)).
 

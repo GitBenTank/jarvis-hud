@@ -5,165 +5,70 @@ category: strategy
 owner: Ben Tankersley
 related:
   - ./agent-team-contract-v1.md
-  - ./research-agent-v1.md
-  - ./creative-agent-v1.md
+  - ../architecture/flagship-proposal-shape-examples-v1.md
   - ../decisions/0001-thesis-lock.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
-  - ../roadmap/0004-phased-platform-plan.md
-  - ./runtime-openclaw-jarvis-team-loop-v1.md
-  - ../architecture/openclaw-proposal-identity-and-contract.md
+  - ../local-verification-openclaw-jarvis.md
 ---
 
 # Flagship team bundle v1 — Alfred + Research + Creative
 
-## What this page is
+> **Investor line:** The flagship bundle is **not** one magic chatbot. It is **three specialist roles**: **Alfred** scopes the request, **Research** grounds it, **Creative** packages options. **Jarvis** is the control plane that decides **what actually gets approved, executed, and recorded.**
 
-This is **not** another OpenClaw ingress tutorial. It defines the **flagship bundle**: a named, repeatable **three-role agent roster** (plus Jarvis as the gate) used for demos, docs, and go-to-market. Think of it as a **SKU** for humans: *Alfred × Research × Creative wired so every serious effect crosses the HUD*.
-
-Concrete outcomes it names:
-
-| Question this answers | Answer in one line |
-|------------------------|---------------------|
-| **What is being “sold”?** | A **team archetype**: intake → evidence → variants → **proposal → approve → execute → receipt**, not a vague “agents.” |
-| **Where is the boundary?** | OpenClaw-side roles **only propose**. [Thesis Lock](../decisions/0001-thesis-lock.md) + [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md) decide execution truth. |
-
-**Normative law** on roles and handoffs: [Agent team contract v1](./agent-team-contract-v1.md).
-
-**Reading order:** [Contract](./agent-team-contract-v1.md) → [Agent team v1](./agent-team-v1.md) (breadth) → **this bundle** → [Research](./research-agent-v1.md) / [Creative](./creative-agent-v1.md) (depth).
+Use this page when someone asks **“What do you mean by agent team?”** For rehearsals, grep anchors, samples, and policy fields, see the [operator appendix](../architecture/flagship-proposal-shape-examples-v1.md) and [local verification §4b](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--alfred-intake--research-digest-full-bundle).
 
 ---
 
-## `agent`, `builder`, and Forge (HUD vs this bundle)
+## What the bundle is
 
-In the HUD and traces you will often see **`agent`** and optional **`builder`** on a proposal ([OpenClaw proposal identity](../architecture/openclaw-proposal-identity-and-contract.md)). Those fields are **display and provenance metadata** only — they never grant approval or execution.
+A named, repeatable **three-role roster** in the OpenClaw runtime, with **Jarvis** as the only gate for real effects. It is how we demo and sell **multiple agents as one governed system**: proposals cross the HUD; humans approve item by item where execution differs ([ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md)).
 
-| Concept | Meaning |
-|---------|---------|
-| **`agent`** | Who Jarvis treats as the **logical proposing / coordinator label** (`alfred`, `research`, …). |
-| **`builder`** | Optional label for **who drafted** or shaped proposal text (“drafting specialist”). Same wire field name as in tooling. |
-| **Forge** (architecture docs) | A **documented drafting role** Alfred can pair with inside OpenClaw (see [OpenClaw/Jarvis trust contract](../architecture/openclaw-jarvis-trust-contract.md)). **Not shipped as its own SKU in flagship bundle v1.** Demos often default `builder` to the string **`forge`** (e.g. `META_DEFAULTS` in [`src/jarvis/normalizeProposal.ts`](../../src/jarvis/normalizeProposal.ts)) — that preserves **grep-able examples and UI labels**, not “Forge is teammate number four.” |
-
-So: **Seeing “builder: forge” next to Alfred is expected** in samples; it does **not** contradict the three-role bundle. A future Forge-first product arc can layer in without ripping out those strings.
+Deep operating law — routing, handoffs, Jarvis kinds — stays in **[Agent team contract v1](./agent-team-contract-v1.md)**.
 
 ---
 
-## Packaging and workflows (sell / deploy modularly)
+## The three roles
 
-The **bundle** is the full story — but **roles are composable** when your buyer cares about one wedge:
+| Role | Does | Does not |
+|------|------|----------|
+| **Alfred** | Intake: triage, consent framing, **routing** to the right specialist | Own deep evidence or final creative picks |
+| **Research** | Evidence, sources, uncertainty, memo-shaped **proposals** | Execute or “approve by confidence” |
+| **Creative** | Copy and **variants**, channel-shaped **proposals** | Send, post, or publish without Jarvis |
 
-| Wedge | Who buys | What ships first |
-|--------|-----------|-------------------|
-| **Evidence desk** | Research-heavy teams, compliance-facing questions | Research + Jarvis (+ Alfred only as needed for intake / consent framing). |
-| **Content / creative pipeline** | Marketing, founders shipping narrative | Creative + Jarvis (+ Alfred for briefs). |
-| **Full flagship** | Demos + “agent team” narrative | Alfred + Research + Creative as below — *this page*. |
-
-Positioning: specialists **stack**; Jarvis stays the **single choke point**. Sell **workflow packs** grounded in kinds and runbooks (`system.note`, `content.publish`, `youtube.package`, … — see **Proposal-shape examples** later in this page), not interchangeable API seats.
-
-**Operator v1 remains out** of this bundle on purpose (see **Composition** below); add only if recurring queue / packaging pain justifies a contract-level spin.
+**Operator** as a fourth SKU is **intentionally out of v1** until recurring queue/packaging pain justifies a contract-level spec.
 
 ---
 
-## Composition
+## Why Jarvis is the gate
 
-| Role | In bundle | Responsibility |
-|------|-----------|------------------|
-| **Alfred** | Yes | **Intake:** triage, consent, routing, “what are we doing,” handoff packaging to specialists. Does **not** own deep evidence or creative variants. |
-| **Research** | Yes | **Evidence:** sources, quotes, uncertainty, `ResearchEvidencePack` / digest; proposes **research-backed** items into Jarvis. |
-| **Creative** | Yes | **Variants:** hooks, beats, scripts, packaging; proposes **creative** items into Jarvis. |
-| **Operator** | **No (v1)** | Intentional gap. Add **Operator v1** only if recurring pain appears in queue shaping, handoff orchestration, proposal packaging, or runbook ownership. |
+OpenClaw-side roles **only propose**. Execution-shaped work shows up as **proposals**; humans **approve** and **execute** in the HUD; every outcome that matters gets **receipt + trace**. That is [Thesis Lock](../decisions/0001-thesis-lock.md): autonomy in thinking, authority in action.
 
 ---
 
-## Ownership (who owns what)
+## Example flows (narrative)
 
-| Concern | Owner | Notes |
-|---------|--------|--------|
-| **Intake & user-facing clarity** | Alfred | One front door; consent and routing per contract §1–2. |
-| **Evidence quality & citations** | Research | No execution authority; outputs feed proposals and human review. |
-| **Creative options & narrative shape** | Creative | Multiple variants OK; human chooses what to approve. |
-| **What enters Jarvis** | **Human via Jarvis** | Specialists **propose**; Alfred may **surface** bundles; **approval and execute** stay in HUD per Thesis Lock. |
+1. **Factual question** — Alfred frames the ask → Research produces evidence and a digest → each follow-on effect is its own proposal → you approve and execute **per item** in Jarvis.
+2. **Creative output** — Alfred confirms intent and constraints → Creative offers **variants** → publish or capture flows still land as **proposals** you control in Jarvis.
+3. **Mixed** — Research and Creative may both contribute; **authority does not merge** into one vague “do it all” approval — traceable proposals, same gate.
 
----
-
-## What gets proposed into Jarvis
-
-Everything below is **proposal-shaped** (trace → approve → execute → receipt). Batch semantics follow [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md).
-
-| Source | Typical Jarvis kinds / artifacts | Preconditions |
-|--------|----------------------------------|---------------|
-| **Research** | Research-backed claims, digests, “what we know / don’t know,” links to `ResearchEvidencePack` | Evidence attached or explicitly scoped as low-confidence |
-| **Creative** | Script variants, hooks, beat sheets, packaging copy | Labeled as options; no implied “winner” until human picks |
-| **Alfred** | Summaries of intent, handoff briefs, **not** a substitute for specialist packs | Does not bypass Research/Creative ownership for evidence or variants |
-
-**Rule:** Alfred **coordinates**; Research **grounds**; Creative **multiplies options**. None **executes** outside Jarvis approval.
+To run **Flow 1** with real JSON and commands, use [local verification §4b](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--alfred-intake--research-digest-full-bundle).
 
 ---
 
-## Why this bundle is valuable
+## Positioning (simple)
 
-1. **Composable:** Clear separation — intake (Alfred) vs evidence (Research) vs variants (Creative) — maps cleanly to the contract’s routing and handoff tables.
-2. **Legible authority:** One front door, many specialists; execution stays in Jarvis; no “helpful” shortcut around approval.
-3. **Sellable / demoable:** A team that “thinks in parallel” but **ships** only through human-gated proposals matches the product story without inventing an orchestrator agent prematurely.
-4. **Operator deferred:** Queue and packaging pain, if it appears, justify a dedicated spec; until then, the bundle stays **three roles + Jarvis**.
-
----
-
-## Typical flows (pressure-test)
-
-1. **User asks a factual question** → Alfred scopes consent → Research produces evidence pack + digest → **proposals** for any follow-on actions (e.g. deeper search) → human approves per item in Jarvis.
-2. **User asks for creative output** → Alfred confirms intent and constraints → Creative produces **variants** → proposals for artifacts / next steps → human picks and approves.
-3. **Mixed ask** → Alfred sequences handoffs (Research then Creative, or parallel with clear ownership) → each specialist proposes into Jarvis; Alfred does not merge evidence and variants into a single opaque “trust me” package without traceable attachments.
+- **Composable:** Sell an **evidence desk** (Research + Jarvis), a **content pipeline** (Creative + Jarvis), or the **full flagship** — specialists stack; the choke point stays Jarvis.
+- **Legible:** One front door (Alfred), clear ownership for evidence vs. messaging, no silent execution from chat.
+- **Demo-safe:** The story is “team in the runtime, **proof in the HUD**,” not a single blended bot.
 
 ---
 
-## Proposal-shape examples (grep + implementation)
+## Where the rest lives
 
-Each row is one **concrete** proposal card aligned with [Jarvis kind mapping](./agent-team-contract-v1.md#5-jarvis-kind-mapping-execution-truth) and `ALLOWED_KINDS` in [`src/lib/policy.ts`](../../src/lib/policy.ts). Strings are intentionally distinctive so you can search the repo or logs for them during demos and tests.
-
-### Flow 1 — Factual / research
-
-| Field | Example |
-|--------|---------|
-| **Grep anchor** | `flagship-flow-1-eu-ai-act-digest` |
-| **Jarvis `kind`** | `system.note` |
-| **Sample title** | Evidence digest: EU AI Act — applicability vs. GPAI (Q1 2026 scope) |
-| **Sample summary** | Capture Research’s `ResearchEvidencePack`: 4 sources, 2 high-confidence claims, 3 explicit unknowns; links to quotes; recommends deeper pull on Title II only if user approves a follow-on note. |
-| **Owning agent** | Research (produced the action; Alfred scoped consent only). |
-| **Risk level** | Low |
-| **Why it stops at Jarvis** | Even a **note write** is an execution-shaped effect: Thesis Lock requires **explicit human approval** before persistence; the model is not a trusted principal and there must be a **receipt / trace** after execute. |
-
-**Runnable in repo (full bundle):** (1) `examples/openclaw-proposal-flagship-flow1-alfred-intake.sample.json` — **`agent`: `alfred`**, grep **`flagship-flow-1-alfred-intake`**; (2) `examples/openclaw-proposal-flagship-flow1-research.sample.json` — **`agent`: `research`**, grep **`flagship-flow-1-eu-ai-act-digest`**; shared **`correlationId`: `flagship-bundle-eu-ai-act-001`**. Submit each with `pnpm jarvis:submit --file …`, then **Approve** + **Execute** each in the HUD. OpenClaw tools: **`proposeAlfredIntakeSystemNote`**, **`proposeResearchSystemNote`** (`src/openclaw-strict-governed/`). See [Local verification](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--alfred-intake--research-digest-full-bundle).
-
-### Flow 2 — Creative output
-
-| Field | Example |
-|--------|---------|
-| **Grep anchor** | `flagship-flow-2-publish-variant-b` |
-| **Jarvis `kind`** | `content.publish` |
-| **Sample title** | Publish: investor one-pager — Variant B (shorter hook, CTA v2) |
-| **Sample summary** | Creative selected **Variant B** from three `system.note`-captured drafts; payload is staging path + channel metadata; no send until HUD approve + execute. |
-| **Owning agent** | Creative (authored the publish intent; Alfred confirmed constraints only). |
-| **Risk level** | High |
-| **Why it stops at Jarvis** | Publishing is **outbound / world-facing**; authority lives in the HUD gate, not in model confidence. Approve ≠ execute; policy and adapters enforce the allowlist. |
-
-### Flow 3 — Mixed (research → creative package)
-
-| Field | Example |
-|--------|---------|
-| **Grep anchor** | `flagship-flow-3-youtube-package-mixed` |
-| **Jarvis `kind`** | `youtube.package` |
-| **Sample title** | YouTube package: “Strongman” beat — evidence-backed script v2 |
-| **Sample summary** | Research supplied cited claims (2 disputed, flagged); Creative locked script v2 and b-roll list; package job references evidence bundle id in narrative metadata — **one approval id = one package execution** per [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md). |
-| **Owning agent** | Creative (primary owner of this **execution** proposal); Research’s digest may exist as a **separate** approved `system.note` in the same batch. |
-| **Risk level** | Medium–high |
-| **Why it stops at Jarvis** | Bundling does not merge authority: the package is still **one gated effect**; human must approve before the adapter runs, with receipts for audit. |
-
----
-
-## Related
-
-- [Agent team contract v1](./agent-team-contract-v1.md)
-- [Research agent v1](./research-agent-v1.md)
-- [Creative agent v1](./creative-agent-v1.md)
-- [Research batch workflow v1](./research-batch-workflow-v1.md)
-- [Creative batch workflow v1](./creative-batch-workflow-v1.md)
+| Need | Doc |
+|------|-----|
+| Grep anchors, `ALLOWED_KINDS`, sample files, `agent` / `builder` / Forge | [Flagship proposal shapes (appendix)](../architecture/flagship-proposal-shape-examples-v1.md) |
+| Ordered gateway → HUD proof | [Local verification](../local-verification-openclaw-jarvis.md) |
+| “Ship clips” exit bar | [Operator sprint](../setup/openclaw-jarvis-operator-sprint.md) |
+| Specialists in depth | [Research v1](./research-agent-v1.md) · [Creative v1](./creative-agent-v1.md) |
+| Rehearsal drills | [Research batch workflow](./research-batch-workflow-v1.md) · [Creative batch workflow](./creative-batch-workflow-v1.md) |

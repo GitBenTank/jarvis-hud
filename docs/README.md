@@ -66,7 +66,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |
 | Multi-agent + Jarvis boundary | [Agent team contract v1](strategy/agent-team-contract-v1.md) — **read this first** among agent docs |
-| First composable team (Alfred + Research + Creative) | [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md) |
+| First composable team (Alfred + Research + Creative) | [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md) · operators: [proposal shapes & grep anchors](architecture/flagship-proposal-shape-examples-v1.md) |
 | Research specialist (evidence) | [Research agent v1](strategy/research-agent-v1.md) |
 | Creative specialist (messaging) | [Creative agent v1](strategy/creative-agent-v1.md) |
 | OpenClaw runtime + team + Jarvis (one narrative) | [Runtime + team + Jarvis loop v1](strategy/runtime-openclaw-jarvis-team-loop-v1.md) |
@@ -104,10 +104,32 @@ Root-level `*.md` files are mostly **integration bridges** (ingress verification
 
 ---
 
-## Docs organization lint
+## Docs Governance Contract
 
-Run:
+Documentation follows the same principle as Jarvis:
+
+- Content can be written freely.
+- Placement must follow intent rules.
+- Visibility is controlled explicitly.
+- Drift should leave a clear report.
+
+This is enforced with:
 
 ```bash
 pnpm lint:docs
+```
+
+Rules:
+
+- Missing first `# Title` → hard failure
+- Likely misplaced intent → warning
+- Mixed intent → warning
+- Intentional exceptions → allowlist in the lint script
+
+The goal is not perfection. The goal is keeping the documentation system navigable as Jarvis grows.
+
+Per-file confirmations (intent + placement):
+
+```bash
+pnpm lint:docs -- --verbose
 ```

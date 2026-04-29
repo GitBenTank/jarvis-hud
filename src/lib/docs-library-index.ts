@@ -327,7 +327,7 @@ export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
     href: "/docs/strategy/flagship-team-bundle-v1",
     title: "Review the flagship team bundle",
     description:
-      "Alfred, Research, Creative—multiple agents as one governed system.",
+      "Short read: Alfred scopes, Research grounds, Creative packages—Jarvis approves and records.",
   },
   {
     href: "/docs/system/full-ecosystem-tree",
@@ -422,7 +422,13 @@ export const DOCS_OPERATORS: DocsLibraryStartItem[] = [
     href: "/docs/strategy/flagship-team-bundle-v1",
     title: "Flagship team bundle v1",
     description:
-      "Alfred + Research + Creative: intake, evidence, variants, Jarvis proposals — no Operator v1.",
+      "Product arc only; grep/samples/policy live under Flagship proposal shapes (architecture).",
+  },
+  {
+    href: "/docs/architecture/flagship-proposal-shape-examples-v1",
+    title: "Flagship proposal shapes (appendix)",
+    description:
+      "Operators: grep anchors, sample files, strict-governed tools, policy kinds, Forge metadata.",
   },
   {
     href: "/docs/strategy/research-agent-v1",

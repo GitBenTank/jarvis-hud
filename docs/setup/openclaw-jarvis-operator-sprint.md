@@ -20,7 +20,7 @@ related:
 
 **Rule:** Proof only counts if the runtime loop is real. Do not ship marketing until this exit is satisfied.
 
-**Detailed procedure:** Step-by-step commands and Alfred JSON patterns live in [Local verification: OpenClaw → Jarvis HUD](../local-verification-openclaw-jarvis.md). This page is the **acceptance bar** and order of operations.
+**Detailed procedure:** Step-by-step commands and Alfred JSON patterns live in [Local verification: OpenClaw → Jarvis HUD](../local-verification-openclaw-jarvis.md). **Flagship bundle** sample JSON, grep anchors, and `ALLOWED_KINDS` context: [Flagship proposal shapes (appendix)](../architecture/flagship-proposal-shape-examples-v1.md). This page is the **acceptance bar** and order of operations.
 
 ---
 

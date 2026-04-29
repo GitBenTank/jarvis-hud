@@ -1,6 +1,6 @@
 import { submitOpenClawIngress } from "../jarvisClient";
 
-/** Grep anchor aligned with `docs/strategy/flagship-team-bundle-v1.md` Flow 1 (Research digest). */
+/** Grep anchor aligned with `docs/architecture/flagship-proposal-shape-examples-v1.md` Flow 1 (Research digest). */
 export const FLAGSHIP_FLOW_1_GREP_ANCHOR = "flagship-flow-1-eu-ai-act-digest";
 
 /** Grep anchor for the Alfred intake `system.note` in the same bundle (distinct coordinator). */

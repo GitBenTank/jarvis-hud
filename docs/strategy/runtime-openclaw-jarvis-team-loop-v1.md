@@ -84,7 +84,7 @@ flowchart LR
 
 ## 5. Concrete pattern: flagship Flow 1 (two roles, one rail)
 
-[Flagship team bundle v1](./flagship-team-bundle-v1.md) encodes **Alfred intake** then **Research digest** as **two** `system.note` proposals, same **`correlationId`**, **two traces**, **two receipts**. That is the cleanest **team** proof without merging authority into one blob: intake **≠** evidence; both still use **one** governed rail.
+[Flagship team bundle v1](./flagship-team-bundle-v1.md) encodes **Alfred intake** then **Research digest** as **two** `system.note` proposals, same **`correlationId`**, **two traces**, **two receipts**. That is the cleanest **team** proof without merging authority into one blob: intake **≠** evidence; both still use **one** governed rail. Runnable detail and grep anchors: [Flagship proposal shapes (appendix)](../architecture/flagship-proposal-shape-examples-v1.md).
 
 ---
 

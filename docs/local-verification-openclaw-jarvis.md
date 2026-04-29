@@ -105,6 +105,8 @@ Use a valid `kind` (e.g. `system.note`). For `system.note`, put body text in `pa
 
 ### 4b. Flagship Flow 1 — Alfred intake → Research digest (full bundle)
 
+Field-level grep anchors, kinds, and sample titles: [Flagship proposal shapes (appendix)](architecture/flagship-proposal-shape-examples-v1.md).
+
 **Product intent:** **Alfred** and **Research** are distinct coordinators on the **same** governed `system.note` path; Jarvis holds approve + execute for **each** proposal (Thesis Lock: no shortcut around the gate).
 
 **A. Submit order (two proposals, same bundle):**

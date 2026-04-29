@@ -166,28 +166,48 @@ export function Gener8torPitchSlideDeck({
     [slideIds],
   );
 
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          const i = slideIds.indexOf(e.target.id);
-          if (i >= 0) setActive(i);
-        }
-      },
-      { root: el, threshold: 0.55 },
-    );
-
-    for (const sid of slideIds) {
-      const node = document.getElementById(sid);
-      if (node) obs.observe(node);
+  /** Pick the slide whose vertical center is closest to the scroll viewport center.
+   * IntersectionObserver with a single threshold made the wrong slide win mid-scroll. */
+  const updateActiveFromScrollPosition = useCallback(() => {
+    const root = scrollerRef.current;
+    if (!root) return;
+    const rootRect = root.getBoundingClientRect();
+    const midY = rootRect.top + rootRect.height * 0.5;
+    let bestIdx = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < slideIds.length; i++) {
+      const node = document.getElementById(slideIds[i]);
+      if (!node) continue;
+      const r = node.getBoundingClientRect();
+      const slideMidY = r.top + r.height * 0.5;
+      const dist = Math.abs(slideMidY - midY);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIdx = i;
+      }
     }
-
-    return () => obs.disconnect();
+    setActive((prev) => (prev === bestIdx ? prev : bestIdx));
   }, [slideIds]);
+
+  useEffect(() => {
+    const root = scrollerRef.current;
+    if (!root) return;
+
+    const onScroll = () => {
+      requestAnimationFrame(updateActiveFromScrollPosition);
+    };
+
+    root.addEventListener("scroll", onScroll, { passive: true });
+    globalThis.addEventListener("resize", onScroll, { passive: true });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(updateActiveFromScrollPosition);
+    });
+
+    return () => {
+      root.removeEventListener("scroll", onScroll);
+      globalThis.removeEventListener("resize", onScroll);
+    };
+  }, [slideIds, updateActiveFromScrollPosition]);
 
   useEffect(() => {
     onActiveSlideChange?.(active);

@@ -192,79 +192,82 @@ export const INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT: readonly DemoScriptBlock
   },
 ];
 
+/** Deck-only narration for slide 1 (Hero) — house / river / door. Shown separately from pre-deck opener + scale in the outline UI (`DemoSpeakerNotesPanel`). */
+export const INVESTOR_HERO_DECK_NARRATION_SCRIPT: readonly DemoScriptBlock[] = [
+  {
+    kind: "stage",
+    text: "Slide 1 · Let the title and subtitle land. Then tell the story below—don’t read the screen aloud.",
+  },
+  {
+    kind: "say",
+    text: "Imagine you have a house that’s become incredibly capable.",
+  },
+  {
+    kind: "say",
+    text: "It can turn lights on and off while you’re not even in the room… send messages from your address… even move money in and out of your wallet—because it’s connected to the systems around it.",
+  },
+  {
+    kind: "say",
+    text: "At first, that feels like control.",
+  },
+  {
+    kind: "say",
+    text: "But over time… the house doesn’t just assist you—it starts acting on its own.",
+  },
+  { kind: "stage", text: "Pause." },
+  { kind: "say", text: "The house is autonomous." },
+  {
+    kind: "say",
+    text: "And everything it does doesn’t stay inside the house.",
+  },
+  {
+    kind: "say",
+    text: "Outside, there’s a river of information—everything flowing between your systems, your data, your tools.",
+  },
+  {
+    kind: "say",
+    text: "The more connected the house becomes… the wider that river gets.",
+  },
+  { kind: "stage", text: "Pause." },
+  {
+    kind: "say",
+    text: "More signals. More actions. More things moving.",
+  },
+  {
+    kind: "say",
+    text: "And as that river widens… it becomes harder to see what’s actually happening—and harder to stop something once it starts moving.",
+  },
+  { kind: "stage", text: "Slight pause." },
+  {
+    kind: "say",
+    text: "At some point, you’re no longer deciding what happens—you’re just watching the results come back.",
+  },
+  {
+    kind: "say",
+    text: "The system can think on its own… but there’s no clear place where you still have authority over what it does.",
+  },
+  {
+    kind: "say",
+    text: "Jarvis separates those two things: autonomy in thinking… and authority in action.",
+  },
+  {
+    kind: "stage",
+    text: "That last line should land with the subtitle on screen—then advance to slide 2.",
+  },
+];
+
 /** Six slides — indices match Gener8torPitchSlideDeck */
 export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
   {
     label: "Hero",
-    blocks: [
-      {
-        kind: "stage",
-        text: "Slide 1 · Let the title and subtitle land. Then tell the story below—don’t read the screen aloud.",
-      },
-      {
-        kind: "say",
-        text: "Imagine you have a house that’s become incredibly capable.",
-      },
-      {
-        kind: "say",
-        text: "It can turn lights on and off while you’re not even in the room… send messages from your address… even move money in and out of your wallet—because it’s connected to the systems around it.",
-      },
-      {
-        kind: "say",
-        text: "At first, that feels like control.",
-      },
-      {
-        kind: "say",
-        text: "But over time… the house doesn’t just assist you—it starts acting on its own.",
-      },
-      { kind: "stage", text: "Pause." },
-      { kind: "say", text: "The house is autonomous." },
-      {
-        kind: "say",
-        text: "And everything it does doesn’t stay inside the house.",
-      },
-      {
-        kind: "say",
-        text: "Outside, there’s a river of information—everything flowing between your systems, your data, your tools.",
-      },
-      {
-        kind: "say",
-        text: "The more connected the house becomes… the wider that river gets.",
-      },
-      { kind: "stage", text: "Pause." },
-      {
-        kind: "say",
-        text: "More signals. More actions. More things moving.",
-      },
-      {
-        kind: "say",
-        text: "And as that river widens… it becomes harder to see what’s actually happening—and harder to stop something once it starts moving.",
-      },
-      { kind: "stage", text: "Slight pause." },
-      {
-        kind: "say",
-        text: "At some point, you’re no longer deciding what happens—you’re just watching the results come back.",
-      },
-      {
-        kind: "say",
-        text: "The system can think on its own… but there’s no clear place where you still have authority over what it does.",
-      },
-      {
-        kind: "say",
-        text: "Jarvis separates those two things: autonomy in thinking… and authority in action.",
-      },
-      {
-        kind: "stage",
-        text: "That last line should land with the subtitle on screen—then advance to slide 2.",
-      },
-    ],
+    blocks: INVESTOR_HERO_DECK_NARRATION_SCRIPT,
   },
   {
     label: "Three forces",
     blocks: [
       {
         kind: "stage",
-        text: "Slide 2 · Three forces on screen—don’t read the bullets; continue the house story.",
+        text: "Slide 2 · Open — three forces on screen (don’t read bullets aloud); continue the house story.",
       },
       { kind: "say", text: "The house is getting more capable." },
       {
@@ -292,7 +295,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 3 · Let headline + typewriter land with short beats—don’t talk over it.",
+        text: "Slide 3 · Consequence — let headline + typewriter land with short beats—don’t talk over it.",
       },
       {
         kind: "say",
@@ -323,7 +326,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 4 · House = governance, river = reality, door = execution.",
+        text: "Slide 4 · The gap — house / river / door mental model; bullets on screen.",
       },
       {
         kind: "say",
@@ -363,7 +366,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 5 · Rule-like delivery—metaphor that maps to real behavior.",
+        text: "Slide 5 · Jarvis — rule-like delivery; Approval ≠ execution matches screen.",
       },
       {
         kind: "say",
@@ -397,7 +400,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 6 · Resolution of the story—then into live.",
+        text: "Slide 6 · Handoff — lifecycle strip on screen, then CTA / live.",
       },
       { kind: "say", text: "This is the loop." },
       {

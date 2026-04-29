@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/components/demo/cn";
 import {
   DemoScriptBlocks,
   DemoScriptSectionTitle,
 } from "@/components/demo/demoScriptRendering";
 import {
+  INVESTOR_HERO_DECK_NARRATION_SCRIPT,
   INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT,
   INVESTOR_LIVE_SCRIPT_SECTIONS,
   INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT,
@@ -20,6 +21,8 @@ export type DemoSpeakerNotesPhase = "slides" | "transition" | "live";
 export const DEMO_NOTES_COLUMN_CLASS = "w-[min(420px,40vw)]" as const;
 
 type NotesSubTab = "slides" | "postdeck";
+/** Only on slide 1 (Hero view): separates pre-deck talk track from Hero house narration. */
+type SlideZeroScriptTab = "opener" | "hero";
 
 function useNotesModel(
   phase: DemoSpeakerNotesPhase,
@@ -116,7 +119,18 @@ function NotesScrollBody({
           </p>
         </details>
       ) : null}
-      {phase === "slides" ? <DemoScriptBlocks blocks={slideScript.blocks} /> : null}
+      {phase === "slides" && slideIndex === 0 ? (
+        <details className="mb-6 rounded-lg border border-zinc-700/40 bg-zinc-950/40 px-3 py-2">
+          <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-zinc-300 [&::-webkit-details-marker]:hidden">
+            Hero — house metaphor (same deck slide)
+          </summary>
+          <p className="mb-3 text-[11px] text-zinc-500">
+            Separate from opener + scale above. Open when narrating the Hero visual.
+          </p>
+          <DemoScriptBlocks blocks={INVESTOR_HERO_DECK_NARRATION_SCRIPT} />
+        </details>
+      ) : null}
+      {phase === "slides" && slideIndex > 0 ? <DemoScriptBlocks blocks={slideScript.blocks} /> : null}
       {phase === "transition" ? <DemoScriptBlocks blocks={INVESTOR_TRANSITION_SCRIPT} /> : null}
       {phase === "live" ? <LiveOutlineSections /> : null}
     </div>

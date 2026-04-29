@@ -9,6 +9,7 @@ related:
   - docs/strategy/investor-demo-narrative-script.md
   - docs/strategy/gener8tor-pitch.md
   - docs/strategy/flagship-team-bundle-v1.md
+  - docs/strategy/investor-overview-bundle-room-script.md
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/setup/local-stack-startup.md
   - docs/video/investor-demo-rehearsal-run-sheet.md

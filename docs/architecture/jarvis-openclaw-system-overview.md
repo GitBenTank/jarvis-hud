@@ -10,6 +10,7 @@ related:
   - openclaw-v1-contract.md
   - ../openclaw-integration-verification.md
   - ../security/openclaw-ingress-signing.md
+  - ../strategy/investor-overview-bundle-room-script.md
 ---
 
 # Jarvis HUD ↔ OpenClaw — system overview

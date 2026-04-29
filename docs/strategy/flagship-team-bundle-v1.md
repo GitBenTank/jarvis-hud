@@ -5,6 +5,7 @@ category: strategy
 owner: Ben Tankersley
 related:
   - ./agent-team-contract-v1.md
+  - ./investor-overview-bundle-room-script.md
   - ../architecture/flagship-proposal-shape-examples-v1.md
   - ../decisions/0001-thesis-lock.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md

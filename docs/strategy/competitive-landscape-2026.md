@@ -9,6 +9,7 @@ related:
   - docs/strategy/jarvis-hud-video-thesis.md
   - docs/strategy/positioning-secure-ai-code-execution.md
   - docs/decisions/0001-thesis-lock.md
+  - ./investor-landscape-answer-card.md
 ---
 
 # Competitive landscape and positioning (2026)

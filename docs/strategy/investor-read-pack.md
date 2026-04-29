@@ -13,6 +13,7 @@ related:
   - ../video/investor-demo-rehearsal-run-sheet.md
   - ./investor-demo-narrative-script.md
   - ./investor-overview-bundle-room-script.md
+  - ./investor-landscape-answer-card.md
   - ./investor-live-proof-map.md
   - ../interview-prep-jarvis.md
 ---
@@ -25,7 +26,7 @@ related:
 
 **In the HUD (minimal layout):** [/docs/tati](/docs/tati) — same four links, faster scan; **Operator notes** toggles a split panel (slide script + live path after handoff).
 
-**In the room:** Lead with the **problem**, then **[Demo](/demo)** (story + live proof). Open these docs when they want depth—not instead of the demo. Need a tight **opener + 3‑minute beats** keyed to Overview + flagship bundle → [investor Overview + Bundle room script](./investor-overview-bundle-room-script.md).
+**In the room:** Lead with the **problem**, then **[Demo](/demo)** (story + live proof). Open these docs when they want depth—not instead of the demo. Need a tight **opener + 3‑minute beats** keyed to Overview + flagship bundle → [investor Overview + Bundle room script](./investor-overview-bundle-room-script.md). **“Who competes?”** — spoken lines (not the long memo): [investor landscape answer card](./investor-landscape-answer-card.md).
 
 **Surfaces:** **`/demo`** is the **canonical cinematic investor deck**—six slides with **split outline track** beside the deck (mobile: **N** drawer), transition, and live scroll. **`/pitch`** and **`/docs/strategy/gener8tor-pitch`** are the **same slides read-only**; handoff **Open Jarvis HUD** goes to **`/activity`** (queue) for the live walkthrough (e.g. OpenClaw from the UI). Use **`/demo`** when you want notes next to the slides while you rehearse.
 

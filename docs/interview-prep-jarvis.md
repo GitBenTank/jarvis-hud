@@ -28,7 +28,7 @@ How to explain Jarvis HUD in 2–3 minutes and answer common follow-ups.
 
 ### "What happens if someone bypasses the approval?"
 
-> "Execution goes through our API. The policy gate runs before any adapter. If there’s no approved proposal for that ID, or the proposal was rejected, execution fails. We also have HMAC-signed ingress — so only trusted connectors can even create proposals. No approval, no execution."
+> "On **the Jarvis-approved path**, execution routes through our API: policy runs before adapters, approvals gate execution, ingress can limit who may submit proposals, and governed runs produce receipts. **Jarvis guarantees the trusted, auditable path — not every possible execution path outside its control.** Work that never touches Jarvis is **outside** governance unless you deliberately hook it through the control plane. **Least privilege:** don’t hand dangerous credentials directly to agent runtimes. For runtime bypass and production packaging, see **[Runtime Bypass, Production Packaging, and Risk Tiers](#runtime-bypass-production-packaging-and-risk-tiers)** below; for formal guarantees, see [trust boundary](../trust-boundary.md)."
 
 ### "How does this scale? What about high-throughput agents?"
 
@@ -56,9 +56,63 @@ How to explain Jarvis HUD in 2–3 minutes and answer common follow-ups.
 
 ---
 
+## Runtime Bypass, Production Packaging, and Risk Tiers
+
+Use this for diligence alongside [trust boundary](../trust-boundary.md) and [Competitive landscape 2026](./strategy/competitive-landscape-2026.md).
+
+### 1. How do we guarantee proposals route through Jarvis?
+
+Jarvis is not designed around trusting model or runtime behavior. The production guarantee comes from architecture: Jarvis becomes the trusted execution boundary for sensitive actions. Agent runtimes can propose actions, but sensitive execution routes through Jarvis-controlled connectors, approval policy, scoped credentials, receipts, and traces.
+
+### 2. What prevents a rogue AI from bypassing Jarvis?
+
+The prevention mechanism is credentials and permissions. Jarvis cannot stop a rogue runtime that already has unrestricted credentials. The correct production posture is least privilege: do not give the agent runtime direct access to dangerous credentials. The runtime can think, draft, summarize, and propose, but Jarvis owns or gates the credentials needed to send external emails, modify code, deploy, access production data, or call sensitive APIs. A rogue agent cannot bypass a locked door if it was never given the key.
+
+In production, agents don't fail safely because they behave — they fail safely because they lack authority.
+
+### 3. Can OpenClaw still execute on its own?
+
+Yes—OpenClaw or another runtime may have native execution capabilities. Jarvis does not claim to magically remove those capabilities. In a Jarvis-managed deployment, sensitive execution tools are either routed through Jarvis adapters or configured with limited permissions. Anything outside Jarvis lacks Jarvis approval, receipt, trace, and policy coverage, and should be considered outside the trusted control plane.
+
+### 4. How will Jarvis be packaged for production?
+
+Think of Jarvis as the approval and execution layer that sits between AI agents and real-world systems.
+
+Jarvis should be packaged as a control-plane application, not only a browser extension. The likely production model includes:
+
+- Hosted Jarvis web app for approvals, receipts, traces, policy, and audit views.
+- Runtime connectors for OpenClaw, LangGraph-style agents, internal scripts, browser agents, and custom automation systems.
+- Execution adapters for email, GitHub, code patches, APIs, tickets, deploys, and database actions.
+- Optional local agent or CLI for developer-machine actions.
+- Optional browser extension later for browser-based agents and web workflows.
+
+### 5. Does every action need approval?
+
+No. Jarvis should use risk-based control.
+
+Risk is defined by real-world impact, not by the type of action.
+
+Low-risk actions can run automatically or with light policy checks—such as summarizing docs, drafting emails, searching internal files, formatting notes, or generating reports.
+
+Medium-risk actions may require confirmation or scoped approval—such as creating tickets, scheduling calendar events, opening pull requests, or updating non-critical docs.
+
+High-risk actions require explicit approval, scoped credentials, receipts, and traceability—such as sending external emails, modifying code directly, deploying, deleting data, accessing sensitive customer data, or calling production systems.
+
+**Investor-ready summary:**
+
+> Jarvis does not try to make models obedient. It removes dangerous authority from the model’s environment. Safe actions can move fast. Risky actions go through approval, scoped credentials, receipts, and traces.
+
+---
+
 ## Red Flags to Avoid
 
 - Don’t say "it’s just a demo" — it’s a real system with a clear thesis
 - Don’t oversell scale — we’re focused on single-developer, local-first
 - Don’t trash other agent frameworks — we integrate with them, we don’t replace them
 - Don’t say "AI safety" in a vague way — say "governance, observability, human-in-the-loop"
+
+---
+
+## Related
+
+- **[Investor live proof map](./strategy/investor-live-proof-map.md)** — one-page **trigger → say → show → proof** for live rooms (5-minute prep).

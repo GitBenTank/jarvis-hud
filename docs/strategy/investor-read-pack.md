@@ -1,7 +1,7 @@
 ---
 title: "Investor read pack — one path, plain English"
 status: living-document
-version: 2.4
+version: 2.5
 category: strategy
 owner: Ben Tankersley
 related:
@@ -12,6 +12,8 @@ related:
   - ../video/investor-demo-full-runbook.md
   - ../video/investor-demo-rehearsal-run-sheet.md
   - ./investor-demo-narrative-script.md
+  - ./investor-live-proof-map.md
+  - ../interview-prep-jarvis.md
 ---
 
 # Investor read pack
@@ -85,6 +87,8 @@ Use when you’re **running** the meeting, not just reading.
 
 ## If they ask for more (optional, not the first email)
 
+- **5-minute pressure sheet (trigger → line → pixel):** [Investor live proof map](./investor-live-proof-map.md) — what to say, what to show, where proof lives in repo.
+- **Pushback — runtime bypass, packaging, risk tiers:** [Interview prep: Q&A](../interview-prep-jarvis.md#runtime-bypass-production-packaging-and-risk-tiers) — *Plain English:* trusted vs auditable path, credentials posture, production shape.
 - **Positioning / market:** [Competitive landscape 2026](./competitive-landscape-2026.md) — *Plain English:* where we sit vs platforms and “governance theater.”
 - **Longer deck storyline:** [Pitch narrative outline](./pitch-narrative-outline.md) — *Plain English:* chapter list if they want a **full deck**, not the six-slide cinematic path.
 - **Marp / export deck source:** [Pitch deck README](./pitch-deck/README.md) — separate artifact from `/demo`.

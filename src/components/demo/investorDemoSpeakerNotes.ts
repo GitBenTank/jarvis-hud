@@ -247,15 +247,19 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 2 · Open — Capability on screen still names email, systems, workflows, APIs for the room. Opener already gave examples—don’t re-read that bullet aloud; gesture or short beat, then say two and three.",
+        text: "Slide 2 · Open — same pattern for each force: Capability → Ungated execution → Governance pressure; short label + your own gist (don’t read bullet text verbatim). Opener already showed example channels—Capability spoken here is widening edge / production-shaped impact, not repeating the slide list.",
       },
       {
         kind: "say",
-        text: "Ungated execution: without a control layer, those actions can be allowed to run immediately—no human gate.",
+        text: "Capability: autonomy is past one-off answers—work routes into live systems and persists; the surface area keeps widening.",
       },
       {
         kind: "say",
-        text: "Governance pressure: programs and regulation are converging—while control at the moment of execution is still what’s missing.",
+        text: "Ungated execution: without a control layer, those actions can run immediately—no deliberate human gate.",
+      },
+      {
+        kind: "say",
+        text: "Governance pressure: audits and programs tighten while the missing piece is still authority at the instant something runs.",
       },
       { kind: "stage", text: "Pause—let “Three forces collide at once” land." },
       {

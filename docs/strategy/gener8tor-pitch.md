@@ -44,7 +44,7 @@ related:
   2. **Ungated execution** — Without a control layer, those actions can be allowed to run immediately—no human gate.
   3. **Governance pressure** — Regulation and enterprise programs are converging—while control at the moment of execution is still what’s missing.
 - **No footer on slide 2** — OpenClaw / ingress appears in **spoken script** after slide 3 and on **slide 6 · Handoff** in the UI.
-- **Say:** Outline all three forces in order with the same rhythm: **Capability** → **Ungated execution** → **Governance pressure** — short label + gist in your words (see `investorDemoSpeakerNotes.ts`); don’t read slide bullets verbatim; if the opener already sampled email/code/API channels, **Capability** verbal is widening edge / production-shaped impact, not repeating the list. On **slide 3** tie in **`system.note`** + risk-class anchor with the typewriter; then live / OpenClaw / ingress. Full weave: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md).
+- **Say:** Locked three beats + pause + headline tagline — see **`INVESTOR_SLIDE_SCRIPTS`** / slide “Three forces” in [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts) (spoken lines don’t have to mirror deck bullets verbatim). On **slide 3** tie in **`system.note`** + risk-class anchor with the typewriter; then live / OpenClaw / ingress. Full weave: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md).
 
 ### Slide 3 — Consequence *(script: consequence + anchor)*
 

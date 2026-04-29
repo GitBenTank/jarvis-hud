@@ -251,7 +251,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "say",
-        text: "Capability: autonomy is past one-off answers—work routes into live systems and persists; the surface area keeps widening.",
+        text: "Capability: agents aren’t sandboxed to replies—work persists in live systems—and the surface you have to reason about keeps growing.",
       },
       {
         kind: "say",

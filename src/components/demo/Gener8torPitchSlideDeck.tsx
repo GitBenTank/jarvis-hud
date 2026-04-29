@@ -275,9 +275,7 @@ export function Gener8torPitchSlideDeck({
           <li className="space-y-1.5">
             <p className="font-medium text-zinc-100">Capability</p>
             <p>
-              {
-                "Past experiments—agents are bridging into routed, durable work that shows up downstream, not only in-chat."
-              }
+              Agents take real actions: email, systems, workflows, and APIs.
             </p>
           </li>
           <li className="space-y-1.5">

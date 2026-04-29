@@ -247,15 +247,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 2 · Open — three bullets on screen; don’t read them verbatim—point at the collision.",
-      },
-      {
-        kind: "stage",
-        text: "Don’t reopen the opener’s email/code/API laundry list—Capability on this slide is trajectory and surface area, not new examples.",
-      },
-      {
-        kind: "say",
-        text: "Capability means traction past experiments: routed, durable work—effects show downstream, outside the pane where someone typed.",
+        text: "Slide 2 · Open — Capability on screen still names email, systems, workflows, APIs for the room. Opener already gave examples—don’t re-read that bullet aloud; gesture or short beat, then say two and three.",
       },
       {
         kind: "say",

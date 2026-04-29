@@ -27,7 +27,7 @@ This page shows how that boundary works end-to-end. [Documentation hub](../READM
 
 Most systems let the model both decide and act. This system does not.
 
-Without this separation, models can trigger real-world effects without clear approval, accountability, or auditability.
+Without this separation, models can trigger **real-world effects** without clear approval, accountability, or auditability.
 
 This system enforces a **hard boundary**:
 

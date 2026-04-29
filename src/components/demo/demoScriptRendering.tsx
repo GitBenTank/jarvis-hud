@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+
+import { cn } from "@/components/demo/cn";
 import type { DemoScriptBlock } from "@/components/demo/investorDemoSpeakerNotes";
 
 export function DemoScriptBlocks({
@@ -26,9 +28,20 @@ export function DemoScriptBlocks({
   );
 }
 
-export function DemoScriptSectionTitle({ children }: { children: ReactNode }) {
+export function DemoScriptSectionTitle({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <h3 className="mt-8 font-[family-name:var(--font-geist-mono),ui-monospace,monospace] text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500 first:mt-0">
+    <h3
+      className={cn(
+        "mt-8 font-[family-name:var(--font-geist-mono),ui-monospace,monospace] text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500 first:mt-0",
+        className,
+      )}
+    >
       {children}
     </h3>
   );

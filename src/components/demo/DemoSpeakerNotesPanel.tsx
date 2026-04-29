@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/components/demo/cn";
 import {
   DemoScriptBlocks,
   DemoScriptSectionTitle,
 } from "@/components/demo/demoScriptRendering";
 import {
+  INVESTOR_ALFRED_BATCH_EMAIL_OUTLINE_BLOCKS,
   INVESTOR_HERO_DECK_NARRATION_SCRIPT,
   INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT,
   INVESTOR_LIVE_SCRIPT_SECTIONS,
@@ -21,20 +22,24 @@ export type DemoSpeakerNotesPhase = "slides" | "transition" | "live";
 export const DEMO_NOTES_COLUMN_CLASS = "w-[min(420px,40vw)]" as const;
 
 type NotesSubTab = "slides" | "postdeck";
-/** Only on slide 1 (Hero view): separates pre-deck talk track from Hero house narration. */
+/** Slide 1: Outline (+ Alfred prompts) vs Hero house narration (separate panel). */
 type SlideZeroScriptTab = "opener" | "hero";
 
 function useNotesModel(
   phase: DemoSpeakerNotesPhase,
   slideIndex: number,
-  opts?: { postDeckTabs: boolean; subTab: NotesSubTab },
+  opts?: {
+    postDeckTabs?: boolean;
+    subTab?: NotesSubTab;
+    slideZeroScriptTab?: SlideZeroScriptTab;
+  },
 ) {
   const safeSlide = Math.min(
     Math.max(slideIndex, 0),
     INVESTOR_SLIDE_SCRIPTS.length - 1,
   );
   const slideScript = INVESTOR_SLIDE_SCRIPTS[safeSlide];
-  const onPostDeck = Boolean(opts?.postDeckTabs && opts.subTab === "postdeck");
+  const onPostDeck = Boolean(opts?.postDeckTabs && opts?.subTab === "postdeck");
 
   let phaseLabel: string;
   if (onPostDeck) {
@@ -47,11 +52,18 @@ function useNotesModel(
     phaseLabel = "Live proof";
   }
 
-  const secondLine: string | null = onPostDeck
-    ? "OpenClaw → Activity. Same outline as in code + run sheet."
-    : phase === "slides"
-      ? slideScript.label
-      : null;
+  let secondLine: string | null = null;
+  if (onPostDeck) {
+    secondLine = "OpenClaw → Activity. Same outline as in code + run sheet.";
+  } else if (phase === "slides") {
+    if (safeSlide === 0 && opts?.slideZeroScriptTab === "opener") {
+      secondLine = "Before deck · opener, scale bridge, Alfred batch prompts";
+    } else if (safeSlide === 0 && opts?.slideZeroScriptTab === "hero") {
+      secondLine = "Slide 1 · Hero — house metaphor (deck only)";
+    } else {
+      secondLine = slideScript.label;
+    }
+  }
 
   return { safeSlide, slideScript, phaseLabel, secondLine, onPostDeck };
 }
@@ -69,18 +81,54 @@ function LiveOutlineSections() {
   );
 }
 
+function SlideZeroScriptTabBar({
+  tab,
+  onTabChange,
+}: {
+  tab: SlideZeroScriptTab;
+  onTabChange: (next: SlideZeroScriptTab) => void;
+}) {
+  const t = (id: SlideZeroScriptTab, label: string) => (
+    <button
+      key={id}
+      type="button"
+      onClick={() => onTabChange(id)}
+      className={cn(
+        "flex-1 rounded-md py-1.5 text-center text-xs font-medium transition-colors",
+        tab === id
+          ? "bg-zinc-800 text-zinc-100"
+          : "text-zinc-500 hover:bg-zinc-900/80 hover:text-zinc-300",
+      )}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div
+      role="tablist"
+      aria-label="Slide 1 outline vs Hero narration"
+      className="flex shrink-0 gap-1 border-b border-zinc-800 px-4 py-2"
+    >
+      {t("opener", "Outline + prompts")}
+      {t("hero", "Hero slide")}
+    </div>
+  );
+}
+
 function NotesScrollBody({
   phase,
   slideIndex,
   slideScript,
   postDeckTabs,
   subTab,
+  slideZeroScriptTab,
 }: {
   phase: DemoSpeakerNotesPhase;
   slideIndex: number;
   slideScript: (typeof INVESTOR_SLIDE_SCRIPTS)[number];
   postDeckTabs: boolean;
   subTab: NotesSubTab;
+  slideZeroScriptTab: SlideZeroScriptTab;
 }) {
   if (postDeckTabs && subTab === "postdeck") {
     return (
@@ -96,41 +144,49 @@ function NotesScrollBody({
     );
   }
 
-  const showLockedOpener = phase === "slides" && slideIndex === 0 && subTab === "slides";
+  const showSlideZeroPanels =
+    phase === "slides" && slideIndex === 0 && subTab === "slides";
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-10">
-      {phase === "slides" && showLockedOpener ? (
-        <details open className="mb-6 rounded-lg border border-sky-500/20 bg-sky-950/20 px-3 py-2">
-          <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-sky-200/95 [&::-webkit-details-marker]:hidden">
-            Locked opener (~2 min) · Before deck / demo
-          </summary>
-          <DemoScriptBlocks blocks={INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT} />
-        </details>
+      {showSlideZeroPanels && slideZeroScriptTab === "opener" ? (
+        <>
+          <details open className="mb-6 rounded-lg border border-sky-500/20 bg-sky-950/20 px-3 py-2">
+            <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-sky-200/95 [&::-webkit-details-marker]:hidden">
+              Locked opener · Before deck / program path
+            </summary>
+            <DemoScriptBlocks blocks={INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT} />
+          </details>
+          <details open className="mb-6 rounded-lg border border-violet-500/20 bg-violet-950/15 px-3 py-2">
+            <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-violet-200/95 [&::-webkit-details-marker]:hidden">
+              Scale bridge · After opener, before Alfred
+            </summary>
+            <DemoScriptBlocks blocks={INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT} />
+          </details>
+          <section
+            className="rounded-lg border border-amber-500/25 bg-amber-950/10 px-3 py-3"
+            aria-label="Alfred batch email prompts"
+          >
+            <DemoScriptSectionTitle className="!mt-0">Main script · Operators</DemoScriptSectionTitle>
+            <DemoScriptBlocks blocks={INVESTOR_ALFRED_BATCH_EMAIL_OUTLINE_BLOCKS} />
+          </section>
+        </>
       ) : null}
-      {phase === "slides" && showLockedOpener ? (
-        <details open className="mb-6 rounded-lg border border-violet-500/20 bg-violet-950/15 px-3 py-2">
-          <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-violet-200/95 [&::-webkit-details-marker]:hidden">
-            Scale (~30–45 sec) · After opener, before Alfred
-          </summary>
-          <DemoScriptBlocks blocks={INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT} />
-          <p className="mb-4 border-l-2 border-zinc-600 pl-3 text-[11px] leading-relaxed text-zinc-500">
-            Then Hero slide narration below—or jump to live if you skipped the deck.
-          </p>
-        </details>
-      ) : null}
-      {phase === "slides" && slideIndex === 0 ? (
-        <details className="mb-6 rounded-lg border border-zinc-700/40 bg-zinc-950/40 px-3 py-2">
-          <summary className="cursor-pointer list-none py-2 text-[12px] font-medium leading-snug text-zinc-300 [&::-webkit-details-marker]:hidden">
-            Hero — house metaphor (same deck slide)
-          </summary>
-          <p className="mb-3 text-[11px] text-zinc-500">
-            Separate from opener + scale above. Open when narrating the Hero visual.
+      {showSlideZeroPanels && slideZeroScriptTab === "hero" ? (
+        <section
+          className="rounded-lg border border-zinc-600/50 bg-zinc-950/50 px-3 py-3"
+          aria-label="Hero slide house metaphor"
+        >
+          <p className="mb-3 text-[11px] leading-relaxed text-zinc-500">
+            Deck-only narration for Hero (slide 1). Separate panel from Outline + prompts.
           </p>
           <DemoScriptBlocks blocks={INVESTOR_HERO_DECK_NARRATION_SCRIPT} />
-        </details>
+        </section>
       ) : null}
-      {phase === "slides" && slideIndex > 0 ? <DemoScriptBlocks blocks={slideScript.blocks} /> : null}
+      {phase === "slides" &&
+      slideIndex > 0 ? (
+        <DemoScriptBlocks blocks={slideScript.blocks} />
+      ) : null}
       {phase === "transition" ? <DemoScriptBlocks blocks={INVESTOR_TRANSITION_SCRIPT} /> : null}
       {phase === "live" ? <LiveOutlineSections /> : null}
     </div>
@@ -224,11 +280,30 @@ export function DemoSpeakerNotesPanel({
   postDeckTabs?: boolean;
 }) {
   const [subTab, setSubTab] = useState<NotesSubTab>("slides");
+  const [slideZeroScriptTab, setSlideZeroScriptTab] =
+    useState<SlideZeroScriptTab>("opener");
+
+  const slideIndexClamped = Math.min(
+    Math.max(slideIndex, 0),
+    INVESTOR_SLIDE_SCRIPTS.length - 1,
+  );
+
   const { safeSlide, slideScript, phaseLabel, secondLine } = useNotesModel(
     phase,
     slideIndex,
-    postDeckTabs ? { postDeckTabs, subTab } : undefined,
+    {
+      postDeckTabs,
+      subTab,
+      slideZeroScriptTab:
+        phase === "slides" && slideIndexClamped === 0
+          ? slideZeroScriptTab
+          : undefined,
+    },
   );
+
+  useEffect(() => {
+    if (safeSlide !== 0) setSlideZeroScriptTab("opener");
+  }, [safeSlide]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -285,12 +360,19 @@ export function DemoSpeakerNotesPanel({
         {postDeckTabs ? (
           <PostDeckSubTabBar subTab={subTab} onSubTabChange={setSubTab} />
         ) : null}
+        {phase === "slides" && safeSlide === 0 && subTab === "slides" ? (
+          <SlideZeroScriptTabBar
+            tab={slideZeroScriptTab}
+            onTabChange={setSlideZeroScriptTab}
+          />
+        ) : null}
         <NotesScrollBody
           phase={phase}
           slideIndex={safeSlide}
           slideScript={slideScript}
           postDeckTabs={postDeckTabs}
           subTab={subTab}
+          slideZeroScriptTab={slideZeroScriptTab}
         />
       </aside>
 
@@ -320,12 +402,19 @@ export function DemoSpeakerNotesPanel({
         {postDeckTabs ? (
           <PostDeckSubTabBar subTab={subTab} onSubTabChange={setSubTab} />
         ) : null}
+        {phase === "slides" && safeSlide === 0 && subTab === "slides" ? (
+          <SlideZeroScriptTabBar
+            tab={slideZeroScriptTab}
+            onTabChange={setSlideZeroScriptTab}
+          />
+        ) : null}
         <NotesScrollBody
           phase={phase}
           slideIndex={safeSlide}
           slideScript={slideScript}
           postDeckTabs={postDeckTabs}
           subTab={subTab}
+          slideZeroScriptTab={slideZeroScriptTab}
         />
       </aside>
     </>

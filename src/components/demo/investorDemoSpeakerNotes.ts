@@ -6,6 +6,7 @@
  * `say` = out loud · `stage` = timing / screen / operator
  * **`INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT`** = ~2 min opener before Slide 1 (program/routing conversations).
  * **`INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT`** = ~30–45 s after opener, before Alfred / Hero deck.
+ * **`INVESTOR_ALFRED_BATCH_EMAIL_OUTLINE_BLOCKS`** = Alfred batch-email prompts on slide 1 Outline tab (with opener + scale).
  * **`INVESTOR_LIVE_SCRIPT_SECTIONS`** = locked ~4–5 min live demo timing after handoff (+ operator prompts).
  */
 
@@ -71,6 +72,7 @@ export const ALT_JARVIS_IS_LINE =
   "Alt line — “Jarvis is the system that decides what AI is allowed to do.”" as const;
 
 export const INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT: readonly DemoScriptBlock[] = [
+  { kind: "stage", text: "Locked opener (~2 min) · Before deck / demo" },
   {
     kind: "stage",
     text: "Locked opener (~2 min) · Program / PM path — Reality → transition to demo.",
@@ -140,6 +142,10 @@ export const INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT: readonly DemoScriptBlock[] =
 export const INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT: readonly DemoScriptBlock[] = [
   {
     kind: "stage",
+    text: "Scale (~30–45 sec) · After opener, before Alfred",
+  },
+  {
+    kind: "stage",
     text: "~30–45 sec — Scale bridge · after opener, before Alfred (not explaining OpenClaw guts).",
   },
   {
@@ -190,7 +196,25 @@ export const INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT: readonly DemoScriptBlock
     kind: "say",
     text: "So instead of stopping agents, we let them run—and govern what actually executes.",
   },
+  {
+    kind: "stage",
+    text: "Then Hero slide narration below—or jump to live if you skipped the deck.",
+  },
 ];
+
+/** Outline track on slide 1 (Hero slide): Alfred batch-email prompts beside opener + scale (same as Operators section in live). */
+export const INVESTOR_ALFRED_BATCH_EMAIL_OUTLINE_BLOCKS: readonly DemoScriptBlock[] = [
+  {
+    kind: "stage",
+    text: "Operators — Alfred: batch send_email prompts (paste in OpenClaw → Chat)",
+  },
+  { kind: "stage", text: ALFRED_INVESTOR_DEMO_BATCH_EMAIL_PROMPT },
+  {
+    kind: "stage",
+    text: "Optional fallback — fixed JSON files (deterministic content):",
+  },
+  { kind: "stage", text: ALFRED_INVESTOR_DEMO_FIXED_EMAIL_FILES_PROMPT },
+] as const;
 
 /** Deck-only narration for slide 1 (Hero) — house / river / door. Shown separately from pre-deck opener + scale in the outline UI (`DemoSpeakerNotesPanel`). */
 export const INVESTOR_HERO_DECK_NARRATION_SCRIPT: readonly DemoScriptBlock[] = [

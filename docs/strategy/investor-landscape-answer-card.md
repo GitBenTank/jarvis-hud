@@ -11,7 +11,7 @@ related:
 
 # Investor landscape — answer card (room-ready)
 
-Deep dive: **[Competitive landscape (2026)](./competitive-landscape-2026.md)**. This page is **what to say aloud** when someone asks who else “does governance” or compares you to incumbent stacks.
+Deep dive: **[Competitive landscape (2026)](./competitive-landscape-2026.md)**. Say these lines aloud when asked—not in the opener: category compare, hyperscaler wedge, buyer wedge, money model.
 
 ---
 
@@ -100,3 +100,57 @@ There are tools that manage AI. Few **control the moment where AI-mediated actio
 You are **not claiming** nobody thought about governance, agents, or safety.
 
 Your bet is sharper: **execution authority as its own layer** — between thinking and irrevocable outcome — with receipts that survive scrutiny.
+
+---
+
+## How to deploy this page
+
+**Do not preload** these lines in first pitch beats. Reach for them:
+
+- **only when asked**
+- **once**, clearly
+- then **go back** to **`/demo`**, lifecycle, receipts — demonstration beats exposition
+
+Same rule applies to the follow‑ons below.
+
+---
+
+## “Why wouldn’t AWS / OpenAI just build this?” (~15–20 sec)
+
+They can build pieces—and some already do.
+
+Their platforms optimize for running and scaling **workloads**. They are not inherently built to sit **in front** of execution as neutral **authority**.
+
+Adding approval inside the same halo is doable. Designing a boundary every consequential action crosses—across vendors, agents, environments—that is a **different product shape**.
+
+That is where we focus.
+
+*(Keeps honesty: acknowledges capability upstream; distinguishes **embedding a feature** from **authority boundary product**—without punching hyperscalers.)*
+
+---
+
+## “Who buys first?” — wedge (~15–20 sec)
+
+Teams already letting AI touch **real systems**—who **cannot** afford mistakes:
+
+- builders running agents against code and infra
+- operators wiring API-side workflows where effects ship
+- founders where AI drafts **email, outbound, or publish**
+
+When execution outweighs novelty, approval and proof stops being optional.
+
+**Tighter:**
+
+The first wedge is whoever learned **“just try it”** is no longer safe.
+
+---
+
+## “Where does the money come from?” (~15–20 sec)
+
+Revenue aligns with **control over consequence**, not with **generation**.
+
+If AI-mediated actions carry blast radius—orgs need systematic approve, reconstruct, prove **what ran**. That is the monetizable surface.
+
+If they insist on metering language:
+
+It maps naturally to governed action volume—not how many prompts you send—and to workflows requiring proveable approval.

@@ -13,6 +13,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:docs": "node scripts/lint-docs-organization.mjs",
     "test": "vitest run",
     "test:api": "node scripts/test-api.mjs",
     "test:unit": "vitest run",

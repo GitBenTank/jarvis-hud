@@ -101,3 +101,13 @@ If advice conflicts: **Thesis Lock / video thesis** → **operating assumptions*
 | `receipts/` | Schema examples |
 
 Root-level `*.md` files are mostly **integration bridges** (ingress verification, connectors, proposal submit).
+
+---
+
+## Docs organization lint
+
+Run:
+
+```bash
+pnpm lint:docs
+```

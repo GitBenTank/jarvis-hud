@@ -306,8 +306,12 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     label: "The gap",
     blocks: [
       {
+        kind: "say",
+        text: "That’s the gap.",
+      },
+      {
         kind: "stage",
-        text: "Slide 4 · The gap — bullets match enterprise reality: tracking vs execution.",
+        text: "Short pause — don’t rush",
       },
       {
         kind: "say",
@@ -315,21 +319,35 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "say",
-        text: "Most of that is visibility—not what happens at execution.",
+        text: "Most of that is visibility—",
       },
-      { kind: "stage", text: "Beat." },
       {
         kind: "say",
-        text: "In real systems, risk is in real actions—especially when they aren’t independently verified before they run.",
-      },
-      { kind: "stage", text: "Pause." },
-      {
-        kind: "say",
-        text: "What’s missing is control at the moment of execution—that’s the gap.",
+        text: "not what happens at execution.",
       },
       {
         kind: "stage",
-        text: "HARD pause · say nothing · ~3 sec — visibility vs execution should click · eye contact · don’t look down.",
+        text: "Small pause.",
+      },
+      {
+        kind: "say",
+        text: "In real systems, risk is real—",
+      },
+      {
+        kind: "say",
+        text: "especially when actions aren’t independently verified before they run.",
+      },
+      {
+        kind: "stage",
+        text: "Slight slow-down",
+      },
+      {
+        kind: "say",
+        text: "What’s missing is control at the moment of execution.",
+      },
+      {
+        kind: "stage",
+        text: "HARD pause · ~3 sec · eye contact · stillness",
       },
     ],
   },

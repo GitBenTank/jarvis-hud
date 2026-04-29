@@ -292,11 +292,15 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 3 · Let the typewriter land—short pauses; let the last line hit.",
+        text: "Slide 3 · Let headline + typewriter land with short beats—don’t talk over it.",
       },
       {
         kind: "say",
-        text: "There’s no clear moment where you actually decide.",
+        text: "There’s no moment where a human owns the decision — emphasize owns (authority, not vibes).",
+      },
+      {
+        kind: "stage",
+        text: "HARD pause · say nothing · ~3–5 sec — emails, code pushes, APIs land.",
       },
       {
         kind: "say",
@@ -348,6 +352,10 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       { kind: "stage", text: "Pause." },
       { kind: "say", text: "That’s the gap." },
+      {
+        kind: "stage",
+        text: "HARD pause · say nothing · visibility vs execution — let registry/dashboard fatigue click.",
+      },
     ],
   },
   {
@@ -374,7 +382,10 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
         kind: "say",
         text: "And nothing runs… unless you actually run it.",
       },
-      { kind: "stage", text: "Pause." },
+      {
+        kind: "stage",
+        text: "HARD pause — authority moment · speak slowly · ~3 sec before proof.",
+      },
       {
         kind: "say",
         text: "And when it does—you get proof of exactly what happened.",

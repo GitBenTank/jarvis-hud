@@ -13,21 +13,29 @@ related:
 
 # Flagship team bundle v1 — Alfred + Research + Creative
 
-> **Investor line:** The flagship bundle is **not** one magic chatbot. It is **three specialist roles**: **Alfred** scopes the request, **Research** grounds it, **Creative** packages options. **Jarvis** is the control plane that decides **what actually gets approved, executed, and recorded.**
+This is the default team you get when you use Jarvis with agents.
 
-Use this page when someone asks **“What do you mean by agent team?”** For rehearsals, grep anchors, samples, and policy fields, see the [operator appendix](../architecture/flagship-proposal-shape-examples-v1.md) and [local verification §4b](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--alfred-intake--research-digest-full-bundle).
+It turns a single request into a structured, governed workflow: **intake → evidence → variants → proposal → approval → execution → receipt**.
+
+Instead of one model doing everything, the work is split across specialists:
+
+- **Alfred** handles intake and coordination.
+- **Research** grounds decisions in evidence.
+- **Creative** produces variants and packaging.
+
+Every output still goes through Jarvis for approval and execution.
+
+This is not a loose collection of agents. It is a **repeatable system** for producing real-world outcomes with traceability.
+
+Without this structure, a single agent blends intake, reasoning, and output into one step — making it hard to verify, compare, or safely execute results.
+
+For operator rehearsal (grep anchors, sample JSON, policy fields), see the [proposal shapes appendix](../architecture/flagship-proposal-shape-examples-v1.md) and [local verification §4b](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--alfred-intake--research-digest-full-bundle). Routing, handoffs, and Jarvis kinds: **[Agent team contract v1](./agent-team-contract-v1.md)**.
 
 ---
 
-## What the bundle is
+## What each role does in the workflow
 
-A named, repeatable **three-role roster** in the OpenClaw runtime, with **Jarvis** as the only gate for real effects. It is how we demo and sell **multiple agents as one governed system**: proposals cross the HUD; humans approve item by item where execution differs ([ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md)).
-
-Deep operating law — routing, handoffs, Jarvis kinds — stays in **[Agent team contract v1](./agent-team-contract-v1.md)**.
-
----
-
-## The three roles
+Each role owns a different part of the decision-making process. No single agent controls the full outcome.
 
 | Role | Does | Does not |
 |------|------|----------|
@@ -37,15 +45,35 @@ Deep operating law — routing, handoffs, Jarvis kinds — stays in **[Agent tea
 
 **Operator** as a fourth SKU is **intentionally out of v1** until recurring queue/packaging pain justifies a contract-level spec.
 
+This bundle is the simplest way to see Jarvis working as a system: **multiple agents thinking in parallel, one authority deciding what actually happens.**
+
+---
+
+## What is being sold?
+
+**What is being sold?**  
+A repeatable agent workflow that produces **real outputs under human approval**, not just generated content.
+
 ---
 
 ## Why Jarvis is the gate
 
-OpenClaw-side roles **only propose**. Execution-shaped work shows up as **proposals**; humans **approve** and **execute** in the HUD; every outcome that matters gets **receipt + trace**. That is [Thesis Lock](../decisions/0001-thesis-lock.md): autonomy in thinking, authority in action.
+OpenClaw-side roles **only propose**. Execution-shaped work shows up as **proposals**; humans **approve** and **execute** in the HUD; every outcome that matters gets **receipt + trace**. Multi-item work still uses **per-item** approve/execute where effects differ ([ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md)). That is [Thesis Lock](../decisions/0001-thesis-lock.md): autonomy in thinking, authority in action.
 
 ---
 
 ## Example flows (narrative)
+
+**Typical flow:**
+
+1. Alfred defines the task and constraints.
+2. Research gathers evidence (if needed).
+3. Creative produces options.
+4. One or more proposals are submitted to Jarvis.
+5. A human approves what should happen.
+6. Execution runs separately, with receipts and traces.
+
+**Situation examples:**
 
 1. **Factual question** — Alfred frames the ask → Research produces evidence and a digest → each follow-on effect is its own proposal → you approve and execute **per item** in Jarvis.
 2. **Creative output** — Alfred confirms intent and constraints → Creative offers **variants** → publish or capture flows still land as **proposals** you control in Jarvis.

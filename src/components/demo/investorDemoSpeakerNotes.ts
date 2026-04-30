@@ -281,15 +281,23 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "say",
-        text: "The failure mode is simple:",
+        text: "What actually happens is this:",
       },
       {
         kind: "say",
-        text: "a proposal becomes execution before anyone has clearly authorized the run.",
+        text: "a proposal turns into execution",
       },
       {
         kind: "say",
-        text: "By the time it shows up in activity… or logs…",
+        text: "before anyone has clearly authorized the run.",
+      },
+      {
+        kind: "say",
+        text: "By the time it shows up in activity…",
+      },
+      {
+        kind: "say",
+        text: "or in logs…",
       },
       {
         kind: "say",

@@ -351,7 +351,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "say",
-        text: "What’s missing is control at the moment of execution.",
+        text: "What’s missing is control at the moment something runs.",
       },
       {
         kind: "stage",

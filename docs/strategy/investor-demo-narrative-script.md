@@ -1,7 +1,7 @@
 ---
 title: "Investor / video demo — full narration script"
 status: living-document
-version: 2.16
+version: 2.17
 owner: Ben Tankersley
 created: 2026-04-21
 category: product-strategy
@@ -20,227 +20,234 @@ related:
 Canonical product thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock).  
 **Tight opener + 3-minute walkthrough** (Overview + Bundle + `/demo` beats): [investor-overview-bundle-room-script.md](./investor-overview-bundle-room-script.md).  
 Live demo steps: [DEMO.md](../../DEMO.md).  
-**Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md). **Rehearsal run sheet** (one page): [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md).  
-**Cinematic beats:** **`/demo`** opens with **six slides**: **Jarvis (hero + thesis)** → **Open → Consequence → The gap → Jarvis (lock-in) → Demo handoff** — **canonical on-screen copy** is in [`Gener8torPitchSlideDeck.tsx`](../../src/components/demo/Gener8torPitchSlideDeck.tsx) (keep script and UI in sync when you change wording). Then **transition** → **cinematic proof** scroll ([`DemoCinematicScroll.tsx`](../../src/components/demo/DemoCinematicScroll.tsx)). Wiring: `DemoExperience.tsx`, `InvestorPitchSlides.tsx`. **Outline track (`/demo`):** [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts) — **split panel** beside the deck on desktop (mobile: **N** drawer). **Slide 1** = hook; **slides 2–6** = **house / river / door**; **live** = **Flow 1** + operator email optional. Read-only pitch (`/pitch`, docs URL): CTA → **`/activity`** (HUD). Technical rehearsal: **long-form weave** below; boot: [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md).  
-**Timed blocks + speaker notes:** [gener8tor-pitch.md](./gener8tor-pitch.md).  
-**Investor-facing path (read before live):** [investor-read-pack.md](./investor-read-pack.md) — what to send advisors; this file is **operator narration**.
+**Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md). **Rehearsal run sheet** (one page): [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md).
 
-This document is **spoken copy** + **stage directions** + **delivery notes**. It does not replace Thesis Lock. There is no separate setup section in the on-camera flow; the stack is **live** from the first scroll.
+**Single source for spoken deck + timing:** [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts). The `/demo` **outline track** mirrors that module (desktop split panel beside the deck; mobile **Script / N**). If this markdown and the TypeScript drift, **trust the `.ts`** and update here.
+
+**Cinematic beats (`/demo`):** Six slides — **Hero (Jarvis + thesis)** → **Open — three forces** → **Consequence** → **The gap** → **Jarvis (lock-in)** → **Handoff** → tap **Enter live system** → **transition full-screen lines** (`INVESTOR_TRANSITION_SCRIPT`) → HUD proof. Canonical **on-screen copy** sits in [`Gener8torPitchSlideDeck.tsx`](../../src/components/demo/Gener8torPitchSlideDeck.tsx). Wiring: `DemoExperience.tsx`, `InvestorPitchSlides.tsx`, [`DemoSpeakerNotesPanel.tsx`](../../src/components/demo/DemoSpeakerNotesPanel.tsx). After handoff timing (Alfred lifecycle, approvals, Gmail batch): **`INVESTOR_LIVE_SCRIPT_SECTIONS`** plus Alfred prompts **`ALFRED_INVESTOR_DEMO_BATCH_EMAIL_PROMPT`** in the same file.
+
+**Outline track UX (slide 1 only):**
+
+- **`Outline + prompts` tab** — pre-deck **locked opener** (`INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT`) → **scale bridge** (`INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT`) → **Alfred batch `send_email` prompts** (same paste blocks as live “Operators”).
+- **`Hero slide` tab** — short **deck cues** (`INVESTOR_HERO_DECK_NARRATION_SCRIPT`): let title + subtitle land; optional minimum narration.
+
+Slides **2–6** show one scripted block each from **`INVESTOR_SLIDE_SCRIPTS`**, keyed to whichever slide is centered in the deck scroller.
+
+**Timed blocks + slide labels:** [gener8tor-pitch.md](./gener8tor-pitch.md). Read-only **`/pitch`**: CTA → **`/activity`**.
+
+This document matches the outline track wording for rehearsals and recording. It does not replace Thesis Lock.
 
 ---
 
 ## Memorize (room + camera)
 
-1. **Hero (slide 1)** — **Jarvis** + thesis on screen; **outline track** uses the full grounded house/river opener ending on the thesis line—or shorter silence if you prefer (see `investorDemoSpeakerNotes.ts`).  
-2. **Three forces (slide 2)** — Continue **house / river** momentum (see Script panel); don’t read bullets aloud.  
-3. **Anchor** — Email / code / API examples vs **`system.note`** on screen; stakes **before** the HUD.  
-4. **Gap & lock-in (slides 4–5)** — Visibility ≠ execution; Jarvis separates approve / execute + proof.  
-5. **Handoff → live** — Lifecycle string, then HUD / Flow 1 (or **`send_email`** path per operator block).
+1. **Pre-deck (`Outline + prompts`)** — Run the locked opener (~2 min) then scale (~30–45 s) **before** you lean on silence on slide 1, unless you’re skipping straight to Hero + deck.
+2. **Slide 1 Hero** — **Jarvis** + *Autonomy in thinking. Authority in action.* Silence often wins; optional one line from **`INVESTOR_HERO_DECK_NARRATION_SCRIPT`** if you opened on deck not opener.
+3. **Slide 2** — Three spoken beats (**Capability expanding / Execution ungated / Governance tightening**) → pause → **“Three forces collide at once.”** Bullets on screen reinforce email / systems detail without you rereading a laundry list.
+4. **Slide 3** — Headline owns **authority** → HARD pause → **proposal → execution** failure mode → landing **“That’s the problem on screen.”** Let the typewriter/UI carry **system.note** / examples if visible; narration does not repeat the opener’s channel list.
+5. **Slide 4** — **That’s the gap** pacing + visibility vs execution + **moment something runs** → HARD pause before slide 5.
+6. **Slide 5** — Lock-in: **proposal ≠ run**, **nothing crosses**, **YOU decide**, **running is separate** → HARD stillness → proof line → beat → **“And that creates a simple loop.”**
+7. **Slide 6 + live** — Lifecycle string on screen, then HUD; batch email path per **`INVESTOR_LIVE_SCRIPT_SECTIONS`** and operators block.
 
-If the audience sees the HUD before they feel the stakes, the demo reads as “cool dashboard.” Forces and consequence before chrome.
+If the audience sees Activity before stakes land, the demo reads as “cool dashboard.” Run **slides 3–5** with weight before chrome.
 
 ---
 
-## Full investor demo script (weaved — final)
+## Full investor demo script (aligned to outline track)
 
-Read this in one continuous take. Pauses are part of the script.
+Read in one continuous take. *Italics in parentheses* stage/delivery cues; **bold-ish** pacing is spelled out where the `.ts` uses `stage` blocks.
 
-### Hero *(slide 1)*
+Canonical exports: **`INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT`**, **`INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT`**, **`INVESTOR_SLIDE_SCRIPTS`**, **`INVESTOR_TRANSITION_SCRIPT`**, **`INVESTOR_LIVE_SCRIPT_SECTIONS`**.
 
-*(Start on slide 1. Hold ~2 seconds. On screen: **Jarvis** — *Autonomy in thinking. Authority in action.*)*
+### Pre-deck — locked opener (~2 min) + scale (~30–45 s)
 
-*(Optional—silence is often stronger in mixed rooms:)* hold ~2s. *(If you want one line, stay concrete—no “layers”:)* “That sentence under the name—that’s what we’re here to show.”
+Speak from **`Outline + prompts`** on slide 1. Follow timings and **`say`** / **`stage`** lines in **`INVESTOR_LOCKED_OPENER_PROGRAM_SCRIPT`** and **`INVESTOR_SCALE_BRIDGE_AFTER_OPENER_SCRIPT`** verbatim in the HUD (dual headers · Reality → Jarvis framing · anchor thesis · transition into demo).
 
-*(Advance to slide 2.)*
+### Slide 1 — Hero *(deck · optional Hero tab)*
 
-### Three forces *(slide 2)*
+*(Often best in silence.)*
 
-We’re seeing three forces collide at once.
+Slide 1 · Let title land, then subtitle.
 
-*(Either let the slide carry, or narrate in sync — use the **same labels** as `/demo`:)*
+“The subtitle carries the thesis: autonomy in thinking, authority in action.” *(Only if adding one line.)*
 
-**Capability** — agents take real actions: email, systems, workflows, APIs.
+Advance when ready.
 
-**Ungated execution** — without a control layer, those actions can be allowed to run immediately — no human gate.
+### Slide 2 — Open · Three forces collide at once
 
-**Governance pressure** — regulation and enterprise programs are converging, while control at the moment of execution is still what’s missing.
+*Slide cue:* three beats, pause, then headline on screen.
 
-*(Pause. Advance to slide 3 · Consequence.)*
+Capability is expanding—agents are no longer just responding, they’re acting in real systems.
 
-### Consequence *(slide 3 — typewriter on screen)*
+Execution is ungated—those actions can run immediately, without a human decision in the loop.
 
-*(Headline: no moment where a human owns the decision. Let the typewriter run, or mirror its first line once if you want lockstep.)*
-
-When the deck lands the second beat, **anchor the demo**: that could mean email, code, or an API — **on screen today** it’s **`system.note`**, same **control** boundary, different risk class.
+And governance is tightening—but the system still lacks authority at the moment something runs.
 
 *(Pause.)*
 
-Let me show you that capability — and where authority actually sits.
+Three forces collide at once.
 
-*(Tiny pause.)*
+*(Advance.)*
 
-And what you’re about to see is running live.
+### Slide 3 — Consequence *(typewriter on screen)*
 
-OpenClaw is generating the proposal locally, sending it through the Jarvis ingress path, and Jarvis is holding it at the approval boundary before anything executes.
+There’s no moment where a human owns the decision.
 
-*(Advance through slides 4–6 while you speak the sections below, or let the slides breathe — copy maps to **The gap**, **Jarvis lock-in**, **Handoff**.)*
+*(HARD pause · 3–5 sec · hold eye contact · stay still.)*
 
-### Infrastructure context *(slide 4 · The gap — start here or as you enter this slide)*
+What actually happens is this:
 
-We’re already seeing this at the infrastructure level.
+a proposal turns into execution
 
-Enterprises are building systems to track and manage agents — registries, catalogs, governance layers.
+before anyone has clearly authorized the run.
 
-But those systems focus on visibility — what exists, who owns it, and what can be reused.
+By the time it shows up in activity…
 
-### Gap *(slow down)*
+or in logs…
 
-They don’t control what actually happens at the moment an agent takes action.
+it’s already happened.
 
-And that’s true even in systems that look like they have governance — because the control isn’t at execution.
+*(Short pause.)*
 
-*(Pause.)*
+That’s the problem on screen.
+
+### Slide 4 — The gap
 
 That’s the gap.
 
+*(Short pause — don’t rush.)*
+
+Enterprises track agents—registries, catalogs, governance layers.
+
+Most of that is visibility—
+
+not what happens at execution.
+
+*(Small pause.)*
+
+In real systems, risk is real—
+
+especially when actions aren’t independently verified before they run.
+
+*(Slight slow-down.)*
+
+What’s missing is control at the moment something runs.
+
+*(HARD pause · ~3 sec · eye contact · stillness.)*
+
+### Slide 5 — Jarvis · lock-in *(make-or-break delivery)*
+
+*Operator cue:* slower · controlled · punch **YOU** on “You decide what runs”; HARD pause = **stay completely still**; closing proof line steady / slightly lower tone.
+
+Jarvis is the control layer at that boundary.
+
+A proposal is not a run.
+
+Nothing crosses by accident.
+
+*(Small pause.)*
+
+Agents can propose.
+
+You decide what runs.
+
+And running it is a separate step.
+
+*(HARD pause · ~3 sec · hold eye contact · stay completely still.)*
+
+And when it does—
+
+you get proof of exactly what happened.
+
+*(Beat.)*
+
+And that creates a simple loop.
+
+### Slide 6 — Handoff → Enter live system
+
+Slide 6 on screen · lifecycle subtitle · OpenClaw proposes / Jarvis governs *(operator — don’t bury in abstract stack talk).* 
+
+This is the loop on the slide: propose → approve → execute → receipt → trace.
+
+Most systems show you what already happened—you want attributable control over what was allowed.
+
+*(Beat.)*
+
+OpenClaw proposes.
+
+Jarvis decides what runs.
+
+Every action leaves a trace you can follow.
+
 *(Pause.)*
 
-As soon as those agents operate in real systems, the risks become real — especially when actions aren’t independently verified.
+That’s the difference between activity… and control.
 
-*(Pause.)*
+Now I’ll show you that running live.
 
-At the same time, organizations are moving toward formal governance for AI systems in production.
+*Then:* tap **Enter live system** · land on HUD home (`/`) — live proof in **Activity + run sheet** (see stage note in `.ts`).
 
-*(Pause.)*
+### Transition *(full-screen, post-handoff)*
 
-What’s missing is control at the moment of execution.
+Let land: **This is not a concept.** / **This is running.**
 
-*(Full breath.)*
-
-### Jarvis *(lock-in — slide 5)*
-
-A system that separates approval from execution — and produces proof of what actually happened.
-
-That’s what Jarvis does.
-
-*(Tiny pause.)*
-
-Jarvis doesn’t manage agents — it governs execution.
-
-That’s where authority lives.
-
-### Demo handoff *(slide 6, then “Enter live system”)*
-
-Everything runs through a simple lifecycle:
-
-propose → approve → execute → receipt → trace
-
-This is the same local system — proposal from OpenClaw, governed and executed in Jarvis.
-
-*(Optional.)*
-
-Most systems show you what already happened. Jarvis shows what was allowed to happen.
+Optional after: **“Same loop—now in the live product.”**
 
 ### Operator — OpenClaw + email (`send_email` proposals)
 
-**Recommended (investor room):** **One batch**, two `send_email` proposals — first **unsafe / wrong** (you **Reject** in the HUD), second **safe / right** (you **Approve** → **Execute**). The canonical **OpenClaw → Alfred** paste and the two-outcome **spoken** track live in [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts) — **`ALFRED_INVESTOR_DEMO_BATCH_EMAIL_PROMPT`**, plus **`ALFRED_INVESTOR_DEMO_FIXED_EMAIL_FILES_PROMPT`** (canned bad + good JSON, no LLM). **Order and pacing:** [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md).
+**Recommended (investor room):** **One batch**, two `send_email` proposals — first **unsafe / wrong** (**Reject** in HUD), second **safe / right** (**Approve** → **Execute**). Paste blocks: **`ALFRED_INVESTOR_DEMO_BATCH_EMAIL_PROMPT`**, **`ALFRED_INVESTOR_DEMO_FIXED_EMAIL_FILES_PROMPT`** in [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts). **Order / pacing:** [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md). After handoff spoken outline: **`INVESTOR_LIVE_SCRIPT_SECTIONS`** in the same file.
 
-**Minimal single good send (legacy one-proposal path):** Same signed ingress; proposal file **`scripts/demos/send-email-proposal.json`** (allowlisted recipient — [DEMO.md](../../DEMO.md)). Server needs **`DEMO_EMAIL_USER`** / **`DEMO_EMAIL_PASS`** for SMTP after you execute.
+**Minimal single good send:** `pnpm jarvis:submit --file scripts/demos/send-email-proposal.json` — [DEMO.md](../../DEMO.md); SMTP **`DEMO_EMAIL_*`** after execute.
 
-```bash
-cd ~/Documents/jarvis-hud
-pnpm jarvis:submit --file scripts/demos/send-email-proposal.json
-```
-
-or `pnpm demo:send-email` (loads `.env.local`).
-
-**OpenClaw → Chat** (single file only; adjust path if your clone differs):
-
-```
-Investor demo — submit governed send_email only.
-
-Follow workspace JARVIS.md: submit to Jarvis using the repo sample file—do not invent another submission path or use curl.
-
-Working directory: /Users/bentankersley/Documents/jarvis-hud
-
-Run:
-pnpm jarvis:submit --file scripts/demos/send-email-proposal.json
-
-Reply with the Jarvis proposal id and trace id (pending). Do not claim execution—the HUD approves and executes.
-```
-
-*(In the HUD: two-outcome **batch** = **Reject** first row / **Approve → Execute** second; or single proposal = **Approve** → **Execute** once → receipt/trace → **Gmail** proof as applicable.)*
-
-### Product *(on screen)*
-
-*(Move mouse slightly, deliberate.)*
+### Product *(HUD — governance moment)*
 
 This is a governed action.
 
-The agent brings something to the door.
+Proposal at the boundary.
 
-A human decides whether it crosses.
+A human decides whether it executes.
 
-Execution happens separately.
-
-The receipt and trace prove what moved forward.
+Execution is separate — receipt/trace show what ran.
 
 *(Pause.)*
 
-Not logs — **proof** (what was **allowed** to happen).
+### Hard cut continuity
 
-### Hard cut → real HUD
+Lifecycle in the HUD matches the deck loop: propose → approve → execute → receipt → trace. Every beat explicit; every action attributable.
 
-*(After the full-screen transition: “This is not a concept. This is running.”)*
+### Gmail *(if you ran batch `send_email`)*
 
-This is the same lifecycle running in the actual system.
+Only the pathway you executed exists in the inbox; contrast with rejected draft if you framed that earlier.
 
-*(On screen: pending proposals — **Path A:** two-outcome **`send_email`** batch (Reject first / Approve → Execute second) **or** **Path B:** two **`system.note`** cards. **Approve** (when applicable) **→** **Execute** → receipt.)*
+*(If **`system.note`** path only — end on HUD receipt/trace; skip Gmail.)*
 
-Every step is explicit.
+### Final close *(three beats)*
 
-Every action is attributable.
+The agent generated the shape of the action.
 
-### Gmail *(proof moment — only if you ran `send_email`)*
+Jarvis governed whether it executed.
 
-*(Show the email clearly.)*
-
-This is a real outbound action.
-
-It was generated by the agent…
-
-but it only exists because it was approved and executed through Jarvis.
-
-*(If you stayed on **Flow 1** / **`system.note`** only, skip Gmail; end on **receipt + trace** in the HUD.)*
-
-### Final close *(three beats — very important)*
-
-*(Return to HUD or stay on proof.)*
-
-The agent generated the action.
-
-Jarvis governed the execution.
-
-And now we have proof.
+Proof is attributable.
 
 ---
 
-## Delivery notes *(read once, then record)*
+## Delivery notes *(read once, rehearse twice)*
 
-- **Slide sync:** Hero (1) → three forces (2) → consequence typewriter (3) → gap (4) → Jarvis lock-in (5) → handoff (6) → transition → cinematic scroll / HUD. See [gener8tor-pitch.md](./gener8tor-pitch.md) for block timing.
-- Speak slower than feels natural.
-- Let pauses create weight.
-- Do **not** rush: “That’s the gap,” “independently verified,” the **three-forces** beat, or the final three lines.
-- Land **Capability / Ungated execution / Governance pressure** before the HUD; don’t repeat the ungated line twice — slide 2 already states it.
-- Tone: calm, controlled, inevitable.
-- This is not a pitch — it’s **evidence**.
+- **Deck sync:** Slides scroll-center drives outline index beside deck — keep narration with the slide visible.
+- **Slide 5:** Not architecture tourism — restraint, slower, HARD pause motionless before proof.
+- Speak slower than feels comfortable; silence carries authority.
+- **Slide 4 closer** spoken = *moment something runs*; deck subtitle text may still read *moment of execution* — don’t fight the screen aloud.
+- **Slide 6 → HUD:** Same-origin Activity; **`INVESTOR_LIVE_SCRIPT_SECTIONS`** for Alfred / approve / execute / receipt beats.
+- Tone: inevitable, not hype — **evidence**, not vibes.
 
-### Viewer takeaway
+---
 
-1. Agents can do real things.  
-2. That can go wrong.  
-3. Control belongs at execution — with proof.  
-4. Jarvis is that layer.
+## Viewer takeaway
+
+1. Capacity is expanding into real rails.  
+2. Execution can jump ahead without real ownership at the boundary.  
+3. Programs want visibility—but **authority at run** plus **proof** is what’s missing.  
+4. Jarvis is that crossing: proposal ≠ execution, with attributable outcomes.
 
 ---
 

@@ -229,17 +229,20 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
             Documentation
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-[1.75] text-zinc-400">
-            Jarvis is a <strong className="font-medium text-zinc-200">control plane</strong> for
-            governed AI: agents and tools can propose work;{" "}
-            <strong className="font-medium text-zinc-200">people</strong> approve and execute.
-            Outcomes ship with receipts and traces—so trust comes from proof, not from the model
-            sounding confident.
+            <strong className="font-medium text-zinc-200">
+              Most systems log what happened.
+            </strong>{" "}
+            Jarvis proves who decided, who executed, and what actually occurred. It is the{" "}
+            <strong className="font-medium text-zinc-200">authority layer</strong> for governed AI:
+            agents and tools can propose; <strong className="font-medium text-zinc-200">people</strong>{" "}
+            own approval and execution. Trust comes from proof—not from the model sounding confident.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500">
-            This landing page is paced for onboarding and diligence:{" "}
-            <strong className="font-medium text-zinc-400">see it work</strong>, skim what Jarvis
-            is without installing, then walk the numbered investor sequence. Operators and stacks live
-            under <strong className="font-medium text-zinc-400">Explore deeper · advanced</strong>{" "}
+            Start with proof. Then understand why it matters. Then see how it scales. This fold is paced
+            for diligence:{" "}
+            <strong className="font-medium text-zinc-400">open the live demo</strong>, skim the thesis
+            in plain English (no install), then walk the numbered investor path. Operators and stacks
+            live under <strong className="font-medium text-zinc-400">Explore deeper · advanced</strong>{" "}
             below—not on this fold.
           </p>
         </header>
@@ -255,8 +258,11 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
             Start here — see Jarvis in action
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-[1.7]">
-            A six-slide walkthrough into the live HUD: agents propose, humans approve, execution
-            stays separate, and every outcome leaves a receipt and trace.{" "}
+            A six-slide walkthrough into the live HUD:{" "}
+            <strong className="font-medium text-zinc-300">
+              Agents propose. Humans approve. Execution is separate.
+            </strong>{" "}
+            Every action leaves a receipt and a trace.{" "}
             <span className="text-zinc-300">Autonomy in thinking; authority in action.</span>
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -270,7 +276,7 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
               href="/docs/tati"
               className={`${mono} inline-flex items-center justify-center rounded-xl border border-white/[0.12] bg-zinc-950/50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-300 transition hover:border-zinc-500 hover:text-zinc-100`}
             >
-              Investor pack (15 min)
+              Investor pack · 15 min control-plane read
             </Link>
           </div>
         </section>
@@ -289,8 +295,8 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
           <SectionTitle
             eyebrow="Investors"
             sectionId="investors-heading"
-            title="For investors — 15 minute path"
-            subtitle="One sequence—live demo first, investor pack (/docs/tati), Thesis Lock, team bundle—before you touch checklists."
+            title="For investors — understand the control plane in 15 minutes"
+            subtitle="Start with proof. Then understand why it matters. Then see how it scales."
           />
           <InvestorFifteenMinutePath items={investors} />
         </section>

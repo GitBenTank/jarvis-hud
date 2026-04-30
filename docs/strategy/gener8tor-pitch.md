@@ -21,7 +21,7 @@ related:
 
 **Purpose:** Ultra-tight deck copy and **consequence-first** demo narration for accelerator / investor rooms. Full woven read-through: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md). Boot + camera: [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md). **Operator one-pager:** [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md). Thesis Lock: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md).
 
-**Plain English:** This doc is the **words and clicks** for `/demo`: why the problem is scary first, then what Jarvis does. If you’re not running the meeting, start with the **[investor read pack](./investor-read-pack.md)**—that’s the 15-minute path for advisors and investors.
+**Plain English:** This doc is the **words and clicks** for `/demo`: why the problem bites first, then what Jarvis does. If you’re not running the meeting, start with the **[investor read pack](./investor-read-pack.md)**—why agent systems need a control plane (**~15 min**, fixed order).
 
 **Principle:** The audience should feel **consequence before chrome**. If they see the HUD first without the stakes line, the demo reads as “cool dashboard.” If they hear **what would have happened without the layer** first, it reads as **necessary infrastructure**.
 

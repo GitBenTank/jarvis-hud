@@ -1,7 +1,7 @@
 ---
 title: "Investor read pack — one path, plain English"
 status: living-document
-version: 2.5
+version: 2.6
 category: strategy
 owner: Ben Tankersley
 related:
@@ -20,9 +20,11 @@ related:
 
 # Investor read pack
 
-**What this is:** The **shortest trustworthy path** for advisors and investors—about **15 minutes** reading, same order every time. No rotating the stack per meeting.
+**What this is:** For advisors and investors—**why agent systems need a control plane**, in about **15 minutes** reading (fixed order—no reordering slides per meeting).
 
-**In plain English:** AI systems can already *do* things in the real world (send mail, change code, call APIs). The hard part isn’t smarts—it’s **knowing who said yes**, **what actually ran**, and **being able to prove it later**. Jarvis is the layer that sits on that boundary.
+**Most stacks log what happened.** This path is anchored on **who decided**, **who executed**, and **what actually occurred**.
+
+**In plain English:** AI can already touch real rails (mail, code, APIs). The gap isn’t intelligence—it’s **authority at execution** plus **usable proof afterward**. Jarvis sits on that boundary.
 
 **In the HUD (minimal layout):** [/docs/tati](/docs/tati) — same four links, faster scan; **Operator notes** toggles a split panel (slide script + live path after handoff).
 
@@ -39,7 +41,7 @@ related:
 | 1 | [Gener8tor pitch](./gener8tor-pitch.md) | ~5 min | Slide copy + demo beats for investor rooms. |
 | 2 | [Room playbook](./room-playbook-v1.md) | ~3 min | How we show up: restraint, opener, Q&A. |
 | 3 | [Thesis Lock (ADR)](../decisions/0001-thesis-lock.md) | ~4 min | The non‑negotiable rules of the product (law, not marketing). |
-| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~3 min | What the **agent team** is and why **Jarvis** is the gate — not a runbook. |
+| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~3 min | How teams actually use Jarvis—proposals, approvals, recorded outcomes—not a vague “agent swarm”. |
 
 ### 1. Gener8tor pitch
 
@@ -65,11 +67,11 @@ related:
 
 ---
 
-### 4. Flagship team bundle
+### 4. Flagship team bundle *(usage, not internals)*
 
 **Technical:** Alfred / Research / Creative roles, proposal ownership, batch semantics, sample flows.
 
-**Plain English:** Real work isn’t one assistant—it’s a **small team with boundaries**. This doc shows how that team hands work off **without** blurring who’s allowed to trigger what.
+**Plain English:** Real work flows through **proposals**, **human approvals**, and **attributable outcomes**. This doc shows how a small agent team routes work **without** smearing who’s allowed to run what.
 
 ---
 

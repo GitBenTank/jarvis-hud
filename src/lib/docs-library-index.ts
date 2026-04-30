@@ -309,31 +309,31 @@ export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
     href: "/demo",
     title: "See it live",
     description:
-      "Six slides, speaker notes, transition, and live HUD—agents propose; humans approve; approval is not execution; receipt and trace as proof.",
+      "Agents propose. Humans approve. Execution is separate. Every action leaves a receipt and a trace.",
   },
   {
     href: "/docs/tati",
     title: "Read the investor pack",
     description:
-      "~15 minutes, fixed order, plain English—start here before depth.",
+      "Plain-English problem, why the model sits at the boundary, and why now—about 15 minutes, fixed order.",
   },
   {
     href: "/docs/decisions/0001-thesis-lock",
     title: "Read Thesis Lock",
     description:
-      "The non‑negotiables: autonomy in thinking, authority in action; receipts; the model is not a trusted principal.",
+      "Autonomy in thinking. Authority in action. The model is not trusted—the boundary is.",
   },
   {
     href: "/docs/strategy/flagship-team-bundle-v1",
-    title: "Review the flagship team bundle",
+    title: "How teams use Jarvis",
     description:
-      "Short read: Alfred scopes, Research grounds, Creative packages—Jarvis approves and records.",
+      "How teams actually use this: proposals, approvals, and recorded outcomes. (Canonical flagship bundle.)",
   },
   {
     href: "/docs/system/full-ecosystem-tree",
     title: "CTRL+STRUM / DEVHOUSE ecosystem",
     description:
-      "Publishing vs build layers, content system, and where Jarvis HUD fits. Context for how the ecosystem scales.",
+      "Where this sits: distribution, builders, and real-world usage context for how the footprint scales.",
   },
 ];
 

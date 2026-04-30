@@ -64,10 +64,11 @@ const PACK: { href: string; title: string; blurb: string; plain: string }[] = [
   },
   {
     href: "/docs/strategy/flagship-team-bundle-v1",
-    title: "4 · Flagship team bundle",
-    blurb: "Alfred scopes, Research grounds, Creative packages—Jarvis is the gate.",
+    title: "4 · Teams: proposals → approvals → proof",
+    blurb:
+      "How real teams hand work across roles without blurring authority—canonical flagship bundle.",
     plain:
-      "~3 minute read—only open if she asks what “agent team” means; not lead material for demos.",
+      "How teams actually use this: proposals, approvals, and recorded outcomes—open when they ask what the “agent team” is.",
   },
 ];
 
@@ -81,6 +82,11 @@ export default function InvestorReadPackPage() {
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-50">
           Investor read pack
         </h1>
+        <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+          <strong className="font-medium text-zinc-300">Why this matters in one line:</strong> most
+          systems log what happened—Jarvis proves who decided, who executed, and what actually
+          occurred.
+        </p>
         <p className="mt-4 text-sm leading-relaxed text-zinc-400">
           About <strong className="text-zinc-300">15 minutes</strong> in order. Same four every time — plus{" "}
           <strong className="text-zinc-300">tomorrow’s rehearsal stack</strong> below.
@@ -140,7 +146,7 @@ export default function InvestorReadPackPage() {
 
         <div className="mt-14 border-t border-zinc-800 pt-10">
           <p className="font-[family-name:var(--font-docs-mono)] text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
-            Canonical 15-minute read (investors)
+            Understand the control plane in ~15 minutes (canonical four)
           </p>
           <p className="mt-2 text-xs text-zinc-500">Same four every time—the depth path after slides.</p>
         </div>

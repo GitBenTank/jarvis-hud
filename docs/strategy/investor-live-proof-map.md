@@ -106,5 +106,5 @@ Exact labels can vary by build; keep the **sequence** consistent: **propose → 
 
 ## Related
 
-- [Investor read pack](./investor-read-pack.md) — canonical 15-minute path  
+- [Investor read pack](./investor-read-pack.md) — control-plane story in ~15 minutes (canonical order)  
 - [Interview prep](../interview-prep-jarvis.md) — full Q&A including **Runtime bypass, production packaging, and risk tiers**

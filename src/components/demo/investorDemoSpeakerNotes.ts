@@ -356,28 +356,56 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 5 · Jarvis — headline Approval ≠ execution — plus proof; subtitle: governs execution, not “manages agents.”",
-      },
-      {
-        kind: "say",
-        text: "Jarvis is the control layer at that boundary: proposal is not the same as run.",
-      },
-      {
-        kind: "say",
-        text: "Nothing should execute by accident through this path—you decide what’s allowed to cross.",
-      },
-      { kind: "say", text: "Agents can propose." },
-      {
-        kind: "say",
-        text: "You decide what runs—and run is a distinct step.",
+        text: "Slide 5 · Jarvis · make-or-break — where the room lands: “okay… this is the answer.” Close the gap toward a lock, not another explanation.",
       },
       {
         kind: "stage",
-        text: "HARD pause — authority moment · ~3 sec · hold still · eye contact · then proof line.",
+        text: "Delivery: slower than slides 3–4 · minimal movement · controlled tone. Beats — slight punch on YOU in “You decide what runs”; HARD pause = stillness; closing proof line slightly lower tone. Stay off stack jargon (“governs execution,” “control plane”) — keep it tangible.",
       },
       {
         kind: "say",
-        text: "And when it does—you get proof of exactly what happened.",
+        text: "Jarvis is the control layer at that boundary.",
+      },
+      {
+        kind: "say",
+        text: "A proposal is not the same as a run.",
+      },
+      {
+        kind: "say",
+        text: "Nothing crosses by accident.",
+      },
+      { kind: "stage", text: "Small pause." },
+      {
+        kind: "say",
+        text: "Agents can propose.",
+      },
+      {
+        kind: "say",
+        text: "You decide what runs.",
+      },
+      {
+        kind: "say",
+        text: "And run is a distinct step.",
+      },
+      {
+        kind: "stage",
+        text: "HARD pause · ~3 sec · hold eye contact · still",
+      },
+      {
+        kind: "say",
+        text: "And when it does—",
+      },
+      {
+        kind: "say",
+        text: "you get proof of exactly what happened.",
+      },
+      {
+        kind: "stage",
+        text: "Then advance · slide 6 handoff:",
+      },
+      {
+        kind: "say",
+        text: "And that creates a simple loop.",
       },
     ],
   },

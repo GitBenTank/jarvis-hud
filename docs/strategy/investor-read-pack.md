@@ -1,7 +1,7 @@
 ---
 title: "Investor read pack — one path, plain English"
 status: living-document
-version: 2.6
+version: 2.7
 category: strategy
 owner: Ben Tankersley
 related:
@@ -22,7 +22,9 @@ related:
 
 **What this is:** For advisors and investors—**why agent systems need a control plane**, in about **15 minutes** reading (fixed order—no reordering slides per meeting).
 
-**Most stacks log what happened.** This path is anchored on **who decided**, **who executed**, and **what actually occurred**.
+**Why now:** As agents begin to take real actions—sending emails, modifying code, triggering APIs—the boundary between **decision** and **execution** becomes the failure point.
+
+**Contrast:** **Most systems log what happened.** Jarvis proves **who decided**, **who executed**, and **what actually occurred**—**at the boundary where failures happen.**
 
 **In plain English:** AI can already touch real rails (mail, code, APIs). The gap isn’t intelligence—it’s **authority at execution** plus **usable proof afterward**. Jarvis sits on that boundary.
 
@@ -41,7 +43,7 @@ related:
 | 1 | [Gener8tor pitch](./gener8tor-pitch.md) | ~5 min | Slide copy + demo beats for investor rooms. |
 | 2 | [Room playbook](./room-playbook-v1.md) | ~3 min | How we show up: restraint, opener, Q&A. |
 | 3 | [Thesis Lock (ADR)](../decisions/0001-thesis-lock.md) | ~4 min | The non‑negotiable rules of the product (law, not marketing). |
-| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~3 min | How teams actually use Jarvis—proposals, approvals, recorded outcomes—not a vague “agent swarm”. |
+| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~3 min | How teams **operate with** Jarvis—proposals, approvals, recorded outcomes—not a vague “agent swarm”. |
 
 ### 1. Gener8tor pitch
 
@@ -67,11 +69,11 @@ related:
 
 ---
 
-### 4. Flagship team bundle *(usage, not internals)*
+### 4. Flagship team bundle *(how teams operate—not feature tour)*
 
 **Technical:** Alfred / Research / Creative roles, proposal ownership, batch semantics, sample flows.
 
-**Plain English:** Real work flows through **proposals**, **human approvals**, and **attributable outcomes**. This doc shows how a small agent team routes work **without** smearing who’s allowed to run what.
+**Plain English:** Real operations run through **proposals**, **human approvals**, and **attributable outcomes**. This doc shows how teams **operate with** Jarvis so work handoffs **do not** smear who’s allowed to run what.
 
 ---
 

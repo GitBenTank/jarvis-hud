@@ -64,11 +64,11 @@ const PACK: { href: string; title: string; blurb: string; plain: string }[] = [
   },
   {
     href: "/docs/strategy/flagship-team-bundle-v1",
-    title: "4 · Teams: proposals → approvals → proof",
+    title: "4 · Teams operate with Jarvis",
     blurb:
-      "How real teams hand work across roles without blurring authority—canonical flagship bundle.",
+      "Proposals → approvals → attributable outcomes—canonical flagship bundle (operations, not slideshow).",
     plain:
-      "How teams actually use this: proposals, approvals, and recorded outcomes—open when they ask what the “agent team” is.",
+      "How teams actually operate: proposals, approvals, recorded outcomes—open when they ask what the “agent team” is.",
   },
 ];
 
@@ -83,9 +83,14 @@ export default function InvestorReadPackPage() {
           Investor read pack
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-          <strong className="font-medium text-zinc-300">Why this matters in one line:</strong> most
-          systems log what happened—Jarvis proves who decided, who executed, and what actually
-          occurred.
+          As agents begin to take real actions—sending emails, modifying code, triggering APIs—the boundary
+          between <strong className="font-medium text-zinc-300">decision</strong> and{" "}
+          <strong className="font-medium text-zinc-300">execution</strong> becomes the failure point.
+        </p>
+        <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+          <strong className="font-medium text-zinc-300">Why this matters in one line:</strong> most systems
+          log what happened—Jarvis proves who decided, who executed, and what actually occurred—
+          <strong className="font-medium text-zinc-300"> at the boundary where failures happen</strong>.
         </p>
         <p className="mt-4 text-sm leading-relaxed text-zinc-400">
           About <strong className="text-zinc-300">15 minutes</strong> in order. Same four every time — plus{" "}

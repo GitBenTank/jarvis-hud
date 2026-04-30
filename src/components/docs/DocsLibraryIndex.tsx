@@ -229,12 +229,16 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
             Documentation
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-[1.75] text-zinc-400">
-            <strong className="font-medium text-zinc-200">
-              Most systems log what happened.
-            </strong>{" "}
-            Jarvis proves who decided, who executed, and what actually occurred. It is the{" "}
-            <strong className="font-medium text-zinc-200">authority layer</strong> for governed AI:
-            agents and tools can propose; <strong className="font-medium text-zinc-200">people</strong>{" "}
+            As agents begin to take real actions—sending emails, modifying code, triggering APIs—the{" "}
+            <strong className="font-medium text-zinc-200">boundary between decision and execution</strong>{" "}
+            becomes the failure point.
+          </p>
+          <p className="mt-4 max-w-2xl text-base leading-[1.75] text-zinc-400">
+            <strong className="font-medium text-zinc-200">Most systems log what happened.</strong> Jarvis
+            proves who decided, who executed, and what actually occurred—
+            <strong className="font-medium text-zinc-200"> at the boundary where failures happen</strong>.
+            It is the <strong className="font-medium text-zinc-200">authority layer</strong> for governed
+            AI: agents and tools can propose; <strong className="font-medium text-zinc-200">people</strong>{" "}
             own approval and execution. Trust comes from proof—not from the model sounding confident.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500">
@@ -258,7 +262,11 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
             Start here — see Jarvis in action
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-[1.7]">
-            A six-slide walkthrough into the live HUD:{" "}
+            <strong className="font-medium text-zinc-300">This is not a simulation. This is a governed action.</strong>
+            <br />
+            <span className="text-zinc-400">
+              Six slides into the live HUD:{" "}
+            </span>
             <strong className="font-medium text-zinc-300">
               Agents propose. Humans approve. Execution is separate.
             </strong>{" "}

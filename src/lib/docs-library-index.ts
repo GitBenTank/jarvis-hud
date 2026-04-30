@@ -309,7 +309,7 @@ export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
     href: "/demo",
     title: "See it live",
     description:
-      "Agents propose. Humans approve. Execution is separate. Every action leaves a receipt and a trace.",
+      "This is not a simulation—this is a governed action. Agents propose. Humans approve. Execution is separate. Every action leaves a receipt and a trace.",
   },
   {
     href: "/docs/tati",
@@ -325,9 +325,9 @@ export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
   },
   {
     href: "/docs/strategy/flagship-team-bundle-v1",
-    title: "How teams use Jarvis",
+    title: "How teams operate with Jarvis",
     description:
-      "How teams actually use this: proposals, approvals, and recorded outcomes. (Canonical flagship bundle.)",
+      "How teams actually operate: proposals, approvals, recorded outcomes. (Canonical flagship bundle.)",
   },
   {
     href: "/docs/system/full-ecosystem-tree",

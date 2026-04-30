@@ -356,11 +356,11 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "Slide 5 · Jarvis · make-or-break — where the room lands: “okay… this is the answer.” Close the gap toward a lock, not another explanation.",
+        text: "This is your make-or-break slide — where the room decides: “okay… this is the answer.” Right now it’s close — make it feel like a lock, not an explanation.",
       },
       {
         kind: "stage",
-        text: "Delivery: slower than slides 3–4 · minimal movement · controlled tone. Beats — slight punch on YOU in “You decide what runs”; HARD pause = stillness; closing proof line slightly lower tone. Stay off stack jargon (“governs execution,” “control plane”) — keep it tangible.",
+        text: "Slide 5 · Jarvis · delivery: slower than slides 3–4 · minimal movement · controlled tone (not excited). Hits: emphasize YOU on “You decide what runs” · HARD pause ~3s — eye contact · don’t move · final proof line slightly lower tone. Anatomy: ‘Nothing crosses by accident’ reads as guarantee; ‘distinct step’ silently carries approval ≠ execution without sounding technical; ‘proof…’ anchors receipts/trace/auditability without saying those words. Investor should land: oh—this fixes it — not interesting architecture. Don’t say aloud: governs execution, control plane, other abstraction — arc is human control → real outcome → proof.",
       },
       {
         kind: "say",

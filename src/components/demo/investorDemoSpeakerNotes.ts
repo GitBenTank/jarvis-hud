@@ -364,11 +364,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
     blocks: [
       {
         kind: "stage",
-        text: "This is your make-or-break slide — where the room decides: “okay… this is the answer.” Right now it’s close — make it feel like a lock, not an explanation.",
-      },
-      {
-        kind: "stage",
-        text: "Slide 5 · Jarvis · delivery: slower than slides 3–4 · minimal movement · controlled tone (not excited). Hits: emphasize YOU on “You decide what runs” · HARD pause ~3s — eye contact · don’t move · final proof line slightly lower tone. Anatomy: ‘Nothing crosses by accident’ reads as guarantee; ‘distinct step’ silently carries approval ≠ execution without sounding technical; ‘proof…’ anchors receipts/trace/auditability without saying those words. Investor should land: oh—this fixes it — not interesting architecture. Don’t say aloud: governs execution, control plane, other abstraction — arc is human control → real outcome → proof.",
+        text: "Slide 5 · Jarvis — lock-in: slower · controlled · punch YOU on ‘You decide what runs’ · HARD pause stay completely still.",
       },
       {
         kind: "say",
@@ -376,7 +372,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "say",
-        text: "A proposal is not the same as a run.",
+        text: "A proposal is not a run.",
       },
       {
         kind: "say",
@@ -393,11 +389,11 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
       },
       {
         kind: "say",
-        text: "And run is a distinct step.",
+        text: "And running it is a separate step.",
       },
       {
         kind: "stage",
-        text: "HARD pause · ~3 sec · hold eye contact · still",
+        text: "HARD pause · ~3 sec · hold eye contact · stay completely still",
       },
       {
         kind: "say",
@@ -407,10 +403,7 @@ export const INVESTOR_SLIDE_SCRIPTS: readonly InvestorSlideScript[] = [
         kind: "say",
         text: "you get proof of exactly what happened.",
       },
-      {
-        kind: "stage",
-        text: "Then advance · slide 6 handoff:",
-      },
+      { kind: "stage", text: "Beat." },
       {
         kind: "say",
         text: "And that creates a simple loop.",

@@ -5,13 +5,17 @@
  * - Warn: heuristic folder mismatch vs content signals; mixed intent.
  *
  * Paths use POSIX `docs/...` (same as repo tree under docs/).
+ *
+ * TODO: Visibility drift checks should wait until visibility has a single source of truth
+ * shared with the docs UI/index policy (`src/lib/docs-library-index.ts` and related).
  */
-/* eslint-env node */
 
 import fs from "node:fs/promises";
 import path from "node:path";
 
 const DOCS_ROOT = path.join(process.cwd(), "docs");
+
+const VERBOSE = process.argv.includes("--verbose") || process.argv.includes("-v");
 
 /** Paths that intentionally break heuristics (hub, cross-cutting, integrations under docs/). */
 const ALLOWLIST = new Set([
@@ -74,6 +78,14 @@ function canonicalDocsPath(relFromDocsRoot) {
   const norm = posixRel(relFromDocsRoot);
   if (norm.startsWith("docs/")) return norm;
   return `docs/${norm}`;
+}
+
+/** Labels first path segment under docs/ — files directly under docs/ resolve to root. */
+function folderIntentLabel(canon) {
+  const inTree = /^docs\/([^/]+)\//.exec(canon);
+  if (inTree) return inTree[1];
+  const rootMd = /^docs\/([^/]+\.md)$/.exec(canon);
+  return rootMd ? "root" : "docs";
 }
 
 const HEURISTICS = [
@@ -258,19 +270,49 @@ function runMultiIntent(txt, canon) {
   return { warn: false, hits };
 }
 
+/** @returns {'correct'|'missing title'|'review suggested'} */
+function placementLine(missingH1, warningCountForFile) {
+  if (missingH1) return "missing title";
+  if (warningCountForFile > 0) return "review suggested";
+  return "correct";
+}
+
 async function main() {
-  let failures = 0;
+  const files = await collectMdFiles(DOCS_ROOT);
+  /** @type {{ file: string, kind: string, detail: string, expected?: string }[]} */
   const warnings = [];
 
-  const files = await collectMdFiles(DOCS_ROOT);
+  /** @type {Map<string, { missingH1: boolean, ws: typeof warnings, intent: string, allowlisted: boolean }>} */
+  const byFile = new Map();
+
+  function ensure(file) {
+    if (!byFile.has(file))
+      byFile.set(file, {
+        missingH1: false,
+        ws: [],
+        intent: folderIntentLabel(file),
+        allowlisted: ALLOWLIST.has(file),
+      });
+    return byFile.get(file);
+  }
+
+  let failures = 0;
+
   for (const rel of files) {
     const fp = path.join(DOCS_ROOT, rel);
     const raw = await fs.readFile(fp, "utf-8");
     const canon = canonicalDocsPath(rel);
+    const st = ensure(canon);
 
     if (!hasMarkdownH1(raw)) {
-      console.error(`❌ Missing Markdown H1 (\`# Title\`): ${canon}`);
+      st.missingH1 = true;
       failures++;
+      const w = {
+        kind: "missing-title",
+        detail: `Missing Markdown H1 (\`# Title\`)`,
+      };
+      warnings.push({ file: canon, ...w });
+      st.ws.push(w);
       continue;
     }
 
@@ -292,43 +334,99 @@ async function main() {
       if (suppress && suppress.test(canon)) {
         continue;
       }
-      warnings.push({
-        file: canon,
+      const w = {
         kind: "misplaced-heuristic",
-        rule: h.id,
-        expected: h.expectedPrefixes.join(" · "),
         detail: `Content matches heuristic "${h.id}".`,
-      });
+        expected: h.expectedPrefixes.join(" · "),
+      };
+      warnings.push({ file: canon, ...w });
+      ensure(canon).ws.push(w);
     }
 
     const mix = runMultiIntent(raw, canon);
     if (mix.warn) {
-      warnings.push({
-        file: canon,
+      const w = {
         kind: "multi-intent",
         detail:
           mix.pair === "many buckets"
             ? `Many intent buckets flagged: ${mix.hits.join(", ")}`
             : `Possible mixed intent (${mix.pair}); split or narrow scope.`,
-      });
+      };
+      warnings.push({ file: canon, ...w });
+      ensure(canon).ws.push(w);
     }
   }
 
-  for (const w of warnings) {
-    console.warn(
-      `⚠ ${w.file}\n   ${w.detail}${w.expected ? `\n   Suggested: ${w.expected}` : ""}`,
-    );
+  if (!VERBOSE) {
+    for (const w of warnings) {
+      if (w.kind === "missing-title") {
+        console.error(`❌ ${w.file}\n   ${w.detail}`);
+      } else {
+        console.warn(
+          `⚠ ${w.file}\n   ${w.detail}${w.expected ? `\n   Suggested: ${w.expected}` : ""}`,
+        );
+      }
+    }
   }
 
-  if (warnings.length === 0 && failures === 0) {
-    console.log(`✅ Docs organization (${files.length} Markdown files under docs/, archive skipped): clean.`);
-  } else if (failures === 0) {
-    console.warn(
-      `⚠ ${warnings.length} warning(s); no hard failures. Add canonical path to ALLOWLIST when intentional.`,
-    );
-  } else {
-    console.error(`❌ ${failures} hard failure(s); fix headings or tighten scope.`);
+  let intentional = 0;
+
+  for (const rel of files) {
+    const canon = canonicalDocsPath(rel);
+    const st = ensure(canon);
+
+    const fileWarnNonH1Count = st.ws.filter((x) => x.kind !== "missing-title")
+      .length;
+
+    const place = placementLine(st.missingH1, fileWarnNonH1Count);
+
+    if (VERBOSE) {
+      const icon = st.missingH1 ? "❌" : fileWarnNonH1Count ? "⚠" : "✅";
+
+      console.log(`${icon} ${canon}`);
+      console.log(`   Intent: ${st.intent}`);
+      console.log(`   Placement: ${place}`);
+      if (!st.missingH1 && fileWarnNonH1Count) {
+        for (const ww of st.ws.filter((x) => x.kind !== "missing-title")) {
+          console.log(`   • ${ww.detail}`);
+        }
+      }
+    }
+
+    if (!st.missingH1 && fileWarnNonH1Count === 0) intentional++;
   }
+
+  /** Count placement vs mixed-intent (excludes missing-title). */
+  const misplacedHeuristicCount = warnings.filter(
+    (w) => w.kind === "misplaced-heuristic",
+  ).length;
+  const mixedIntentCount = warnings.filter(
+    (w) => w.kind === "multi-intent",
+  ).length;
+
+  const headline =
+    failures > 0
+      ? `❌ Docs organization check finished`
+      : `✅ Docs organization check complete`;
+
+  if (VERBOSE || (!VERBOSE && warnings.length > 0)) console.log("");
+  console.log(headline);
+  console.log(`Summary:`);
+  console.log(`- ${files.length} files scanned`);
+  console.log(`- ${failures} failure${failures !== 1 ? "s" : ""}`);
+  console.log(
+    `- ${misplacedHeuristicCount} placement suggestion${misplacedHeuristicCount !== 1 ? "s" : ""}`,
+  );
+  console.log(
+    `- ${mixedIntentCount} mixed-intent warning${mixedIntentCount !== 1 ? "s" : ""}`,
+  );
+  console.log(`- ${intentional} intentional placement${intentional !== 1 ? "s" : ""}`);
+  console.log(`System health: ${failures > 0 ? "ATTENTION" : "GOOD"}`);
+  console.log(
+    VERBOSE
+      ? "Mode: verbose (per-file confirmations above)"
+      : "Mode: quiet (use pnpm lint:docs -- --verbose for per-file detail)",
+  );
 
   process.exit(failures > 0 ? 1 : 0);
 }

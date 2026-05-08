@@ -6,6 +6,7 @@
 **Related:**
 
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
+- [ADR-0006: Governed workflow plans v0.3](../decisions/0006-governed-workflow-plans-v03.md) — **semantics before power**; workflow as authority-boundary sequence
 - [Operator integration phases (0003)](./0003-operator-integration-phases.md) — **Jarvis ↔ OpenClaw integration** sequencing (keep using this for near-term integration work)
 - [v0.2 Golden Loop sprint (0005)](./0005-v02-golden-loop-sprint.md) — CI-backed golden loop + v0.2 definition of done
 - [Agent team contract v1](../strategy/agent-team-contract-v1.md)

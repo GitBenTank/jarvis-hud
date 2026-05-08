@@ -7,6 +7,7 @@
 
 - [Trust, determinism, and integrity signals](../governance/trust-and-determinism.md) — why this sprint exists (philosophy → proof)
 - [Thesis Lock (ADR-0001)](../decisions/0001-thesis-lock.md)
+- [Governed workflow plans v0.3 (ADR-0006)](../decisions/0006-governed-workflow-plans-v03.md) — next slice after v0.2 loop is deterministic (`golden-loop:workflow`)
 - [Operator integration phases (0003)](./0003-operator-integration-phases.md)
 - [Phased platform plan (0004)](./0004-phased-platform-plan.md)
 - [Operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project)

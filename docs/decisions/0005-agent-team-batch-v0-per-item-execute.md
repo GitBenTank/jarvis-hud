@@ -4,7 +4,7 @@ Status: Accepted
 Date: 2026-04-18  
 Owner: Ben Tankersley  
 
-**Related:** [ADR-0001: Thesis Lock](./0001-thesis-lock.md) · [Agent team v1](../strategy/agent-team-v1.md)
+**Related:** [ADR-0001: Thesis Lock](./0001-thesis-lock.md) · [ADR-0006: Governed workflow plans v0.3](./0006-governed-workflow-plans-v03.md) · [Agent team v1](../strategy/agent-team-v1.md)
 
 ---
 

@@ -250,6 +250,8 @@ Jarvis sits between AI agents and system execution:
 | `pnpm test:unit`     | Unit tests                           |
 | `pnpm screenshots:readme` | Regenerate README screenshots (OpenClaw → approval → receipt; seeds `.readme-screenshots-jarvis/`, starts Next on **3099**) |
 
+**`pnpm golden-loop:email`:** Node entrypoint — the parent script only sees `DEMO_EMAIL_*` in the **shell environment**. Values in `.env.local` are not auto-loaded; source first, e.g. `set -a && source .env.local && set +a && DEMO_EMAIL_ENABLED=1 pnpm golden-loop:email`. Full operator notes: [investor demo runbook](docs/video/investor-demo-full-runbook.md).
+
 **Environment:** `env.example` → `.env.local`. OpenClaw: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, `JARVIS_INGRESS_OPENCLAW_SECRET` (≥32 chars), `JARVIS_INGRESS_ALLOWLIST_CONNECTORS=openclaw`. See [docs/setup/env.md](docs/setup/env.md).
 
 ---

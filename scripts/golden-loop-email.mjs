@@ -9,6 +9,9 @@
  *   DEMO_EMAIL_TO=<exact allowlist address — must match src/lib/send-email-constants.ts>
  *   DEMO_EMAIL_USER / DEMO_EMAIL_PASS (Gmail app password) — passed through to the Next server
  *
+ * **Shell env:** This file is a Node entrypoint; it only reads `DEMO_EMAIL_*` from the **shell process**.
+ * If values live in `.env.local`, source before running: `set -a && source .env.local && set +a && DEMO_EMAIL_ENABLED=1 pnpm golden-loop:email`
+ *
  * Usage:
  *   pnpm build
  *   DEMO_EMAIL_ENABLED=1 DEMO_EMAIL_TO=devhousehsv@gmail.com DEMO_EMAIL_USER=… DEMO_EMAIL_PASS=… pnpm golden-loop:email

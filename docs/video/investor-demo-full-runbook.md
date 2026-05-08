@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 2.1
+version: 2.2
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -52,6 +52,8 @@ DEMO_EMAIL_USER="your-account@gmail.com" \
 DEMO_EMAIL_PASS="your-app-password" \
 pnpm golden-loop:email
 ```
+
+**Note:** `pnpm golden-loop:email` is a Node entrypoint. The parent script only sees `DEMO_EMAIL_*` values present in the **shell process environment**. If those values live in `.env.local`, source them first, e.g. `set -a && source .env.local && set +a && DEMO_EMAIL_ENABLED=1 pnpm golden-loop:email`.
 
 The script spawns an isolated `JARVIS_ROOT` under `.golden-loop-tmp/` (like **`pnpm golden-loop`**) and fails if **`providerMessageId`** is missing or replay has no **`send_email`** receipt. **CI does not run this** (no accidental outbound mail).
 

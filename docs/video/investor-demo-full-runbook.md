@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 2.0
+version: 2.1
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -29,7 +29,11 @@ Single place for **boot discipline**, **spoken narrative**, and **camera choreog
 - **One OpenClaw gateway** — no duplicate Homebrew/LaunchAgent gateway fighting the checkout. See [Local stack startup](../setup/local-stack-startup.md).
 - **`jarvis-hud/.env.local`:** `OPENCLAW_CONTROL_UI_URL` matches the real Control UI origin; `JARVIS_HUD_BASE_URL` matches how you open the HUD (don’t mix `localhost` vs `127.0.0.1`); ingress secret; `OPENAI_API_KEY`. For real **`send_email`:** `DEMO_EMAIL_USER` / `DEMO_EMAIL_PASS` — see [DEMO.md](../../DEMO.md).
 
+**Rehearsal milestone (what “done” looks like):** One clean pass **from this doc** through **live proof** — proposal lands, you **approve**, you **execute** as a separate step — then you can point at the **receipt** and **trace** on screen. If you cannot do that end-to-end without improvising, fix the stack or the script before you’re in front of the room.
+
 ### v0.2b — scripted governed email proof (optional rehearsal)
+
+**This is the moment Jarvis proves the difference between approval and execution.** Approving a `send_email` proposal does **not** touch Gmail; nothing crosses the boundary until you click **Execute**. The scripted path below makes that separation **machine-checkable**: ingress → pending → approve → execute → **provider** `providerMessageId` → trace → replay → audit export.
 
 **Source of truth for the automated path** (proposal → approval → execute → **Gmail provider receipt** → trace → replay → audit export):
 

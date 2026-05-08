@@ -41,6 +41,11 @@ export type ActionLogEntry = {
   emailDestination?: string;
   /** SMTP / provider message id when available. */
   providerMessageId?: string;
+  /** workflow.plan child receipts; parent approval id */
+  parentApprovalId?: string;
+  workflowStepIndex?: number;
+  /** workflow.plan parent summary receipt */
+  workflowChildCount?: number;
 };
 
 export async function appendActionLog(entry: ActionLogEntry): Promise<void> {

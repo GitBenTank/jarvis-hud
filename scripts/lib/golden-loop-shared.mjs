@@ -1,9 +1,9 @@
 /**
- * Shared helpers for golden-loop-smoke.mjs and golden-loop-email.mjs.
+ * Shared helpers for golden-loop smoke, email, and workflow scripts.
  */
 
 import { spawn } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, existsSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { postOpenClawIngressWithRetry } from "./openclaw-ingress-fetch.mjs";
@@ -112,7 +112,7 @@ export async function killServer(proc) {
 
 /**
  * Full HTTP chain after server is up.
- * @param {{ baseUrl: string; secret: string; ingressBody: Record<string, unknown>; successLabel: string; fail: (m: string) => void; requireProviderMessageId?: boolean }} opts
+ * @param {{ baseUrl: string; secret: string; ingressBody: Record<string, unknown>; successLabel: string; fail: (m: string) => void; requireProviderMessageId?: boolean; afterReplay?: (ctx: { replayJson: Record<string, unknown>; approvalId: string; traceId: string }) => void | Promise<void> }} opts
  */
 export async function runIngressApproveExecuteTraceExport({
   baseUrl,
@@ -121,6 +121,7 @@ export async function runIngressApproveExecuteTraceExport({
   successLabel,
   fail,
   requireProviderMessageId = false,
+  afterReplay,
 }) {
   const ingRes = await postOpenClawIngressWithRetry(baseUrl, secret, ingressBody, {
     maxAttempts: 5,
@@ -205,6 +206,9 @@ export async function runIngressApproveExecuteTraceExport({
   if (requireProviderMessageId) {
     const hasEmail = replayJson.receipts.some((r) => r && r.kind === "send_email");
     if (!hasEmail) fail("replay: expected a send_email receipt in receipts[]");
+  }
+  if (typeof afterReplay === "function") {
+    await afterReplay({ replayJson, approvalId, traceId });
   }
   console.log("golden-loop: replay OK");
 

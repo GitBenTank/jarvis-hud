@@ -4,6 +4,7 @@
  */
 
 import { parseSendEmailPayload } from "../send-email-constants";
+import { parseWorkflowPlanPayload } from "../workflow-plan";
 
 export type ValidationOk = { ok: true };
 
@@ -424,6 +425,18 @@ export function validateOpenClawProposal(input: {
         code: "bad_request",
         message: `payload.note must be ≤ ${SYSTEM_NOTE_MAX_LEN} chars`,
         field: "payload.note",
+      };
+    }
+  }
+
+  if (kind === "workflow.plan") {
+    const wf = parseWorkflowPlanPayload(o.payload);
+    if (!wf.ok) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: wf.message,
+        field: wf.field,
       };
     }
   }

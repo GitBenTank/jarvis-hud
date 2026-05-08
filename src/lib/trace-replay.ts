@@ -31,6 +31,8 @@ export type TraceReplayResult = {
   policyDecisions: PolicyDecisionEntry[];
   execution: Record<string, unknown> | null;
   receipts: ActionLogEntry[];
+  /** workflow.plan: child receipts linked via parentApprovalId */
+  workflowLineage?: { childReceipts: ActionLogEntry[] };
   reconciliation: ReconciliationEntry[];
 };
 
@@ -179,6 +181,15 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
       }
     : null;
 
+  const workflowLineage =
+    normalized?.kind === "workflow.plan" && proposalEvent
+      ? {
+          childReceipts: receipts.filter(
+            (r) => r.parentApprovalId === proposalEvent.id
+          ),
+        }
+      : undefined;
+
   return {
     traceId: tid,
     dateKey: foundDateKey,
@@ -187,6 +198,7 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
     policyDecisions,
     execution,
     receipts,
+    ...(workflowLineage ? { workflowLineage } : {}),
     reconciliation,
   };
 }

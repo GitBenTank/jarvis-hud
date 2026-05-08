@@ -11,6 +11,7 @@ export const ALLOWED_KINDS = [
   "content.publish",
   "reflection.note",
   "system.note",
+  "workflow.plan",
   "send_email",
   "code.diff",
   "code.apply",
@@ -171,6 +172,11 @@ export function evaluatePreflightPolicy(
   if (config.kind === "send_email") {
     notes.push(
       "Execute sends one real outbound email (demo allowlist) using DEMO_EMAIL_* server credentials."
+    );
+  }
+  if (config.kind === "workflow.plan") {
+    notes.push(
+      "workflow.plan runs an allowlisted sequence after one approval; v0.3 allows only system.note steps with per-step receipts."
     );
   }
   notes.push("Preflight is simulation only. No execution is performed.");

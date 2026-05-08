@@ -553,4 +553,45 @@ describe("validateOpenClawProposal", () => {
     });
     expect(r.ok).toBe(true);
   });
+
+  it("accepts valid workflow.plan with two system.note steps", () => {
+    const body = {
+      kind: "workflow.plan",
+      title: "WF",
+      summary: "Two notes",
+      payload: {
+        steps: [
+          { kind: "system.note", title: "A", summary: "Sa", payload: { note: "n1" } },
+          { kind: "system.note", title: "B", summary: "Sb", payload: { note: "n2" } },
+        ],
+      },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects workflow.plan with one step", () => {
+    const body = {
+      kind: "workflow.plan",
+      title: "WF",
+      summary: "One",
+      payload: {
+        steps: [{ kind: "system.note", title: "A", summary: "S", payload: { note: "n" } }],
+      },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+  });
 });

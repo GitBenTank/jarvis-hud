@@ -9,6 +9,10 @@ import {
   getSystemNoteFilePath,
   getYoutubePackageDir,
 } from "./storage";
+import {
+  childApprovalIdForWorkflowStep,
+  parseWorkflowPlanPayload,
+} from "./workflow-plan";
 
 export type ExecutionScopeTarget = { path: string; label: string };
 
@@ -132,6 +136,15 @@ export function collectExecutionScopeTargets(params: {
         label: "system.note.output",
       },
     ];
+  }
+
+  if (kind === "workflow.plan") {
+    const w = parseWorkflowPlanPayload(payload);
+    if (!w.ok) return [];
+    return w.steps.map((_, i) => ({
+      path: getSystemNoteFilePath(dateKey, childApprovalIdForWorkflowStep(approvalId, i)),
+      label: `workflow.plan.step.${i}`,
+    }));
   }
 
   if (kind === "reflection.note") {

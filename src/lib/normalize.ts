@@ -21,6 +21,19 @@ export function normalizeAction(payload: unknown): {
 
   const p = payload as Record<string, unknown>;
 
+  if (p.kind === "workflow.plan") {
+    const title = String(p.title ?? "(untitled)");
+    const steps = Array.isArray((p as { steps?: unknown }).steps)
+      ? (p as { steps: unknown[] }).steps.length
+      : 0;
+    const suffix = steps > 0 ? ` (${steps} steps)` : "";
+    return {
+      kind: "workflow.plan",
+      summary: `${title}${suffix}`,
+      title,
+    };
+  }
+
   if (p.kind === "system.note") {
     const title = String(p.title ?? "(untitled)");
     return {

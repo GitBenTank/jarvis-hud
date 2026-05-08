@@ -26,3 +26,4 @@ jobs:
       - run: pnpm build
       - run: pnpm test
       - run: pnpm golden-loop
+      - run: pnpm golden-loop:workflow

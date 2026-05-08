@@ -4,6 +4,7 @@
  */
 
 import { SEND_EMAIL_DEMO_ALLOWED_TO } from "./send-email-constants";
+import { parseWorkflowPlanPayload } from "./workflow-plan";
 
 export type ValidationError = {
   code: string;
@@ -257,6 +258,14 @@ export function validateIngressBody(
     });
   }
 
+  if (kind === "workflow.plan" && patch !== undefined) {
+    errors.push({
+      code: "PATCH_NOT_ALLOWED",
+      message: "workflow.plan must not include patch",
+      field: "patch",
+    });
+  }
+
   if (kind === "send_email" && patch !== undefined) {
     errors.push({
       code: "PATCH_NOT_ALLOWED",
@@ -288,6 +297,17 @@ export function validateIngressBody(
           field: "payload.note",
         });
       }
+    }
+  }
+
+  if (kind === "workflow.plan") {
+    const wf = parseWorkflowPlanPayload(o.payload);
+    if (!wf.ok) {
+      errors.push({
+        code: "MISSING_FIELD",
+        message: wf.message,
+        field: wf.field ?? "payload",
+      });
     }
   }
 

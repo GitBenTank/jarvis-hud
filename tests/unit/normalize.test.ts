@@ -93,4 +93,16 @@ describe("normalizeAction", () => {
     expect(result.title).toBe("Add feature");
     expect(result.summary).toBe("Implements feature");
   });
+
+  it("workflow.plan payload: includes step count in summary", () => {
+    const result = normalizeAction({
+      kind: "workflow.plan",
+      title: "My flow",
+      summary: "s",
+      steps: [{}, {}],
+    });
+    expect(result.kind).toBe("workflow.plan");
+    expect(result.title).toBe("My flow");
+    expect(result.summary).toBe("My flow (2 steps)");
+  });
 });

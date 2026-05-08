@@ -21,6 +21,13 @@ function expectedOutputs(kind: string): string[] {
   }
   if (kind === "code.diff") return ["Artifact", "Receipt log entry"];
   if (kind === "system.note") return ["Artifact", "Receipt log entry"];
+  if (kind === "workflow.plan") {
+    return [
+      "Per-step system.note artifacts",
+      "Child receipts + parent workflow receipt",
+      "Reconciliation entries per step",
+    ];
+  }
   if (kind.startsWith("recovery.")) return ["Artifact", "Receipt log entry"];
   if (kind === "reflection.note") return ["Artifact", "Receipt log entry"];
   if (kind === "youtube.package") return ["Artifact", "Receipt log entry"];

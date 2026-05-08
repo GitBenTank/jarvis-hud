@@ -34,6 +34,10 @@ import {
   logExecutionScopeEvent,
 } from "@/lib/execution-scope";
 import { normalizeAction } from "@/lib/normalize";
+import {
+  parseWorkflowPlanPayload,
+  childApprovalIdForWorkflowStep,
+} from "@/lib/workflow-plan";
 import { evaluateExecutePolicy } from "@/lib/policy";
 import {
   reconcileSystemNote,
@@ -219,7 +223,7 @@ export async function POST(
     events[index] = { ...eventRecord, proposalStatus: "executing" };
     await writeJson(filePath, events);
 
-    const executedAt = new Date().toISOString();
+    let executedAt = new Date().toISOString();
     const actionStatus = "executed";
     const channel = normalized.channel ?? "unknown";
 
@@ -300,6 +304,65 @@ export async function POST(
         providerMessageId: emailResult.messageId || undefined,
         actors: receiptActors,
       });
+    } else if (normalized.kind === "workflow.plan") {
+      const planParsed = parseWorkflowPlanPayload(eventRecord.payload);
+      if (!planParsed.ok) {
+        return NextResponse.json(
+          { error: planParsed.message, field: planParsed.field },
+          { status: 400 }
+        );
+      }
+      const steps = planParsed.steps;
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        const childId = childApprovalIdForWorkflowStep(approvalId, i);
+        const stepAt = new Date().toISOString();
+        outputPath = await writeSystemNote({
+          approvalId: childId,
+          dateKey,
+          title: step.title,
+          note: step.note,
+          tags: step.tags,
+          createdAt: stepAt,
+        });
+        await appendActionLog({
+          id: crypto.randomUUID(),
+          traceId,
+          at: stepAt,
+          kind: "system.note",
+          approvalId: childId,
+          parentApprovalId: approvalId,
+          workflowStepIndex: i,
+          status: actionStatus,
+          summary: step.summary,
+          outputPath,
+          actors: receiptActors,
+        });
+        const reconciliation = await reconcileSystemNote({
+          traceId,
+          expected: {
+            kind: "system.note",
+            title: step.title,
+            note: step.note,
+          },
+          observed: { artifactPath: outputPath },
+        });
+        await appendReconciliationLog(reconciliation);
+      }
+      const parentAt = new Date().toISOString();
+      executedAt = parentAt;
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        traceId,
+        at: parentAt,
+        kind: "workflow.plan",
+        approvalId,
+        status: actionStatus,
+        summary: `Workflow completed ${steps.length} step(s)`,
+        workflowChildCount: steps.length,
+        actors: receiptActors,
+      });
+      executionKind = "workflow.plan";
     } else if (normalized.kind === "reflection.note") {
       const p = eventRecord.payload as Record<string, unknown>;
       const sourceKind = String(p.sourceKind ?? "unknown");
@@ -566,6 +629,12 @@ export async function POST(
     if (executionKind === "send_email") {
       response.providerMessageId = sendEmailMessageId ?? "";
       response.emailDestination = sendEmailDestination ?? "";
+    }
+    if (executionKind === "workflow.plan") {
+      const w = parseWorkflowPlanPayload(eventRecord.payload);
+      if (w.ok) {
+        response.workflowStepCount = w.steps.length;
+      }
     }
     return NextResponse.json(response);
   } catch (err) {

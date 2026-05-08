@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — full operator runbook (boot + narration + camera)"
 status: living-document
-version: 2.2
+version: 2.3
 owner: Ben Tankersley
 created: 2026-04-21
 category: video
@@ -258,6 +258,28 @@ Return to **Jarvis HUD**, then say:
 - Speak ~20% slower than feels natural.
 - Pause after “That’s the gap.” and after the “risks become real” beat.
 - One clean emphasis on **independently verified**.
+
+---
+
+## Rehearsal friction log
+
+Rehearsal is **part of the product proof**, not adjacent paperwork. **Human confusion** and **system inconsistency** are often the same failure: the operator’s mental model of **who holds authority** doesn’t match what the surface implies.
+
+After each investor-style run (or dry rehearsal), add a row. **Type** is about **authority comprehension**, not generic UX venting:
+
+| Type | Meaning |
+|------|---------|
+| **wording** | Copy implies the wrong gate or outcome |
+| **sequencing** | Order of steps obscures approve vs execute |
+| **UI visibility** | Proof, state, or lineage hard to find |
+| **mental-model mismatch** | Viewer infers the wrong causal chain |
+| **trust ambiguity** | Unclear whether an action already happened or is still gated |
+
+| Date | Path | Symptom | Type | Severity | Follow-up |
+|------|------|---------|------|----------|-----------|
+| 2026-05-08 | v0.2b | Thought approve already sent the email | wording | medium | Clarify pending state copy |
+
+(Severity: **low** / **medium** / **high** — high = would mis-state Thesis Lock in the room.)
 
 ---
 

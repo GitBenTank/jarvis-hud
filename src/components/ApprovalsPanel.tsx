@@ -89,6 +89,7 @@ type ExecuteResult = {
   noChangesApplied?: boolean;
   providerMessageId?: string;
   emailDestination?: string;
+  workflowStepCount?: number;
 };
 
 type ExecuteError = {
@@ -330,6 +331,7 @@ function DetailModal({
   const isPublish = normalized.kind === "content.publish";
   const isReflection = normalized.kind === "reflection.note";
   const isSystemNote = normalized.kind === "system.note";
+  const isWorkflowPlan = normalized.kind === "workflow.plan";
   const isSendEmail = normalized.kind === "send_email";
   const isCodeDiff = normalized.kind === "code.diff";
   const isCodeApply = normalized.kind === "code.apply";
@@ -339,6 +341,7 @@ function DetailModal({
     isPublish ||
     isReflection ||
     isSystemNote ||
+    isWorkflowPlan ||
     isSendEmail ||
     isCodeDiff ||
     isCodeApply ||
@@ -351,6 +354,7 @@ function DetailModal({
     if (executeLoading) return "Executing…";
     if (executeWillBlock) return "Execution blocked — fix preflight issues";
     if (preflightLoading) return "Checking execution readiness…";
+    if (isWorkflowPlan) return "Execute workflow";
     if (isReflection) return "Execute";
     if (isCodeApply) return "Execute (git commit)";
     if (isSendEmail) return "Execute (send email)";
@@ -553,6 +557,7 @@ function DetailModal({
         {(isPublish ||
           isReflection ||
           isSystemNote ||
+          isWorkflowPlan ||
           isSendEmail ||
           isCodeDiff ||
           isCodeApply ||
@@ -572,6 +577,8 @@ function DetailModal({
                   <strong>Execute (git commit)</strong>
                 ) : isSendEmail ? (
                   <strong>Execute (send email)</strong>
+                ) : isWorkflowPlan ? (
+                  <strong>Execute workflow</strong>
                 ) : (
                   <strong>Execute (dry run)</strong>
                 )}{" "}
@@ -583,6 +590,8 @@ function DetailModal({
                       ? "modifies working tree + creates local git commit + receipts (no pushing)"
                       : isSendEmail
                         ? "sends one allowlisted outbound email + writes receipt JSON + action log entry"
+                      : isWorkflowPlan
+                        ? "runs validated steps sequentially (v0.3: system.note); child + parent receipts"
                       : isCodeDiff
                         ? "writes local diff bundle + action log receipt, no changes applied"
                         : "writes artifact to publish-queue + action log, still no posting"}
@@ -880,13 +889,19 @@ function DetailModal({
               <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution boundary</p>
               <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
                 Approval records human consent. Execute writes artifacts and receipts
-                {isSendEmail ? " (or sends the allowlisted demo email)." : "."}
+                {isSendEmail
+                  ? " (or sends the allowlisted demo email)."
+                  : isWorkflowPlan
+                    ? " for each workflow step plus a parent workflow receipt."
+                    : "."}
               </p>
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               {isSendEmail
                 ? "Execute sends one outbound email using server SMTP credentials; receipt JSON is written under JARVIS_ROOT."
-                : "Execute writes local artifacts + receipts only. It does not post."}
+                : isWorkflowPlan
+                  ? "Execute runs allowlisted steps sequentially (v0.3: system.note only), with per-step and parent receipts."
+                  : "Execute writes local artifacts + receipts only. It does not post."}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:gap-3">
               <button
@@ -908,7 +923,7 @@ function DetailModal({
                   {firstPreflightBlockerLine(preflight)}
                 </p>
               )}
-              {isPublish && <Badge variant="dry_run">DRY RUN</Badge>}
+              {(isPublish || isWorkflowPlan) && <Badge variant="dry_run">DRY RUN</Badge>}
             </div>
           </div>
         )}
@@ -917,7 +932,7 @@ function DetailModal({
           <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/30">
             <p className="font-medium">Execution not supported yet</p>
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Only supported kinds (including send_email, system.note, code.apply, …) can be executed when present in
+              Only supported kinds (including workflow.plan, send_email, system.note, code.apply, …) can be executed when present in
               policy.
             </p>
           </div>
@@ -985,6 +1000,23 @@ function DetailModal({
                   ) : null}
                   <div>
                     <span className="font-medium text-zinc-500">Receipt path:</span>{" "}
+                    <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
+                </div>
+              </>
+            )}
+            {executeResult.kind === "workflow.plan" && (
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  Workflow executed: per-step artifacts and receipts recorded; see trace replay for lineage.
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Steps completed:</span>{" "}
+                    <span className="text-xs">{executeResult.workflowStepCount ?? "—"}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Last step output:</span>{" "}
                     <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
                   </div>
                 </div>

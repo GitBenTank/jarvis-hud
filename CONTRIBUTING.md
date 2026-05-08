@@ -19,6 +19,8 @@ Until a separate production promotion branch exists (e.g. post–Vercel deploy f
 ## Guidelines
 
 - Preserve the project's thesis: agents propose, humans approve, execution is separate, every action leaves proof (receipt + artifact + trace)
+- **Trust must compound faster than capability** — prefer a regression-proof golden loop over new adapters; see [Trust, determinism, and integrity signals](docs/governance/trust-and-determinism.md)
+- **New execution kinds / adapters:** inventory row, risk tier, receipt + trace linkage, tests, and (when the CI E2E chain exists) proof through that chain — same doc
 - Follow existing code style and patterns
 - Add tests for new behavior where appropriate
 - Do not commit secrets; use `env.example` as reference for env vars

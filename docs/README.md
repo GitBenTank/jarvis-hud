@@ -28,6 +28,7 @@ Then **`pnpm machine-wired`**, **`pnpm local:stack:doctor`**, and (when exercisi
 | **Investor or advisor** | **Start:** `/docs/tati` or [investor-read-pack.md](strategy/investor-read-pack.md) — one path, plain-English glosses, ~15 min. Then [Demo](/demo). Deeper: [Gener8tor pitch](strategy/gener8tor-pitch.md) · [90s proof](video/90s-proof-demo.md) |
 | **Technical diligence** | [Thesis Lock ADR](decisions/0001-thesis-lock.md) · [System overview](architecture/jarvis-openclaw-system-overview.md) · [Security model](architecture/security-model.md) |
 | **Operator / building locally** | [Operators — start here](#operators--start-here) · [Local stack startup](setup/local-stack-startup.md) · [Operator checklist](setup/openclaw-jarvis-operator-checklist.md) |
+| **Maintainers — trust vs capability** | [Trust, determinism, and integrity signals](governance/trust-and-determinism.md) — golden loop, integrity signals, adapter gate |
 
 ---
 
@@ -64,6 +65,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Heartbeat cost / cron check-ins | [OpenClaw heartbeat & cron policy](setup/openclaw-heartbeat-cron-policy.md) |
 | Full narrative spec | [Video thesis](strategy/jarvis-hud-video-thesis.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
+| Trust compounding, integrity signals, new adapters | [Trust and determinism](governance/trust-and-determinism.md) |
 | Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |
 | Multi-agent + Jarvis boundary | [Agent team contract v1](strategy/agent-team-contract-v1.md) — **read this first** among agent docs |
 | First composable team (Alfred + Research + Creative) | [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md) · operators: [proposal shapes & grep anchors](architecture/flagship-proposal-shape-examples-v1.md) |

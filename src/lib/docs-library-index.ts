@@ -208,6 +208,7 @@ function categorize(segments: string[]): CategoryId {
     case "security":
       return "security";
     case "decisions":
+    case "governance":
     case "roadmap":
       return "product";
     case "video":

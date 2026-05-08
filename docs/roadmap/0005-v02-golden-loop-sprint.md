@@ -111,7 +111,7 @@ Fill rows during this sprint; align with [platform plan § core rule](./0004-pha
 
 Steps exercised: signed ingress → pending → approve → execute → `GET /api/traces/:traceId` → `GET /api/traces/:traceId/replay` → `GET /api/audit/export` (today’s `dateKey`).
 
-**v0.2b:** extend the same harness for `send_email` only when demo-safe env is defined (later).
+**v0.2b:** **`pnpm golden-loop:email`** — gated (`DEMO_EMAIL_ENABLED=1`, `DEMO_EMAIL_TO` = code allowlist, `DEMO_EMAIL_USER` / `DEMO_EMAIL_PASS`); asserts **provider `providerMessageId`**, **`send_email`** replay receipt, and audit export. **Not** run in CI. Operator source of truth: [Investor demo full runbook](../video/investor-demo-full-runbook.md).
 
 **Bar:** Fails CI if the golden loop breaks — not a manual-only demo script.
 

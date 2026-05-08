@@ -29,6 +29,45 @@ Single place for **boot discipline**, **spoken narrative**, and **camera choreog
 - **One OpenClaw gateway** — no duplicate Homebrew/LaunchAgent gateway fighting the checkout. See [Local stack startup](../setup/local-stack-startup.md).
 - **`jarvis-hud/.env.local`:** `OPENCLAW_CONTROL_UI_URL` matches the real Control UI origin; `JARVIS_HUD_BASE_URL` matches how you open the HUD (don’t mix `localhost` vs `127.0.0.1`); ingress secret; `OPENAI_API_KEY`. For real **`send_email`:** `DEMO_EMAIL_USER` / `DEMO_EMAIL_PASS` — see [DEMO.md](../../DEMO.md).
 
+### v0.2b — scripted governed email proof (optional rehearsal)
+
+**Source of truth for the automated path** (proposal → approval → execute → **Gmail provider receipt** → trace → replay → audit export):
+
+1. **`pnpm build`** (production bundle — same bar as v0.2a).
+2. Export gates **and** Gmail app-password creds for **one** allowlisted address (`SEND_EMAIL_DEMO_ALLOWED_TO` in `src/lib/send-email-constants.ts`; must match **`DEMO_EMAIL_TO`** exactly):
+   - `DEMO_EMAIL_ENABLED=1`
+   - `DEMO_EMAIL_TO=devhousehsv@gmail.com`
+   - `DEMO_EMAIL_USER` / `DEMO_EMAIL_PASS`
+3. Run:
+
+```bash
+cd ~/Documents/jarvis-hud
+DEMO_EMAIL_ENABLED=1 \
+DEMO_EMAIL_TO=devhousehsv@gmail.com \
+DEMO_EMAIL_USER="your-account@gmail.com" \
+DEMO_EMAIL_PASS="your-app-password" \
+pnpm golden-loop:email
+```
+
+The script spawns an isolated `JARVIS_ROOT` under `.golden-loop-tmp/` (like **`pnpm golden-loop`**) and fails if **`providerMessageId`** is missing or replay has no **`send_email`** receipt. **CI does not run this** (no accidental outbound mail).
+
+**Attach to your already-running `pnpm dev`** (uses your real `~/jarvis` data — operator choice):
+
+```bash
+GOLDEN_LOOP_USE_EXISTING=1 \
+JARVIS_HUD_BASE_URL=http://127.0.0.1:3000 \
+JARVIS_INGRESS_OPENCLAW_SECRET="…from .env.local…" \
+DEMO_EMAIL_ENABLED=1 \
+DEMO_EMAIL_TO=devhousehsv@gmail.com \
+DEMO_EMAIL_USER="…" \
+DEMO_EMAIL_PASS="…" \
+pnpm golden-loop:email
+```
+
+(requires the dev server process to already have **`DEMO_EMAIL_*`** in `.env.local` so execute can send.)
+
+**Narrow demo narrative:** [90s proof demo](./90s-proof-demo.md) should stay short; mirror this block there later when the 90s script cites real email.
+
 ---
 
 ## Boot (two terminals)

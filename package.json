@@ -20,6 +20,7 @@
     "demo:proof": "node scripts/demo-proof.mjs",
     "ingress:smoke": "node scripts/ingress-smoke.mjs",
     "golden-loop": "node scripts/golden-loop-smoke.mjs",
+    "golden-loop:email": "node scripts/golden-loop-email.mjs",
     "golden-loop:verify": "node -e \"try{require('node:fs').rmSync('.next',{recursive:true,force:true})}catch{}\" && pnpm build && pnpm golden-loop",
     "jarvis:submit": "tsx scripts/jarvis-submit.ts",
     "rehearsal:preflight": "pnpm machine-wired && pnpm auth-posture",

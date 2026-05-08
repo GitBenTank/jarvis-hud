@@ -18,6 +18,8 @@ related:
 
 **Before recording:** Complete the [OpenClaw ↔ Jarvis operator sprint](../setup/openclaw-jarvis-operator-sprint.md) exit criteria so the loop is real on camera—not a one-off lucky run.
 
+**Governed real email (v0.2b rehearsal, optional):** One-shot **`pnpm golden-loop:email`** with explicit env gates—full operator steps and safety: [Investor demo — full runbook](./investor-demo-full-runbook.md). This 90s doc stays on **`system.note`** or generic lifecycle unless you intentionally add the inbox beat.
+
 ---
 
 ## Scene 1 — Setup (10s)

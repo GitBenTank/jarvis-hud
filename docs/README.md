@@ -66,6 +66,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Full narrative spec | [Video thesis](strategy/jarvis-hud-video-thesis.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Trust compounding, integrity signals, new adapters | [Trust and determinism](governance/trust-and-determinism.md) |
+| v0.2 — golden loop sprint (determinism bar) | [0005 Golden Loop](roadmap/0005-v02-golden-loop-sprint.md) |
 | Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |
 | Multi-agent + Jarvis boundary | [Agent team contract v1](strategy/agent-team-contract-v1.md) — **read this first** among agent docs |
 | First composable team (Alfred + Research + Creative) | [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md) · operators: [proposal shapes & grep anchors](architecture/flagship-proposal-shape-examples-v1.md) |

@@ -8,6 +8,7 @@ related:
   - ../decisions/0001-thesis-lock.md
   - ../strategy/operating-assumptions.md
   - ../roadmap/0004-phased-platform-plan.md
+  - ../roadmap/0005-v02-golden-loop-sprint.md
   - ../../src/lib/proposal-lifecycle.ts
 ---
 
@@ -94,10 +95,28 @@ Incremental work should **map new states onto existing stored shapes** so on-dis
 
 ---
 
+## What Jarvis does NOT guarantee
+
+Jarvis **governs authority transfer and traceability within its boundary** (propose → approve → execute → receipt → trace/export for actions that go through it). It does **not** solve every class of trust or safety problem. Operators, buyers, and integrators should not over-read the control plane.
+
+| Jarvis does **not** | Implication |
+|---------------------|-------------|
+| **Prevent all out-of-band execution** | Agents, shells, IDEs, or other systems can still mutate the world outside Jarvis. Capability layers (e.g. OpenClaw) remain **capability** unless wired to route mutations through Jarvis. |
+| **Infer trust from runtime behavior alone** | “Behaved well last time” is not a cryptographic or policy proof. Trust comes from **explicit gates**, **receipts**, and **replayable evidence** inside the boundary. |
+| **Make models principals** | [Thesis Lock](../decisions/0001-thesis-lock.md): the model is not a trusted principal. Humans and policy hold authority; proposals are **untrusted input** until validated and gated. |
+| **Guarantee correctness of proposals** | Jarvis can validate shape and policy; it does not guarantee semantic truth, intent alignment, or absence of manipulation in proposal content. |
+| **Guarantee a hermetic environment** | Misconfigured origins, duplicate gateways, leaked ingress secrets, or mixed state dirs degrade integrity — see **Integrity signals** above. Jarvis surfaces many of these; it cannot fix operator mistakes it never sees. |
+| **Replace legal, compliance, or organizational policy** | Audit exports and traces support **evidence**; they do not by themselves satisfy regulatory programs without organizational process mapping. |
+
+**In one line:** Jarvis governs **authority and evidence** for actions that flow through it; it does not govern **all intelligence** or **all execution** on a machine or in an organization.
+
+---
+
 ## Related
 
 - [Video thesis / Thesis Lock](../strategy/jarvis-hud-video-thesis.md)  
 - [Operating assumptions](../strategy/operating-assumptions.md)  
 - [Phased platform plan](../roadmap/0004-phased-platform-plan.md)  
 - [Operator integration phases](../roadmap/0003-operator-integration-phases.md)  
+- [v0.2 Golden Loop sprint](../roadmap/0005-v02-golden-loop-sprint.md)  
 - [Security model](../architecture/security-model.md)  

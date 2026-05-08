@@ -16,6 +16,8 @@
 - [Creative batch workflow v1 (Phase 5)](../strategy/creative-batch-workflow-v1.md)
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 - [ADR-0005: Batch v0, per-item execute](../decisions/0005-agent-team-batch-v0-per-item-execute.md)
+- [Trust, determinism, integrity signals](../governance/trust-and-determinism.md)
+- [v0.2 Golden Loop sprint (0005)](./0005-v02-golden-loop-sprint.md) — operational proof of the governed path
 - [Phased platform plan (0004)](./0004-phased-platform-plan.md) — broader **platform growth** (agent productization, enterprise, UI, GTM); this doc stays **integration- and operator-focused**
 
 ---

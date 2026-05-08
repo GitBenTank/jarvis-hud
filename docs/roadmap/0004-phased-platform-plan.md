@@ -7,6 +7,7 @@
 
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 - [Operator integration phases (0003)](./0003-operator-integration-phases.md) — **Jarvis ↔ OpenClaw integration** sequencing (keep using this for near-term integration work)
+- [v0.2 Golden Loop sprint (0005)](./0005-v02-golden-loop-sprint.md) — CI-backed golden loop + v0.2 definition of done
 - [Agent team contract v1](../strategy/agent-team-contract-v1.md)
 - [Flagship team bundle v1](../strategy/flagship-team-bundle-v1.md)
 - [Master plan](./0000-master-plan.md)

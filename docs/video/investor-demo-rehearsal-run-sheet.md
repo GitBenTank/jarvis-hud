@@ -1,7 +1,7 @@
 ---
 title: "Investor demo — rehearsal run sheet (operator)"
 status: living-document
-version: 1.1
+version: 1.2
 owner: Ben Tankersley
 category: video
 related:
@@ -80,6 +80,8 @@ related:
 ---
 
 ## 5) After one full dry run
+
+After each rehearsal, add a row to the **Rehearsal friction log** in the [full runbook](./investor-demo-full-runbook.md#rehearsal-friction-log).
 
 Write down: where you **rushed**, where you **talked over proof**, and any **jargon** you reached for. That list is the next rehearsal’s only agenda.
 

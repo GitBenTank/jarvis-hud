@@ -80,6 +80,30 @@ export type TraceAction = {
   repoHeadBefore?: string | null;
   repoHeadAfter?: string | null;
   actors?: ReceiptActors;
+  /** workflow.plan child receipts link to parent approval id */
+  parentApprovalId?: string;
+  workflowStepIndex?: number;
+  workflowChildCount?: number;
+};
+
+export type TraceWorkflowLineage = {
+  parentApprovalId: string;
+  narrative: string;
+  steps: Array<{
+    stepIndex: number;
+    kind: string;
+    summary: string;
+    childApprovalId: string;
+    outputPath?: string;
+    at: string;
+  }>;
+  parentReceipt: {
+    kind: string;
+    at: string;
+    summary: string;
+    approvalId: string;
+    workflowChildCount?: number;
+  } | null;
 };
 
 export type TracePolicyDecision = {
@@ -126,6 +150,8 @@ export type TraceResponse = {
   executionOutcome?: TraceExecutionOutcome;
   /** Persisted approval-time preflight; absent on older traces. */
   approvalPreflightSnapshot?: ApprovalPreflightSnapshotRecord | null;
+  /** workflow.plan: parent approval vs sequential step receipts (v0.3). */
+  workflowLineage?: TraceWorkflowLineage;
 };
 
 type TraceContextValue = {

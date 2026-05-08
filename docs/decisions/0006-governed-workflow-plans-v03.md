@@ -76,6 +76,44 @@ Skipping order trades **authority clarity** for **demo velocity** and is treated
 
 ---
 
+## `workflow.plan` ingress shape (v0.3)
+
+One **proposal** (`kind: workflow.plan`) wraps **steps** executed sequentially after a single approval + execute. Each step is a governed receipt; the parent approval id ties children via `parentApprovalId` on child receipts (suffix `…__wf_<i>`).
+
+Illustrative ingress body (OpenClaw-signed POST, two `system.note` steps only):
+
+```json
+{
+  "kind": "workflow.plan",
+  "title": "My workflow",
+  "summary": "Two internal notes",
+  "payload": {
+    "steps": [
+      {
+        "kind": "system.note",
+        "title": "Step 1",
+        "summary": "First",
+        "payload": { "note": "Body 1" }
+      },
+      {
+        "kind": "system.note",
+        "title": "Step 2",
+        "summary": "Second",
+        "payload": { "note": "Body 2" }
+      }
+    ]
+  },
+  "agent": "coordinator",
+  "source": { "connector": "openclaw" }
+}
+```
+
+**Replay / trace:** `GET /api/traces/{traceId}/replay` includes `workflowLineage`: narrative, ordered `steps`, and `parentReceipt`. Live trace `GET /api/traces/{traceId}` includes the same operator-facing fields (without duplicating raw `childReceipts` in the JSON).
+
+**Limits (current):** 2–6 steps; each step `kind` must be `system.note`; unknown keys on step objects are rejected.
+
+---
+
 ## Drift warning
 
 If marketing or implementation begins describing Jarvis as an **AI workflow runner**, revisit this ADR against [Thesis Lock](./0001-thesis-lock.md) and [Trust and determinism](../governance/trust-and-determinism.md). The fix is to narrow scope or add governed artifacts — not to redefine approval.

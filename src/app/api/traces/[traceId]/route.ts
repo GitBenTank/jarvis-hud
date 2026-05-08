@@ -13,6 +13,7 @@ import { getReasonDetail, reasonFromPolicyReason, type ReasonDetail } from "@/li
 import { deriveTraceExecutionOutcome, sortEventsForPrimaryEvent } from "@/lib/execution-truth";
 import { findApprovalPreflightSnapshot } from "@/lib/approval-preflight-snapshot-store";
 import type { ApprovalPreflightSnapshotRecord } from "@/lib/approval-preflight-snapshot-shared";
+import { computeWorkflowLineage } from "@/lib/trace-replay";
 
 type StoredEvent = {
   id: string;
@@ -507,6 +508,22 @@ export async function GET(
       })
     : undefined;
 
+  let workflowLineagePayload: {
+    parentApprovalId: string;
+    narrative: string;
+    steps: ReturnType<typeof computeWorkflowLineage>["steps"];
+    parentReceipt: ReturnType<typeof computeWorkflowLineage>["parentReceipt"];
+  } | undefined;
+  if (primaryEventForOutcome?.kind === "workflow.plan") {
+    const full = computeWorkflowLineage(actionsWithVerification, primaryEventForOutcome.id);
+    workflowLineagePayload = {
+      parentApprovalId: full.parentApprovalId,
+      narrative: full.narrative,
+      steps: full.steps,
+      parentReceipt: full.parentReceipt,
+    };
+  }
+
   let approvalPreflightSnapshot: ApprovalPreflightSnapshotRecord | null = null;
   if (primaryEventForOutcome) {
     approvalPreflightSnapshot = await findApprovalPreflightSnapshot(
@@ -526,5 +543,6 @@ export async function GET(
     pipeline,
     executionOutcome,
     approvalPreflightSnapshot,
+    ...(workflowLineagePayload ? { workflowLineage: workflowLineagePayload } : {}),
   });
 }

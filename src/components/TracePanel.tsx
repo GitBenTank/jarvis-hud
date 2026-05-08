@@ -11,6 +11,7 @@ import { TRACE_SCAN_DAY_WINDOW } from "@/lib/trace-constants";
 import type { ReceiptActors } from "@/lib/actor-identity";
 import ApprovalTimePreflightSnapshotSection from "./ApprovalTimePreflightSnapshotSection";
 import { buildDecisionReplayLine } from "@/lib/decision-replay";
+import type { TraceWorkflowLineage } from "@/context/TraceContext";
 import {
   deriveTraceExecutionOutcome,
   type TraceExecutionOutcome,
@@ -82,6 +83,9 @@ type TraceAction = {
   repoHeadBefore?: string | null;
   repoHeadAfter?: string | null;
   actors?: ReceiptActors;
+  parentApprovalId?: string;
+  workflowStepIndex?: number;
+  workflowChildCount?: number;
 };
 
 type TracePolicyDecision = {
@@ -109,6 +113,7 @@ type TraceResponse = {
   artifactPaths: string[];
   executionOutcome?: TraceExecutionOutcome;
   approvalPreflightSnapshot?: ApprovalPreflightSnapshotRecord | null;
+  workflowLineage?: TraceWorkflowLineage;
 };
 
 /** Replay API response — reconstructs trace from action, policy, reconciliation logs */
@@ -159,6 +164,7 @@ type TraceReplayResult = {
   execution: Record<string, unknown> | null;
   receipts: TraceAction[];
   reconciliation: TraceReconciliation[];
+  workflowLineage?: TraceWorkflowLineage & { childReceipts?: TraceAction[] };
 };
 
 /** Transform replay result into TraceResponse shape for UI consistency */
@@ -242,6 +248,14 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
     artifactPaths,
     executionOutcome,
     approvalPreflightSnapshot: null,
+    workflowLineage: raw.workflowLineage
+      ? {
+          parentApprovalId: raw.workflowLineage.parentApprovalId,
+          narrative: raw.workflowLineage.narrative,
+          steps: raw.workflowLineage.steps,
+          parentReceipt: raw.workflowLineage.parentReceipt,
+        }
+      : undefined,
   };
 }
 
@@ -1674,6 +1688,43 @@ export default function TracePanel() {
                   </button>
                 </div>
               )}
+            </div>
+          )}
+
+          {dataSource.workflowLineage && (
+            <div className="rounded border border-indigo-200 bg-indigo-50/90 px-3 py-2 dark:border-indigo-900/50 dark:bg-indigo-950/35">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-indigo-800 dark:text-indigo-300">
+                Workflow lineage · parent → steps
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-800 dark:text-zinc-200">
+                {dataSource.workflowLineage.narrative}
+              </p>
+              <ol className="mt-2 list-decimal space-y-2 pl-4 text-xs text-zinc-800 dark:text-zinc-200">
+                {dataSource.workflowLineage.steps.map((s) => (
+                  <li key={s.childApprovalId}>
+                    <span className="font-semibold">Step {s.stepIndex + 1}</span> · {s.kind} · {s.summary}
+                    <div className="mt-0.5 font-mono text-[10px] leading-snug text-zinc-600 dark:text-zinc-400">
+                      Child approval: {s.childApprovalId}
+                      {s.outputPath
+                        ? ` · output …/${s.outputPath.split("/").filter(Boolean).slice(-2).join("/")}`
+                        : null}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              {dataSource.workflowLineage.parentReceipt ? (
+                <div className="mt-3 border-t border-indigo-200 pt-2 text-xs dark:border-indigo-800">
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">Parent receipt</span> (
+                  {dataSource.workflowLineage.parentReceipt.kind}):{" "}
+                  {dataSource.workflowLineage.parentReceipt.summary}
+                  <div className="mt-0.5 font-mono text-[10px] text-zinc-600 dark:text-zinc-400">
+                    Parent approval id: {dataSource.workflowLineage.parentReceipt.approvalId}
+                    {typeof dataSource.workflowLineage.parentReceipt.workflowChildCount === "number"
+                      ? ` · ${dataSource.workflowLineage.parentReceipt.workflowChildCount} step(s)`
+                      : null}
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
 

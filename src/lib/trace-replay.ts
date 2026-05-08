@@ -23,18 +23,78 @@ import { readReconciliationByTraceId, type ReconciliationEntry } from "./reconci
 import { normalizeAction } from "./normalize";
 import type { ActorFieldsOnEvent } from "./actor-identity";
 
-export type TraceReplayResult = {
-  traceId: string;
-  dateKey: string | null;
-  proposal: Record<string, unknown> | null;
-  approval: Record<string, unknown> | null;
-  policyDecisions: PolicyDecisionEntry[];
-  execution: Record<string, unknown> | null;
-  receipts: ActionLogEntry[];
-  /** workflow.plan: child receipts linked via parentApprovalId */
-  workflowLineage?: { childReceipts: ActionLogEntry[] };
-  reconciliation: ReconciliationEntry[];
+/** One governed workflow step (child receipt) for replay/export readability. */
+export type WorkflowReplayStepSummary = {
+  stepIndex: number;
+  kind: string;
+  summary: string;
+  childApprovalId: string;
+  outputPath?: string;
+  at: string;
 };
+
+export type WorkflowParentReceiptSummary = {
+  kind: string;
+  at: string;
+  summary: string;
+  approvalId: string;
+  workflowChildCount?: number;
+};
+
+export type WorkflowReplayLineage = {
+  parentApprovalId: string;
+  /** Operator-facing explanation (v0.3 truth test: parent vs step receipts). */
+  narrative: string;
+  steps: WorkflowReplayStepSummary[];
+  parentReceipt: WorkflowParentReceiptSummary | null;
+  /** Child receipts sorted by workflowStepIndex (same data as steps). */
+  childReceipts: ActionLogEntry[];
+};
+
+/**
+ * Derive workflow parent → step lineage from action log receipts (replay or live).
+ */
+export function computeWorkflowLineage(
+  receiptsSorted: ActionLogEntry[],
+  parentApprovalId: string
+): WorkflowReplayLineage {
+  const childReceipts = receiptsSorted
+    .filter((r) => r.parentApprovalId === parentApprovalId)
+    .sort((a, b) => (a.workflowStepIndex ?? 0) - (b.workflowStepIndex ?? 0));
+  const parentRec =
+    receiptsSorted.find(
+      (r) => r.approvalId === parentApprovalId && r.kind === "workflow.plan"
+    ) ?? null;
+  const steps: WorkflowReplayStepSummary[] = childReceipts.map((r) => ({
+    stepIndex: r.workflowStepIndex ?? 0,
+    kind: r.kind,
+    summary: r.summary,
+    childApprovalId: r.approvalId,
+    outputPath: r.outputPath,
+    at: r.at,
+  }));
+  const n = steps.length;
+  const narrative =
+    n === 0
+      ? `workflow.plan: parent approval ${parentApprovalId} has no child step receipts in this trace (unexpected after successful execute).`
+      : `workflow.plan: one human approval (${parentApprovalId}) covered ${n} sequential governed step(s). Each step has its own receipt (child id …__wf_<i>); the closing receipt is the parent workflow row.`;
+
+  return {
+    parentApprovalId,
+    narrative,
+    steps,
+    parentReceipt: parentRec
+      ? {
+          kind: parentRec.kind,
+          at: parentRec.at,
+          summary: parentRec.summary,
+          approvalId: parentRec.approvalId,
+          workflowChildCount: parentRec.workflowChildCount,
+        }
+      : null,
+    childReceipts,
+  };
+}
 
 type StoredEvent = {
   id: string;
@@ -60,6 +120,18 @@ type StoredEvent = {
   provider?: string;
   model?: string;
 } & Partial<ActorFieldsOnEvent>;
+
+export type TraceReplayResult = {
+  traceId: string;
+  dateKey: string | null;
+  proposal: Record<string, unknown> | null;
+  approval: Record<string, unknown> | null;
+  policyDecisions: PolicyDecisionEntry[];
+  execution: Record<string, unknown> | null;
+  receipts: ActionLogEntry[];
+  workflowLineage?: WorkflowReplayLineage;
+  reconciliation: ReconciliationEntry[];
+};
 
 /**
  * Assemble a trace replay from action, policy, and reconciliation logs plus events.
@@ -183,11 +255,7 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
 
   const workflowLineage =
     normalized?.kind === "workflow.plan" && proposalEvent
-      ? {
-          childReceipts: receipts.filter(
-            (r) => r.parentApprovalId === proposalEvent.id
-          ),
-        }
+      ? computeWorkflowLineage(receipts, proposalEvent.id)
       : undefined;
 
   return {

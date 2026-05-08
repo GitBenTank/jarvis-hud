@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { parseWorkflowPlanPayload } from "@/lib/workflow-plan";
+import { workflowStepBoundaryLabel } from "@/lib/workflow-step-boundary";
 import { normalizeAction } from "@/lib/normalize";
 import {
   isApprovedAwaitingExecution,
@@ -150,12 +152,41 @@ function proposalStatusToLabel(s: ProposalStatus): string {
   return labels[s] ?? s.toUpperCase();
 }
 
-function LifecycleStatusBadge({ event }: { event: Event }) {
-  const n = normalizeProposalLifecycle(event);
-  return <Badge variant={proposalStatusToVariant(n.proposalStatus)}>{proposalStatusToLabel(n.proposalStatus)}</Badge>;
+/** Operator-facing workflow lifecycle — unmistakable parent vs step state (not raw enum names). */
+function workflowPlanStatusOperatorLabel(s: ProposalStatus): string {
+  switch (s) {
+    case "pending_approval":
+    case "proposed":
+    case "validated":
+      return "Workflow · awaiting approval";
+    case "approved":
+      return "Workflow · approved · steps not run yet";
+    case "executing":
+      return "Workflow · running steps";
+    case "executed":
+      return "Workflow · completed";
+    case "failed":
+      return "Workflow · failed";
+    case "rejected":
+      return "Workflow · denied";
+    case "archived":
+      return "Workflow · archived";
+    default:
+      return `Workflow · ${proposalStatusToLabel(s)}`;
+  }
 }
 
-function LifecycleTimestamps({ event }: { event: Event }) {
+function LifecycleStatusBadge({ event }: { event: Event }) {
+  const n = normalizeProposalLifecycle(event);
+  const na = normalizeAction(event.payload);
+  const isWorkflow = na.kind === "workflow.plan";
+  const label = isWorkflow
+    ? workflowPlanStatusOperatorLabel(n.proposalStatus)
+    : proposalStatusToLabel(n.proposalStatus);
+  return <Badge variant={proposalStatusToVariant(n.proposalStatus)}>{label}</Badge>;
+}
+
+function LifecycleTimestamps({ event, workflowPlan }: { event: Event; workflowPlan?: boolean }) {
   const n = normalizeProposalLifecycle(event);
   return (
     <>
@@ -171,7 +202,9 @@ function LifecycleTimestamps({ event }: { event: Event }) {
       )}
       {n.executedAt && (
         <div>
-          <dt className="font-medium text-zinc-500">Executed successfully</dt>
+          <dt className="font-medium text-zinc-500">
+            {workflowPlan ? "Workflow completed (last receipt time)" : "Executed successfully"}
+          </dt>
           <dd>{n.executedAt}</dd>
         </div>
       )}
@@ -349,12 +382,17 @@ function DetailModal({
   const blockedForEvent = executeError?.approvalId === event.id;
   const youtubeTagCount = isYouTube ? getYoutubeTagCount(event.payload) : null;
   const batchCtx = getProposalBatchItemContextFromEvent(event);
+  const workflowPlanParsed = useMemo(() => {
+    if (!isWorkflowPlan) return null;
+    return parseWorkflowPlanPayload(event.payload);
+  }, [isWorkflowPlan, event.payload]);
+  const workflowLifecycle = useMemo(() => normalizeProposalLifecycle(event), [event]);
 
   const executeButtonLabel = (() => {
     if (executeLoading) return "Executing…";
     if (executeWillBlock) return "Execution blocked — fix preflight issues";
     if (preflightLoading) return "Checking execution readiness…";
-    if (isWorkflowPlan) return "Execute workflow";
+    if (isWorkflowPlan) return "Execute workflow (all steps)";
     if (isReflection) return "Execute";
     if (isCodeApply) return "Execute (git commit)";
     if (isSendEmail) return "Execute (send email)";
@@ -378,7 +416,9 @@ function DetailModal({
         aria-modal="true"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Approval details</h2>
+          <h2 className="text-lg font-semibold">
+            {isWorkflowPlan ? "Workflow approval" : "Approval details"}
+          </h2>
           <button
             onClick={onClose}
             className="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700"
@@ -387,19 +427,92 @@ function DetailModal({
           </button>
         </div>
 
+        {isWorkflowPlan && (
+          <div className="mb-3 rounded border border-indigo-200 bg-indigo-50/95 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-zinc-200">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-indigo-800 dark:text-indigo-300">
+              Workflow · one approval, many governed steps
+            </div>
+            <ul className="mt-2 list-inside list-disc space-y-1.5 text-zinc-700 dark:text-zinc-300">
+              <li>
+                <strong>Approve</strong> never runs anything. It only records that you accept this{" "}
+                <em>whole plan</em> under the parent proposal id above.
+              </li>
+              <li>
+                <strong>Execute</strong> runs steps in order. Each step gets its own child receipt; the last line in the
+                log is the parent workflow receipt.
+              </li>
+              <li>
+                Child steps are <strong>not</strong> separate pending items — trace them from this parent in Activity /
+                Trace.
+              </li>
+              <li className="list-none pl-0 text-[11px] text-zinc-500 dark:text-zinc-400">
+                If execution errors mid-run, you may see child receipts without a parent workflow row — use Trace to
+                reconcile.
+              </li>
+            </ul>
+          </div>
+        )}
+
+        {isWorkflowPlan && workflowLifecycle.proposalStatus === "failed" && (
+          <p className="mb-3 rounded border border-red-200 bg-red-50/90 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-red-900/50 dark:bg-red-950/35 dark:text-zinc-200">
+            <span className="font-semibold text-red-900 dark:text-red-200">Workflow did not complete. </span>
+            Check Trace for partial step receipts. The plan is not closed until a parent workflow receipt exists.
+          </p>
+        )}
+
+        {isWorkflowPlan && workflowLifecycle.proposalStatus === "executing" && (
+          <p className="mb-3 rounded border border-amber-200 bg-amber-50/90 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-amber-900/50 dark:bg-amber-950/35 dark:text-zinc-200">
+            <span className="font-semibold text-amber-900 dark:text-amber-200">Workflow is running. </span>
+            Steps are executing sequentially. Do not approve again; wait for completion or failure.
+          </p>
+        )}
+
+        {isWorkflowPlan && workflowLifecycle.proposalStatus === "executed" && (
+          <p className="mb-3 rounded border border-emerald-200 bg-emerald-50/90 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-emerald-900/50 dark:bg-emerald-950/35 dark:text-zinc-200">
+            <span className="font-semibold text-emerald-900 dark:text-emerald-200">Workflow completed. </span>
+            Every step has a receipt; parent lineage is in Trace (Workflow lineage · parent → steps).
+          </p>
+        )}
+
         {event.status === "pending" && (
           <p className="mb-3 rounded border border-blue-200 bg-blue-50/90 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-zinc-200">
-            <span className="font-semibold text-zinc-700 dark:text-zinc-100">Next steps: </span>
-            Approve only records your decision. If you approve, you will still need to click{" "}
-            <strong>Execute</strong> separately to run the action and write receipts — approval does not run the
-            adapter.
+            {isWorkflowPlan ? (
+              <>
+                <span className="font-semibold text-zinc-700 dark:text-zinc-100">What approval means here: </span>
+                You are deciding on{" "}
+                <strong>
+                  {workflowPlanParsed?.ok
+                    ? `all ${workflowPlanParsed.steps.length} steps together`
+                    : "the full workflow plan"}
+                </strong>
+                . Approving does <strong>not</strong> run step 1 or step 2 — it only unlocks{" "}
+                <strong>Execute workflow (all steps)</strong> below.
+              </>
+            ) : (
+              <>
+                <span className="font-semibold text-zinc-700 dark:text-zinc-100">Next steps: </span>
+                Approve only records your decision. If you approve, you will still need to click{" "}
+                <strong>Execute</strong> separately to run the action and write receipts — approval does not run the
+                adapter.
+              </>
+            )}
           </p>
         )}
         {event.status === "approved" && !event.executed && (
           <p className="mb-3 rounded border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-zinc-200">
-            <span className="font-semibold text-zinc-700 dark:text-emerald-200">Next step: </span>
-            Approval is recorded. Use <strong>Execute</strong> below to run policy checks, perform the action, and write
-            artifacts plus the action log.
+            {isWorkflowPlan ? (
+              <>
+                <span className="font-semibold text-zinc-700 dark:text-emerald-200">Plan approved — steps not run yet. </span>
+                Click <strong>Execute workflow (all steps)</strong> to run them in order. Until then, no child receipts
+                exist.
+              </>
+            ) : (
+              <>
+                <span className="font-semibold text-zinc-700 dark:text-emerald-200">Next step: </span>
+                Approval is recorded. Use <strong>Execute</strong> below to run policy checks, perform the action, and
+                write artifacts plus the action log.
+              </>
+            )}
           </p>
         )}
 
@@ -511,7 +624,7 @@ function DetailModal({
               </div>
             </div>
           ) : null}
-          <LifecycleTimestamps event={event} />
+          <LifecycleTimestamps event={event} workflowPlan={isWorkflowPlan} />
         </dl>
 
         {/* Request metadata — correlationId, source metadata (detailed view only) */}
@@ -591,7 +704,7 @@ function DetailModal({
                       : isSendEmail
                         ? "sends one allowlisted outbound email + writes receipt JSON + action log entry"
                       : isWorkflowPlan
-                        ? "runs validated steps sequentially (v0.3: system.note); child + parent receipts"
+                        ? "runs every planned step in order under this parent id; one child receipt per step, then a parent workflow receipt — not N separate approvals"
                       : isCodeDiff
                         ? "writes local diff bundle + action log receipt, no changes applied"
                         : "writes artifact to publish-queue + action log, still no posting"}
@@ -622,7 +735,44 @@ function DetailModal({
           </div>
         )}
 
-        {(isCodeDiff || isCodeApply) ? (
+        {isWorkflowPlan ? (
+          workflowPlanParsed?.ok ? (
+            <div className="mt-4 rounded border border-indigo-200 bg-indigo-50/80 p-4 dark:border-indigo-900/40 dark:bg-indigo-950/30">
+              <h3 className="mb-1 flex flex-wrap items-center gap-2 font-medium text-indigo-950 dark:text-indigo-100">
+                Planned steps
+                <span className="rounded bg-indigo-200/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-indigo-900 dark:bg-indigo-900/60 dark:text-indigo-200">
+                  One approval · many receipts
+                </span>
+              </h3>
+              <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                Order is fixed at ingress. Boundary labels describe what the step touches (artifact, outbound, repo) —
+                they are not predictions or “AI risk.”
+              </p>
+              <ol className="mt-3 list-decimal space-y-3 pl-4 text-sm text-zinc-800 dark:text-zinc-200">
+                {workflowPlanParsed.steps.map((step, i) => (
+                  <li
+                    key={`${step.title}-${i}-${step.kind}`}
+                    className="rounded border border-zinc-200 bg-white/80 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900/40"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100">Step {i + 1}</span>
+                      <code className="rounded bg-zinc-100 px-1 font-mono text-xs dark:bg-zinc-800">{step.kind}</code>
+                      <span className="rounded border border-zinc-300 px-1.5 py-0.5 text-[10px] font-medium text-zinc-700 dark:border-zinc-600 dark:text-zinc-300">
+                        {workflowStepBoundaryLabel(step.kind)}
+                      </span>
+                    </div>
+                    <div className="mt-1 font-medium">{step.title}</div>
+                    <div className="text-xs text-zinc-600 dark:text-zinc-400">{step.summary}</div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : (
+            <div className="mt-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-900/30">
+              Planned steps could not be read from this payload. Do not approve until the plan validates.
+            </div>
+          )
+        ) : (isCodeDiff || isCodeApply) ? (
           (() => {
             const p = event.payload as Record<string, unknown>;
             const code = p?.code as Record<string, unknown> | undefined;
@@ -832,7 +982,7 @@ function DetailModal({
                 disabled={!approvalReady}
                 className="rounded bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Approve
+                {isWorkflowPlan ? "Approve workflow plan" : "Approve"}
               </button>
             </div>
           </div>

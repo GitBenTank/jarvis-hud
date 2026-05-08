@@ -102,18 +102,18 @@ Fill rows during this sprint; align with [platform plan § core rule](./0004-pha
 
 ## E2E proof (highest leverage)
 
-Add **one** CI-runnable path that:
+**Shipped (v0.2a `system.note`):** `pnpm golden-loop`
 
-1. Submits a **signed** ingress proposal (or equivalent that exercises the same server code path).
-2. Observes **pending** in storage / queue.
-3. **Approves** and **executes** (document **auth off vs on** behavior).
-4. Asserts **receipt** / action log.
-5. Asserts **trace** exists and replay is consistent.
-6. Asserts **audit export** includes the record (per [Audit export](../audit-export.md) behavior).
+- Default: spawns `next dev` with an **isolated** `JARVIS_ROOT` under `os.tmpdir()`, runs the full chain, deletes the tree.
+- **CI / local:** **`pnpm build`** then **`pnpm golden-loop`**, or **`pnpm golden-loop:verify`** once (uses `next start` only — certifies the production bundle).
+- **Attach to your running dev server (not isolated):**  
+  `GOLDEN_LOOP_USE_EXISTING=1 JARVIS_HUD_BASE_URL=http://127.0.0.1:3000 JARVIS_INGRESS_OPENCLAW_SECRET=… pnpm golden-loop`
+
+Steps exercised: signed ingress → pending → approve → execute → `GET /api/traces/:traceId` → `GET /api/traces/:traceId/replay` → `GET /api/audit/export` (today’s `dateKey`).
+
+**v0.2b:** extend the same harness for `send_email` only when demo-safe env is defined (later).
 
 **Bar:** Fails CI if the golden loop breaks — not a manual-only demo script.
-
-Until this exists, treat **new adapters as regression surface**, not trust surface ([Trust and determinism](../governance/trust-and-determinism.md)).
 
 ---
 

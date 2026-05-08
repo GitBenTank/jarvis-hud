@@ -236,6 +236,8 @@ Jarvis sits between AI agents and system execution:
 | `pnpm demo:verify`   | Pre-demo: config + activity stream   |
 | `pnpm demo:smoke`    | Ingress + apply smoke tests          |
 | `pnpm ingress:smoke` | `system.note` ingress smoke          |
+| `pnpm golden-loop` | **v0.2a** golden path — **`pnpm build`** first (isolated `JARVIS_ROOT`); **`pnpm golden-loop:verify`** runs build + loop; or attach with `GOLDEN_LOOP_USE_EXISTING=1` + `pnpm dev` |
+| `pnpm golden-loop:verify` | Removes `.next`, then **`pnpm build`** + **`pnpm golden-loop`** (clean one-shot proof) |
 | `pnpm jarvis:doctor` | Preflight (ingress, secret, allowlist) |
 | `pnpm machine-wired` | Phase 1: stack + Control UI pass/fail |
 | `pnpm auth-posture` | Phase 2: auth vs ingress capability (optional `JARVIS_EXPECT_AUTH=true`) |

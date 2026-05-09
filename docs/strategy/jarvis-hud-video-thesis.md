@@ -36,6 +36,8 @@ When agents gain access to tools, credentials, and production environments, the 
 
 Jarvis HUD is an approval and control center for local agents with root access.
 
+**Category frame:** Jarvis is an **execution integrity** layer for agentic actions—bounded effects, provable traces, and human-legible authority under load.
+
 Agents can propose anything.
 Execution requires explicit human approval.
 Every action produces receipts (artifact + log).

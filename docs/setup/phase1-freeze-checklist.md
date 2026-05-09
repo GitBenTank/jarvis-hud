@@ -60,6 +60,8 @@ lsof -nP -iTCP:PORT -sTCP:LISTEN
 
 ## 4. Pass/fail
 
+**Triad:** **Contract** ([operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project)), **narrative** (the commands and paths you really use), and **probe** (below) must agree. If something only works with an unstated story, stop: update this checklist or §1 before calling the stack frozen.
+
 With Jarvis and the gateway **running**:
 
 ```bash

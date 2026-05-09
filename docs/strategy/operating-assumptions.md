@@ -3,7 +3,7 @@ title: "Operating assumptions (Jarvis + OpenClaw)"
 status: living-document
 category: product-strategy
 owner: Ben Tankersley
-last_reviewed: 2026-04-23
+last_reviewed: 2026-05-09
 related:
   - ../README.md
   - jarvis-hud-video-thesis.md
@@ -21,6 +21,14 @@ related:
 **Purpose:** Record **current defaults and provisional choices** so future work does not rely on memory or chat. This doc **ages on purpose** when posture changes. **Doc navigation:** [Documentation hub](../README.md). The **stable structural map** is [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md).
 
 **Rule:** When you change a default here, bump **`last_reviewed`** and add a one-line note if the old assumption misled anyone.
+
+---
+
+## Execution integrity: contract, narrative, probe
+
+**Category:** Jarvis is an **execution integrity** system: bounded effects, provable traces, and authority that stays legible under load—**not** autonomy theater.
+
+**Triad (must agree):** The frozen **contract** (defaults below, starting with §1), the operator **narrative** (runbooks and how people are actually onboarded), and machine **probes** (**`pnpm machine-wired`**, and **`pnpm auth-posture`** when auth posture matters) must describe the same host reality. When runtime behavior, docs, and operator belief diverge, trust boundaries rot. A fresh run should answer whether this host matches the contract **without interpretation**—if it cannot, capture the delta in the [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md) (or revise §1 deliberately) before expanding scope.
 
 ---
 

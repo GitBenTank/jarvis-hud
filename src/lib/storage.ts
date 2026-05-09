@@ -2,17 +2,32 @@ import { promises as fs } from "fs";
 import path from "path";
 import os from "os";
 
-const ROOT =
-  process.env.JARVIS_ROOT ?? path.join(os.homedir(), "jarvis");
+/**
+ * Runtime-resolved Jarvis data root. Kept behind a function so bundlers do not
+ * treat a module-level `path.resolve(homedir…/jarvis)` as a static filesystem root
+ * over the whole project tree (Turbopack file trace warnings).
+ */
+let jarvisRootCache: string | undefined;
+
+function resolveJarvisRoot(): string {
+  const raw = process.env.JARVIS_ROOT;
+  if (raw != null) {
+    return path.resolve(raw);
+  }
+  return path.join(os.homedir(), "jarvis");
+}
 
 export function getJarvisRoot(): string {
-  return ROOT;
+  if (jarvisRootCache === undefined) {
+    jarvisRootCache = resolveJarvisRoot();
+  }
+  return jarvisRootCache;
 }
 
 /** Path is allowed if under jarvis root or project root (cwd). */
 export function ensurePathAllowed(targetPath: string): void {
   const resolved = path.resolve(targetPath);
-  const roots = [path.resolve(ROOT), path.resolve(process.cwd())];
+  const roots = [getJarvisRoot(), process.cwd()];
   const underAny = roots.some((r) => {
     const rel = path.relative(r, resolved);
     return !rel.startsWith("..") && !path.isAbsolute(rel);
@@ -24,7 +39,7 @@ export function ensurePathAllowed(targetPath: string): void {
 
 export function ensurePathSafe(targetPath: string): void {
   const resolved = path.resolve(targetPath);
-  const rootResolved = path.resolve(ROOT);
+  const rootResolved = getJarvisRoot();
   const relative = path.relative(rootResolved, resolved);
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
     throw new Error("Path escapes jarvis root");
@@ -56,56 +71,56 @@ export async function writeJson(filePath: string, data: unknown): Promise<void> 
 }
 
 export function getEventsFilePath(dateKey: string): string {
-  return path.join(ROOT, "events", `${dateKey}.json`);
+  return path.join(getJarvisRoot(), "events", `${dateKey}.json`);
 }
 
 export function getDailyMetricsPath(dateKey: string): string {
-  return path.join(ROOT, "daily", `${dateKey}.json`);
+  return path.join(getJarvisRoot(), "daily", `${dateKey}.json`);
 }
 
 export function getActionsFilePath(dateKey: string): string {
-  return path.join(ROOT, "actions", `${dateKey}.jsonl`);
+  return path.join(getJarvisRoot(), "actions", `${dateKey}.jsonl`);
 }
 
 export function getPolicyDecisionsFilePath(dateKey: string): string {
-  return path.join(ROOT, "policy-decisions", `${dateKey}.jsonl`);
+  return path.join(getJarvisRoot(), "policy-decisions", `${dateKey}.jsonl`);
 }
 
 /** Append-only approval-time preflight snapshots (one line per approval, keyed by approvalId). */
 export function getApprovalPreflightSnapshotPath(dateKey: string): string {
-  return path.join(ROOT, "approval-preflight", `${dateKey}.jsonl`);
+  return path.join(getJarvisRoot(), "approval-preflight", `${dateKey}.jsonl`);
 }
 
 export function getReconciliationFilePath(dateKey: string): string {
-  return path.join(ROOT, "reconciliation", `${dateKey}.jsonl`);
+  return path.join(getJarvisRoot(), "reconciliation", `${dateKey}.jsonl`);
 }
 
 export function getPublishQueueDir(dateKey: string): string {
-  return path.join(ROOT, "publish-queue", dateKey);
+  return path.join(getJarvisRoot(), "publish-queue", dateKey);
 }
 
 export function getArchiveDir(dateKey: string): string {
-  return path.join(ROOT, "_archive", dateKey);
+  return path.join(getJarvisRoot(), "_archive", dateKey);
 }
 
 export function getYoutubePackageDir(dateKey: string, approvalId: string): string {
-  return path.join(ROOT, "youtube-packages", dateKey, approvalId);
+  return path.join(getJarvisRoot(), "youtube-packages", dateKey, approvalId);
 }
 
 export function getReflectionDir(dateKey: string, reflectionId: string): string {
-  return path.join(ROOT, "reflections", dateKey, reflectionId);
+  return path.join(getJarvisRoot(), "reflections", dateKey, reflectionId);
 }
 
 export function getCodeDiffDir(dateKey: string, approvalId: string): string {
-  return path.join(ROOT, "code-diffs", dateKey, approvalId);
+  return path.join(getJarvisRoot(), "code-diffs", dateKey, approvalId);
 }
 
 export function getCodeApplyDir(dateKey: string, approvalId: string): string {
-  return path.join(ROOT, "code-applies", dateKey, approvalId);
+  return path.join(getJarvisRoot(), "code-applies", dateKey, approvalId);
 }
 
 export function getSystemNoteDir(dateKey: string): string {
-  return path.join(ROOT, "system-notes", dateKey);
+  return path.join(getJarvisRoot(), "system-notes", dateKey);
 }
 
 export function getSystemNoteFilePath(dateKey: string, approvalId: string): string {
@@ -117,7 +132,7 @@ export function getSystemNoteManifestPath(dateKey: string, approvalId: string): 
 }
 
 export function getSendEmailReceiptDir(dateKey: string): string {
-  return path.join(ROOT, "email-demonstrations", dateKey);
+  return path.join(getJarvisRoot(), "email-demonstrations", dateKey);
 }
 
 /** Receipt JSON for governed send_email demo executions. */
@@ -126,7 +141,7 @@ export function getSendEmailReceiptPath(dateKey: string, approvalId: string): st
 }
 
 export function getRecoveryRunbookDir(dateKey: string): string {
-  return path.join(ROOT, "recovery-runbooks", dateKey);
+  return path.join(getJarvisRoot(), "recovery-runbooks", dateKey);
 }
 
 export function getRecoveryRunbookFilePath(dateKey: string, approvalId: string): string {
@@ -139,11 +154,11 @@ export function getRecoveryRunbookManifestPath(dateKey: string, approvalId: stri
 
 /** Recovery verification status — approvalId → { status, markedAt }. Single file across dates. */
 export function getRecoveryVerificationsPath(): string {
-  return path.join(ROOT, "recovery-verifications.json");
+  return path.join(getJarvisRoot(), "recovery-verifications.json");
 }
 
 export function getAlfredOrchestratorLogPath(): string {
-  return path.join(ROOT, "logs", "alfred_orchestrator.jsonl");
+  return path.join(getJarvisRoot(), "logs", "alfred_orchestrator.jsonl");
 }
 
 export function getDateKey(): string {

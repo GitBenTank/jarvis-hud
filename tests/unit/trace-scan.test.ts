@@ -1,6 +1,6 @@
 /**
  * Phase 5 — trace discovery helpers (no UI).
- * JARVIS_ROOT must be set before dynamic import of `@/lib/trace-scan` (storage freezes root at load).
+ * JARVIS_ROOT must be set before dynamic import of `@/lib/trace-scan` (before first `getJarvisRoot()` runs).
  */
 import path from "node:path";
 import os from "node:os";

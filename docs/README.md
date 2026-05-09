@@ -67,6 +67,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Next.js network proxy vs governance layers | [Network proxy boundary](architecture/network-proxy-boundary.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Trust compounding, integrity signals, new adapters | [Trust and determinism](governance/trust-and-determinism.md) |
+| Enterprise readiness gaps (dated snapshot) | [Enterprise readiness snapshot 2026-05-09](governance/enterprise-readiness-snapshot-2026-05-09.md) |
 | v0.2 — golden loop sprint (determinism bar) | [0005 Golden Loop](roadmap/0005-v02-golden-loop-sprint.md) |
 | Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |
 | Multi-agent + Jarvis boundary | [Agent team contract v1](strategy/agent-team-contract-v1.md) — **read this first** among agent docs |

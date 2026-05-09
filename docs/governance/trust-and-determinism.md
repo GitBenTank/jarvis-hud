@@ -9,6 +9,7 @@ related:
   - ../strategy/operating-assumptions.md
   - ../roadmap/0004-phased-platform-plan.md
   - ../roadmap/0005-v02-golden-loop-sprint.md
+  - enterprise-readiness-snapshot-2026-05-09.md
   - ../../src/lib/proposal-lifecycle.ts
 ---
 
@@ -120,3 +121,4 @@ Jarvis **governs authority transfer and traceability within its boundary** (prop
 - [Operator integration phases](../roadmap/0003-operator-integration-phases.md)  
 - [v0.2 Golden Loop sprint](../roadmap/0005-v02-golden-loop-sprint.md)  
 - [Security model](../architecture/security-model.md)  
+- [Enterprise readiness snapshot (2026-05-09)](./enterprise-readiness-snapshot-2026-05-09.md)

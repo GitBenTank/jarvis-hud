@@ -15,6 +15,7 @@ related:
   - ./investor-overview-bundle-room-script.md
   - ./investor-landscape-answer-card.md
   - ./investor-live-proof-map.md
+  - ./messaging-execution-integrity.md
   - ../interview-prep-jarvis.md
 ---
 
@@ -25,6 +26,8 @@ related:
 **Why now:** As agents begin to take real actions—sending emails, modifying code, triggering APIs—the boundary between **decision** and **execution** becomes the failure point.
 
 **Contrast:** **Most systems log what happened.** Jarvis proves **who decided**, **who executed**, and **what actually occurred**—**at the boundary where failures happen.**
+
+**Compressed category language (3-line investor + tagline):** [messaging — execution integrity](./messaging-execution-integrity.md).
 
 **In plain English:** AI can already touch real rails (mail, code, APIs). The gap isn’t intelligence—it’s **authority at execution** plus **usable proof afterward**. Jarvis sits on that boundary.
 

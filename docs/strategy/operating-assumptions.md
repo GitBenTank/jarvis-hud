@@ -12,6 +12,7 @@ related:
   - ../openclaw-integration-verification.md
   - ../roadmap/0003-operator-integration-phases.md
   - ../setup/phase1-freeze-checklist.md
+  - ./messaging-execution-integrity.md
   - ../setup/phase2-auth-authority-checklist.md
   - ../setup/local-stack-startup.md
 ---

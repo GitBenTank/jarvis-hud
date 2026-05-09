@@ -7,7 +7,7 @@ Read-only JSON export for **external audit**: prove what happened in a calendar 
 `GET /api/audit/export?start=YYYY-MM-DD&end=YYYY-MM-DD`
 
 - **`start`** / **`end`**: inclusive calendar dates in UTC (`YYYY-MM-DD`).
-- **Auth:** When `JARVIS_AUTH_ENABLED=true`, the route follows the same session requirement as other `/api/*` routes (see `src/middleware.ts`).
+- **Auth:** When `JARVIS_AUTH_ENABLED=true`, the route follows the same session requirement as other `/api/*` routes (see `src/proxy.ts`).
 
 ## Limits
 

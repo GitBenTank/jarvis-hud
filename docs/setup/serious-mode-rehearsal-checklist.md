@@ -8,6 +8,7 @@ related:
   - phase2-auth-authority-checklist.md
   - openclaw-jarvis-operator-checklist.md
   - local-stack-startup.md
+  - ../architecture/network-proxy-boundary.md
   - ../architecture/openclaw-proposal-identity-and-contract.md
   - ../strategy/research-batch-workflow-v1.md
   - ../roadmap/0003-operator-integration-phases.md

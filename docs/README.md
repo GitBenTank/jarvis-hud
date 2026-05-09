@@ -64,6 +64,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Control UI / gateway | [OpenClaw Control UI](setup/openclaw-control-ui.md) |
 | Heartbeat cost / cron check-ins | [OpenClaw heartbeat & cron policy](setup/openclaw-heartbeat-cron-policy.md) |
 | Full narrative spec | [Video thesis](strategy/jarvis-hud-video-thesis.md) |
+| Next.js network proxy vs governance layers | [Network proxy boundary](architecture/network-proxy-boundary.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Trust compounding, integrity signals, new adapters | [Trust and determinism](governance/trust-and-determinism.md) |
 | v0.2 — golden loop sprint (determinism bar) | [0005 Golden Loop](roadmap/0005-v02-golden-loop-sprint.md) |

@@ -1,8 +1,17 @@
+/**
+ * Next.js network proxy (App Router convention: proxy.ts).
+ *
+ * Thin boundary only: early /api interception, session *presence* when auth is on,
+ * and passthrough for public API paths. No ingress verification, approvals, policy,
+ * or execution decisions — those live in route handlers (Node) and the governance stack.
+ *
+ * @see docs/architecture/network-proxy-boundary.md
+ */
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isAuthEnabled, hasSessionCookie } from "@/lib/auth-edge";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   if (!path.startsWith("/api")) {
@@ -26,7 +35,7 @@ export function middleware(request: NextRequest) {
   if (!hasSessionCookie(cookie)) {
     return NextResponse.json(
       { error: "Session required. Call POST /api/auth/init first." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 

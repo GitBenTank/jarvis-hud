@@ -1,6 +1,6 @@
 /**
- * Edge-safe auth checks for middleware. No Node crypto.
- * Full verification happens in API routes (Node runtime).
+ * Edge-safe auth helpers for the network proxy (`src/proxy.ts`). No Node crypto.
+ * Full session verification happens in API routes (Node runtime).
  */
 
 const COOKIE_NAME = "jarvis_session";

@@ -5,6 +5,7 @@ category: architecture
 related:
   - ../strategy/jarvis-hud-video-thesis.md
   - jarvis-openclaw-system-overview.md
+  - network-proxy-boundary.md
   - ../security/agent-execution-model.md
   - ../decisions/0001-thesis-lock.md
 ---

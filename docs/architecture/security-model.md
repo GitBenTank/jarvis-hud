@@ -8,6 +8,7 @@ Jarvis enforces multiple boundaries so AI-driven automation remains **governed, 
 
 | Boundary | When | Purpose |
 |----------|------|---------|
+| **Network proxy** | Edge of `/api` requests | Thin interception: session *presence* when auth is on; public `/api` allowlist. Not ingress, approval, or execution policy. See [Network proxy boundary](./network-proxy-boundary.md). |
 | **Connector verification** | Ingress | Only allowlisted connectors with valid signatures can propose actions |
 | **Human approval** | Before execution | Operators review and approve; no auto-execution |
 | **Policy gate** | Execute-time | Kind allowlist, auth step-up, preflight checks before adapters run |
@@ -33,6 +34,7 @@ Jarvis enforces multiple boundaries so AI-driven automation remains **governed, 
 
 ## See Also
 
+- [Network proxy boundary](./network-proxy-boundary.md) — thin Next.js `proxy.ts`, auth shell vs ingress vs execution
 - [Policy Decision Logs](policy-decision-logs.md) — why execution was allowed or blocked
 - [Agent Execution Model](../security/agent-execution-model.md) — runtime constraints, Thesis Lock
 - [Trusted Ingress](../security/trusted-ingress.md) — connector verification

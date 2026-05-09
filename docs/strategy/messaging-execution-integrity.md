@@ -89,3 +89,4 @@ The product goal is **calm operation**: **clear boundaries** and **predictable b
 - **Category + Thesis Lock story:** [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md)
 - **Host reality + triad:** [operating-assumptions.md](./operating-assumptions.md)
 - **Investor path:** [investor-read-pack.md](./investor-read-pack.md)
+- **HTTP / Next.js boundary:** [network proxy (thin)](../architecture/network-proxy-boundary.md) — named network boundary vs governance layers

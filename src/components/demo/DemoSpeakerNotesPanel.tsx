@@ -301,9 +301,9 @@ export function DemoSpeakerNotesPanel({
     },
   );
 
-  useEffect(() => {
-    if (safeSlide !== 0) setSlideZeroScriptTab("opener");
-  }, [safeSlide]);
+  if (safeSlide !== 0 && slideZeroScriptTab !== "opener") {
+    setSlideZeroScriptTab("opener");
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

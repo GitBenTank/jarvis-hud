@@ -48,6 +48,42 @@ The product goal is **calm operation**: **clear boundaries** and **predictable b
 
 ---
 
+## Deepest category line (when you need one breath)
+
+**The system of record for consequential agent actions cannot be the model itself**—authority, execution, and proof have to live outside the model’s retelling.
+
+---
+
+## Objection rehearsal (harder)
+
+**Positioning:** Infra / ops / security terrain—**blast radius, attribution, operational continuity**—not “AI ethics” debate. **Watch the scale trap:** the thesis is **explicit, governable authority** and **attributable execution**, not “a human must click every trivial step forever.” Policy envelopes, scoped delegation, and bounded automation still fit; **semantics must stay honest** (see roadmap Phase 9).
+
+### 1. “Human-in-the-loop is a tax—we’re optimizing for velocity.”
+
+**Rebuttal:** The real tax is **silent execution with no owner**—what burns you at 2 a.m. and in audit. Jarvis makes the gate **legible**: proposed → authorized → ran → **proved**. The approval step is **not friction added to the system**. **It is the moment authority becomes explicit.**
+
+### 2. “We already have orchestration / policy (Temporal, OPA, feature flags, ITSM).”
+
+**Rebuttal:** Those tools **orchestrate workloads** and **enforce rules you already modeled**. Agent stacks keep generating **new action shapes** at the boundary where “looks reasonable” becomes a **real effect**. Jarvis targets **consequence authorization**: **who approved this outcome**, **what executed**, **what’s provable afterward**—not just “allowed API.”
+
+### 3. “Enterprise LLM vendors will ship governance; you’re redundant in N months.”
+
+**Rebuttal:** Vendor posture is mostly **tenant-, model-, and dashboard-** shaped. **Execution integrity is host- and operator-grounded**: **contract, narrative, probe**—so **green isn’t a dashboard tile; it’s falsifiable on the box.** If the story can’t separate **ingress capability** from **human identity** at approve/execute, it’s not the same layer.
+
+### 4. “This looks demo-local. Production is multi-team, multi-region, high volume.”
+
+**Rebuttal:** **Honest sequencing:** get **single-host semantics** right first—authority, receipts, traces. **A system wrong on integrity doesn’t get better at fleet size; it gets more dangerous.** Scale amplifies flaws; it doesn’t fix them.
+
+### 5. “Humans are the weakness—prompt injection / social engineering makes the gate theater.”
+
+**Rebuttal:** Humans are the **authority layer**, not the infallible parser. The bet is **accountable consequence**: **what authority actually approved**, **what actually ran**, **non-repudiable structure** outside the model’s story. Harden ingress and UX; the failure mode we avoid is **silent automation**. **The model is not the trust root.**
+
+### 6. “We gate merges in CI—why a HUD?”
+
+**Rebuttal:** **CI governs code state.** Agents increasingly drive **live effects**—mail, tickets, infra, money-adjacent APIs. Jarvis governs **“should this consequence happen?”** with **human-legible authority**—not “did this branch pass tests?”
+
+---
+
 ## Where this connects in-repo
 
 - **Category + Thesis Lock story:** [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md)

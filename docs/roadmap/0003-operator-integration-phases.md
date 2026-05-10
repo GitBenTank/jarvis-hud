@@ -101,16 +101,14 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 **Phase 3a (narrow, shipped first):** [Rehearsal authoring — minimal](../strategy/research-batch-workflow-v1.md#phase-3a--rehearsal-authoring-minimal) — **`batch.title` must carry a short differentiator** (run label, timestamp, topic slug, or `batch.id` fragment), plus light patterns for titles/summaries, `system.note` **Sources**, and batch- vs item-level prose. **Not** a schema empire; expand Phase 3 only when friction **recurs**.
 
-- Add compose-time guidance/templates for OpenClaw submissions.
-- Standardize:
-  - Top-level fields
-  - `batch`
-  - Proposal titles/summaries
-  - Source/citation conventions
-- Keep `system.note` for research until a real kind is needed.
-- Make malformed submissions hard to author, not just hard to ingest.
+**Phase 3b (guardrail slice — shipped 2026-05-10):** **`evidenceStatus`** and **`uncertaintySummary`** are canonical authoring fields for OpenClaw proposals and rehearsal scripts. **Contract / prompts / rehearsal / strategy workflows** first; no new server-side strictness in this slice.
 
-**Done when:** Good proposals are the path of least resistance.
+- Compose-time guidance and templates for OpenClaw submissions (research + creative tracks differ honestly on defaults).
+- Standardized: top-level fields, `batch`, titles/summaries, `evidenceStatus` + `uncertaintySummary`, source/citation conventions in docs.
+- Keep `system.note` for research and creative until a real kind is needed.
+- Malformed submissions remain hard at **ingress**; Phase 3b additionally makes **good** submissions the path of least resistance at authoring time.
+
+**Done when:** Good proposals are the path of least resistance, good proposals include **evidence + uncertainty** by default, rehearsal scripts emit the canonical fields, and docs / prompts agree on the same contract — **met for this slice.**
 
 ---
 
@@ -134,7 +132,7 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 **Goal:** Prove the model works beyond one role.
 
-**Phase 5 v1:** [Creative batch workflow v1](../strategy/creative-batch-workflow-v1.md) — second specialist uses **`system.note`** with a **markdown** contract (Brief, Audience, Angle, 3–5 variants, Risks/notes, Sources). Same **`batch`** semantics, **per-item** approve/execute/receipt; no `creative.*` kind until justified. Rehearsal: **`pnpm rehearsal:creative-batch`** (`scripts/creative-batch-rehearsal.ts`).
+**Phase 5 v1:** [Creative batch workflow v1](../strategy/creative-batch-workflow-v1.md) — second specialist uses **`system.note`** with a **markdown** contract (Brief, Audience, Angle, 3–5 variants, Risks/notes, Sources). Same **`batch`** semantics, **per-item** approve/execute/receipt; no `creative.*` kind until justified. Rehearsal: **`pnpm rehearsal:creative-batch`** (`scripts/creative-batch-rehearsal.ts`). The rehearsal should fail locally with operator-readable `problem` / `fix` guidance before malformed notes ever reach ingress.
 
 - Introduce **creative agent** proposals through the same ingress and HUD path as research.
 - Use the same batch and approval semantics.

@@ -13,6 +13,7 @@ Read-only JSON export for **external audit**: prove what happened in a calendar 
 
 - Range must be **at most 90 days** (`AUDIT_EXPORT_MAX_RANGE_DAYS` in `src/lib/audit-export.ts`).
 - Invalid format, inverted range, or missing params → **400** with `{ error, code }`.
+- When **`JARVIS_IDENTITY_BINDING_REQUIRED=true`**, the bundle is checked for **human** approval/execution rows that lack persisted OIDC principal fields. If inconsistent, the API returns **409** with `code: identity_binding_integrity` (no partial bundle). See [Identity binding contract §9](../architecture/identity-binding-claims-contract-v1.md#9-read-surfaces-s3).
 
 ## Response shape
 
@@ -40,7 +41,7 @@ JSON only:
 }
 ```
 
-- **`events`**: rows from `~/jarvis/events/{date}.json` (proposals / lifecycle), **as stored** (including Phase 1 `actor*` / `approvalActor*` when present).
+- **`events`**: rows from `~/jarvis/events/{date}.json` (proposals / lifecycle), including Phase 1 `actor*` / `approvalActor*` and optional **`approvalPrincipal*` / `executionPrincipal*`** when present. Each row is returned with the same persisted fields, plus an added **`humanPrincipals`** object (approval vs execution side-by-side) when there is anything to mirror — see [Identity binding §9](../architecture/identity-binding-claims-contract-v1.md#9-read-surfaces-s3).
 - **`receipts`**: lines from `~/jarvis/actions/{date}.jsonl` (including `traceId`, `approvalId`, `actors` when present).
 - **`policyDecisions`** / **`reconciliation`**: JSONL from `policy-decisions/` and `reconciliation/` for each day in range (empty arrays if files are missing).
 - **`index`**: sorted unique `traceId` and `approvalId` values seen across those arrays (for quick correlation).

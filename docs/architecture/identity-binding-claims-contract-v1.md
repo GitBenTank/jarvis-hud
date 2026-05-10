@@ -116,8 +116,9 @@ When deployment config says **identity binding is required** for serious HUD use
 | Missing `iss` or `sub` after token validation | **No** session that pretends to be a bound human; approve/execute must not silently use `local-user`. |
 | Issuer not in allow-list, or `aud` mismatch | Same: treat as auth failure for binding purposes. |
 | Token expired beyond skew | Same. |
+| **Read path:** stored lifecycle row claims **human** approve/execute but principal pair missing while binding required | **409** `identity_binding_integrity` on export / trace / replay — do not emit a misleading artifact (§9.3). |
 
-HTTP status codes for “no session” vs “session but binding incomplete” follow existing **auth** patterns (`401` / `403`) — align with [ADR-0003](../decisions/0003-execution-policy-v1.md) semantics in implementation (document in route handlers).
+HTTP status codes for “no session” vs “session but binding incomplete” follow existing **auth** patterns (`401` / `403`) — align with [ADR-0003](../decisions/0003-execution-policy-v1.md) semantics in implementation (document in route handlers). **Artifact integrity** on read uses **409** (§9.3).
 
 ---
 
@@ -138,3 +139,70 @@ HTTP status codes for “no session” vs “session but binding incomplete” f
 - [x] **S0 slice:** documentation landed before identity binding code; guardrails for S1 in §4a.
 
 **S1 next:** implement session fields and OIDC parsers **only** against §§3–6 and §4a — no drift from this document without a new ADR or contract revision.
+
+---
+
+## 9. Read surfaces (S3)
+
+**Goal:** A reviewer opening an **audit export**, **trace JSON**, or **replay** payload can see **which OIDC principal approved** and **which executed**, without inferring from display labels alone.
+
+**Implementation:** `src/lib/audit-export-identity.ts` (validation + `humanPrincipals` augmentation), `src/lib/audit-export.ts`, `src/lib/trace-replay.ts`, `GET /api/audit/export`, `GET /api/traces/[traceId]`, `GET /api/traces/[traceId]/replay`.
+
+### 9.1 humanPrincipals on export rows (reviewer shape)
+
+Raw lifecycle rows keep the persisted columns (`approvalPrincipalIss`, `approvalPrincipalSub`, `executionPrincipalIss`, `executionPrincipalSub`, plus `approvalActor*` / `executionActor*`). The export **adds** a single nested object so approver vs executor are obvious side-by-side:
+
+```json
+{
+  "id": "evt-7f2a…",
+  "traceId": "trace-7f2a…",
+  "status": "approved",
+  "executed": true,
+  "approvalActorId": "oidc1:https%3A%2F%2Fidp.example%2F|sub-alice",
+  "approvalActorType": "human",
+  "approvalPrincipalIss": "https://idp.example/",
+  "approvalPrincipalSub": "sub-alice",
+  "executionActorId": "oidc1:https%3A%2F%2Fidp.example%2F|sub-bob",
+  "executionActorType": "human",
+  "executionPrincipalIss": "https://idp.example/",
+  "executionPrincipalSub": "sub-bob",
+  "humanPrincipals": {
+    "approval": {
+      "actorId": "oidc1:https%3A%2F%2Fidp.example%2F|sub-alice",
+      "actorType": "human",
+      "actorLabel": "Alice Example",
+      "principalIss": "https://idp.example/",
+      "principalSub": "sub-alice"
+    },
+    "execution": {
+      "actorId": "oidc1:https%3A%2F%2Fidp.example%2F|sub-bob",
+      "actorType": "human",
+      "actorLabel": "Bob Ops",
+      "principalIss": "https://idp.example/",
+      "principalSub": "sub-bob"
+    }
+  }
+}
+```
+
+Same person for both roles is valid: `humanPrincipals.approval` and `humanPrincipals.execution` would then show the same `principalSub` (and often the same `actorId`).
+
+### 9.2 Trace and replay
+
+- **`GET /api/traces/{traceId}`** — each item in `events[]` includes the four `*Principal*` fields when present, plus `humanPrincipals` when there is anything to mirror.
+- **`GET /api/traces/{traceId}/replay`** — the `approval` object includes the principal columns, `humanPrincipals`, and a short `principalRolesNote`; the `execution` summary includes persisted execution principals alongside receipt `actors`.
+
+### 9.3 Integrity refusal (HTTP 409)
+
+When **`JARVIS_IDENTITY_BINDING_REQUIRED=true`**, read paths **fail closed** if a stored row claims a **human** approval or execution but lacks the corresponding persisted **`iss` / `sub` pair** (see validation in `audit-export-identity.ts`). That is treated as an inconsistent artifact set, not a silent repair.
+
+Example body (message text may vary by row id):
+
+```json
+{
+  "error": "Event evt-1: approval references a human actor but is missing approvalPrincipalIss/approvalPrincipalSub while identity binding is required",
+  "code": "identity_binding_integrity"
+}
+```
+
+Applies to **audit export** and **trace / replay** responses that run the same check.

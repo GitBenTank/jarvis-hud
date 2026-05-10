@@ -1,5 +1,7 @@
 # Sales collateral (draft)
 
+**Operating bar:** [Ready enough — flagship workflow, one pilot bundle, one demo, described honestly](../strategy/ready-enough-operating-bar.md).
+
 **Audience order (recommended):** VP Eng / Head of Platform → innovation lead with engineering backing → CISO / security architect once there is active interest.
 
 | Asset | File |

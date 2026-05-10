@@ -38,6 +38,8 @@ For **end-to-end platform phases** (flagship as product, verticals, enterprise U
 
 Runbooks: [`pilot-green-single-session.md`](../verification/pilot-green-single-session.md) · [`policy-deny-repro.md`](../verification/policy-deny-repro.md).
 
+**Operating bar (day-to-day):** [Ready enough — flagship + bundle + demo, honestly described](../strategy/ready-enough-operating-bar.md).
+
 ---
 
 ## Near-term execution order (recommended)

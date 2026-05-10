@@ -81,6 +81,7 @@ With policy decision logs, Jarvis can answer three questions:
 
 ## See Also
 
+- [Policy deny repro (step-up or code.apply preflight)](../verification/policy-deny-repro.md)
 - [Security Model](security-model.md) — Defense in depth, audit trail
 - [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md) — Policy gate design
 - [Reconciliation Concept](reconciliation-concept.md) — Desired vs observed state

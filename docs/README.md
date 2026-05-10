@@ -57,6 +57,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Daily Jarvis + OpenClaw terminals | [Local stack startup](setup/local-stack-startup.md) |
 | Frozen deployment contract | [Operating assumptions §1](strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) |
 | Ordered proof the stacks work | [Local verification](local-verification-openclaw-jarvis.md) |
+| Policy deny + `policy-decisions` line (diligence repro) | [Policy deny repro](verification/policy-deny-repro.md) |
 | Ingress protocol & HTTP debugging | [OpenClaw integration verification](openclaw-integration-verification.md) |
 | Ingress in plain language (non-coders) | [OpenClaw ingress for humans](setup/openclaw-ingress-for-humans.md) |
 | Port / origin discipline | [Local dev truth map](setup/local-dev-truth-map.md) |

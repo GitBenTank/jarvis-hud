@@ -12,6 +12,8 @@ process.env.JARVIS_ROOT = TEST_ROOT;
 
 describe("POST /api/approvals/[id] approvalPreflightSnapshot", () => {
   beforeAll(async () => {
+    delete process.env.JARVIS_AUTH_ENABLED;
+    delete process.env.JARVIS_IDENTITY_BINDING_REQUIRED;
     await fs.mkdir(path.join(TEST_ROOT, "events"), { recursive: true });
   });
 

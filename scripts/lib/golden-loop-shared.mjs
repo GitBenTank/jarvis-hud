@@ -75,6 +75,61 @@ function jarToCookieHeader(jar) {
     .join("; ");
 }
 
+/** Parse `Cookie` request header into name → value (first-party segments only). */
+function jarFromCookieHeader(cookieHeader) {
+  const jar = {};
+  if (!cookieHeader || typeof cookieHeader !== "string") return jar;
+  for (const part of cookieHeader.split(";")) {
+    const seg = part.trim();
+    const i = seg.indexOf("=");
+    if (i <= 0) continue;
+    jar[seg.slice(0, i).trim()] = seg.slice(i + 1).trim();
+  }
+  return jar;
+}
+
+/**
+ * When `JARVIS_IDENTITY_BINDING_REQUIRED=true`, bind iss/sub via stub before step-up.
+ * Requires `JARVIS_OIDC_STUB_BIND=true`, `JARVIS_OIDC_ISSUER_ALLOWLIST`, and `GOLDEN_LOOP_OIDC_ISS` / `GOLDEN_LOOP_OIDC_SUB`.
+ */
+async function maybeOidcStubBindForGoldenLoop(baseUrl, cookieHeader, fail) {
+  if (process.env.JARVIS_IDENTITY_BINDING_REQUIRED !== "true") {
+    return cookieHeader;
+  }
+  if (process.env.JARVIS_OIDC_STUB_BIND !== "true") {
+    fail(
+      "golden-loop: JARVIS_IDENTITY_BINDING_REQUIRED=true requires JARVIS_OIDC_STUB_BIND=true and GOLDEN_LOOP_OIDC_ISS / GOLDEN_LOOP_OIDC_SUB"
+    );
+  }
+  const iss = process.env.GOLDEN_LOOP_OIDC_ISS?.trim();
+  const sub = process.env.GOLDEN_LOOP_OIDC_SUB?.trim();
+  if (!iss || !sub) {
+    fail(
+      "golden-loop: set GOLDEN_LOOP_OIDC_ISS and GOLDEN_LOOP_OIDC_SUB when JARVIS_IDENTITY_BINDING_REQUIRED=true"
+    );
+  }
+  const res = await fetch(`${baseUrl}/api/auth/oidc/stub-bind`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookieHeader,
+    },
+    body: JSON.stringify({ iss, sub }),
+  });
+  const t = await res.text();
+  if (!res.ok) {
+    fail(`auth/oidc/stub-bind: HTTP ${res.status} ${t}`);
+  }
+  const jar = {
+    ...jarFromCookieHeader(cookieHeader),
+    ...jarFromSetCookieLines(getSetCookieLines(res)),
+  };
+  const next = jarToCookieHeader(jar);
+  if (!next) fail("golden-loop: stub-bind returned empty cookie jar");
+  console.log("golden-loop: OIDC stub-bind OK (identity binding path)");
+  return next;
+}
+
 /**
  * When Jarvis auth is on, approve/execute/trace/export require a session cookie + step-up.
  * Ingress stays unsigned. CI spawned server uses auth off — no-op there.
@@ -99,6 +154,9 @@ export async function maybeHudSessionCookie(baseUrl, fail) {
     fail(`auth/init: HTTP ${initRes.status} ${t}`);
   }
   let jar = jarFromSetCookieLines(getSetCookieLines(initRes));
+  let cookieHeader = jarToCookieHeader(jar);
+  cookieHeader = await maybeOidcStubBindForGoldenLoop(baseUrl, cookieHeader, fail);
+  jar = jarFromCookieHeader(cookieHeader);
 
   const stepRes = await fetch(`${baseUrl}/api/auth/step-up`, {
     method: "POST",

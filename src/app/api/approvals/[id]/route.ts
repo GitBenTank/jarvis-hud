@@ -8,8 +8,13 @@ import {
   readJson,
   writeJson,
 } from "@/lib/storage";
-import { ACTOR_LOCAL_USER } from "@/lib/actor-identity";
 import { normalizeAction } from "@/lib/normalize";
+import {
+  isAuthEnabled,
+  getSessionFromCookie,
+  AuthConfigError,
+} from "@/lib/auth";
+import { resolveGovernedHumanPrincipal } from "@/lib/governed-human-principal";
 import {
   validateApprovalPreflightSnapshotWire,
   type ApprovalPreflightSnapshotWire,
@@ -40,6 +45,8 @@ type Event = {
   rejectionActorId?: string;
   rejectionActorType?: "human" | "agent";
   rejectionActorLabel?: string;
+  approvalPrincipalIss?: string;
+  approvalPrincipalSub?: string;
 };
 
 type ApprovalBody = { action: "approve" | "deny"; approvalPreflightSnapshot?: unknown };
@@ -55,6 +62,34 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    let authEnabled = false;
+    try {
+      authEnabled = isAuthEnabled();
+    } catch (err) {
+      if (err instanceof AuthConfigError) {
+        return NextResponse.json({ error: err.message }, { status: 500 });
+      }
+      throw err;
+    }
+
+    const cookie = request.headers.get("cookie");
+    const session = authEnabled ? getSessionFromCookie(cookie) : null;
+    if (authEnabled && !session) {
+      return NextResponse.json(
+        { error: "Session required", code: "session_required" },
+        { status: 401 }
+      );
+    }
+
+    const humanRes = resolveGovernedHumanPrincipal(session, authEnabled);
+    if (!humanRes.ok) {
+      return NextResponse.json(
+        { error: humanRes.error, code: humanRes.code },
+        { status: humanRes.status }
+      );
+    }
+    const human = humanRes.principal;
+
     const { id } = await params;
 
     const body = (await request.json()) as unknown;
@@ -113,6 +148,27 @@ export async function POST(
       snapshotWire = v.wire;
     }
 
+    const approvalHumanFields =
+      human.kind === "bound"
+        ? {
+            approvalActorId: human.actorId,
+            approvalActorType: human.actorType,
+            approvalActorLabel: human.actorLabel,
+            approvalPrincipalIss: human.principalIss,
+            approvalPrincipalSub: human.principalSub,
+          }
+        : {
+            approvalActorId: human.actorId,
+            approvalActorType: human.actorType,
+            approvalActorLabel: human.actorLabel,
+          };
+
+    const rejectionHumanFields = {
+      rejectionActorId: human.actorId,
+      rejectionActorType: human.actorType,
+      rejectionActorLabel: human.actorLabel,
+    };
+
     const updated: Event = {
       ...event,
       status: body.action === "approve" ? "approved" : "denied",
@@ -120,16 +176,12 @@ export async function POST(
         ? {
             proposalStatus: "approved" as const,
             approvedAt: now,
-            approvalActorId: ACTOR_LOCAL_USER.actorId,
-            approvalActorType: ACTOR_LOCAL_USER.actorType,
-            approvalActorLabel: ACTOR_LOCAL_USER.actorLabel,
+            ...approvalHumanFields,
           }
         : {
             proposalStatus: "rejected" as const,
             rejectedAt: now,
-            rejectionActorId: ACTOR_LOCAL_USER.actorId,
-            rejectionActorType: ACTOR_LOCAL_USER.actorType,
-            rejectionActorLabel: ACTOR_LOCAL_USER.actorLabel,
+            ...rejectionHumanFields,
           }),
     };
     events[index] = updated;

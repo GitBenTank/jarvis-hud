@@ -7,12 +7,14 @@ import {
   readJson,
   writeJson,
 } from "@/lib/storage";
+import type { Session } from "@/lib/auth";
 import {
   isAuthEnabled,
   getSessionFromCookie,
   isStepUpValid,
   AuthConfigError,
 } from "@/lib/auth";
+import { resolveGovernedHumanPrincipal } from "@/lib/governed-human-principal";
 import {
   appendActionLog,
   writePublishArtifact,
@@ -47,7 +49,6 @@ import { parseSendEmailPayload } from "@/lib/send-email-constants";
 import { executeSendEmailAndWriteReceipt } from "@/lib/send-email";
 import { writeRecoveryRunbook, isRecoveryClass } from "@/lib/recovery";
 import {
-  ACTOR_LOCAL_USER,
   buildReceiptActorsFromEvent,
   warnIfActorChainIncomplete,
 } from "@/lib/actor-identity";
@@ -82,6 +83,8 @@ type Event = {
   executionActorId?: string;
   executionActorType?: "human" | "agent";
   executionActorLabel?: string;
+  executionPrincipalIss?: string;
+  executionPrincipalSub?: string;
 };
 
 export async function POST(
@@ -91,6 +94,7 @@ export async function POST(
   try {
     let authEnabled = false;
     let stepUpValid = true;
+    let session: Session | null = null;
     try {
       authEnabled = isAuthEnabled();
     } catch (authErr) {
@@ -104,7 +108,7 @@ export async function POST(
     }
     if (authEnabled) {
       const cookie = request.headers.get("cookie");
-      const session = getSessionFromCookie(cookie);
+      session = getSessionFromCookie(cookie);
       if (!session) {
         return NextResponse.json(
           { error: "Session required" },
@@ -213,11 +217,32 @@ export async function POST(
       }
     }
 
+    const humanRes = resolveGovernedHumanPrincipal(session, authEnabled);
+    if (!humanRes.ok) {
+      return NextResponse.json(
+        { error: humanRes.error, code: humanRes.code },
+        { status: humanRes.status }
+      );
+    }
+    const execPrincipal = humanRes.principal;
+    const execHumanFields =
+      execPrincipal.kind === "bound"
+        ? {
+            executionActorId: execPrincipal.actorId,
+            executionActorType: execPrincipal.actorType,
+            executionActorLabel: execPrincipal.actorLabel,
+            executionPrincipalIss: execPrincipal.principalIss,
+            executionPrincipalSub: execPrincipal.principalSub,
+          }
+        : {
+            executionActorId: execPrincipal.actorId,
+            executionActorType: execPrincipal.actorType,
+            executionActorLabel: execPrincipal.actorLabel,
+          };
+
     const receiptActors = buildReceiptActorsFromEvent({
       ...eventRecord,
-      executionActorId: ACTOR_LOCAL_USER.actorId,
-      executionActorType: ACTOR_LOCAL_USER.actorType,
-      executionActorLabel: ACTOR_LOCAL_USER.actorLabel,
+      ...execHumanFields,
     });
 
     events[index] = { ...eventRecord, proposalStatus: "executing" };
@@ -594,9 +619,7 @@ export async function POST(
       executed: true,
       executedAt,
       proposalStatus: "executed",
-      executionActorId: ACTOR_LOCAL_USER.actorId,
-      executionActorType: ACTOR_LOCAL_USER.actorType,
-      executionActorLabel: ACTOR_LOCAL_USER.actorLabel,
+      ...execHumanFields,
     };
     events[index] = updated;
     await writeJson(filePath, events);

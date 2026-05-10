@@ -98,6 +98,13 @@ Exact JSON field names may match the table above or a single nested `principal: 
 - **Step-up:** when `JARVIS_IDENTITY_BINDING_REQUIRED=true`, `POST /api/auth/step-up` returns **403** until OIDC fields are present (`identity_binding_required`).
 - **`GET /api/auth/status`:** includes `identityBindingRequired` and `identityBound` for UI / probes.
 
+**S2 implementation (shipped):**
+
+- **`src/lib/governed-human-principal.ts`:** `resolveGovernedHumanPrincipal`, `deriveOidcPrincipalActorId` (opaque handle; **`iss`/`sub` still persisted** on the event).
+- **Approve / deny / execute:** require session when auth on; persist bound or local human fields; **403** `identity_binding_required` when env requires binding and session lacks OIDC.
+- **Receipts:** `buildReceiptActorsFromEvent` reads persisted `executionActor*` from the event row (set before `appendActionLog`).
+- **Golden loop:** `scripts/lib/golden-loop-shared.mjs` calls **`POST /api/auth/oidc/stub-bind`** after init when `JARVIS_IDENTITY_BINDING_REQUIRED=true` (needs `JARVIS_OIDC_STUB_BIND`, allowlist, **`GOLDEN_LOOP_OIDC_ISS`**, **`GOLDEN_LOOP_OIDC_SUB`**).
+
 ---
 
 ## 6. Failure modes (fail closed)

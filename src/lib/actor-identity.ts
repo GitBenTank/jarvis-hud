@@ -45,6 +45,11 @@ export type ActorFieldsOnEvent = {
   executionActorId?: string;
   executionActorType?: ActorType;
   executionActorLabel?: string;
+  /** OIDC issuer (`iss`) when human principal is bound — source of truth with `approvalPrincipalSub` */
+  approvalPrincipalIss?: string;
+  approvalPrincipalSub?: string;
+  executionPrincipalIss?: string;
+  executionPrincipalSub?: string;
 };
 
 export function agentActorFromAgentField(agent: string): ActorRef {

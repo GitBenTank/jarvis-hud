@@ -119,6 +119,7 @@ type TraceResponse = {
   executionOutcome?: TraceExecutionOutcome;
   approvalPreflightSnapshot?: ApprovalPreflightSnapshotRecord | null;
   workflowLineage?: TraceWorkflowLineage;
+  sodOperatorNotes?: string[];
 };
 
 /** Replay API response — reconstructs trace from action, policy, reconciliation logs */
@@ -176,6 +177,7 @@ type TraceReplayResult = {
   receipts: TraceAction[];
   reconciliation: TraceReconciliation[];
   workflowLineage?: TraceWorkflowLineage & { childReceipts?: TraceAction[] };
+  sodOperatorNotes?: string[];
 };
 
 /** Transform replay result into TraceResponse shape for UI consistency */

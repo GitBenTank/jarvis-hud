@@ -146,4 +146,65 @@ describe("assembleTraceReplay", () => {
       AuditExportIdentityIntegrityError
     );
   });
+
+  it("includes sodOperatorNotes when policy log contains sod deny", async () => {
+    const { getEventsFilePath, getActionsFilePath, getPolicyDecisionsFilePath } =
+      await import("@/lib/storage");
+    const { listTraceScanDateKeys } = await import("@/lib/trace-scan");
+    const { assembleTraceReplay } = await import("@/lib/trace-replay");
+
+    const dk = listTraceScanDateKeys()[0];
+    await fs.mkdir(path.join(TEST_ROOT, "events"), { recursive: true });
+    await fs.mkdir(path.join(TEST_ROOT, "actions"), { recursive: true });
+    await fs.mkdir(path.join(TEST_ROOT, "policy-decisions"), { recursive: true });
+
+    const traceId = "trace-sod-notes";
+    const eventRow = {
+      id: "evt-sod-notes",
+      traceId,
+      status: "approved",
+      createdAt: "2026-05-09T10:00:00.000Z",
+      agent: "openclaw",
+      actorId: "openclaw",
+      actorType: "agent" as const,
+      payload: { kind: "system.note", summary: "s", title: "t" },
+    };
+
+    await fs.writeFile(
+      getEventsFilePath(dk),
+      JSON.stringify([eventRow], null, 2),
+      "utf-8"
+    );
+
+    await fs.writeFile(
+      getActionsFilePath(dk),
+      JSON.stringify({
+        id: "rec-sod",
+        traceId,
+        approvalId: "evt-sod-notes",
+        at: "2026-05-09T10:05:00.000Z",
+        kind: "system.note",
+        status: "executed",
+        summary: "x",
+      }) + "\n",
+      "utf-8"
+    );
+
+    await fs.appendFile(
+      getPolicyDecisionsFilePath(dk),
+      JSON.stringify({
+        traceId,
+        decision: "deny",
+        rule: "sod.same_principal",
+        reason: "sod_same_principal",
+        timestamp: "2026-05-09T10:04:00.000Z",
+      }) + "\n",
+      "utf-8"
+    );
+
+    const replay = await assembleTraceReplay(traceId);
+    expect(replay?.sodOperatorNotes?.some((n) => n.includes("same bound principal"))).toBe(
+      true
+    );
+  });
 });

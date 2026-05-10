@@ -242,4 +242,22 @@ describe("buildAuditExportBundle", () => {
     const hp = ev.humanPrincipals as Record<string, Record<string, string>>;
     expect(hp.approval.principalSub).toBe("alice");
   });
+
+  it("includes sodOperatorGuide when JARVIS_SOD_ENABLED is true", async () => {
+    vi.stubEnv("JARVIS_SOD_ENABLED", "true");
+    const { getEventsFilePath } = await import("@/lib/storage");
+    const {
+      validateAuditDateRange,
+      buildAuditExportBundle,
+    } = await import("@/lib/audit-export");
+    const dk = "2026-04-12";
+    await fs.mkdir(path.join(TEST_ROOT, "events"), { recursive: true });
+    await fs.mkdir(path.join(TEST_ROOT, "actions"), { recursive: true });
+    await fs.writeFile(getEventsFilePath(dk), "[]", "utf-8");
+    const v = validateAuditDateRange(dk, dk);
+    expect(v.ok).toBe(true);
+    if (!v.ok) throw new Error("validation failed");
+    const bundle = await buildAuditExportBundle(v);
+    expect(bundle.sodOperatorGuide?.join(" ")).toContain("humanPrincipals");
+  });
 });

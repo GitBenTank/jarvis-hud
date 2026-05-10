@@ -19,6 +19,11 @@ import {
   validateEventsForIdentityBindingExport,
   AuditExportIdentityIntegrityError,
 } from "@/lib/audit-export-identity";
+import {
+  buildSodPrincipalSplitNoteFromLifecycle,
+  collectSodOperatorNotesFromPolicyDecisions,
+  mergeSodOperatorNotes,
+} from "@/lib/sod-operator-narrative";
 
 type StoredEvent = {
   id: string;
@@ -559,6 +564,17 @@ export async function GET(
     );
   }
 
+  const primaryId = primaryEventForOutcome?.id;
+  const primaryStored =
+    typeof primaryId === "string"
+      ? matchedEvents.find((m) => m.id === primaryId)
+      : undefined;
+  const splitNote = buildSodPrincipalSplitNoteFromLifecycle(primaryStored);
+  const sodOperatorNotes = mergeSodOperatorNotes(
+    collectSodOperatorNotesFromPolicyDecisions(matchedPolicyDecisions),
+    splitNote ? [splitNote] : []
+  );
+
   return NextResponse.json({
     traceId: tid,
     dateKey: foundDateKey ?? getDateKey(),
@@ -571,5 +587,6 @@ export async function GET(
     executionOutcome,
     approvalPreflightSnapshot,
     ...(workflowLineagePayload ? { workflowLineage: workflowLineagePayload } : {}),
+    ...(sodOperatorNotes.length ? { sodOperatorNotes } : {}),
   });
 }

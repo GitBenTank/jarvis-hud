@@ -16,6 +16,12 @@ import {
   augmentAuditExportEvent,
   validateEventsForIdentityBindingExport,
 } from "./audit-export-identity";
+import { isSodEnabled } from "./sod-rbac";
+import {
+  collectSodOperatorNotesFromPolicyDecisions,
+  mergeSodOperatorNotes,
+  parsePolicyDecisionRows,
+} from "./sod-operator-narrative";
 
 /** Inclusive range must not exceed this many calendar days (abuse / memory guard). */
 export const AUDIT_EXPORT_MAX_RANGE_DAYS = 90;
@@ -40,6 +46,8 @@ export type AuditExportBundle = {
     traceIds: string[];
     approvalIds: string[];
   };
+  /** Operator-facing SoD lines when SoD is on or historical sod.* policy rows exist. */
+  sodOperatorGuide?: string[];
 };
 
 export type AuditExportValidationError = {
@@ -239,6 +247,22 @@ export async function buildAuditExportBundle(
   validateEventsForIdentityBindingExport(events);
   const eventsForExport = events.map((row) => augmentAuditExportEvent(row));
 
+  const parsedPolicy = parsePolicyDecisionRows(policyDecisions);
+  const sodFromPolicy = collectSodOperatorNotesFromPolicyDecisions(parsedPolicy);
+  const sodOperatorGuide = mergeSodOperatorNotes(
+    isSodEnabled()
+      ? [
+          "SoD is enabled in the deployment that produced this export: compare each event's humanPrincipals.approval vs humanPrincipals.execution for approver vs executor.",
+          "policyDecisions rows with rule starting \"sod.\" record SoD denials (e.g. sod.same_principal).",
+        ]
+      : sodFromPolicy.length > 0
+        ? [
+            "This date range includes historical SoD-related policy rows (see sodOperatorGuide lines from policyDecisions).",
+          ]
+        : [],
+    sodFromPolicy
+  );
+
   return {
     range: { start, end },
     generatedAt: new Date().toISOString(),
@@ -254,5 +278,6 @@ export async function buildAuditExportBundle(
     policyDecisions,
     reconciliation,
     index,
+    ...(sodOperatorGuide.length ? { sodOperatorGuide } : {}),
   };
 }

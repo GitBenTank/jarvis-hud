@@ -26,6 +26,11 @@ import {
   humanPrincipalsFromLifecycleFields,
   validateEventsForIdentityBindingExport,
 } from "./audit-export-identity";
+import {
+  buildSodPrincipalSplitNoteFromLifecycle,
+  collectSodOperatorNotesFromPolicyDecisions,
+  mergeSodOperatorNotes,
+} from "./sod-operator-narrative";
 
 /** One governed workflow step (child receipt) for replay/export readability. */
 export type WorkflowReplayStepSummary = {
@@ -135,6 +140,8 @@ export type TraceReplayResult = {
   receipts: ActionLogEntry[];
   workflowLineage?: WorkflowReplayLineage;
   reconciliation: ReconciliationEntry[];
+  /** Plain-language SoD / principal-split lines derived from policy log + lifecycle row. */
+  sodOperatorNotes?: string[];
 };
 
 /**
@@ -299,6 +306,12 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
       ? computeWorkflowLineage(receipts, proposalEvent.id)
       : undefined;
 
+  const splitNote = buildSodPrincipalSplitNoteFromLifecycle(proposalEvent);
+  const sodOperatorNotes = mergeSodOperatorNotes(
+    collectSodOperatorNotesFromPolicyDecisions(policyDecisions),
+    splitNote ? [splitNote] : []
+  );
+
   return {
     traceId: tid,
     dateKey: foundDateKey,
@@ -309,5 +322,6 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
     receipts,
     ...(workflowLineage ? { workflowLineage } : {}),
     reconciliation,
+    ...(sodOperatorNotes.length ? { sodOperatorNotes } : {}),
   };
 }

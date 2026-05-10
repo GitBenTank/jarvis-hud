@@ -230,5 +230,9 @@ export function buildExecutionTraceView(
     resultSummary = "No final receipt in this replay.";
   }
 
+  if (replay.sodOperatorNotes?.length) {
+    resultSummary = `${resultSummary} — ${replay.sodOperatorNotes.join(" — ")}`;
+  }
+
   return { headline, band, steps, resultSummary };
 }

@@ -287,6 +287,39 @@ Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001
 
 6. **Evidence on disk** (IDE terminals): from **jarvis-hud**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log`**, then **`tail -100 /tmp/openclaw-gateway-last.log`**.
 
+### Raw OpenClaw crash (`ELIFECYCLE`, no stack trace)
+
+When **Jarvis is healthy on 3000**, **nothing listens on 18789/19001**, and the gateway dies right after:
+
+`OPENCLAW_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway`
+
+with **`ELIFECYCLE`** and **no JS stack**, the failure is **inside OpenClaw startup before bind** — not in jarvis-hud. **`pnpm`** / lifecycle can hide the underlying error; **`tail -80 /tmp/openclaw-gateway-last.log`** that only shows repeated startup lines means the process **never reached** Control UI / listener setup.
+
+**First isolation (do not use the jarvis-hud wrapper):** from **`openclaw-runtime`**, in **Terminal.app** if the IDE terminal looks “empty”:
+
+```bash
+cd ~/Documents/openclaw-runtime
+export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"
+export OPENCLAW_DISABLE_BONJOUR=1
+NODE_OPTIONS="--trace-uncaught --trace-warnings" \
+OPENCLAW_SKIP_CHANNELS=1 \
+pnpm gateway:dev
+```
+
+You want a real **exception**, **missing env**, **import/module** error, **config parse**, etc. Paste that output when asking for help.
+
+**Optional second isolation** (minimal inherited env — can break **`nvm`/`fnm`** or odd **`PATH`**; use only if the trace run is still opaque):
+
+```bash
+cd ~/Documents/openclaw-runtime
+env -i HOME="$HOME" PATH="$PATH" USER="${USER:-}" SHELL="${SHELL:-/bin/bash}" \
+  OPENCLAW_STATE_DIR="$HOME/.openclaw-dev" OPENCLAW_DISABLE_BONJOUR=1 OPENCLAW_SKIP_CHANNELS=1 \
+  NODE_OPTIONS="--trace-uncaught --trace-warnings" \
+  pnpm gateway:dev
+```
+
+**Noise:** messages like **`pyenv: cannot rehash`** from shell hooks are usually **unrelated** to the gateway exit; they can make subprocess logs look messy but are rarely the root cause.
+
 ---
 
 ## If something breaks
@@ -302,7 +335,7 @@ Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001
 | **Control UI OK but chat fails**; logs: **`exceeded your current quota`**, **`embedded_run_agent_end`**, **`auth profile failure`** with **`rate_limit`** | **OpenAI billing** for the **account that owns the API key** (e.g. **negative credit balance**, **auto-recharge off**, org budget). The auth-profile line is **downstream** of the API error—not missing Jarvis config. Fix billing; optional: auto-recharge. [OpenAI error codes](https://platform.openai.com/docs/guides/error-codes/api-errors). |
 | **Attention: skills with missing dependencies** | Optional. Skills need host apps (1Password, Notes, …). Ignore for Jarvis/ingress unless you rely on those tools. |
 | **`Building TypeScript…` very long or “stuck”; 19001 not listening** | The OpenClaw repo you use for **`pnpm openclaw:dev`** likely has a **dirty** git tree, so the gateway rebuilds before bind. For daily integration, use a **clean** clone via **`OPENCLAW_ROOT`**, or **`git stash` / commit** in your working OpenClaw checkout. |
-| **`ELIFECYCLE`** right after `run-node.mjs --dev gateway` with **almost no lines** | Often **IDE terminal + inherited stdio buffering** (looks “silent”) or an **immediate crash** before flush. Use **`pnpm openclaw:dev:log`** and read **`/tmp/openclaw-gateway-last.log`**, or run the same command in **Terminal.app** (real TTY). Also verify **Node ≥ 22.12** (`node -v`) — OpenClaw refuses older versions. |
+| **`ELIFECYCLE`** right after `run-node.mjs --dev gateway` with **almost no lines** | Often **IDE terminal + inherited stdio buffering** (looks “silent”) or an **immediate crash** before flush. Use **`pnpm openclaw:dev:log`** and **`/tmp/openclaw-gateway-last.log`**. If the log never grows past startup lines, run **raw OpenClaw** with **`NODE_OPTIONS=--trace-uncaught --trace-warnings`** from **`openclaw-runtime`** (see **Raw OpenClaw crash** above) — **not** through the jarvis-hud wrapper. Verify **Node ≥ 22.12** (`node -v`). |
 | **Integration debug: origin mismatch** (`localhost` vs `127.0.0.1`) | Pick **one** host for browser + **`JARVIS_HUD_BASE_URL`** + gateway env; restart **`pnpm dev`** and **`pnpm openclaw:dev`**. Prefer **`127.0.0.1`** (see **HUD signals** below). |
 | **`ReferenceError: loadDocsLibraryIndex is not defined`** on **`/docs`** | Stale **`pnpm dev`** or an outdated `page.tsx`. Confirm **`src/app/docs/[[...path]]/page.tsx`** uses **`buildDocsLibrary`** (not `loadDocsLibraryIndex`); save files, stop the dev server (**Ctrl+C**), run **`pnpm dev`** again. |
 

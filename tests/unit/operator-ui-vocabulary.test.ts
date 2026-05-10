@@ -42,7 +42,7 @@ describe("operator UI vocabulary", () => {
     ).toMatch(/→ awaiting execution$/);
   });
 
-  it("decision replay: executed successfully", () => {
+  it("decision replay: executed · receipt recorded", () => {
     expect(
       buildDecisionReplayLine({
         proposerLabel: "A",
@@ -51,7 +51,7 @@ describe("operator UI vocabulary", () => {
         executed: true,
         preflight: { loading: false, data: null },
       })
-    ).toMatch(/→ executed successfully$/);
+    ).toMatch(/→ executed · receipt recorded$/);
   });
 
   it("decision replay: execution blocked wraps preflight fallback", () => {
@@ -86,15 +86,15 @@ describe("operator UI vocabulary", () => {
 
   const baseEvent = { id: "e1", createdAt: "2026-01-01T00:00:00.000Z" };
 
-  it("execution truth: Awaiting execution", () => {
+  it("execution truth: Authorized · awaiting execution", () => {
     const o = deriveTraceExecutionOutcome({
       event: { ...baseEvent, approvedAt: "2026-01-01T00:01:00.000Z", executed: false },
       policy: { decision: "allow", rule: "kind.allowlist", reason: "ok" },
     });
-    expect(o.headline).toBe("Awaiting execution");
+    expect(o.headline).toBe("Authorized · awaiting execution");
   });
 
-  it("execution truth: Executed successfully", () => {
+  it("execution truth: Executed · receipt recorded", () => {
     const o = deriveTraceExecutionOutcome({
       event: {
         ...baseEvent,
@@ -104,7 +104,7 @@ describe("operator UI vocabulary", () => {
       },
       policy: { decision: "allow", rule: "kind.allowlist", reason: "ok" },
     });
-    expect(o.headline).toBe("Executed successfully");
+    expect(o.headline).toBe("Executed · receipt recorded");
   });
 
   it("execution truth: Execution blocked (policy)", () => {

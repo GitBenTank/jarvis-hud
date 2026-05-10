@@ -87,7 +87,7 @@ export function buildDecisionReplayLine(input: BuildDecisionReplayLineInput): st
     input.executionOutcome?.status === "completed";
 
   if (doneOk) {
-    return `${head} → approved by ${approver} → executed successfully`;
+    return `${head} → approved by ${approver} → executed · receipt recorded`;
   }
 
   const failed = !!input.failedAt || input.executionOutcome?.status === "failed";

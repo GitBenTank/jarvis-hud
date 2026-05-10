@@ -132,10 +132,10 @@ export function deriveTraceExecutionOutcome(input: {
       reasonCode: null,
       reason: "completed: receipt and execution recorded",
       stage: "execution",
-      headline: "Executed successfully",
+      headline: "Executed · receipt recorded",
       transitionLine: event.executedAt
-        ? `approved → executing → executed successfully · ${event.executedAt}`
-        : "approved → executing → executed successfully",
+        ? `approval recorded → executed → receipt · ${event.executedAt}`
+        : "approval recorded → executed → receipt",
     };
   }
 
@@ -175,7 +175,7 @@ export function deriveTraceExecutionOutcome(input: {
     reasonCode: null,
     reason: "awaiting execution (use Execute when ready)",
     stage: "execution",
-    headline: "Awaiting execution",
-    transitionLine: "approved → awaiting execution → Execute",
+    headline: "Authorized · awaiting execution",
+    transitionLine: "approval recorded → awaiting Execute → receipt pending",
   };
 }

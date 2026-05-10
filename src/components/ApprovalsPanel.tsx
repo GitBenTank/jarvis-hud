@@ -1136,7 +1136,7 @@ function DetailModal({
             <p className="font-medium">
               {executeResult.kind === "system.note"
                 ? "Executed · note artifact & receipts"
-                : "Executed successfully"}
+                : "Executed · receipt recorded"}
             </p>
             <p className="mt-1 flex items-center gap-2">
               {executeResult.dryRun === true && <Badge variant="dry_run">DRY RUN</Badge>}

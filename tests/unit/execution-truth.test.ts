@@ -19,7 +19,7 @@ describe("deriveTraceExecutionOutcome", () => {
     });
     expect(o.status).toBe("completed");
     expect(o.reasonCode).toBeNull();
-    expect(o.headline).toContain("successfully");
+    expect(o.headline).toContain("receipt");
     expect(o.stage).toBe("execution");
   });
 
@@ -110,7 +110,7 @@ describe("deriveTraceExecutionOutcome", () => {
       policy: { decision: "allow", rule: "kind.allowlist", reason: "ok" },
     });
     expect(o.status).toBe("pending");
-    expect(o.headline).toBe("Awaiting execution");
+    expect(o.headline).toBe("Authorized · awaiting execution");
   });
 
   it("ignores action when approvalId mismatches event", () => {

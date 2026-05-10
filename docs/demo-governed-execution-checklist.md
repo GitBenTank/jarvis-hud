@@ -6,11 +6,11 @@ Short operator script for the **propose → approve → execute** story. Aligns 
 
 - **Agent proposed** — Decision replay line: `{proposer} proposed {kind}`; trace **Proposal** stage.
 - **Awaiting approval** — Pending proposal; pipeline **Awaiting approval**; replay ends with `→ awaiting approval`.
-- **Approved by** — Replay: `→ approved by {actor}`; trace **Approval** step `Approved by:`; timestamps **Approved**.
+- **Approved by** — Replay: `→ approved by {actor}`; trace **Approval** step `Approved by:`; proposal detail timestamps **Authorized** (same moment as approve).
 - **Approval-time safety snapshot** — After approve: badge **Snapshot recorded** (or **No snapshot recorded** on older rows).
-- **Awaiting execution** — Approved, not run yet; execution truth **Awaiting execution**; pipeline **Awaiting execution**.
+- **Awaiting execution** — Queue / SafetyGate short form; execution truth **Authorized · awaiting execution**; trace lifecycle **Awaiting Execute (receipt pending)**; pipeline execution row **Authorized · awaiting execution** when approved but not run.
 - **Execution blocked** — Preflight **Will block** + disabled Execute; replay `→ execution blocked (...)`; policy deny → **Execution blocked (policy)**.
-- **Executed successfully** — After Execute; green banner **Executed successfully**; trace **Executed successfully ·** in end-to-end strip; pipeline/receipt path complete.
+- **Executed · receipt recorded** — After Execute; success banner **Executed · receipt recorded** (system.note: **Executed · note artifact & receipts**); trace execution truth + lifecycle **Executed · receipt**; pipeline execution row **Executed · receipt recorded**.
 - **Batch / review container** — Optional UI grouping only; **advisory context**. It does **not** change execution authority. **Approve** and **Execute** remain **per proposal** (that row’s id); receipts stay **per item**.
 
 ## Path A — `system.note` (safe, full lifecycle)
@@ -23,8 +23,8 @@ Short operator script for the **propose → approve → execute** story. Aligns 
 2. **Safety & readiness** — preflight **Ready** (or **Unknown** until loaded).
 3. Click **Approve** → **Approval-time safety snapshot** — **Snapshot recorded**, risk/readiness/reason.
 4. **Execution boundary** — “Approval records human consent. Execute writes artifacts and receipts.”
-5. **Execute** → success banner **Executed successfully**.
-6. **Trace** (same `traceId`) — **Decision replay**, **Approval-time safety snapshot**, lifecycle strip includes **Executed successfully ·** and receipt line.
+5. **Execute** → success banner **Executed · note artifact & receipts** (other kinds: **Executed · receipt recorded**).
+6. **Trace** (same `traceId`) — **Decision replay** (`→ executed · receipt recorded`), **Approval-time safety snapshot**, lifecycle strip **Executed · receipt ·** and receipt line.
 
 ## Path B — `code.apply` (execution blocked)
 
@@ -44,7 +44,7 @@ Short operator script for the **propose → approve → execute** story. Aligns 
 **Point on screen**
 
 1. **Approve** → snapshot **Snapshot recorded**; replay `→ awaiting execution` when preflight is **Ready**.
-2. **Execute (git commit)** → **Executed successfully**; trace shows **Executed successfully** and receipt evidence.
+2. **Execute (git commit)** → **Executed · receipt recorded**; trace shows **Executed · receipt recorded** and receipt evidence.
 
 ## ~60 second live demo order
 
@@ -53,7 +53,7 @@ Short operator script for the **propose → approve → execute** story. Aligns 
 | 0–12 | Approvals, pending `system.note` | “Agent proposed; we’re **awaiting approval**.” |
 | 12–28 | Safety & readiness, **Approve** | “Human approves; we persist an **approval-time safety snapshot** — receipt of what we knew at approve.” |
 | 28–42 | Execution boundary + **Execute** | “**Approval is not execution.** Execute is the separate authority moment.” |
-| 42–55 | Success + switch to **Trace** | “**Executed successfully** — same story on the trace: proposal, approval, execution truth, receipt.” |
+| 42–55 | Success + switch to **Trace** | “**Executed · receipt recorded** — same story on the trace: proposal, approval, execution truth, receipt.” |
 | 55–60 | Optional | “If preflight fails, Execute stays off — **execution blocked** until the environment is fixed.” |
 
 ## Quick regression checks

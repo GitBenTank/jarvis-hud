@@ -118,7 +118,7 @@ The reference slice **proves** the theorem **for code that uses** `createStrictG
 5. Adding one **integration** or runtime check: in strict mode, the agent-visible tool list for governed scope is only `readGovernedFile`, `proposeCodeApply`, and other explicitly read-only tools — **no** silent duplicates. The reference module provides **`assertNoUnsafeGovernedToolsInStrictMode`** (`src/openclaw-strict-governed/enforcement.ts`): pass every registered tool `{ id, classification }`; any `governed-mutation` in strict mode throws **`STRICT_MODE_VIOLATION`** at startup.
 6. Documenting any **remaining bypass assumptions** (plugins, MCP servers, subprocesses, human shell).
 
-**Live proof (once wired):** agent attempts direct mutation → `GOVERNANCE_BLOCK`; agent proposes → pending row in Jarvis; repo unchanged after **Approve**; mutation only after **Execute**. Optional capture: blocked error, pending `code.apply`, awaiting execution, **Executed successfully** (see [Governed execution checklist](../demo-governed-execution-checklist.md)).
+**Live proof (once wired):** agent attempts direct mutation → `GOVERNANCE_BLOCK`; agent proposes → pending row in Jarvis; repo unchanged after **Approve**; mutation only after **Execute**. Optional capture: blocked error, pending `code.apply`, awaiting execution, **Executed · receipt recorded** (see [Governed execution checklist](../demo-governed-execution-checklist.md)).
 
 ---
 

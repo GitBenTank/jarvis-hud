@@ -131,7 +131,7 @@ describe("buildDecisionReplayLine", () => {
     ).toBe("Alfred proposed code.apply → approved by Local user → checking execution readiness");
   });
 
-  it("executed successfully", () => {
+  it("executed · receipt recorded", () => {
     expect(
       buildDecisionReplayLine({
         proposerLabel: "Alfred",
@@ -140,7 +140,7 @@ describe("buildDecisionReplayLine", () => {
         executed: true,
         preflight: { loading: false, data: null },
       })
-    ).toBe("Alfred proposed system.note → approved by Local user → executed successfully");
+    ).toBe("Alfred proposed system.note → approved by Local user → executed · receipt recorded");
   });
 
   it("session execute success", () => {
@@ -152,7 +152,7 @@ describe("buildDecisionReplayLine", () => {
         sessionExecuteSucceeded: true,
         preflight: { loading: false, data: null },
       })
-    ).toBe("Alfred proposed system.note → approved by Local user → executed successfully");
+    ).toBe("Alfred proposed system.note → approved by Local user → executed · receipt recorded");
   });
 
   it("execution failed", () => {

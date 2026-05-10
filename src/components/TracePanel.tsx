@@ -743,13 +743,13 @@ export default function TracePanel() {
     const pAt = primaryEvent.proposedAt ?? primaryEvent.createdAt;
     parts.push(`Proposed · ${formatTime(pAt)}`);
     if (primaryEvent.rejectedAt) {
-      parts.push(`Rejected · ${formatTime(primaryEvent.rejectedAt)}`);
+      parts.push(`Denied · ${formatTime(primaryEvent.rejectedAt)}`);
       return parts.join(" → ");
     }
     if (primaryEvent.approvedAt) {
-      parts.push(`Approved · ${formatTime(primaryEvent.approvedAt)}`);
+      parts.push(`Authorized · ${formatTime(primaryEvent.approvedAt)}`);
     } else if (primaryEvent.status === "approved" || primaryEvent.executed) {
-      parts.push("Approved");
+      parts.push("Authorized");
     } else {
       parts.push("Awaiting approval");
     }
@@ -766,12 +766,12 @@ export default function TracePanel() {
       return parts.join(" → ");
     }
     if (primaryEvent.executedAt) {
-      parts.push(`Executed successfully · ${formatTime(primaryEvent.executedAt)}`);
+      parts.push(`Executed · receipt · ${formatTime(primaryEvent.executedAt)}`);
     } else if (
       primaryEvent.approvedAt &&
       primaryPolicy?.decision !== "deny"
     ) {
-      parts.push("Awaiting execution");
+      parts.push("Awaiting Execute (receipt pending)");
     }
     if (primaryEvent.executed) {
       if (hasReceiptForPrimary && primaryReceipt?.at) {
@@ -889,7 +889,7 @@ export default function TracePanel() {
           iconClass: "text-red-500",
           state: "done",
           lines: [
-            `Rejected by: ${primaryEvent.rejectionActorLabel ?? primaryEvent.rejectionActorId ?? "Human"}`,
+            `Denied by: ${primaryEvent.rejectionActorLabel ?? primaryEvent.rejectionActorId ?? "Human"}`,
             `Time: ${formatTime(primaryEvent.rejectedAt)}`,
           ],
         },

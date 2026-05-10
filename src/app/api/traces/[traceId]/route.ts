@@ -218,10 +218,10 @@ function buildExecutionPipelineStage(
     summary = "Execution failed (runtime)";
   } else if (executed) {
     status = "done";
-    summary = "Executed successfully";
+    summary = "Executed · receipt recorded";
   } else if (event.approvedAt) {
     status = "active";
-    summary = "Awaiting execution";
+    summary = "Authorized · awaiting execution";
   } else {
     status = "pending";
     summary = "Awaiting approval";
@@ -255,7 +255,7 @@ function buildReceiptPipelineStage(
     summary = "Receipt pending";
   } else {
     status = "pending";
-    summary = "Awaiting execution";
+    summary = "Authorized · awaiting execution";
   }
   const evidence: string[] =
     hasReceipt && action

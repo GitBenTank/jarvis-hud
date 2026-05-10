@@ -4,31 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { isHudChromelessPath } from "@/lib/hud-chromeless-routes";
+import { originsAlignedForLocalHud } from "@/lib/hud-origin-alignment";
 
 type ConfigJson = {
   jarvisHudBaseUrl?: string | null;
 };
-
-/** Same machine loopback — browser may use 127.0.0.1 while env uses localhost (or vice versa). */
-function isLoopbackHostname(hostname: string): boolean {
-  const h = hostname.toLowerCase();
-  return h === "localhost" || h === "127.0.0.1" || h === "::1" || h === "[::1]";
-}
-
-/** Treat localhost / 127.0.0.1 / ::1 as one origin when scheme + port match (local dev only). */
-function originsAlignedForLocalHud(viewedOrigin: string, configuredOrigin: string): boolean {
-  if (viewedOrigin === configuredOrigin) return true;
-  try {
-    const v = new URL(viewedOrigin);
-    const c = new URL(configuredOrigin);
-    if (v.protocol !== c.protocol) return false;
-    if (v.port !== c.port) return false;
-    if (!isLoopbackHostname(v.hostname) || !isLoopbackHostname(c.hostname)) return false;
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 /**
  * When `JARVIS_HUD_BASE_URL` is set but its origin differs from where the HUD is actually

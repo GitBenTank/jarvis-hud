@@ -8,6 +8,7 @@ import {
   type IntegrationIssueCode,
 } from "@/lib/integration-readiness-ui";
 import type { OpenClawHealthPayload } from "@/lib/openclaw-health";
+import { originsAlignedForLocalHud } from "@/lib/hud-origin-alignment";
 
 type ConfigPayload = {
   serverTime?: string;
@@ -117,10 +118,12 @@ export default function IntegrationDebugPanel() {
   }, []);
 
   const cfgBase = cfg?.jarvisHudBaseUrl?.trim() || "";
+  const configuredOrigin = cfgBase ? normalizeOrigin(cfgBase) : "";
   const originAligned =
     browserOrigin === null ||
     !cfgBase ||
-    normalizeOrigin(cfgBase) === normalizeOrigin(browserOrigin);
+    normalizeOrigin(cfgBase) === normalizeOrigin(browserOrigin) ||
+    originsAlignedForLocalHud(browserOrigin, configuredOrigin);
 
   const issues = (cfg?.integrationIssues ?? []).filter(
     (c): c is IntegrationIssueCode => c in INTEGRATION_ISSUE_LABELS
@@ -212,6 +215,17 @@ export default function IntegrationDebugPanel() {
                   " · JARVIS_HUD_BASE_URL not set (optional; set to catch drift)"
                 )}
               </p>
+              {browserOrigin &&
+                cfgBase &&
+                configuredOrigin &&
+                normalizeOrigin(cfgBase) !== normalizeOrigin(browserOrigin) &&
+                originsAlignedForLocalHud(browserOrigin, configuredOrigin) && (
+                  <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+                    Same loopback machine: <code className="text-[11px]">localhost</code> and{" "}
+                    <code className="text-[11px]">127.0.0.1</code> count as aligned when scheme and
+                    port match.
+                  </p>
+                )}
               {!originAligned && (
                 <p className="mt-1 text-amber-800 dark:text-amber-200">
                   Origins differ — OpenClaw must use the same base URL you use in the browser (port

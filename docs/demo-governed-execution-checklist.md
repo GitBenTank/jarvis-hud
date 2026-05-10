@@ -34,7 +34,7 @@ Short operator script for the **propose → approve → execute** story. Aligns 
 
 1. Open proposal → **Decision replay** after approve path shows `→ execution blocked (…)` when preflight **Will block**.
 2. **Safety & readiness** — **Will block** and the first blocker line (same text as next to Execute).
-3. **Execute** — disabled; label **Execution blocked — fix preflight issues**; helper **Execution blocked.** + blocker.
+3. **Execute** — disabled; label **Fix preflight issues before Execute**; helper **Execution blocked.** + blocker.
 4. Optional: **Trace** — execution truth / pipeline reflects blocked or policy state without a successful execute.
 
 ## Path C — `code.apply` (ready → success, environment permitting)
@@ -59,4 +59,4 @@ Short operator script for the **propose → approve → execute** story. Aligns 
 ## Quick regression checks
 
 - Older approvals without a stored snapshot: badge **No snapshot recorded** / body **No snapshot recorded** — expected, not a failure.
-- Denied proposals: replay `→ rejected…`; no execute path.
+- Denied proposals: replay `→ denied…`; no execute path.

@@ -12,6 +12,7 @@ import {
   type ProposalStatus,
 } from "@/lib/proposal-lifecycle";
 import { getProposalBatchItemContextFromEvent } from "@/lib/proposal-batch";
+import { operatorLifecycleBadgeLabel } from "@/lib/proposal-status-operator-ui";
 import {
   requiresIrreversibleConfirmation,
   getConfirmationPhrase,
@@ -142,52 +143,9 @@ function proposalStatusToVariant(
   return "pending";
 }
 
-function proposalStatusToLabel(s: ProposalStatus): string {
-  const labels: Record<ProposalStatus, string> = {
-    proposed: "PROPOSED",
-    validated: "VALIDATED",
-    pending_approval: "PENDING",
-    approved: "APPROVED",
-    executing: "EXECUTING",
-    executed: "EXECUTED",
-    rejected: "REJECTED",
-    failed: "FAILED",
-    archived: "ARCHIVED",
-  };
-  return labels[s] ?? s.toUpperCase();
-}
-
-/** Operator-facing workflow lifecycle — unmistakable parent vs step state (not raw enum names). */
-function workflowPlanStatusOperatorLabel(s: ProposalStatus): string {
-  switch (s) {
-    case "pending_approval":
-    case "proposed":
-    case "validated":
-      return "Workflow · awaiting approval";
-    case "approved":
-      return "Workflow · approved · steps not run yet";
-    case "executing":
-      return "Workflow · running steps";
-    case "executed":
-      return "Workflow · completed";
-    case "failed":
-      return "Workflow · failed";
-    case "rejected":
-      return "Workflow · denied";
-    case "archived":
-      return "Workflow · archived";
-    default:
-      return `Workflow · ${proposalStatusToLabel(s)}`;
-  }
-}
-
 function LifecycleStatusBadge({ event }: { event: Event }) {
   const n = normalizeProposalLifecycle(event);
-  const na = normalizeAction(event.payload);
-  const isWorkflow = na.kind === "workflow.plan";
-  const label = isWorkflow
-    ? workflowPlanStatusOperatorLabel(n.proposalStatus)
-    : proposalStatusToLabel(n.proposalStatus);
+  const label = operatorLifecycleBadgeLabel(event.payload, n.proposalStatus);
   return <Badge variant={proposalStatusToVariant(n.proposalStatus)}>{label}</Badge>;
 }
 
@@ -395,7 +353,7 @@ function DetailModal({
 
   const executeButtonLabel = (() => {
     if (executeLoading) return "Executing…";
-    if (executeWillBlock) return "Execution blocked — fix preflight issues";
+    if (executeWillBlock) return "Fix preflight issues before Execute";
     if (preflightLoading) return "Checking execution readiness…";
     if (isWorkflowPlan) return "Execute workflow (all steps)";
     if (isReflection) return "Execute";
@@ -422,7 +380,7 @@ function DetailModal({
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">
-            {isWorkflowPlan ? "Workflow approval" : "Approval details"}
+            {isWorkflowPlan ? "Workflow proposal" : "Proposal review"}
           </h2>
           <button
             onClick={onClose}
@@ -495,10 +453,10 @@ function DetailModal({
               </>
             ) : (
               <>
-                <span className="font-semibold text-zinc-700 dark:text-zinc-100">Next steps: </span>
-                Approve only records your decision. If you approve, you will still need to click{" "}
-                <strong>Execute</strong> separately to run the action and write receipts — approval does not run the
-                adapter.
+                <span className="font-semibold text-zinc-700 dark:text-zinc-100">Proposal, not a completed action. </span>
+                The model proposes; it is not a trusted principal. <strong>Approve</strong> only records authorization.
+                You still click <strong>Execute</strong> separately to run policy, perform the action, and write receipts —
+                approval never runs the adapter.
               </>
             )}
           </p>
@@ -513,9 +471,9 @@ function DetailModal({
               </>
             ) : (
               <>
-                <span className="font-semibold text-zinc-700 dark:text-emerald-200">Next step: </span>
-                Approval is recorded. Use <strong>Execute</strong> below to run policy checks, perform the action, and
-                write artifacts plus the action log.
+                <span className="font-semibold text-zinc-700 dark:text-emerald-200">Authorized — not executed yet. </span>
+                Approval is consent, not execution. Use <strong>Execute</strong> below to run policy checks, perform the
+                action, and write artifacts plus the action log.
               </>
             )}
           </p>
@@ -969,16 +927,20 @@ function DetailModal({
           <div className="mt-6 space-y-2">
             {!approvalReady && needsTypedApprovalGate && (
               <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
-                Complete the typed confirmation in Safety & readiness above to enable Approve.
+                Approval is gated: finish the typed confirmation under Safety & readiness before Approve is available.
+                This slows mistaken fast-path approvals; it does not certify correctness.
               </p>
             )}
+            <p className="text-xs text-zinc-600 dark:text-zinc-400">
+              <strong>Deny</strong> records that this proposal will not be authorized. Nothing executes.
+            </p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => onDeny(event.id)}
                 className="rounded bg-zinc-200 px-4 py-2 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600"
               >
-                Deny
+                Deny proposal
               </button>
               <button
                 type="button"
@@ -1010,9 +972,12 @@ function DetailModal({
         {blockedForEvent && executeError && (
           <div className="mt-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-900/30">
             <p className="font-medium">Execution blocked</p>
+            <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+              Approval does not bypass policy or readiness — resolve the items below (or step up) before Execute.
+            </p>
             {executeError.stepUpRequired ? (
               <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-                Step-up required — use Step up button in System Status.
+                Step-up required — use Step up in System status so Execute can proceed when policy demands it.
               </p>
             ) : (
               <>
@@ -1051,7 +1016,7 @@ function DetailModal({
             <div className="rounded border border-zinc-300 bg-zinc-50/80 py-2 px-3 text-sm dark:border-zinc-600 dark:bg-zinc-800/80">
               <p className="font-medium text-zinc-700 dark:text-zinc-300">Execution boundary</p>
               <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                Approval records human consent. Execute writes artifacts and receipts
+                Approval records human consent only. Execute writes artifacts and receipts
                 {isSendEmail
                   ? " (or sends the allowlisted demo email)."
                   : isWorkflowPlan

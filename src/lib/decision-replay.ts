@@ -69,7 +69,7 @@ export function buildDecisionReplayLine(input: BuildDecisionReplayLineInput): st
 
   if (input.eventStatus === "denied" || input.rejectedAt) {
     const by = trimOrUndef(input.rejectionActorLabel) || trimOrUndef(input.rejectionActorId);
-    return by ? `${head} → rejected by ${by}` : `${head} → rejected`;
+    return by ? `${head} → denied by ${by}` : `${head} → denied`;
   }
 
   if (input.eventStatus === "pending") {
@@ -113,7 +113,7 @@ export function buildDecisionReplayLine(input: BuildDecisionReplayLineInput): st
     return `${head} → approved by ${approver} → execution blocked (${eo.reason})`;
   }
   if (eo?.status === "not_applicable" && eo.reasonCode === "approval-rejected") {
-    return `${head} → rejected`;
+    return `${head} → denied`;
   }
   if (eo?.status === "pending") {
     return `${head} → approved by ${approver} → awaiting execution`;

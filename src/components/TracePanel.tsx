@@ -369,7 +369,7 @@ function formatEventLifecycle(lifecycle: {
   failedAt: string | null;
 }): string {
   const parts: string[] = ["pending_approval"];
-  if (lifecycle.rejectedAt) return "pending_approval → rejected";
+  if (lifecycle.rejectedAt) return "pending_approval → denied";
   if (lifecycle.approvedAt) parts.push("approved");
   if (lifecycle.failedAt) return parts.join(" → ") + " → failed";
   if (lifecycle.executedAt) parts.push("executed");

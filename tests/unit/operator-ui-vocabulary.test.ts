@@ -73,7 +73,7 @@ describe("operator UI vocabulary", () => {
     );
   });
 
-  it("decision replay: rejected (no actor)", () => {
+  it("decision replay: denied (no actor)", () => {
     expect(
       buildDecisionReplayLine({
         proposerLabel: "A",
@@ -81,7 +81,7 @@ describe("operator UI vocabulary", () => {
         eventStatus: "denied",
         preflight: { loading: false, data: null },
       })
-    ).toMatch(/→ rejected$/);
+    ).toMatch(/→ denied$/);
   });
 
   const baseEvent = { id: "e1", createdAt: "2026-01-01T00:00:00.000Z" };
@@ -122,7 +122,7 @@ describe("operator UI vocabulary", () => {
     expect(o.headline).toBe("Execution blocked — no approval recorded");
   });
 
-  it("execution truth: Rejected — execution did not run", () => {
+  it("execution truth: Denied — execution did not run", () => {
     const o = deriveTraceExecutionOutcome({
       event: {
         ...baseEvent,
@@ -130,6 +130,6 @@ describe("operator UI vocabulary", () => {
         proposalStatus: "rejected",
       },
     });
-    expect(o.headline).toBe("Rejected — execution did not run");
+    expect(o.headline).toBe("Denied — execution did not run");
   });
 });

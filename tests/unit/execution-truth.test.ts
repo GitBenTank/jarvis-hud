@@ -97,7 +97,7 @@ describe("deriveTraceExecutionOutcome", () => {
     });
     expect(o.status).toBe("not_applicable");
     expect(o.reasonCode).toBe("approval-rejected");
-    expect(o.headline).toBe("Rejected — execution did not run");
+    expect(o.headline).toBe("Denied — execution did not run");
   });
 
   it("pending when approved but not executed and policy allows", () => {

@@ -8,6 +8,7 @@ import {
   shortProposalBatchIdFragment,
 } from "@/lib/proposal-batch";
 import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-lifecycle";
+import { operatorLifecycleBadgeLabel } from "@/lib/proposal-status-operator-ui";
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import { requiresIrreversibleConfirmation } from "@/lib/risk";
 import Badge from "./Badge";
@@ -76,25 +77,11 @@ function proposalStatusToVariant(
   return "pending";
 }
 
-function proposalStatusToLabel(s: ProposalStatus): string {
-  const labels: Record<ProposalStatus, string> = {
-    proposed: "PROPOSED",
-    validated: "VALIDATED",
-    pending_approval: "PENDING",
-    approved: "APPROVED",
-    executing: "EXECUTING",
-    executed: "EXECUTED",
-    rejected: "REJECTED",
-    failed: "FAILED",
-    archived: "ARCHIVED",
-  };
-  return labels[s] ?? s.toUpperCase();
-}
-
 function StatusBadge({ event }: { event: ProposalEvent }) {
   const n = normalizeProposalLifecycle(event);
   const variant = proposalStatusToVariant(n.proposalStatus);
-  return <Badge variant={variant}>{proposalStatusToLabel(n.proposalStatus)}</Badge>;
+  const label = operatorLifecycleBadgeLabel(event.payload, n.proposalStatus);
+  return <Badge variant={variant}>{label}</Badge>;
 }
 
 type AgentProposalsFeedProps = Readonly<{
@@ -238,9 +225,9 @@ function ProposalCard({
 
   return (
     <li className={`rounded-lg border ${borderClass} ${isPending ? "p-5" : "p-4"}`}>
-      {isPending && (
+        {isPending && (
         <div className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-          Authority required
+          Human authority required
         </div>
       )}
 
@@ -375,6 +362,7 @@ function ProposalCard({
               <button
                 type="button"
                 onClick={() => onApprove(event.id)}
+                title="Records authorization only; does not execute"
                 className="rounded border-2 border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-700"
               >
                 Approve
@@ -383,9 +371,10 @@ function ProposalCard({
             <button
               type="button"
               onClick={() => onDeny(event.id)}
+              title="Deny — proposal will not be authorized; nothing runs"
               className="rounded border-2 border-red-400/80 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-500/60 dark:text-red-400 dark:hover:bg-red-950/30"
             >
-              Reject
+              Deny
             </button>
             <button
               type="button"
@@ -405,6 +394,7 @@ function ProposalCard({
           <>
             <button
               onClick={() => onDetails(event)}
+              title="Open details to run policy, preflight, and Execute with receipts"
               className="rounded border-2 border-blue-500 bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               Execute
@@ -500,7 +490,7 @@ export default function AgentProposalsFeed({
         <>
           <p className="text-sm text-zinc-500">No proposals pending approval.</p>
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            The agent may propose. Execution authority originates with a human.
+            Proposals are claims and plans, not completed work. Execution authority stays with a human.
           </p>
         </>
       )}
@@ -529,7 +519,7 @@ export default function AgentProposalsFeed({
       {pendingApprovals.length > 0 && (
         <>
           <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
-            The agent may propose. Execution authority originates with a human.
+            Proposals are claims and plans, not completed work. Approve records consent; Execute runs adapters and writes receipts.
           </p>
           <ul className="space-y-4">
             <ProposalListByBatch
@@ -546,7 +536,10 @@ export default function AgentProposalsFeed({
 
       {approvedNotExecuted.length > 0 && (
         <>
-          <h3 className="mb-2 mt-6 font-medium">Authorized (Awaiting Execution)</h3>
+          <h3 className="mb-1 mt-6 font-medium">Authorized (awaiting execution)</h3>
+          <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+            Approved means you may execute — not that anything has run yet.
+          </p>
           <ul className="space-y-3">
             <ProposalListByBatch
               events={approvedNotExecuted}

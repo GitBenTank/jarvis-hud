@@ -59,7 +59,7 @@ describe("buildDecisionReplayLine", () => {
     ).toBe("Alfred proposed code.apply → awaiting approval");
   });
 
-  it("rejected with actor", () => {
+  it("denied with actor", () => {
     expect(
       buildDecisionReplayLine({
         proposerLabel: "Alfred",
@@ -68,7 +68,7 @@ describe("buildDecisionReplayLine", () => {
         rejectionActorLabel: "Local user",
         preflight: { loading: false, data: null },
       })
-    ).toBe("Alfred proposed code.apply → rejected by Local user");
+    ).toBe("Alfred proposed code.apply → denied by Local user");
   });
 
   it("approved awaiting execution when preflight ready", () => {

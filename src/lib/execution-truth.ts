@@ -108,10 +108,10 @@ export function deriveTraceExecutionOutcome(input: {
     return {
       status: "not_applicable",
       reasonCode: "approval-rejected",
-      reason: "approval-rejected: operator rejected before execution",
+      reason: "approval-rejected: operator denied before execution",
       stage: "execution",
-      headline: "Rejected — execution did not run",
-      transitionLine: "proposed → approval → rejected (execution never authorized)",
+      headline: "Denied — execution did not run",
+      transitionLine: "proposed → operator denied (execution never authorized)",
     };
   }
 

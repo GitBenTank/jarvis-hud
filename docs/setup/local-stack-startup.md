@@ -15,6 +15,20 @@ Run from your **jarvis-hud** clone (`cd` there first in both terminals):
 
 **Helper:** `pnpm dev:stack` prints these lines with your real paths and env warnings.
 
+### Cursor task workflow
+
+When the workspace folder is **jarvis-hud** (not another repo), use the Command Palette:
+
+1. **Cmd+Shift+P** (macOS) → **Tasks: Run Task**
+2. Typical flows:
+   - **Jarvis: Reset Local Stack** — narrow kill on stack ports (**3000**, **18789**, **19001**) and known **`next dev`** / **`run-node.mjs --dev gateway`** processes; then start again.
+   - **Jarvis: Start Full Local Stack** — runs **Start HUD** and **Start OpenClaw Gateway** in **parallel** in separate dedicated terminals.
+   - **Jarvis: Doctor** — **`pnpm local:stack:doctor`** after things settle.
+
+CLI equivalents: **`pnpm local:stack:kill`**, **`pnpm local:stack:start:jarvis`**, **`pnpm local:stack:start:openclaw`**, **`pnpm local:stack:reset`**, **`pnpm local:stack:doctor`**. **`pnpm local:stack:start`** prints the same two-terminal hint.
+
+OpenClaw logs append to **`/tmp/openclaw-gateway-last.log`** when using tasks or **`pnpm local:stack:start:openclaw`** (wrapper **`pnpm openclaw:dev:log`**). Override with **`OPENCLAW_GATEWAY_LOG`**.
+
 **`.env.local`:** `JARVIS_BASE_URL=http://127.0.0.1:3000`, `JARVIS_HUD_BASE_URL=http://127.0.0.1:3000`, `OPENCLAW_CONTROL_UI_URL` = gateway origin from the log or doctor. Ingress: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, secret ≥32 chars, allowlist includes `openclaw`.
 
 **Optional scripted demo (port 3001):** [DEMO.md](../../DEMO.md) — `pnpm demo:boot`, `demo:verify`, `demo:smoke`. Use only when you want that flow; normal integration is **`pnpm dev`** on **3000** above.

@@ -2,30 +2,110 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "OpenClaw: gateway:dev",
+      "label": "Jarvis: Kill Local Stack",
       "type": "shell",
-      "command": "pnpm openclaw:dev",
+      "command": "pnpm local:stack:kill",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Jarvis: Start HUD",
+      "type": "shell",
+      "command": "pnpm local:stack:start:jarvis",
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "localStack"
+        "group": "jarvisHud",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Jarvis: Start OpenClaw Gateway",
+      "type": "shell",
+      "command": "pnpm local:stack:start:openclaw",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "openclawGateway",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Jarvis: Start Full Local Stack",
+      "dependsOn": ["Jarvis: Start HUD", "Jarvis: Start OpenClaw Gateway"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Jarvis: Reset Local Stack",
+      "type": "shell",
+      "command": "pnpm local:stack:reset",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Jarvis: Doctor",
+      "type": "shell",
+      "command": "pnpm local:stack:doctor",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenClaw: gateway:dev",
+      "type": "shell",
+      "command": "pnpm local:stack:start:openclaw",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "openclawGateway",
+        "showReuseMessage": false
       },
       "problemMatcher": []
     },
     {
       "label": "Jarvis HUD: dev",
       "type": "shell",
-      "command": "pnpm dev",
+      "command": "pnpm local:stack:start:jarvis",
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
-        "group": "localStack"
+        "group": "jarvisHud",
+        "showReuseMessage": false
       },
       "problemMatcher": []
     },
@@ -38,13 +118,14 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared"
+        "panel": "shared",
+        "showReuseMessage": false
       },
       "problemMatcher": []
     },
     {
       "label": "Local stack: both (parallel)",
-      "dependsOn": ["OpenClaw: gateway:dev", "Jarvis HUD: dev"],
+      "dependsOn": ["Jarvis: Start HUD", "Jarvis: Start OpenClaw Gateway"],
       "dependsOrder": "parallel",
       "problemMatcher": []
     }

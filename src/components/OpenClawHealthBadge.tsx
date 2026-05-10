@@ -132,7 +132,13 @@ export default function OpenClawHealthBadge({
               <span className="text-[10px] font-normal opacity-90">Version: {data.version}</span>
             ) : null}
             {lastSeenText ? (
-              <span className="text-[10px] font-normal opacity-90">{lastSeenText}</span>
+              <span
+                className="text-[10px] font-normal opacity-90"
+                suppressHydrationWarning
+                title="Relative time (server vs browser clock may differ slightly)"
+              >
+                {lastSeenText}
+              </span>
             ) : null}
             {detailText ? (
               <span className="text-[10px] font-normal opacity-90">{detailText}</span>

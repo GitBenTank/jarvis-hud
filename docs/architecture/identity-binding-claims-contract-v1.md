@@ -91,6 +91,13 @@ After successful OIDC validation, the **Jarvis session** (today: signed cookie p
 
 Exact JSON field names may match the table above or a single nested `principal: { iss, sub }` object — **one shape**, documented once in implementation.
 
+**S1 implementation (shipped):**
+
+- Session cookie JSON includes `oidcIss`, `oidcSub`, `oidcClaimsAt` when bound.
+- **Stub bind (dev/test only):** `POST /api/auth/oidc/stub-bind` with existing session cookie and JSON body `{ "iss", "sub" }`. Requires `JARVIS_OIDC_STUB_BIND=true`, `JARVIS_OIDC_ISSUER_ALLOWLIST` (comma-separated issuers, normalized), and `iss` allowed. Disabled by default (`404`).
+- **Step-up:** when `JARVIS_IDENTITY_BINDING_REQUIRED=true`, `POST /api/auth/step-up` returns **403** until OIDC fields are present (`identity_binding_required`).
+- **`GET /api/auth/status`:** includes `identityBindingRequired` and `identityBound` for UI / probes.
+
 ---
 
 ## 6. Failure modes (fail closed)

@@ -28,6 +28,9 @@ Jarvis HUD configuration is driven by environment variables. Never commit secret
 |----------|----------|-------------|
 | `JARVIS_AUTH_ENABLED` | No | `"true"` to require session auth for gated HUD / API routes |
 | `JARVIS_AUTH_SECRET` | When auth enabled | Min 16 chars. Used for session signing. |
+| `JARVIS_IDENTITY_BINDING_REQUIRED` | No | `"true"` to require OIDC `iss`/`sub` on the session before `POST /api/auth/step-up` succeeds ([identity binding claims contract](../architecture/identity-binding-claims-contract-v1.md)). |
+| `JARVIS_OIDC_STUB_BIND` | No | `"true"` enables dev/test `POST /api/auth/oidc/stub-bind` (off by default). |
+| `JARVIS_OIDC_ISSUER_ALLOWLIST` | When stub bind enabled | Comma-separated issuer URLs (normalized: trim, no trailing slash). |
 
 **Authority model (who may submit vs approve):** [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis). Ingress still uses **`JARVIS_INGRESS_OPENCLAW_SECRET`** (HMAC) — that secret is **not** a substitute for human identity.
 

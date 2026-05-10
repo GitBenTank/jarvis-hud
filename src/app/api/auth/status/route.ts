@@ -6,6 +6,8 @@ import {
   getSessionFromCookie,
   isStepUpValid,
   AuthConfigError,
+  isIdentityBindingRequired,
+  sessionHasOidcBinding,
 } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -27,15 +29,21 @@ export async function GET(request: NextRequest) {
       authEnabled: false,
       hasSession: false,
       stepUpValid: false,
+      identityBindingRequired: false,
+      identityBound: false,
     });
   }
 
+  const identityBindingRequired = isIdentityBindingRequired();
   const cookie = request.headers.get("cookie");
   const session = getSessionFromCookie(cookie);
+  const identityBound = session ? sessionHasOidcBinding(session) : false;
 
   return NextResponse.json({
     authEnabled: true,
     hasSession: !!session,
     stepUpValid: session ? isStepUpValid(session) : false,
+    identityBindingRequired,
+    identityBound,
   });
 }

@@ -6,6 +6,8 @@ import {
   getSessionFromCookie,
   updateSessionStepUp,
   AuthConfigError,
+  assertIdentityBindingForStepUp,
+  IdentityBindingError,
 } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
@@ -34,6 +36,18 @@ export async function POST(request: NextRequest) {
       { error: "Session required. Call POST /api/auth/init first." },
       { status: 401 }
     );
+  }
+
+  try {
+    assertIdentityBindingForStepUp(session);
+  } catch (err) {
+    if (err instanceof IdentityBindingError) {
+      return NextResponse.json(
+        { error: err.message, code: err.code },
+        { status: 403 }
+      );
+    }
+    throw err;
   }
 
   const { session: updated, cookie: newCookie } = updateSessionStepUp(session);

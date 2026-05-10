@@ -51,7 +51,7 @@ Order is **documentation and proof hooks before** persistence writes that depend
 | Slice | Deliverable | Exit signal |
 |-------|-------------|-------------|
 | **S0 — Claims contract** | **[Contract doc](../architecture/identity-binding-claims-contract-v1.md):** required OIDC ID Token claims, `(iss, sub)` stability, session + event field mapping, fail-closed rules, §4a guardrails. | **Closed** (owner sign-off); normative baseline for S1+. |
-| **S1 — Session binding** | At session establishment / refresh, parse and validate claims; hold bound subject in session context used by gated routes. **Active.** | Unit tests or narrow integration tests for parser + failure modes. |
+| **S1 — Session binding** | Session carries `oidcIss` / `oidcSub` / `oidcClaimsAt`; cookie encode/decode + partial-OIDC fail closed; stub `POST /api/auth/oidc/stub-bind`; step-up **403** when `JARVIS_IDENTITY_BINDING_REQUIRED` and unbound; `GET /api/auth/status` flags. **Real OIDC code exchange later.** | `tests/unit/auth-session-oidc.test.ts` round-trip + binding gate; extend when real IdP lands. |
 | **S2 — Approve / execute persistence** | Write bound human principal fields on approve and execute paths already covered by policy + step-up; no change to ingress signing. | F1 manual or scripted pass on dev stack. |
 | **S3 — Trace + audit export** | Surface same identifiers in trace read APIs and audit export JSON for the governed day range. | F2 pass on same run as S2. |
 | **S4 — Pressure + probes** | Add or extend `pnpm` probe(s) for identity posture (cookie/session + bound subject presence); document in operator checklist. | CI-safe subset where possible; serious checks documented for local/CI split if needed. |

@@ -68,6 +68,10 @@ type IngressEvent = {
   model?: string;
   /** Optional review-container metadata; validated by `strictValidateIngressBatch`. */
   batch?: ProposalBatchItemContext;
+  /** Optional declared epistemic posture (validate-openclaw-proposal allowlist). */
+  evidenceStatus?: string;
+  /** Optional one-line unknowns / assumptions (≤280 chars). */
+  uncertaintySummary?: string;
 };
 
 type IngressBody = {
@@ -93,6 +97,8 @@ type IngressBody = {
   provider?: string;
   model?: string;
   batch?: unknown;
+  evidenceStatus?: string;
+  uncertaintySummary?: string;
 };
 
 export async function POST(request: NextRequest) {
@@ -293,6 +299,8 @@ export async function POST(request: NextRequest) {
       "provider",
       "model",
       "batch",
+      "evidenceStatus",
+      "uncertaintySummary",
     ];
     const rawPayload =
       body.payload && typeof body.payload === "object" ? body.payload : {};
@@ -363,6 +371,15 @@ export async function POST(request: NextRequest) {
         ? body.model.trim()
         : undefined;
 
+    const evidenceStatusNorm =
+      typeof body.evidenceStatus === "string" && body.evidenceStatus.trim()
+        ? body.evidenceStatus.trim()
+        : undefined;
+    const uncertaintySummaryNorm =
+      typeof body.uncertaintySummary === "string" && body.uncertaintySummary.trim()
+        ? body.uncertaintySummary.trim()
+        : undefined;
+
     const proposerActor = agentActorFromAgentField(logicalAgent);
 
     const event: IngressEvent = {
@@ -385,6 +402,8 @@ export async function POST(request: NextRequest) {
       ...(providerName ? { provider: providerName } : {}),
       ...(modelName ? { model: modelName } : {}),
       ...(normalizedIngressBatch ? { batch: normalizedIngressBatch } : {}),
+      ...(evidenceStatusNorm ? { evidenceStatus: evidenceStatusNorm } : {}),
+      ...(uncertaintySummaryNorm ? { uncertaintySummary: uncertaintySummaryNorm } : {}),
       source: {
         connector: "openclaw",
         receivedAt,

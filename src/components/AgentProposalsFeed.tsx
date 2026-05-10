@@ -11,6 +11,7 @@ import { normalizeProposalLifecycle, type ProposalStatus } from "@/lib/proposal-
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import { requiresIrreversibleConfirmation } from "@/lib/risk";
 import Badge from "./Badge";
+import EvidenceUncertaintyStrip from "./EvidenceUncertaintyStrip";
 
 export type ProposalEvent = {
   id: string;
@@ -34,6 +35,8 @@ export type ProposalEvent = {
   model?: string;
   /** Optional review-container metadata (ADR-0005); execution stays per approval id. */
   batch?: unknown;
+  evidenceStatus?: string;
+  uncertaintySummary?: string;
 };
 
 function formatRelativeTime(iso: string): string {
@@ -308,6 +311,12 @@ function ProposalCard({
             );
           })()}
         </div>
+
+        <EvidenceUncertaintyStrip
+          variant="compact"
+          evidenceStatus={event.evidenceStatus}
+          uncertaintySummary={event.uncertaintySummary}
+        />
 
         <p className={`font-medium text-zinc-800 dark:text-zinc-200 ${isPending || isRecovery ? "text-base" : "text-sm"}`}>
           {getCardSummary(event.payload)}

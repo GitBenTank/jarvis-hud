@@ -18,6 +18,7 @@ import {
 } from "@/lib/risk";
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import AgentProposalsFeed from "./AgentProposalsFeed";
+import EvidenceUncertaintyStrip from "./EvidenceUncertaintyStrip";
 import ApprovalSafetySection from "./ApprovalSafetySection";
 import ApprovalTimePreflightSnapshotSection from "./ApprovalTimePreflightSnapshotSection";
 import Badge from "./Badge";
@@ -68,6 +69,10 @@ type Event = {
   model?: string;
   /** Review-container metadata (ADR-0005); each event still has its own execute receipt. */
   batch?: unknown;
+  /** Optional OpenClaw-declared epistemic posture (`src/lib/evidence-status.ts`). */
+  evidenceStatus?: string;
+  /** Optional one-line unknowns / assumptions. */
+  uncertaintySummary?: string;
 };
 
 type ApprovalsResponse = {
@@ -626,6 +631,14 @@ function DetailModal({
           ) : null}
           <LifecycleTimestamps event={event} workflowPlan={isWorkflowPlan} />
         </dl>
+
+        <div className="mt-3">
+          <EvidenceUncertaintyStrip
+            variant="relaxed"
+            evidenceStatus={event.evidenceStatus}
+            uncertaintySummary={event.uncertaintySummary}
+          />
+        </div>
 
         {/* Request metadata — correlationId, source metadata (detailed view only) */}
         {(event.correlationId ||

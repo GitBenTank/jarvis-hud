@@ -594,4 +594,80 @@ describe("validateOpenClawProposal", () => {
     });
     expect(r.ok).toBe(false);
   });
+
+  it("accepts optional evidenceStatus and uncertaintySummary", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      payload: { note: "n" },
+      source: { connector: "openclaw" },
+      evidenceStatus: "  inferred  ",
+      uncertaintySummary: "  Key dates not verified.  ",
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects invalid evidenceStatus", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      payload: { note: "n" },
+      source: { connector: "openclaw" },
+      evidenceStatus: "hallucinated",
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("evidenceStatus");
+  });
+
+  it("rejects whitespace-only uncertaintySummary", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      payload: { note: "n" },
+      source: { connector: "openclaw" },
+      uncertaintySummary: "   \t  ",
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("uncertaintySummary");
+  });
+
+  it("rejects uncertaintySummary over max length", () => {
+    const body = {
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      payload: { note: "n" },
+      source: { connector: "openclaw" },
+      uncertaintySummary: "x".repeat(281),
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("uncertaintySummary");
+  });
 });

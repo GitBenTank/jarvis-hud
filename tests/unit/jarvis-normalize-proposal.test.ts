@@ -72,6 +72,22 @@ describe("normalizeProposal", () => {
     expect(r.body.batch).toEqual(batch);
   });
 
+  it("passes through evidenceStatus and uncertaintySummary when present", () => {
+    const r = normalizeProposal({
+      kind: "system.note",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      payload: { note: "n" },
+      evidenceStatus: "sourced",
+      uncertaintySummary: "Citations in note only.",
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.body.evidenceStatus).toBe("sourced");
+    expect(r.body.uncertaintySummary).toBe("Citations in note only.");
+  });
+
   it("rejects missing kind", () => {
     const r = normalizeProposal({
       title: "T",

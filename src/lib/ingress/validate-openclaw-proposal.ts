@@ -3,6 +3,11 @@
  * Feature-flagged via JARVIS_INGRESS_OPENCLAW_VALIDATE.
  */
 
+import {
+  allowedEvidenceStatusListForDocs,
+  isEvidenceStatus,
+  UNCERTAINTY_SUMMARY_MAX_CHARS,
+} from "../evidence-status";
 import { parseSendEmailPayload } from "../send-email-constants";
 import { parseWorkflowPlanPayload } from "../workflow-plan";
 
@@ -32,6 +37,10 @@ const ALLOWED_TOP_LEVEL_KEYS = new Set([
   "model",
   /** Review-container metadata (validated in route via `strictValidateIngressBatch`). */
   "batch",
+  /** Declared epistemic posture for proposal body (optional). */
+  "evidenceStatus",
+  /** One-line unknowns / assumptions / verification gaps (optional). */
+  "uncertaintySummary",
 ]);
 
 /** Max length for optional coordinator, builder, provider strings. */
@@ -449,6 +458,54 @@ export function validateOpenClawProposal(input: {
         code: "bad_request",
         message: "confidence must be a number 0–1",
         field: "confidence",
+      };
+    }
+  }
+
+  if (o.evidenceStatus !== undefined) {
+    if (typeof o.evidenceStatus !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "evidenceStatus must be a string when provided",
+        field: "evidenceStatus",
+      };
+    }
+    const es = o.evidenceStatus.trim();
+    if (!es || !isEvidenceStatus(es)) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `evidenceStatus must be one of: ${allowedEvidenceStatusListForDocs()}`,
+        field: "evidenceStatus",
+      };
+    }
+  }
+
+  if (o.uncertaintySummary !== undefined) {
+    if (typeof o.uncertaintySummary !== "string") {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "uncertaintySummary must be a string when provided",
+        field: "uncertaintySummary",
+      };
+    }
+    const u = o.uncertaintySummary.trim();
+    if (!u) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: "uncertaintySummary must be non-empty when provided",
+        field: "uncertaintySummary",
+      };
+    }
+    if (u.length > UNCERTAINTY_SUMMARY_MAX_CHARS) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: `uncertaintySummary must be ≤ ${UNCERTAINTY_SUMMARY_MAX_CHARS} chars`,
+        field: "uncertaintySummary",
       };
     }
   }

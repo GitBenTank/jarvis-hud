@@ -4,6 +4,11 @@
  */
 
 import { SEND_EMAIL_DEMO_ALLOWED_TO } from "./send-email-constants";
+import {
+  allowedEvidenceStatusListForDocs,
+  isEvidenceStatus,
+  UNCERTAINTY_SUMMARY_MAX_CHARS,
+} from "./evidence-status";
 import { parseWorkflowPlanPayload } from "./workflow-plan";
 
 export type ValidationError = {
@@ -35,6 +40,8 @@ const ALLOWLISTED_TOP_LEVEL_KEYS = new Set([
   "provider",
   "model",
   "batch",
+  "evidenceStatus",
+  "uncertaintySummary",
 ]);
 
 const AGENT_METADATA_MAX_LEN = 64;
@@ -175,6 +182,41 @@ export function validateIngressBody(
         message: "batch must be a plain object when provided",
         field: "batch",
       });
+    }
+  }
+
+  if (o.evidenceStatus !== undefined) {
+    if (typeof o.evidenceStatus !== "string" || !isEvidenceStatus(o.evidenceStatus.trim())) {
+      errors.push({
+        code: "INVALID_FIELD",
+        message: `evidenceStatus must be one of: ${allowedEvidenceStatusListForDocs()}`,
+        field: "evidenceStatus",
+      });
+    }
+  }
+
+  if (o.uncertaintySummary !== undefined) {
+    if (typeof o.uncertaintySummary !== "string") {
+      errors.push({
+        code: "INVALID_FIELD",
+        message: "uncertaintySummary must be a string when provided",
+        field: "uncertaintySummary",
+      });
+    } else {
+      const u = o.uncertaintySummary.trim();
+      if (!u) {
+        errors.push({
+          code: "INVALID_FIELD",
+          message: "uncertaintySummary must be non-empty when provided",
+          field: "uncertaintySummary",
+        });
+      } else if (u.length > UNCERTAINTY_SUMMARY_MAX_CHARS) {
+        errors.push({
+          code: "FIELD_TOO_LONG",
+          message: `uncertaintySummary must be ≤ ${UNCERTAINTY_SUMMARY_MAX_CHARS} chars`,
+          field: "uncertaintySummary",
+        });
+      }
     }
   }
 

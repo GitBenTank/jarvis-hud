@@ -27,6 +27,8 @@ const ALLOWED_TOP_LEVEL = new Set([
   "provider",
   "model",
   "batch",
+  "evidenceStatus",
+  "uncertaintySummary",
 ]);
 
 export type NormalizeOk = { ok: true; body: Record<string, unknown> };

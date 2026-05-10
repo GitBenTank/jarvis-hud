@@ -256,6 +256,28 @@ describe("POST /api/ingress/openclaw", () => {
     });
   });
 
+  it("persists evidenceStatus and uncertaintySummary on event when valid", async () => {
+    const { POST } = await import("@/app/api/ingress/openclaw/route");
+    const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");
+
+    const body = {
+      ...VALID_BODY,
+      evidenceStatus: "inferred",
+      uncertaintySummary: "Dates from CRM not double-checked.",
+    };
+    const req = await createRequest({ body });
+    const res = await POST(req as import("next/server").NextRequest);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+
+    const dateKey = getDateKey();
+    const filePath = getEventsFilePath(dateKey);
+    const events = await readJson<Record<string, unknown>[]>(filePath);
+    const ev = (events ?? []).find((e) => e.id === json.id);
+    expect(ev?.evidenceStatus).toBe("inferred");
+    expect(ev?.uncertaintySummary).toBe("Dates from CRM not double-checked.");
+  });
+
   it("preserves optional agent, builder, provider, model and derives proposer actor from agent", async () => {
     const { POST } = await import("@/app/api/ingress/openclaw/route");
     const { getDateKey, getEventsFilePath, readJson } = await import("@/lib/storage");

@@ -305,4 +305,41 @@ describe("validateIngressBody", () => {
       expect(r.errors.some((e) => e.code === "PATCH_NOT_ALLOWED")).toBe(true);
     }
   });
+
+  it("accepts optional evidenceStatus and uncertaintySummary", () => {
+    const body = {
+      ...BASE,
+      payload: { note: "n" },
+      evidenceStatus: "speculative",
+      uncertaintySummary: "Assumes Q3 close.",
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects invalid evidenceStatus in validateIngressBody", () => {
+    const body = {
+      ...BASE,
+      payload: { note: "n" },
+      evidenceStatus: "oracle",
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.errors.some((e) => e.field === "evidenceStatus")).toBe(true);
+    }
+  });
+
+  it("rejects whitespace-only uncertaintySummary", () => {
+    const body = {
+      ...BASE,
+      payload: { note: "n" },
+      uncertaintySummary: "  ",
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.errors.some((e) => e.field === "uncertaintySummary")).toBe(true);
+    }
+  });
 });

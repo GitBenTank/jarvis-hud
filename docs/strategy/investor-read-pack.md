@@ -1,7 +1,7 @@
 ---
 title: "Investor read pack — one path, plain English"
 status: living-document
-version: 2.8
+version: 2.9
 category: strategy
 owner: Ben Tankersley
 related:
@@ -17,6 +17,7 @@ related:
   - ./investor-live-proof-map.md
   - ./messaging-execution-integrity.md
   - ./positioning-memo-workflow-governance-agent-teams.md
+  - ./market-narrative-governed-agent-workflows-2026.md
   - ../interview-prep-jarvis.md
 ---
 
@@ -31,6 +32,8 @@ related:
 **Compressed category language (3-line investor + tagline):** [messaging — execution integrity](./messaging-execution-integrity.md).
 
 **3–5 claim positioning (workflow > model, governed agent teams):** [Positioning memo — workflow governance](./positioning-memo-workflow-governance-agent-teams.md).
+
+**Market narrative (six working patterns, anti-patterns, mentality table):** [Governed agent workflows (2026)](./market-narrative-governed-agent-workflows-2026.md).
 
 **In plain English:** AI can already touch real rails (mail, code, APIs). The gap isn’t intelligence—it’s **authority at execution** plus **usable proof afterward**. Jarvis sits on that boundary.
 

@@ -14,6 +14,7 @@ related:
   - ../setup/phase1-freeze-checklist.md
   - ./messaging-execution-integrity.md
   - ./positioning-memo-workflow-governance-agent-teams.md
+  - ./market-narrative-governed-agent-workflows-2026.md
   - ../setup/phase2-auth-authority-checklist.md
   - ../setup/local-stack-startup.md
 ---

@@ -12,6 +12,7 @@ related:
   - ./investor-read-pack.md
   - ./operating-assumptions.md
   - ./agent-team-v1.md
+  - ./market-narrative-governed-agent-workflows-2026.md
 ---
 
 # Positioning memo — workflow governance for agent teams
@@ -65,6 +66,7 @@ Across coding assistants, research stacks, enterprise ops, and long-running agen
 
 ## See also
 
+- [Market narrative — six patterns + mentality shift (2026)](./market-narrative-governed-agent-workflows-2026.md) — depth behind this memo
 - [Video thesis & Thesis Lock](./jarvis-hud-video-thesis.md)
 - [Competitive landscape (2026)](./competitive-landscape-2026.md)
 - [Investor read pack](./investor-read-pack.md) — fixed reading order for advisors

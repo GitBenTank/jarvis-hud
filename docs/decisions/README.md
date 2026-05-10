@@ -18,3 +18,4 @@ If you adopt **Proposed** for decisions that await explicit human sign-off befor
 | [0004](./0004-connector-ingress-v1.md) | Connector Ingress v1 (OpenClaw) |
 | [0005](./0005-agent-team-batch-v0-per-item-execute.md) | Batch v0 — per-item execute |
 | [0006](./0006-governed-workflow-plans-v03.md) | Governed workflow plans (v0.3) |
+| [0007](./0007-identity-binding-v1.md) | Identity binding v1 (human principal) — Proposed |

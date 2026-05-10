@@ -1,7 +1,7 @@
 ---
 title: "Competitive landscape & positioning (2026)"
 status: living-document
-version: 1.5
+version: 1.6
 owner: Ben Tankersley
 created: 2026-04-11
 category: product-strategy
@@ -12,6 +12,7 @@ related:
   - ./investor-landscape-answer-card.md
   - ./cursor-prompt-gemini-enterprise-competitive.md
   - ./competitive-gemini-enterprise-agent-platform.md
+  - ./positioning-memo-workflow-governance-agent-teams.md
 ---
 
 # Competitive landscape and positioning (2026)

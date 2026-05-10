@@ -46,7 +46,7 @@ The Index’s recurring theme is a **gap between capability and preparedness**: 
 | Posture | Meaning for Jarvis |
 |--------|---------------------|
 | **Evidence legibility** | Proposals must not let fluent text masquerade as knowledge: prefer **sourced** research-shaped content, clear **model summary vs verified claim** distinction, and UI that states **evidence status** when the proposer supplies it (sourced / inferred / speculative / user-provided / unknown) — **shipped** on ingress normalization, validation, approvals detail, and the proposals feed ([`src/lib/evidence-status.ts`](../../src/lib/evidence-status.ts)). |
-| **Uncertainty surface** | Assumptions, unknowns, and claims needing verification should move from **buried prose** toward **structured or normalized sections** and compact HUD rendering. |
+| **Uncertainty surface** | Assumptions, unknowns, and claims needing verification should move from **buried prose** toward **structured or normalized sections** and compact HUD rendering — v0: optional ingress field **`uncertaintySummary`** with the same strip as evidence status ([`src/lib/evidence-status.ts`](../../src/lib/evidence-status.ts)). |
 | **Boundary-maintaining UX** | **Why denied / why gated**, **proposal ≠ executed**, and copy that reinforces **the model is not a trusted principal** — avoid training the operator to “comply with Alfred.” |
 | **Governance as headline** | Approval state, policy posture, auth/step-up, receipt completeness, and provenance should stay **operator-visible**, not internal-only. |
 | **Maturity framing (positioning)** | Jarvis helps teams move from **ad hoc agent use** toward **governed execution with receipts and separation of duties** — an operational RAI story, not ethics theater. |

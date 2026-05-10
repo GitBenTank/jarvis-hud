@@ -116,11 +116,13 @@ curl -sS "$HUD_BASE/api/audit/export?start=${PILOT_DATE}&end=${PILOT_DATE}" \
 
 ## 5. Policy deny repro + copy artifact
 
-Follow **[`policy-deny-repro.md`](./policy-deny-repro.md)** (step-up path needs **`JARVIS_AUTH_ENABLED=true`**). Save HTTP transcript:
+Follow **[`policy-deny-repro.md`](./policy-deny-repro.md)** (step-up path needs **`JARVIS_AUTH_ENABLED=true`**). Save HTTP transcript.
+
+**Or** use the scripted §A runner documented there: **`scripts/run-policy-deny-repro-once.mjs`** (set `POLICY_DENY_TRANSCRIPT` under `evidence/` — gitignored).
 
 ```bash
 cd "$REPO"
-# After running the curl steps from policy-deny-repro.md (use $HUD_BASE and your APPROVAL_ID):
+# After manual curl steps from policy-deny-repro.md (use $HUD_BASE and your APPROVAL_ID):
 # tee responses to evidence/${PILOT_DATE}-policy-deny-curl.txt
 ```
 

@@ -15,6 +15,28 @@ related:
 
 ---
 
+## Scripted runner (§A — same machine as `pnpm dev`)
+
+**`scripts/run-policy-deny-repro-once.mjs`** automates §A: signed **`system.note`** ingress, **`POST /api/auth/init` only** (no step-up), approve, execute → **expect HTTP 403** and a matching **`policy-decisions`** deny line. It does **not** write `jarvis.cookies`; it merges `Set-Cookie` in memory like other smoke scripts.
+
+From repo root (load secrets from `.env.local` yourself; **`evidence/` is gitignored** — safe for transcripts):
+
+```bash
+set -a && source .env.local && set +a
+export JARVIS_ROOT="${JARVIS_ROOT:-$PWD/.pilot-jarvis-data}"
+export JARVIS_HUD_BASE_URL="${JARVIS_HUD_BASE_URL:-http://127.0.0.1:3000}"
+export POLICY_DENY_TRANSCRIPT="$PWD/evidence/policy-deny-repro-transcript.txt"
+# Optional: override calendar file name (defaults to host-local YYYY-MM-DD, same rule as Jarvis getDateKey)
+# export PILOT_STORAGE_DATE=2026-05-09
+mkdir -p evidence
+: > "$POLICY_DENY_TRANSCRIPT"
+node scripts/run-policy-deny-repro-once.mjs
+```
+
+**Env:** `JARVIS_INGRESS_OPENCLAW_SECRET` (≥32 chars), `JARVIS_ROOT`, `POLICY_DENY_TRANSCRIPT` (path). Optional: `JARVIS_HUD_BASE_URL`, `PILOT_STORAGE_DATE`.
+
+---
+
 ## A. Step-up deny (primary — no `code.apply` payload)
 
 **Requires:** `JARVIS_AUTH_ENABLED=true`, valid `JARVIS_AUTH_SECRET` (≥16 chars), HUD reachable, a **pending** approval (any allowed kind, e.g. `system.note` from normal ingress).

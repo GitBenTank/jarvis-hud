@@ -56,6 +56,9 @@ auth-profiles.json
 # Local pilot / diligence evidence (exports, probe transcripts—do not commit raw secrets)
 /evidence/
 
+# Repo-local JARVIS_ROOT used for pilot / dev when ~/jarvis is unavailable (ephemeral)
+.pilot-jarvis-data/
+
 # Ephemeral data for pnpm screenshots:readme (OpenClaw → approval → receipt demo)
 .readme-screenshots-jarvis/
 

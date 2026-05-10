@@ -116,6 +116,26 @@ Examples (unambiguous, not “pretty”):
 - **Batch (`batch.title` / `batch.summary`):** Why this batch exists, run label, constraints (e.g. research-only, N items). Not the place for long citations or item-level findings.
 - **Item (`title` / `summary` / `payload.note`):** The finding, evidence, and **Sources** for that proposal row. If only one item needs an extra caveat, put it in **that** item’s note, not in `batch.summary`.
 
+## Phase 3b — evidence and uncertainty guardrails
+
+This slice extends Phase 3a from naming discipline into epistemic discipline.
+
+- Research-shaped `system.note` proposals should set **`evidenceStatus`** and **`uncertaintySummary`** by default.
+- Use **`evidenceStatus: "sourced"`** only when the note body includes a real **`## Sources`** section with concrete links, citations, attachments, or quoted evidence the reviewer can inspect.
+- Use **`inferred`** when the proposal synthesizes a conclusion from available evidence.
+- Use **`speculative`** for exploratory framing or hypotheses.
+- Use **`user_provided`** when the note is carrying user assertions or upstream facts that Jarvis has not independently verified.
+- Use **`unknown`** sparingly.
+
+**Relationship to `## Sources`:**
+- `evidenceStatus` is the one-line epistemic posture.
+- `## Sources` is the underlying evidence body.
+- `uncertaintySummary` tells the reviewer what is still missing, inferred, or unverified.
+
+**Reviewer-friendly proposal rule:** a reviewer should be able to tell, without rereading the whole note, what is backed by sources, what is inferred, and what still needs verification.
+
+**Creative batches:** same wire fields; posture guidance for memos and variants lives in [Creative batch workflow — Phase 3b](./creative-batch-workflow-v1.md#phase-3b--evidence-and-uncertainty-creative).
+
 ---
 
 ## Human review (success criteria)
@@ -186,7 +206,7 @@ This runs **`pnpm machine-wired`** then **`pnpm auth-posture`**. Fix failures be
 
 ### Operator loop (every pass — do this now)
 
-**Next is repetition, observation, and logging** — use [Phase 3a](#phase-3a--rehearsal-authoring-minimal) for batch naming and light field patterns; add broader templates only when the [friction log](#friction-log-after-rehearsals) proves another recurring pain.
+**Next is repetition, observation, and logging** — use [Phase 3a](#phase-3a--rehearsal-authoring-minimal) for batch naming and light field patterns, and [Phase 3b](#phase-3b--evidence-and-uncertainty-guardrails) for evidence / uncertainty fields; add broader templates only when the [friction log](#friction-log-after-rehearsals) proves another recurring pain.
 
 1. **`pnpm rehearsal:preflight`**
 2. **`pnpm rehearsal:research-batch`** (default **3** items). Pressure test: **`RESEARCH_BATCH_ITEM_COUNT=6 pnpm rehearsal:research-batch`** (or **5–7**; same shape — **N** signed POSTs, shared `batch.id`).
@@ -241,6 +261,8 @@ Note terminal **`id`** / **`traceId`** per item for later comparison in the HUD.
 ### 5. When Phase 3 earns attention
 
 **Narrow Phase 3a** (batch disambiguation + field patterns) is [documented above](#phase-3a--rehearsal-authoring-minimal) and grounded in repeated “samey batch title” friction. **Broader** Phase 3 work ([roadmap](../roadmap/0003-operator-integration-phases.md#phase-3--standardize-proposal-authoring)) should still follow **evidence**: expand templates only when this ritual produces **honest friction log entries** for a **new** recurring issue. Templates should **prevent what you actually saw**, not what you imagined might go wrong.
+
+**Phase 3b** adds evidence / uncertainty guardrails to that same rule: if reviewers repeatedly ask “is this sourced or inferred?” or “what remains unknown?”, authoring should answer those questions directly on the proposal surface.
 
 **Creative agent v1** ([Phase 5](../roadmap/0003-operator-integration-phases.md#phase-5--add-the-second-specialist)) stays after the research loop feels boringly reliable and Phase 3 is grounded.
 

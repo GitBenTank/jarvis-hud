@@ -1,7 +1,7 @@
 # Creative batch workflow v1 (Phase 5 — second specialist)
 
 **Status:** Living — **Phase 5 v1 first full close logged (2026-04-22, run 1 in friction log below)** — same approve → execute → receipt chain as research; no role-specific collapse at `system.note` depth. **Optional:** one short follow-up creative rehearsal later to rule out a lucky first pass. Same spine as [Research batch workflow v1](./research-batch-workflow-v1.md).  
-**Related:** [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Agent team v1](./agent-team-v1.md) · [Return after a pause](../setup/return-after-pause.md) · [Roadmap Phase 5](../roadmap/0003-operator-integration-phases.md#phase-5--add-the-second-specialist) · [Phase 3a batch naming](./research-batch-workflow-v1.md#phase-3a--rehearsal-authoring-minimal)
+**Related:** [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) · [ADR-0005: Batch v0](../decisions/0005-agent-team-batch-v0-per-item-execute.md) · [Agent team v1](./agent-team-v1.md) · [Return after a pause](../setup/return-after-pause.md) · [Roadmap Phase 5](../roadmap/0003-operator-integration-phases.md#phase-5--add-the-second-specialist) · [Phase 3a batch naming](./research-batch-workflow-v1.md#phase-3a--rehearsal-authoring-minimal) · [Phase 3b evidence / uncertainty (creative)](#phase-3b--evidence-and-uncertainty-creative) · [Phase 3b (research)](./research-batch-workflow-v1.md#phase-3b--evidence-and-uncertainty-guardrails)
 
 ---
 
@@ -61,6 +61,26 @@ Examples:
 
 ---
 
+## Phase 3b — evidence and uncertainty (creative)
+
+Same epistemic contract as [research Phase 3b](./research-batch-workflow-v1.md#phase-3b--evidence-and-uncertainty-guardrails), adapted for **creative memos** in `payload.note`. Allowed values and HUD behavior are defined in code: [`src/lib/evidence-status.ts`](../../src/lib/evidence-status.ts).
+
+- Creative-shaped `system.note` proposals should set **`evidenceStatus`** and **`uncertaintySummary`** on the wire body by default (see [`docs/architecture/openclaw-proposal-identity-and-contract.md`](../architecture/openclaw-proposal-identity-and-contract.md)).
+- **`speculative`** is appropriate when variants are exploratory, not yet tied to verified claims or live copy — the rehearsal script uses this posture by default.
+- Use **`sourced`** only when **`## Sources`** lists concrete inputs the reviewer can inspect (links, brand guidelines, prior approved copy, ticket excerpts). Do not default creative work to **`sourced`** because it “sounds confident.”
+- Use **`user_provided`** when the note carries client or stakeholder assertions Jarvis has not verified.
+- Use **`inferred`** when tone, angle, or constraints are synthesized from **`## Brief`** / **`## Audience`** without external citations.
+- Use **`unknown`** sparingly.
+
+**Relationship to markdown sections:**
+
+- **`uncertaintySummary`** is the **one-line** HUD strip (what is still fuzzy, unverified, or audience-dependent).
+- **`## Risks / notes`** is the **longer** operator-facing caveats inside the note; it should not contradict `evidenceStatus` / `uncertaintySummary`, and should expand on them where helpful.
+
+**Reviewer-friendly rule:** a reviewer should see posture and gaps on the proposal surface before deciding whether to open the full memo.
+
+---
+
 ## Out of scope (v1)
 
 | Out of scope | Why |
@@ -84,6 +104,17 @@ Same discipline as research: [blessed stack](../setup/local-stack-startup.md), p
 5. Verify **proposal id**, **trace id**, and **receipt** for that id only
 
 **Script:** `scripts/creative-batch-rehearsal.ts`
+
+**Fail-fast guard:** the rehearsal script now validates the creative markdown contract locally before signed ingress. Missing required headings or a `## Variants` section outside the **3–5** range should fail **before** the batch ever appears in HUD.
+
+**Troubleshooting:** local failures should tell the operator (a) what is wrong, (b) the first fix to make, and (c) a short note preview for orientation. Example: `Variants: need 3–5 items under ## Variants`.
+
+### Rehearsal failure playbook
+
+- Run **`pnpm rehearsal:creative-batch`** from the canonical repo.
+- If the script fails **before ingress**, read the local `problem:` and `fix:` lines first. That is the fastest path.
+- If the failure mentions headings or variants, compare the note against the creative markdown contract above or the validator in `src/lib/creative-note.ts`.
+- If the script succeeds, use the printed HUD path and batch id summary to review the batch in Jarvis, then approve as needed and execute exactly one item.
 
 ---
 

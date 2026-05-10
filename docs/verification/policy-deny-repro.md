@@ -25,7 +25,7 @@ related:
    ```
 2. **Approve** (same cookie jar):
    ```bash
-   curl -sS -b jarvis.cookies -X PATCH "http://127.0.0.1:3000/api/approvals/APPROVAL_ID" \
+   curl -sS -b jarvis.cookies -X POST "http://127.0.0.1:3000/api/approvals/APPROVAL_ID" \
      -H "Content-Type: application/json" \
      -d '{"action":"approve"}'
    ```

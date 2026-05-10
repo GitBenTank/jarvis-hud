@@ -53,6 +53,9 @@ auth-profiles.json
 # Ephemeral JARVIS_ROOT for pnpm golden-loop (CI-safe isolated runs)
 .golden-loop-tmp/
 
+# Local pilot / diligence evidence (exports, probe transcripts—do not commit raw secrets)
+/evidence/
+
 # Ephemeral data for pnpm screenshots:readme (OpenClaw → approval → receipt demo)
 .readme-screenshots-jarvis/
 

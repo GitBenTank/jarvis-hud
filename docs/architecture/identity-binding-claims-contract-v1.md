@@ -1,17 +1,17 @@
-# Identity binding — OIDC claims contract (v1, S0)
+# Identity binding — OIDC claims contract (v1)
 
-**Status:** Pinned (pre-code)  
+**Status:** Accepted — **S0 closed** (contract frozen for S1+)  
 **Owner:** Ben Tankersley  
 **Date:** 2026-05  
 
-**Binds:** [ADR-0007: Identity binding v1](../decisions/0007-identity-binding-v1.md) · [Tranche 0006 — S0](../roadmap/0006-identity-binding-tranche.md)  
+**Binds:** [ADR-0007: Identity binding v1](../decisions/0007-identity-binding-v1.md) · [Tranche 0006](../roadmap/0006-identity-binding-tranche.md) (S0 closed → **S1** session binding)  
 **Related:** Actor placeholders today: `src/lib/actor-identity.ts` (`ACTOR_LOCAL_USER`) · [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis)
 
 ---
 
 ## 1. Purpose (what this document is)
 
-This is the **S0 claims contract**: the smallest set of **normative rules** that downstream slices (session, persistence, export, probes) can implement without re-litigating identity philosophy.
+This is the **claims contract** agreed in **S0** and frozen for **S1+**: the smallest set of **normative rules** that downstream slices (session, persistence, export, probes) can implement without re-litigating identity philosophy.
 
 It specifies:
 
@@ -72,6 +72,11 @@ Assumptions: **Authorization Code + OIDC** (or equivalent) yields an **ID Token*
 
 **Proposer unchanged:** Agent `actorId` / `actorType` / `actorLabel` on the proposal remain the **agent** chain; human fields only reflect the bound operator.
 
+### 4a. Implementer guardrails (S1 onward)
+
+1. **`actorId` vs `iss` / `sub`:** Persisted **`approvalPrincipalIss` / `approvalPrincipalSub`** (and execution equivalents) are the **source of truth** for external principal and for **F2** export correlation. Human **`approvalActorId` / `executionActorId`** are a **derived stable handle** (deterministic function of `(iss, sub)`) for callers that expect one id string — document the derivation in code. **Do not** treat `actorId` as overriding or replacing `iss`/`sub` when both are present; audit paths should prefer the explicit pair.
+2. **Display labels vs fail-closed:** The label fallback chain (§3) is for **readability only** (UI, `*ActorLabel`, export). It **must not** weaken the **fail-closed** rule (§6): if binding is **required** and `(iss, sub)` cannot be validated and persisted, **do not** mint a session or human row that “looks fine” via a display name or `local-user`. Missing bind ⇒ auth/session failure path — labels apply only **after** a successful bind.
+
 ---
 
 ## 5. Session shape (contract only — slice S1)
@@ -112,10 +117,10 @@ HTTP status codes for “no session” vs “session but binding incomplete” f
 
 ---
 
-## 8. Exit criteria for S0
+## 8. S0 closure checklist
 
-- [ ] **Human review:** no open questions on `iss`/`sub`/`aud`/`exp`, label order, forbidden `local-user` when binding required, and recoverable `(iss, sub)` for export.
+- [x] **Human review:** owner sign-off — contract is narrow, trust boundary explicit, fail-closed for required binding, no silent `local-user` fiction; **`iss`/`sub`** recoverable for export (§4).
 - [x] **Cross-links:** ADR-0007 and roadmap 0006 point here as the pinned contract.
-- [x] **S0 scope:** this slice is documentation-only until review passes — **no** identity-binding production code required to merge the contract doc.
+- [x] **S0 slice:** documentation landed before identity binding code; guardrails for S1 in §4a.
 
-When S0 review is complete, **S1** may implement session fields and parsers **only** against this contract.
+**S1 next:** implement session fields and OIDC parsers **only** against §§3–6 and §4a — no drift from this document without a new ADR or contract revision.

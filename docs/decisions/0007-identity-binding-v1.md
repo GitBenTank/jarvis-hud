@@ -22,7 +22,7 @@ Adopt **Identity binding v1** as a bounded contract: bind **stable external iden
 
 Implementation order and proof obligations live in [0006 — Identity binding tranche](../roadmap/0006-identity-binding-tranche.md).
 
-**S0 (pinned):** [Identity binding — OIDC claims contract v1](../architecture/identity-binding-claims-contract-v1.md) — required claims, canonical `(iss, sub)`, session and persistence mapping, and fail-closed rules. Downstream slices implement **only** against that contract.
+**S0 (closed):** [Identity binding — OIDC claims contract v1](../architecture/identity-binding-claims-contract-v1.md) — required claims, canonical `(iss, sub)`, session and persistence mapping, fail-closed rules, and **§4a implementer guardrails** (`actorId` as derived handle; labels never weakening bind). **S1** implements session binding **only** against that document.
 
 ---
 

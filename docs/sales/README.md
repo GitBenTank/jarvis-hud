@@ -2,6 +2,8 @@
 
 **Operating bar:** [Ready enough — flagship workflow, one pilot bundle, one demo, described honestly](../strategy/ready-enough-operating-bar.md).
 
+**This week:** [Outreach sprint — 5 names, price, send, book calls](./outreach-sprint-checklist.md).
+
 **Audience order (recommended):** VP Eng / Head of Platform → innovation lead with engineering backing → CISO / security architect once there is active interest.
 
 | Asset | File |

@@ -10,6 +10,7 @@ related:
   - ./research-batch-workflow-v1.md
   - ./creative-batch-workflow-v1.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
+  - ../setup/openclaw-three-role-prompt-skeletons.md
 ---
 
 # Three role briefs v1 — narrow, real, role-distinct
@@ -112,9 +113,9 @@ If any of those are fuzzy, **fix the loop** before adding agents.
 
 1. Choose the **one flagship workflow** (default: **intake → research digest**).  
 2. Write these **three briefs** into your runbook or team wiki (adjust wording to your org).  
-3. Define the **handoff contract** your OpenClaw runtime will actually use (see patterns above).  
+3. **Instantiate in OpenClaw:** paste [prompt skeletons](../setup/openclaw-three-role-prompt-skeletons.md) into agent/system instructions; wire governed Jarvis tools per your extension.  
 4. **Run once** through Jarvis (batch → approve → execute one item → receipt/trace).  
-5. **Remove overlap and ambiguity** before adding anyone new.
+5. **Inspect** handoff blur, Alfred overreach, ambiguous ingress—then **tighten briefs + prompts** from the run, not from imagination.
 
 ---
 

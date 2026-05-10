@@ -11,6 +11,11 @@ export type JarvisTrustPosture = {
   codeApplyBlockReasons: string[];
   executionCapabilities: ExecutionCapabilities;
   executionSurfaceLabel: string;
+  /** Present when Jarvis exposes SoD flags on GET /api/config. */
+  sodEnabled?: boolean;
+  sodApproverPrincipalCount?: number;
+  sodExecutorPrincipalCount?: number;
+  sodRoleMapsReady?: boolean;
 };
 
 export type JarvisConfigPosturePayload = {
@@ -65,6 +70,10 @@ function parseTrustPosture(raw: unknown): JarvisTrustPosture | null {
   if (caps.dryRunDefaultForOtherKinds !== true) return null;
   if (typeof caps.invariant !== "string") return null;
   if (typeof label !== "string") return null;
+  const sodEnabled = raw.sodEnabled;
+  const sodApproverPrincipalCount = raw.sodApproverPrincipalCount;
+  const sodExecutorPrincipalCount = raw.sodExecutorPrincipalCount;
+  const sodRoleMapsReady = raw.sodRoleMapsReady;
   return {
     stepUpValid: stepUp === null || stepUp === undefined ? null : stepUp,
     executionScopeEnforced: scope,
@@ -75,6 +84,10 @@ function parseTrustPosture(raw: unknown): JarvisTrustPosture | null {
       invariant: caps.invariant,
     },
     executionSurfaceLabel: label,
+    ...(typeof sodEnabled === "boolean" ? { sodEnabled } : {}),
+    ...(typeof sodApproverPrincipalCount === "number" ? { sodApproverPrincipalCount } : {}),
+    ...(typeof sodExecutorPrincipalCount === "number" ? { sodExecutorPrincipalCount } : {}),
+    ...(typeof sodRoleMapsReady === "boolean" ? { sodRoleMapsReady } : {}),
   };
 }
 
@@ -163,6 +176,12 @@ export function evaluateTrustPostureForProposedKind(
 
   if (parseOk) {
     messages.push(`Jarvis execution surface: ${tp!.executionSurfaceLabel}`);
+  }
+
+  if (parseOk && tp!.sodEnabled === true && tp!.sodRoleMapsReady === false) {
+    messages.push(
+      "SoD is enabled but approver/executor principal maps are incomplete — approve/execute may fail with sod_role_map_incomplete (503)."
+    );
   }
 
   return {

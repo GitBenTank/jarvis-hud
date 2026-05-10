@@ -56,6 +56,7 @@ import {
   validateExecutionPreconditions,
   logExecutionGateFailure,
 } from "@/lib/execution-gate";
+import { assertSodExecuteAllowed, logSodPolicyDeny } from "@/lib/sod-rbac";
 
 type Event = {
   id: string;
@@ -85,6 +86,8 @@ type Event = {
   executionActorLabel?: string;
   executionPrincipalIss?: string;
   executionPrincipalSub?: string;
+  approvalPrincipalIss?: string;
+  approvalPrincipalSub?: string;
 };
 
 export async function POST(
@@ -162,6 +165,32 @@ export async function POST(
     const normalized = normalizeAction(eventRecord.payload);
     const codeApplyBlockReasons =
       normalized.kind === "code.apply" ? getCodeApplyBlockReasons() : undefined;
+
+    const humanRes = resolveGovernedHumanPrincipal(session, authEnabled);
+    if (!humanRes.ok) {
+      return NextResponse.json(
+        { error: humanRes.error, code: humanRes.code },
+        { status: humanRes.status }
+      );
+    }
+    const execPrincipal = humanRes.principal;
+
+    const sodGate = assertSodExecuteAllowed(execPrincipal, eventRecord);
+    if (!sodGate.ok) {
+      await logSodPolicyDeny({
+        traceId,
+        rule: sodGate.policyRule,
+        reason: sodGate.code,
+      });
+      console.warn(
+        `[execute] sod blocked code=${sodGate.code} approvalId=${approvalId} traceId=${traceId}`
+      );
+      return NextResponse.json(
+        { error: sodGate.message, code: sodGate.code },
+        { status: sodGate.status }
+      );
+    }
+
     const policyResult = await evaluateExecutePolicy({
       kind: normalized.kind,
       authEnabled,
@@ -216,15 +245,6 @@ export async function POST(
         );
       }
     }
-
-    const humanRes = resolveGovernedHumanPrincipal(session, authEnabled);
-    if (!humanRes.ok) {
-      return NextResponse.json(
-        { error: humanRes.error, code: humanRes.code },
-        { status: humanRes.status }
-      );
-    }
-    const execPrincipal = humanRes.principal;
     const execHumanFields =
       execPrincipal.kind === "bound"
         ? {

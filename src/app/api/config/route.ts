@@ -34,6 +34,11 @@ import {
   isIntegrationDebugEnabled,
   probeControlUiReachability,
 } from "@/lib/integration-debug-probe";
+import {
+  isSodEnabled,
+  loadSodApproverPrincipals,
+  loadSodExecutorPrincipals,
+} from "@/lib/sod-rbac";
 
 type ActionLogEntry = {
   traceId?: string;
@@ -127,6 +132,9 @@ export async function GET(request: NextRequest) {
     const executionScopeEnforced = loadExecutionAllowedRoots().length > 0;
     const codeApplyBlockReasons = getCodeApplyBlockReasons();
     const executionCapabilities = buildExecutionCapabilities();
+    const sodEnabled = isSodEnabled();
+    const sodApproverCount = loadSodApproverPrincipals().length;
+    const sodExecutorCount = loadSodExecutorPrincipals().length;
 
     const dateKey = getDateKey();
     const events =
@@ -189,6 +197,11 @@ export async function GET(request: NextRequest) {
         codeApplyBlockReasons,
         executionCapabilities,
         executionSurfaceLabel: executionCapabilitiesShortLabel(executionCapabilities),
+        sodEnabled,
+        sodApproverPrincipalCount: sodApproverCount,
+        sodExecutorPrincipalCount: sodExecutorCount,
+        sodRoleMapsReady:
+          !sodEnabled || (sodApproverCount > 0 && sodExecutorCount > 0),
       },
       runtimePosture,
       integrationIssues,

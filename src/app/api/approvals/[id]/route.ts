@@ -15,6 +15,7 @@ import {
   AuthConfigError,
 } from "@/lib/auth";
 import { resolveGovernedHumanPrincipal } from "@/lib/governed-human-principal";
+import { assertSodApprovalAllowed, logSodPolicyDeny } from "@/lib/sod-rbac";
 import {
   validateApprovalPreflightSnapshotWire,
   type ApprovalPreflightSnapshotWire,
@@ -146,6 +147,22 @@ export async function POST(
         return NextResponse.json({ error: v.error }, { status: 400 });
       }
       snapshotWire = v.wire;
+    }
+
+    const sodGate = assertSodApprovalAllowed(human);
+    if (!sodGate.ok) {
+      const traceId = String(event.traceId ?? event.id ?? "").trim();
+      if (traceId) {
+        await logSodPolicyDeny({
+          traceId,
+          rule: sodGate.policyRule,
+          reason: sodGate.code,
+        });
+      }
+      return NextResponse.json(
+        { error: sodGate.message, code: sodGate.code },
+        { status: sodGate.status }
+      );
     }
 
     const approvalHumanFields =

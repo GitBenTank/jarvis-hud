@@ -13,6 +13,7 @@ related:
   - ./research-batch-workflow-v1.md
   - ../decisions/0005-agent-team-batch-v0-per-item-execute.md
   - ./runtime-openclaw-jarvis-team-loop-v1.md
+  - ./agent-team-three-role-briefs-v1.md
 ---
 
 # Agent team contract v1 — Alfred, specialists, Jarvis

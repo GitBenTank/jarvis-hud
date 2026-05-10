@@ -36,6 +36,7 @@
     "local:stack:doctor": "node scripts/local-stack-doctor.mjs",
     "openclaw:sync-openai-auth": "node scripts/sync-openclaw-openai-auth-from-env.mjs",
     "openclaw:dev": "bash scripts/openclaw-gateway-dev.sh",
+    "openclaw:dev:log": "OPENCLAW_GATEWAY_LOG=\"${OPENCLAW_GATEWAY_LOG:-/tmp/openclaw-gateway-last.log}\" bash scripts/openclaw-gateway-dev.sh",
     "demo:boot": "bash scripts/demo-boot.sh",
     "demo:start": "bash scripts/demo-start-prod.sh",
     "demo:verify": "bash scripts/demo-verify.sh",

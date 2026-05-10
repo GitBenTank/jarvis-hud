@@ -10,6 +10,7 @@ Run from your **jarvis-hud** clone (`cd` there first in both terminals):
 |------|---------|
 | **1 — Jarvis** | `pnpm dev` → **http://127.0.0.1:3000** |
 | **2 — OpenClaw** | `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` → wait for **`[gateway] ready`**, then Control UI (often **http://127.0.0.1:19001**) |
+| **2b — OpenClaw (log file)** | If **`ELIFECYCLE`** shows almost no output: **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log`** — same start, **tee** to **`/tmp/openclaw-gateway-last.log`** (set **`OPENCLAW_GATEWAY_LOG`** to override). Read that file after a failed run. |
 | **3 — Check** | `pnpm local:stack:doctor` |
 
 **Helper:** `pnpm dev:stack` prints these lines with your real paths and env warnings.
@@ -225,6 +226,7 @@ Manual checks:
 | **Control UI OK but chat fails**; logs: **`exceeded your current quota`**, **`embedded_run_agent_end`**, **`auth profile failure`** with **`rate_limit`** | **OpenAI billing** for the **account that owns the API key** (e.g. **negative credit balance**, **auto-recharge off**, org budget). The auth-profile line is **downstream** of the API error—not missing Jarvis config. Fix billing; optional: auto-recharge. [OpenAI error codes](https://platform.openai.com/docs/guides/error-codes/api-errors). |
 | **Attention: skills with missing dependencies** | Optional. Skills need host apps (1Password, Notes, …). Ignore for Jarvis/ingress unless you rely on those tools. |
 | **`Building TypeScript…` very long or “stuck”; 19001 not listening** | The OpenClaw repo you use for **`pnpm openclaw:dev`** likely has a **dirty** git tree, so the gateway rebuilds before bind. For daily integration, use a **clean** clone via **`OPENCLAW_ROOT`**, or **`git stash` / commit** in your working OpenClaw checkout. |
+| **`ELIFECYCLE`** right after `run-node.mjs --dev gateway` with **almost no lines** | Often **IDE terminal + inherited stdio buffering** (looks “silent”) or an **immediate crash** before flush. Use **`pnpm openclaw:dev:log`** and read **`/tmp/openclaw-gateway-last.log`**, or run the same command in **Terminal.app** (real TTY). Also verify **Node ≥ 22.12** (`node -v`) — OpenClaw refuses older versions. |
 | **Integration debug: origin mismatch** (`localhost` vs `127.0.0.1`) | Pick **one** host for browser + **`JARVIS_HUD_BASE_URL`** + gateway env; restart **`pnpm dev`** and **`pnpm openclaw:dev`**. Prefer **`127.0.0.1`** (see **HUD signals** below). |
 | **`ReferenceError: loadDocsLibraryIndex is not defined`** on **`/docs`** | Stale **`pnpm dev`** or an outdated `page.tsx`. Confirm **`src/app/docs/[[...path]]/page.tsx`** uses **`buildDocsLibrary`** (not `loadDocsLibraryIndex`); save files, stop the dev server (**Ctrl+C**), run **`pnpm dev`** again. |
 

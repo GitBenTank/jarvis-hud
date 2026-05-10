@@ -41,4 +41,12 @@ else
 fi
 echo "openclaw-gateway-dev: cd $OPENCLAW_ROOT && pnpm gateway:dev"
 cd "$OPENCLAW_ROOT"
+# When stdout is not a TTY (some IDE terminals), OpenClaw's `stdio: inherit` chain can look
+# "silent" until flush — failures then show only `ELIFECYCLE` with no story. Tee forces a pipe
+# so lines appear and a log file survives for debugging.
+if [[ -n "${OPENCLAW_GATEWAY_LOG:-}" ]]; then
+  echo "openclaw-gateway-dev: OPENCLAW_GATEWAY_LOG=$OPENCLAW_GATEWAY_LOG (append; delete file to reset)" >&2
+  pnpm gateway:dev 2>&1 | tee -a "$OPENCLAW_GATEWAY_LOG"
+  exit "${PIPESTATUS[0]}"
+fi
 exec pnpm gateway:dev

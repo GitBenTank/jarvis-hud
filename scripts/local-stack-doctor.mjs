@@ -247,6 +247,23 @@ for (const port of ["3000", "19001", "18789"]) {
   console.log("");
 }
 
+const noControlUiListener = !lsofListeners("19001") && !lsofListeners("18789");
+if (noControlUiListener) {
+  console.log(
+    "⚠ No listener on 19001 or 18789 — browser will show connection refused until the gateway binds."
+  );
+  console.log(
+    "  Recovery: docs/setup/local-stack-startup.md (section “Recovery: no listener on Control UI port”)."
+  );
+  console.log(
+    "  Quick: OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log — then tail /tmp/openclaw-gateway-last.log"
+  );
+  console.log(
+    "  Isolate: cd ~/Documents/openclaw-runtime && OPENCLAW_STATE_DIR=$HOME/.openclaw-dev OPENCLAW_DISABLE_BONJOUR=1 pnpm gateway:dev (wait 60–90s; unset DEBUG)"
+  );
+  console.log("");
+}
+
 let controlPort = envUrl ? portFromOrigin(envUrl) : null;
 if (!controlPort) controlPort = "19001";
 

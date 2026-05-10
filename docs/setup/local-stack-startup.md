@@ -213,11 +213,71 @@ Manual checks:
 
 ---
 
+### Recovery: no listener on Control UI port (connection refused)
+
+Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001` (or `18789`) refuses connection**: the gateway never bound the Control UI port, is still compiling, or exited before bind. **Silence after** `OPENCLAW_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway` is often a long **`Building TypeScript…`** phase or IDE stdio buffering — not proof the stack is dead.
+
+**Port truth:** checkout gateways often use **19001**; some installs use **18789**. **`OPENCLAW_CONTROL_UI_URL`** must match **`lsof`** / the URL the gateway prints — not a guess (see [env.md](env.md)).
+
+1. **Optional clean slate** (stale processes / duplicate dev servers). *Narrow kills if you prefer:* `lsof -tiTCP:3000 -sTCP:LISTEN | xargs kill` instead of blanket `pkill`.
+
+   ```bash
+   pkill -f "run-node.mjs" 2>/dev/null || true
+   pkill -f "next dev" 2>/dev/null || true
+   lsof -nP -iTCP -sTCP:LISTEN | grep -E "3000|18789|19001" || true
+   ```
+
+   You want **no** stray listener on the ports you are about to use. If a port **respawns** with **PPID 1**, unload LaunchAgents / stop Homebrew OpenClaw — see [One-time: disable the duplicate (Homebrew) gateway](#one-time-disable-the-duplicate-homebrew-gateway).
+
+2. **Terminal A — Jarvis only**
+
+   ```bash
+   cd ~/Documents/jarvis-hud
+   pnpm dev
+   ```
+
+   Open **http://127.0.0.1:3000** and leave this terminal running.
+
+3. **Terminal B — OpenClaw from the runtime repo (isolate; skip jarvis-hud wrapper)**  
+   Do **not** press **Ctrl+C** for 60–90s. Do **not** set **`DEBUG=*`** on this pass.
+
+   ```bash
+   cd ~/Documents/openclaw-runtime
+   export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"
+   export OPENCLAW_DISABLE_BONJOUR=1
+   unset DEBUG
+   pnpm gateway:dev
+   ```
+
+   This path does **not** inject **`JARVIS_BASE_URL` / ingress secret** from jarvis-hud `.env.local`. It answers: “does the gateway bind at all?” After it works, use **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** from **jarvis-hud** for the full integration env (or export the same vars yourself).
+
+4. **Terminal C — watch for LISTEN** (repeat every few seconds if you do not have `watch`):
+
+   ```bash
+   lsof -nP -iTCP -sTCP:LISTEN | grep -E "18789|19001"
+   ```
+
+   You want a **`node`** line with **`LISTEN`** on **127.0.0.1** (or `*`). Then set **`OPENCLAW_CONTROL_UI_URL`** to that origin and restart **`pnpm dev`**.
+
+5. **Still no logs / appears hung** — force traces (same runtime terminal):
+
+   ```bash
+   cd ~/Documents/openclaw-runtime
+   export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"
+   export OPENCLAW_DISABLE_BONJOUR=1
+   export NODE_OPTIONS="--trace-uncaught --trace-warnings"
+   pnpm gateway:dev
+   ```
+
+6. **Evidence on disk** (IDE terminals): from **jarvis-hud**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log`**, then **`tail -100 /tmp/openclaw-gateway-last.log`**.
+
+---
+
 ## If something breaks
 
 | Symptom | Action |
 |---------|--------|
-| **Connection refused** on Control UI | Gateway not running, or wrong port in `OPENCLAW_CONTROL_UI_URL`. Run `pnpm local:stack:doctor`. |
+| **Connection refused** on Control UI | Gateway not running, still building, wrong port in `OPENCLAW_CONTROL_UI_URL`, or duplicate gateway. Run `pnpm local:stack:doctor`. If no listener on **19001** and **18789**, follow **Recovery: no listener on Control UI port** above. |
 | **Gateway exits** with **`MDNSServer` / `@homebridge/ciao` / `IP address version must match`** | **`pnpm openclaw:dev`** now sets **`OPENCLAW_DISABLE_BONJOUR=1`** by default (local dev does not need LAN beacon). To re-enable Bonjour: **`OPENCLAW_DISABLE_BONJOUR=0 pnpm openclaw:dev`**. |
 | **Overview shows OK but Gateway Logs spam `Missing config` / `gateway.mode=local`** (stack traces from **`/opt/homebrew/.../openclaw`**) | Your **checkout** gateway is fine; a **second** Homebrew OpenClaw is crash-looping. **Stop** brew services / LaunchAgent for OpenClaw (`brew services list`, `~/Library/LaunchAgents`). Run **`pnpm local:stack:doctor`** — it prints Homebrew `openclaw` PSp lines if present. |
 | **`Missing config`** and the **only** gateway you want is Homebrew | Run **`openclaw setup`** or set **`gateway.mode`** to **`local`** in **`~/.openclaw`** (or your real state dir). |

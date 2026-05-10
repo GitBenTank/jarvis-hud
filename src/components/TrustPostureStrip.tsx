@@ -101,7 +101,7 @@ function formatBindingPill(auth: AuthStatusPayload | null): {
   }
   if (!auth.identityBindingRequired) {
     return {
-      label: "Binding: Off",
+      label: "Binding: Not required",
       title: "JARVIS_IDENTITY_BINDING_REQUIRED is not set — OIDC bind is optional.",
       kind: "muted",
     };

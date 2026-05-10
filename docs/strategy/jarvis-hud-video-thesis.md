@@ -53,6 +53,8 @@ Authority in action.
 Agent frameworks and emerging standards are accelerating tool connectivity.
 As agents move from experimentation into production, governance and control lag behind capability.
 
+External evidence aligns with that framing: the [Stanford AI Index Report 2026](https://hai.stanford.edu/ai-index/2026-ai-index-report) documents a widening **management and measurement gap** — what models can do versus how reliably organizations can **govern, evaluate, and attribute** outcomes. Jarvis should answer that gap with **explicit evidence, uncertainty, authority, and proof** (see [Operating assumptions — AI Index posture](./operating-assumptions.md#external-context-ai-management-gap-stanford-ai-index-2026)), not with “more intelligence” in the control plane.
+
 The modern risk model includes:
 
 - Excessive agency (unchecked autonomy)

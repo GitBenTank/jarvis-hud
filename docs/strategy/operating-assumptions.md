@@ -3,7 +3,7 @@ title: "Operating assumptions (Jarvis + OpenClaw)"
 status: living-document
 category: product-strategy
 owner: Ben Tankersley
-last_reviewed: 2026-05-09
+last_reviewed: 2026-05-10
 related:
   - ../README.md
   - jarvis-hud-video-thesis.md
@@ -30,6 +30,36 @@ related:
 **Category:** Jarvis is an **execution integrity** system: bounded effects, provable traces, and authority that stays legible under load—**not** autonomy theater.
 
 **Triad (must agree):** The frozen **contract** (defaults below, starting with §1), the operator **narrative** (runbooks and how people are actually onboarded), and machine **probes** (**`pnpm machine-wired`**, and **`pnpm auth-posture`** when auth posture matters) must describe the same host reality. When runtime behavior, docs, and operator belief diverge, trust boundaries rot. A fresh run should answer whether this host matches the contract **without interpretation**—if it cannot, capture the delta in the [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md) (or revise §1 deliberately) before expanding scope.
+
+---
+
+## External context: AI management gap (Stanford AI Index 2026)
+
+**Source:** [The 2026 AI Index Report](https://hai.stanford.edu/ai-index/2026-ai-index-report) (Stanford HAI). This section is **not** a substitute for reading primary chapters; it records **how Jarvis should interpret** the Index for product posture.
+
+The Index’s recurring theme is a **gap between capability and preparedness**: governance, evaluation, education, and measurement infrastructure **struggle to keep pace** with frontier models. Responsible-AI maturity in enterprises remains **early** on average (integrating practices, not yet fully operational). On the technical side, benchmarks such as **KaBLE** stress **epistemic reliability** (distinguishing knowledge from belief); companion-oriented research highlights **boundary-maintaining** vs **compliance-with-the-model** dynamics.
+
+**Jarvis takeaway:** Strength is **not** “more intelligence” in the control plane. It is **explicit evidence, uncertainty, authority, and proof** — aligned with [Thesis Lock](./jarvis-hud-video-thesis.md#thesis-lock-do-not-drift) and [execution integrity](./messaging-execution-integrity.md).
+
+### Product posture (what Jarvis should emphasize)
+
+| Posture | Meaning for Jarvis |
+|--------|---------------------|
+| **Evidence legibility** | Proposals must not let fluent text masquerade as knowledge: prefer **sourced** research-shaped content, clear **model summary vs verified claim** distinction, and UI that states **evidence status** when we add it (sourced / inferred / speculative / user-provided unverified). |
+| **Uncertainty surface** | Assumptions, unknowns, and claims needing verification should move from **buried prose** toward **structured or normalized sections** and compact HUD rendering. |
+| **Boundary-maintaining UX** | **Why denied / why gated**, **proposal ≠ executed**, and copy that reinforces **the model is not a trusted principal** — avoid training the operator to “comply with Alfred.” |
+| **Governance as headline** | Approval state, policy posture, auth/step-up, receipt completeness, and provenance should stay **operator-visible**, not internal-only. |
+| **Maturity framing (positioning)** | Jarvis helps teams move from **ad hoc agent use** toward **governed execution with receipts and separation of duties** — an operational RAI story, not ethics theater. |
+
+### Concrete engineering backlog (prioritized)
+
+Use this as a **living checklist** when sequencing UI and ingress work. Update this subsection when items ship.
+
+1. **Evidence / uncertainty labeling (highest leverage)** — Proposal cards and ingress: optional normalized fields or badges for **evidence status** and **assumptions / verification gaps** on research- and creative-shaped proposals. Touch: [`src/jarvis/normalizeProposal.ts`](../../src/jarvis/normalizeProposal.ts), [`src/lib/ingress/validate-openclaw-proposal.ts`](../../src/lib/ingress/validate-openclaw-proposal.ts), [`src/components/ApprovalsPanel.tsx`](../../src/components/ApprovalsPanel.tsx), [`src/lib/policy.ts`](../../src/lib/policy.ts).
+2. **Boundary-maintaining HUD copy** — Denied / gated / pre-execute states: explicit **reason strings** and **proposal-only** language. Touch: approval and integration components under `src/components/`.
+3. **Governance headline surfaces** — Keep **`GET /api/config`** and integration panels the **canonical** place for trust posture (auth, step-up, Control UI alignment). Touch: [`src/app/api/config/route.ts`](../../src/app/api/config/route.ts), integration UI.
+4. **Pitch and investor alignment** — Short cross-links from [video thesis](./jarvis-hud-video-thesis.md) and demo runbooks to this section; optional one-pager later under `docs/video/` or governance snapshots.
+5. **Structured assumptions (later)** — Schema or markdown conventions for **assumptions / unknowns / needs verification** once Phase 3 authoring friction justifies it ([roadmap Phase 3](../roadmap/0003-operator-integration-phases.md)).
 
 ---
 
@@ -135,6 +165,7 @@ related:
 
 ## See also
 
+- [AI Index 2026 — product posture (this doc)](#external-context-ai-management-gap-stanford-ai-index-2026)
 - [Phase 2 auth authority checklist](../setup/phase2-auth-authority-checklist.md)
 - [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md)
 - [Operator integration phases (roadmap)](../roadmap/0003-operator-integration-phases.md)

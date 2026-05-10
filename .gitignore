@@ -56,6 +56,9 @@ auth-profiles.json
 # Local pilot / diligence evidence (exports, probe transcripts—do not commit raw secrets)
 /evidence/
 
+# Rehearsal outputs (e.g. pnpm operator:media:rehearsal -- --out-dir=artifacts/operator-media-engine)
+/artifacts/
+
 # Repo-local JARVIS_ROOT used for pilot / dev when ~/jarvis is unavailable (ephemeral)
 .pilot-jarvis-data/
 

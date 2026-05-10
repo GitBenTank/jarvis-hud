@@ -14,6 +14,7 @@
 - [Agent team v1](../strategy/agent-team-v1.md)
 - [Research batch workflow v1](../strategy/research-batch-workflow-v1.md)
 - [Creative batch workflow v1 (Phase 5)](../strategy/creative-batch-workflow-v1.md)
+- [Operator Media Engine v1 (business-use proof)](../strategy/operator-media-engine-v1.md)
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 - [ADR-0005: Batch v0, per-item execute](../decisions/0005-agent-team-batch-v0-per-item-execute.md)
 - [Trust, determinism, integrity signals](../governance/trust-and-determinism.md)
@@ -125,6 +126,16 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 **Done when:** Research proposals move through Jarvis without confusion or fear.
 
 **Status (2026-04):** **v1 bar met.** Repeated rehearsals through multi-item batches; friction + **validation** rows; coherent **proposal id → trace → receipt** and honest batch queue state (e.g. [run 7](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals)). The loop is **operationally boring** — the right outcome. **Still:** occasional Phase 4 reps before demos and when changing stack or copy; Phase **5** is not unlocked by paperwork alone.
+
+### Operator Media Engine — first business-use proof loop (Phase 3–4 bridge)
+
+**What:** [Operator Media Engine v1](../strategy/operator-media-engine-v1.md) turns commits, docs, demo notes, friction logs, and roadmap signals into **governed content proposals** (LinkedIn, blog, video script, outreach drafts) as **`system.note`** ingress — **no autonomous publishing**, no social APIs, no email send from Jarvis.
+
+**Why here:** It reuses **Phase 3b** authoring expectations (`evidenceStatus`, `uncertaintySummary`) and **Phase 4** operational muscle (approve → execute → trace/receipt). It proves Jarvis can sit on **revenue-adjacent** narrative work without drifting [Thesis Lock](../decisions/0001-thesis-lock.md): agents propose; Jarvis governs; Ben approves.
+
+**How:** `pnpm operator:media:rehearsal` emits sample JSON only; then [Operator Media Engine checklist](../demo/operator-media-engine-checklist.md) for submit → HUD → execute → **Executed · receipt recorded** on Activity.
+
+**Done when:** Rehearsal payloads are approved and executed through Jarvis with the same trace replay quality as research/creative rehearsals, and you have a manual decision on whether each artifact is worth shipping externally.
 
 ---
 

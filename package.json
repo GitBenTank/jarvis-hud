@@ -28,6 +28,7 @@
     "rehearsal:research-batch": "tsx --env-file=.env.local scripts/research-batch-rehearsal.ts",
     "rehearsal:serious-mode-ingress": "tsx --env-file=.env.local scripts/research-batch-rehearsal.ts",
     "rehearsal:creative-batch": "tsx --env-file=.env.local scripts/creative-batch-rehearsal.ts",
+    "operator:media:rehearsal": "tsx scripts/operator-media-engine-rehearsal.ts",
     "demo:system-note": "tsx scripts/demos/system-note-runner.ts",
     "jarvis:smoke:apply": "node scripts/ingress-smoke-apply.mjs",
     "jarvis:doctor": "node scripts/jarvis-doctor.mjs",

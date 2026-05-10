@@ -5,11 +5,9 @@
 import path from "node:path";
 import os from "node:os";
 import { promises as fs } from "node:fs";
-import { describe, it, expect, afterAll } from "vitest";
+import { describe, it, expect, afterAll, vi } from "vitest";
 
-// Set before any @/lib import loads storage
 const TEST_ROOT = path.join(os.tmpdir(), `jarvis-trace-test-${Date.now()}`);
-if (!process.env.JARVIS_ROOT) process.env.JARVIS_ROOT = TEST_ROOT;
 
 describe("traceId", () => {
   afterAll(async () => {
@@ -21,6 +19,8 @@ describe("traceId", () => {
   });
 
   it("writeCodeDiffBundle includes traceId in manifest", async () => {
+    process.env.JARVIS_ROOT = TEST_ROOT;
+    vi.resetModules();
     const { writeCodeDiffBundle } = await import("@/lib/code-diff");
     const traceId = crypto.randomUUID();
     const approvalId = crypto.randomUUID();

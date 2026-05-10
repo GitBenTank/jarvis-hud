@@ -48,6 +48,74 @@ export async function waitForServer(baseUrl, maxAttempts = 90, delayMs = 500) {
   }
 }
 
+/** Parse Set-Cookie lines into name=value pairs (first segment only). */
+function jarFromSetCookieLines(lines) {
+  if (!lines?.length) return {};
+  const jar = {};
+  for (const line of lines) {
+    const first = String(line).split(";")[0]?.trim();
+    if (!first?.includes("=")) continue;
+    const eq = first.indexOf("=");
+    jar[first.slice(0, eq).trim()] = first.slice(eq + 1).trim();
+  }
+  return jar;
+}
+
+function getSetCookieLines(res) {
+  if (typeof res.headers.getSetCookie === "function") {
+    return res.headers.getSetCookie();
+  }
+  const single = res.headers.get("set-cookie");
+  return single ? [single] : [];
+}
+
+function jarToCookieHeader(jar) {
+  return Object.entries(jar)
+    .map(([k, v]) => `${k}=${v}`)
+    .join("; ");
+}
+
+/**
+ * When Jarvis auth is on, approve/execute/trace/export require a session cookie + step-up.
+ * Ingress stays unsigned. CI spawned server uses auth off — no-op there.
+ */
+export async function maybeHudSessionCookie(baseUrl, fail) {
+  let cfgRes;
+  try {
+    cfgRes = await fetch(`${baseUrl}/api/config`, { signal: AbortSignal.timeout(8000) });
+  } catch (e) {
+    fail(`config (auth probe): ${e instanceof Error ? e.message : String(e)}`);
+  }
+  if (!cfgRes.ok) fail(`config (auth probe): HTTP ${cfgRes.status}`);
+  const cfg = await cfgRes.json().catch(() => ({}));
+  if (cfg.authEnabled !== true) {
+    console.log("golden-loop: auth off — approve/execute use no session cookie");
+    return "";
+  }
+
+  const initRes = await fetch(`${baseUrl}/api/auth/init`, { method: "POST" });
+  if (!initRes.ok) {
+    const t = await initRes.text();
+    fail(`auth/init: HTTP ${initRes.status} ${t}`);
+  }
+  let jar = jarFromSetCookieLines(getSetCookieLines(initRes));
+
+  const stepRes = await fetch(`${baseUrl}/api/auth/step-up`, {
+    method: "POST",
+    headers: { Cookie: jarToCookieHeader(jar) },
+  });
+  if (!stepRes.ok) {
+    const t = await stepRes.text();
+    fail(`auth/step-up: HTTP ${stepRes.status} ${t}`);
+  }
+  jar = { ...jar, ...jarFromSetCookieLines(getSetCookieLines(stepRes)) };
+
+  const header = jarToCookieHeader(jar);
+  if (!header) fail("auth bootstrap: empty Cookie after init + step-up");
+  console.log("golden-loop: HUD session + step-up OK (auth on)");
+  return header;
+}
+
 /**
  * @param {{ port: number; jarvisRoot: string; secret: string; extraEnv?: Record<string, string | undefined> }} opts
  */
@@ -142,9 +210,14 @@ export async function runIngressApproveExecuteTraceExport({
   const traceId = ingJson.traceId;
   console.log(`golden-loop: ingress OK id=${approvalId} traceId=${traceId}`);
 
+  const sessionCookie = await maybeHudSessionCookie(baseUrl, fail);
+  const cookieHeaders = sessionCookie ? { Cookie: sessionCookie } : {};
+
   let dateKey;
   for (let attempt = 1; attempt <= 30; attempt++) {
-    const listRes = await fetch(`${baseUrl}/api/approvals?status=pending`);
+    const listRes = await fetch(`${baseUrl}/api/approvals?status=pending`, {
+      headers: { ...cookieHeaders },
+    });
     const listJson = await listRes.json().catch(() => null);
     dateKey = listJson?.dateKey;
     const pending = Array.isArray(listJson?.approvals) ? listJson.approvals : [];
@@ -155,7 +228,7 @@ export async function runIngressApproveExecuteTraceExport({
 
   const apprRes = await fetch(`${baseUrl}/api/approvals/${approvalId}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...cookieHeaders },
     body: JSON.stringify({ action: "approve" }),
   });
   if (!apprRes.ok) {
@@ -164,7 +237,10 @@ export async function runIngressApproveExecuteTraceExport({
   }
   console.log("golden-loop: approve OK");
 
-  const execRes = await fetch(`${baseUrl}/api/execute/${approvalId}`, { method: "POST" });
+  const execRes = await fetch(`${baseUrl}/api/execute/${approvalId}`, {
+    method: "POST",
+    headers: { ...cookieHeaders },
+  });
   const execText = await execRes.text();
   let execJson;
   try {
@@ -184,7 +260,9 @@ export async function runIngressApproveExecuteTraceExport({
   }
   console.log("golden-loop: execute OK");
 
-  const traceRes = await fetch(`${baseUrl}/api/traces/${encodeURIComponent(traceId)}`);
+  const traceRes = await fetch(`${baseUrl}/api/traces/${encodeURIComponent(traceId)}`, {
+    headers: { ...cookieHeaders },
+  });
   if (!traceRes.ok) fail(`trace: HTTP ${traceRes.status} ${await traceRes.text()}`);
   const traceJson = await traceRes.json();
   if (!traceJson || traceJson.traceId !== traceId) {
@@ -192,7 +270,9 @@ export async function runIngressApproveExecuteTraceExport({
   }
   console.log("golden-loop: trace GET OK");
 
-  const replayRes = await fetch(`${baseUrl}/api/traces/${encodeURIComponent(traceId)}/replay`);
+  const replayRes = await fetch(`${baseUrl}/api/traces/${encodeURIComponent(traceId)}/replay`, {
+    headers: { ...cookieHeaders },
+  });
   if (!replayRes.ok) fail(`replay: HTTP ${replayRes.status} ${await replayRes.text()}`);
   const replayJson = await replayRes.json();
   if (!replayJson?.traceId || replayJson.traceId !== traceId) {
@@ -204,7 +284,7 @@ export async function runIngressApproveExecuteTraceExport({
   }
   if (!replayJson.execution) fail("replay: missing execution summary");
   if (requireProviderMessageId) {
-    const hasEmail = replayJson.receipts.some((r) => r && r.kind === "send_email");
+    const hasEmail = replayJson.receipts.some((r) => r?.kind === "send_email");
     if (!hasEmail) fail("replay: expected a send_email receipt in receipts[]");
   }
   if (typeof afterReplay === "function") {
@@ -213,7 +293,7 @@ export async function runIngressApproveExecuteTraceExport({
   console.log("golden-loop: replay OK");
 
   const exportUrl = `${baseUrl}/api/audit/export?start=${encodeURIComponent(dateKey)}&end=${encodeURIComponent(dateKey)}`;
-  const expRes = await fetch(exportUrl);
+  const expRes = await fetch(exportUrl, { headers: { ...cookieHeaders } });
   if (!expRes.ok) fail(`audit export: HTTP ${expRes.status} ${await expRes.text()}`);
   const bundle = await expRes.json();
   const ids = new Set(bundle?.index?.approvalIds ?? []);

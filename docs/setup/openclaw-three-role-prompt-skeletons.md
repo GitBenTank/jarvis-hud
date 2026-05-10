@@ -30,6 +30,25 @@ Jarvis does **not** configure OpenClaw chat prompts. Assistant display name: [Op
 
 ---
 
+## Do this now
+
+1. Paste the **three skeletons** below into your **live** OpenClaw agent / workspace instructions (Coordinator + Research; Creative when Phase 2).  
+2. Run **one real [Flagship Flow 1](../local-verification-openclaw-jarvis.md#4b-flagship-flow-1--alfred-intake--research-digest-full-bundle) batch** (Alfred intake → Research digest, shared `correlationId`, then Approve + Execute each item in Jarvis).  
+3. Inspect that run only for: **attribution blur**, **Alfred doing specialist work**, **ambiguous Jarvis proposals**.  
+4. **Tighten** prompts and [role briefs](../strategy/agent-team-three-role-briefs-v1.md) from what the run exposed—not from imagination.
+
+**Success condition (after one run you can say):**
+
+- Who did **intake**  
+- Who produced **evidence**  
+- What **Jarvis received** (ids, `agent`, batch / `correlationId`)  
+- What got **approved / executed**  
+- Where the **[team contract](../strategy/agent-team-contract-v1.md) still leaks**
+
+After the first run, paste outcomes (proposal titles, blur notes, one ambiguous line if any) into your working chat for a **first prompt-tightening pass**.
+
+---
+
 ## 1. Coordinator (Alfred) — system prompt skeleton
 
 Use for the **default entry** agent (often named `alfred` in dev).

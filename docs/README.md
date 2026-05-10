@@ -58,7 +58,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Frozen deployment contract | [Operating assumptions §1](strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) |
 | Ordered proof the stacks work | [Local verification](local-verification-openclaw-jarvis.md) |
 | Policy deny + `policy-decisions` line (diligence repro) | [Policy deny repro](verification/policy-deny-repro.md) |
-| Pilot proof bundle + charter | [Pilot checklist](verification/pilot-proof-bundle-checklist.md) · [Charter template](verification/pilot-charter-template.md) |
+| Pilot proof bundle + charter | [Single-session runbook](verification/pilot-green-single-session.md) · [Pilot checklist](verification/pilot-proof-bundle-checklist.md) · [Charter template](verification/pilot-charter-template.md) |
 | Ingress protocol & HTTP debugging | [OpenClaw integration verification](openclaw-integration-verification.md) |
 | Ingress in plain language (non-coders) | [OpenClaw ingress for humans](setup/openclaw-ingress-for-humans.md) |
 | Port / origin discipline | [Local dev truth map](setup/local-dev-truth-map.md) |

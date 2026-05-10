@@ -15,6 +15,8 @@ related:
 
 **Purpose:** Produce a **defensible evidence chain** in one sitting: **same host, same `JARVIS_ROOT`, same calendar window** for run + audit export. **Do not** mix a CI-only `pnpm golden-loop` temp tree (it is **deleted** after the script—see `scripts/golden-loop-smoke.mjs`) with a separate export unless you rerun against **persisted** data.
 
+**One sitting, exact command order:** [Pilot green — single-session runbook](./pilot-green-single-session.md).
+
 **Discipline:** host → path → export → narrative (see [docs README](../README.md) deeper map).
 
 ---

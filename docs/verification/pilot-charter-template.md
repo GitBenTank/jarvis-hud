@@ -4,6 +4,7 @@ status: template
 category: verification
 owner: Ben Tankersley
 related:
+  - ./pilot-green-single-session.md
   - ./pilot-proof-bundle-checklist.md
   - ../governance/enterprise-readiness-snapshot-2026-05-09.md
   - ../strategy/operating-assumptions.md

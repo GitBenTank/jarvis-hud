@@ -57,6 +57,7 @@ import {
   logExecutionGateFailure,
 } from "@/lib/execution-gate";
 import { assertSodExecuteAllowed, logSodPolicyDeny } from "@/lib/sod-rbac";
+import { isNonDryRunExecuteKind } from "@/lib/execution-surface";
 
 type Event = {
   id: string;
@@ -651,7 +652,7 @@ export async function POST(
       kind: executionKind,
       artifactPath,
       outputPath,
-      dryRun: executionKind !== "code.apply" && executionKind !== "send_email",
+      dryRun: !isNonDryRunExecuteKind(executionKind),
       status: actionStatus,
     };
     if (executionKind === "code.apply") {

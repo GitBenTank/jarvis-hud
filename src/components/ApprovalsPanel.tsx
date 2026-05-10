@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { activityTraceHref } from "@/lib/activity-trace-href";
+import { formatRelativeTime } from "@/lib/operator-timestamp";
 import { parseWorkflowPlanPayload } from "@/lib/workflow-plan";
 import { workflowStepBoundaryLabel } from "@/lib/workflow-step-boundary";
 import { normalizeAction } from "@/lib/normalize";
@@ -151,26 +154,59 @@ function LifecycleStatusBadge({ event }: { event: Event }) {
 
 function LifecycleTimestamps({ event, workflowPlan }: { event: Event; workflowPlan?: boolean }) {
   const n = normalizeProposalLifecycle(event);
+  const executedDtLabel = workflowPlan
+    ? "Workflow completed (last receipt)"
+    : "Executed · receipt";
   return (
     <>
       <div>
-        <dt className="font-medium text-zinc-500">Created</dt>
-        <dd>{n.createdAt}</dd>
+        <dt className="font-medium text-zinc-500">Proposed</dt>
+        <dd>
+          <time dateTime={n.createdAt} title={n.createdAt} className="text-zinc-800 dark:text-zinc-200">
+            {formatRelativeTime(n.createdAt)}
+          </time>
+        </dd>
       </div>
-      {n.approvedAt && (
+      {n.approvedAt ? (
         <div>
-          <dt className="font-medium text-zinc-500">Approved</dt>
-          <dd>{n.approvedAt}</dd>
+          <dt className="font-medium text-zinc-500">Authorized</dt>
+          <dd>
+            <time dateTime={n.approvedAt} title={n.approvedAt} className="text-zinc-800 dark:text-zinc-200">
+              {formatRelativeTime(n.approvedAt)}
+            </time>
+          </dd>
         </div>
-      )}
-      {n.executedAt && (
+      ) : null}
+      {n.rejectedAt ? (
         <div>
-          <dt className="font-medium text-zinc-500">
-            {workflowPlan ? "Workflow completed (last receipt time)" : "Executed successfully"}
-          </dt>
-          <dd>{n.executedAt}</dd>
+          <dt className="font-medium text-zinc-500">Denied</dt>
+          <dd>
+            <time dateTime={n.rejectedAt} title={n.rejectedAt} className="text-zinc-800 dark:text-zinc-200">
+              {formatRelativeTime(n.rejectedAt)}
+            </time>
+          </dd>
         </div>
-      )}
+      ) : null}
+      {n.failedAt ? (
+        <div>
+          <dt className="font-medium text-zinc-500">Failed</dt>
+          <dd>
+            <time dateTime={n.failedAt} title={n.failedAt} className="text-zinc-800 dark:text-zinc-200">
+              {formatRelativeTime(n.failedAt)}
+            </time>
+          </dd>
+        </div>
+      ) : null}
+      {n.executedAt ? (
+        <div>
+          <dt className="font-medium text-zinc-500">{executedDtLabel}</dt>
+          <dd>
+            <time dateTime={n.executedAt} title={n.executedAt} className="text-zinc-800 dark:text-zinc-200">
+              {formatRelativeTime(n.executedAt)}
+            </time>
+          </dd>
+        </div>
+      ) : null}
     </>
   );
 }
@@ -357,6 +393,7 @@ function DetailModal({
     if (preflightLoading) return "Checking execution readiness…";
     if (isWorkflowPlan) return "Execute workflow (all steps)";
     if (isReflection) return "Execute";
+    if (isSystemNote) return "Execute (write note & receipt)";
     if (isCodeApply) return "Execute (git commit)";
     if (isSendEmail) return "Execute (send email)";
     return "Execute (dry run)";
@@ -389,6 +426,20 @@ function DetailModal({
             ×
           </button>
         </div>
+
+        {isSystemNote && (
+          <div className="mb-3 rounded border border-slate-200 bg-slate-50/95 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-slate-700 dark:bg-slate-900/45 dark:text-zinc-200">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-400">
+              System note · governed path
+            </div>
+            <p className="mt-1.5">
+              Row → this review → <strong className="font-semibold">Approve</strong> (authorization only) →{" "}
+              <strong className="font-semibold">Execute</strong> persists the note artifact, action log, and reconciliation
+              receipts → <strong className="font-semibold">Activity</strong> trace replays the same lineage and timestamps
+              below.
+            </p>
+          </div>
+        )}
 
         {isWorkflowPlan && (
           <div className="mb-3 rounded border border-indigo-200 bg-indigo-50/95 px-3 py-2 text-xs leading-relaxed text-zinc-800 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-zinc-200">
@@ -503,14 +554,26 @@ function DetailModal({
               <code className="break-all font-mono text-xs">{event.id}</code>
             </dd>
           </div>
-          {event.traceId ? (
-            <div>
-              <dt className="font-medium text-zinc-500">Trace id</dt>
-              <dd>
-                <code className="break-all font-mono text-xs">{event.traceId}</code>
-              </dd>
-            </div>
-          ) : null}
+          <div>
+            <dt className="font-medium text-zinc-500">Trace id</dt>
+            <dd className="space-y-1.5">
+              {event.traceId ? (
+                <code className="block break-all font-mono text-xs">{event.traceId}</code>
+              ) : (
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Not set on event — link uses proposal id for the same Activity view.
+                </span>
+              )}
+              <div>
+                <Link
+                  href={activityTraceHref(event.traceId ?? event.id)}
+                  className="text-xs font-medium text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  Open trace & receipts on Activity
+                </Link>
+              </div>
+            </dd>
+          </div>
           <div>
             <dt className="font-medium text-zinc-500">Type</dt>
             <dd>{event.type}</dd>
@@ -1029,7 +1092,9 @@ function DetailModal({
                 ? "Execute sends one outbound email using server SMTP credentials; receipt JSON is written under JARVIS_ROOT."
                 : isWorkflowPlan
                   ? "Execute runs allowlisted steps sequentially (v0.3: system.note only), with per-step and parent receipts."
-                  : "Execute writes local artifacts + receipts only. It does not post."}
+                  : isSystemNote
+                    ? "Execute writes the note artifact plus action-log and reconciliation receipts under JARVIS_ROOT (local persistence, not a model-only reply)."
+                    : "Execute writes local artifacts + receipts only. It does not post."}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:gap-3">
               <button
@@ -1068,7 +1133,11 @@ function DetailModal({
 
         {executeResult && executeResult.approvalId === event.id && (
           <div className="mt-4 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-800 dark:bg-emerald-900/30">
-            <p className="font-medium">Executed successfully</p>
+            <p className="font-medium">
+              {executeResult.kind === "system.note"
+                ? "Executed · note artifact & receipts"
+                : "Executed successfully"}
+            </p>
             <p className="mt-1 flex items-center gap-2">
               {executeResult.dryRun === true && <Badge variant="dry_run">DRY RUN</Badge>}
             </p>
@@ -1146,6 +1215,38 @@ function DetailModal({
                   <div>
                     <span className="font-medium text-zinc-500">Last step output:</span>{" "}
                     <code className="text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
+                </div>
+              </>
+            )}
+            {executeResult.kind === "system.note" && (
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  Note body persisted; action log and reconciliation entries written. Continue on Activity for the full
+                  timeline on this trace id.
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div>
+                    <span className="font-medium text-zinc-500">Receipt time</span>{" "}
+                    <time
+                      dateTime={executeResult.executedAt}
+                      title={executeResult.executedAt}
+                      className="text-xs text-zinc-700 dark:text-zinc-300"
+                    >
+                      {formatRelativeTime(executeResult.executedAt)}
+                    </time>
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Artifact / receipt path:</span>{" "}
+                    <code className="break-all text-xs">{executeResult.outputPath ?? executeResult.artifactPath ?? "—"}</code>
+                  </div>
+                  <div>
+                    <Link
+                      href={activityTraceHref(event.traceId ?? event.id)}
+                      className="text-xs font-medium text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      Open trace & receipts on Activity
+                    </Link>
                   </div>
                 </div>
               </>
@@ -1244,9 +1345,11 @@ function DetailModal({
                       ? "Open runbook in Finder"
                       : executeResult.kind === "send_email"
                         ? "Open receipt in Finder"
-                        : executeResult.outputPath
-                          ? "Open package in Finder"
-                          : "Open artifact in Finder"}
+                        : executeResult.kind === "system.note" || executeResult.kind === "reflection.note"
+                          ? "Open note artifact in Finder"
+                          : executeResult.outputPath
+                            ? "Open package in Finder"
+                            : "Open artifact in Finder"}
                   </button>
                   <button
                     type="button"
@@ -1268,9 +1371,11 @@ function DetailModal({
                   >
                     {executeResult.kind === "send_email"
                       ? "Open receipt in Cursor"
-                      : executeResult.outputPath
-                        ? "Open package in Cursor"
-                        : "Open artifact in Cursor"}
+                      : executeResult.kind === "system.note" || executeResult.kind === "reflection.note"
+                        ? "Open note artifact in Cursor"
+                        : executeResult.outputPath
+                          ? "Open package in Cursor"
+                          : "Open artifact in Cursor"}
                   </button>
                   {executeResult.kind === "youtube.package" && (
                     <>

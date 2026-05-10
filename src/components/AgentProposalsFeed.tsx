@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { activityTraceHref } from "@/lib/activity-trace-href";
+import { formatRelativeTime } from "@/lib/operator-timestamp";
 import { normalizeAction } from "@/lib/normalize";
 import {
   getProposalBatchItemContextFromEvent,
@@ -39,20 +41,6 @@ export type ProposalEvent = {
   evidenceStatus?: string;
   uncertaintySummary?: string;
 };
-
-function formatRelativeTime(iso: string): string {
-  try {
-    const d = new Date(iso);
-    const now = Date.now();
-    const diff = now - d.getTime();
-    if (diff < 60_000) return "just now";
-    if (diff < 3600_000) return `${Math.floor(diff / 60_000)}m ago`;
-    if (diff < 86400_000) return `${Math.floor(diff / 3600_000)}h ago`;
-    return `${Math.floor(diff / 86400_000)}d ago`;
-  } catch {
-    return iso;
-  }
-}
 
 function getCardSummary(payload: unknown): string {
   const n = normalizeAction(payload);
@@ -147,8 +135,8 @@ function ProposalListByBatch({
                 Batch id {shortProposalBatchIdFragment(g.batchId)}
               </p>
               {firstIngested ? (
-                <p className="mt-0.5 text-[10px] text-zinc-500 dark:text-zinc-400">
-                  First ingested {formatRelativeTime(firstIngested)}
+                <p className="mt-0.5 text-[10px] text-zinc-500 dark:text-zinc-400" title={firstIngested}>
+                  First proposed {formatRelativeTime(firstIngested)}
                 </p>
               ) : null}
               {g.summary ? (
@@ -311,23 +299,37 @@ function ProposalCard({
 
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-zinc-500 dark:text-zinc-450">
           <span>
-            Trace:{" "}
+            Trace id{" "}
             <Link
-              href={`/?trace=${encodeURIComponent(event.traceId ?? event.id)}`}
+              href={activityTraceHref(event.traceId ?? event.id)}
               className="font-mono text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              title="View trace"
+              title={`${event.traceId ?? event.id} — Activity trace & receipts`}
             >
               {traceShort}
             </Link>
           </span>
           <span className="text-zinc-400">·</span>
           <StatusBadge event={event} />
-          {variant === "executed" && event.executedAt && (
+          <span className="text-zinc-400">·</span>
+          <span title={event.createdAt}>
+            Proposed {formatRelativeTime(event.createdAt)}
+          </span>
+          {event.approvedAt && variant !== "pending" ? (
             <>
               <span className="text-zinc-400">·</span>
-              <span title={event.executedAt}>{formatRelativeTime(event.executedAt)}</span>
+              <span title={event.approvedAt}>
+                Authorized {formatRelativeTime(event.approvedAt)}
+              </span>
             </>
-          )}
+          ) : null}
+          {variant === "executed" && event.executedAt ? (
+            <>
+              <span className="text-zinc-400">·</span>
+              <span title={event.executedAt}>
+                Receipt {formatRelativeTime(event.executedAt)}
+              </span>
+            </>
+          ) : null}
           {event.source?.connector === "openclaw" && event.trustedIngress && (
             <>
               <span className="text-zinc-400">·</span>

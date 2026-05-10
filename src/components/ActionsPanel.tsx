@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { activityTraceHref } from "@/lib/activity-trace-href";
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import { reasonFromMessage } from "@/lib/reason-taxonomy";
 import Badge from "./Badge";
@@ -233,7 +234,7 @@ export default function ActionsPanel() {
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                       {action.traceId && (
                         <Link
-                          href={`/?trace=${encodeURIComponent(action.traceId)}`}
+                          href={activityTraceHref(action.traceId)}
                           className="rounded border border-zinc-300 px-2 py-0.5 font-medium hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-700"
                         >
                           Open trace

@@ -1,9 +1,22 @@
 /**
- * Honest description of execute-time dry-run vs side effects.
+ * Honest description of execute-time dry-run vs durable adapter output.
  * Must stay aligned with POST /api/execute/[approvalId] (dryRun in JSON response).
+ *
+ * `dryRun: false` means the execute response represents persisted artifacts / outbound
+ * effects operators treat as the real run (not preview-only).
  */
 
-export const NON_DRY_RUN_EXECUTE_KINDS = ["code.apply", "send_email"] as const;
+export const NON_DRY_RUN_EXECUTE_KINDS = [
+  "code.apply",
+  "send_email",
+  "system.note",
+  "reflection.note",
+  "workflow.plan",
+] as const;
+
+export function isNonDryRunExecuteKind(kind: string): boolean {
+  return (NON_DRY_RUN_EXECUTE_KINDS as readonly string[]).includes(kind);
+}
 
 export type ExecutionCapabilities = {
   /** Kinds for which execute returns dryRun: false (may mutate repo / non-simulated path). */
@@ -19,7 +32,7 @@ export function buildExecutionCapabilities(): ExecutionCapabilities {
     nonDryRunExecuteKinds: [...NON_DRY_RUN_EXECUTE_KINDS],
     dryRunDefaultForOtherKinds: true,
     invariant:
-      "POST /api/execute returns dryRun: false for code.apply and send_email; other kinds use dry-run or artifact-only adapter behavior.",
+      "POST /api/execute returns dryRun: false for code.apply, send_email, system.note, reflection.note, and workflow.plan; other kinds use preview / bundle-only adapter behavior.",
   };
 }
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { activityTraceHref } from "@/lib/activity-trace-href";
 import type { ActivityEvent } from "@/lib/activity-types";
 
 function formatTime(ts: string): string {
@@ -111,7 +112,7 @@ export default function AgentActivityPanel() {
                 Trace {traceShort(group.traceId)}
               </div>
               <Link
-                href={`/?trace=${encodeURIComponent(group.traceId)}`}
+                href={activityTraceHref(group.traceId)}
                 className="text-xs font-medium text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
               >
                 Open trace

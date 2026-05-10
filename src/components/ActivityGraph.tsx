@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { activityTraceHref } from "@/lib/activity-trace-href";
 import ReactFlow, {
   type Node,
   type Edge,
@@ -509,7 +510,7 @@ export default function ActivityGraph() {
             </div>
             {selectedEvent.traceId && (
               <Link
-                href={`/?trace=${encodeURIComponent(selectedEvent.traceId)}`}
+                href={activityTraceHref(selectedEvent.traceId)}
                 className="mt-3 inline-flex items-center text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
               >
                 View full trace →

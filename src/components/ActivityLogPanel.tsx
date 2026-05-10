@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { activityTraceHref } from "@/lib/activity-trace-href";
 
 type ActionEntry = {
   id: string;
@@ -127,7 +128,7 @@ export default function ActivityLogPanel() {
                   <>
                     <span>·</span>
                     <Link
-                      href={`/?trace=${encodeURIComponent(action.traceId)}`}
+                      href={activityTraceHref(action.traceId)}
                       className="font-mono underline hover:text-zinc-300"
                     >
                       {action.traceId.slice(0, 8)}…

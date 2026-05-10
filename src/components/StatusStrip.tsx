@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { activityTraceHref } from "@/lib/activity-trace-href";
 
 type StatusStripData = {
   dateKey: string | null;
@@ -154,7 +155,7 @@ export default function StatusStrip({
           <span>
             Trace:{" "}
             <Link
-              href={`/?trace=${encodeURIComponent(data.activeTraceId!)}`}
+              href={activityTraceHref(data.activeTraceId!)}
               className="font-mono text-zinc-300 underline hover:text-zinc-200"
             >
               {traceShort}

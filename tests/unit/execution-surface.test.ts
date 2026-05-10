@@ -14,18 +14,28 @@ describe("execution-surface", () => {
     expect(NON_DRY_RUN_EXECUTE_KINDS).toContain("send_email");
   });
 
+  it("declares system.note as non-dry-run execute kind (persisted artifact)", () => {
+    expect(NON_DRY_RUN_EXECUTE_KINDS).toContain("system.note");
+  });
+
   it("buildExecutionCapabilities matches execute route invariant", () => {
     const c = buildExecutionCapabilities();
-    expect(c.nonDryRunExecuteKinds).toEqual(["code.apply", "send_email"]);
+    expect(c.nonDryRunExecuteKinds).toEqual([
+      "code.apply",
+      "send_email",
+      "system.note",
+      "reflection.note",
+      "workflow.plan",
+    ]);
     expect(c.dryRunDefaultForOtherKinds).toBe(true);
     expect(c.invariant).toContain("dryRun: false");
-    expect(c.invariant).toContain("send_email");
+    expect(c.invariant).toContain("system.note");
   });
 
   it("executionCapabilitiesShortLabel is mixed when live kinds exist", () => {
     const c = buildExecutionCapabilities();
     expect(executionCapabilitiesShortLabel(c)).toContain("MIXED");
     expect(executionCapabilitiesShortLabel(c)).toContain("code.apply");
-    expect(executionCapabilitiesShortLabel(c)).toContain("send_email");
+    expect(executionCapabilitiesShortLabel(c)).toContain("system.note");
   });
 });

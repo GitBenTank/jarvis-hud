@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { activityTraceHref } from "@/lib/activity-trace-href";
 import { normalizeAction } from "@/lib/normalize";
 import { riskTierForKind, requiresIrreversibleConfirmation } from "@/lib/risk";
 
@@ -295,7 +296,7 @@ export default function MissionStrip() {
           <span className={traceSecondary ? "text-zinc-600" : ""}>
             Trace:{" "}
             <Link
-              href={`/?trace=${encodeURIComponent(data.activeTraceId!)}`}
+              href={activityTraceHref(data.activeTraceId!)}
               className={`font-mono underline hover:text-zinc-200 ${
                 traceSecondary ? "text-zinc-500" : "text-zinc-300"
               }`}

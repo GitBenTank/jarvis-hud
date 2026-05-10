@@ -7,6 +7,7 @@ type StatusData = {
   pendingCount: number;
   approvedCount: number;
   executedCount: number;
+  queueHeadline: string;
   activeTraceId: string | null;
   lastProposalAt: string | null;
   lastOpenClawProposalAt: string | null;
@@ -177,6 +178,7 @@ export default function SystemStatus() {
         pendingCount: number;
         approvedCount: number;
         executedCount: number;
+        queueHeadline: string;
         latestDecisionSummary: string;
         latestBlockReason: string | null;
       };
@@ -198,6 +200,10 @@ export default function SystemStatus() {
         pendingCount: posture.pendingCount,
         approvedCount: posture.approvedCount,
         executedCount: posture.executedCount,
+        queueHeadline:
+          typeof posture.queueHeadline === "string" && posture.queueHeadline.trim()
+            ? posture.queueHeadline
+            : `Queue: ${posture.pendingCount} pending · ${posture.approvedCount} authorized (not executed) · ${posture.executedCount} executed`,
         activeTraceId: posture.activeTraceId,
         lastProposalAt: posture.lastProposalAt,
         lastOpenClawProposalAt: posture.lastOpenClawProposalAt ?? null,
@@ -352,12 +358,15 @@ export default function SystemStatus() {
               Governance
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              <div className="basis-full text-xs font-medium text-zinc-800 dark:text-zinc-100">
+                {data.queueHeadline}
+              </div>
               <div>
                 <span className="font-medium text-zinc-500">Pending approval:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.pendingCount}</span>
               </div>
               <div>
-                <span className="font-medium text-zinc-500">Awaiting execution:</span>{" "}
+                <span className="font-medium text-zinc-500">Authorized (not executed):</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.approvedCount}</span>
               </div>
               <div>
@@ -385,7 +394,7 @@ export default function SystemStatus() {
                 </span>
               </div>
               <div title={data.latestDecisionSummary}>
-                <span className="font-medium text-zinc-500">Latest decision:</span>{" "}
+                <span className="font-medium text-zinc-500">Latest ledger pulse:</span>{" "}
                 <span className="text-zinc-800 dark:text-zinc-200">{data.latestDecisionSummary}</span>
               </div>
               <div>

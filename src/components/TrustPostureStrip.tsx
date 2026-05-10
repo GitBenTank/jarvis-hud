@@ -15,6 +15,8 @@ type TrustPosturePayload = {
   codeApplyBlockReasons: string[] | undefined;
   sodEnabled?: boolean | undefined;
   sodRoleMapsReady?: boolean | undefined;
+  /** Server-built TL;DR from GET /api/config (same dialect as pills). */
+  operatorHeadline?: string | undefined;
 };
 
 function readStepUpValid(o: Record<string, unknown>): boolean | null | undefined {
@@ -52,6 +54,7 @@ function parseTrustPosture(json: Record<string, unknown>): TrustPosturePayload |
     codeApplyBlockReasons: readOptionalStringArray(o, "codeApplyBlockReasons"),
     sodEnabled: readOptionalBoolean(o, "sodEnabled"),
     sodRoleMapsReady: readOptionalBoolean(o, "sodRoleMapsReady"),
+    operatorHeadline: readOptionalString(o, "operatorHeadline"),
   };
 }
 
@@ -262,7 +265,14 @@ function applyTrustConfigJson(
   setters.setTrustPosture(parseTrustPosture(json));
 }
 
-export default function TrustPostureStrip() {
+type TrustPostureStripProps = Readonly<{
+  /** Max-width wrapper inside the strip (home vs Activity column width). */
+  innerMaxClassName?: string;
+}>;
+
+export default function TrustPostureStrip({
+  innerMaxClassName = "mx-auto max-w-5xl",
+}: TrustPostureStripProps) {
   const [ingressOpenclawEnabled, setIngressOpenclawEnabled] = useState<boolean | null>(null);
   const [openclawAllowed, setOpenclawAllowed] = useState<boolean | null>(null);
   const [authEnabled, setAuthEnabled] = useState<boolean | null>(null);
@@ -367,12 +377,21 @@ export default function TrustPostureStrip() {
     latestPolicyDenyReason: latestBlockReason,
   });
 
+  const innerMax = innerMaxClassName;
+
   return (
     <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-2 dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="mx-auto flex max-w-5xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <span className="shrink-0 text-[10px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
-          Trust posture
-        </span>
+      <div className={`${innerMax} flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between`}>
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="shrink-0 text-[10px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
+            Trust posture
+          </span>
+          {tp?.operatorHeadline ? (
+            <p className="max-w-full text-xs font-medium leading-snug text-zinc-800 dark:text-zinc-100">
+              {tp.operatorHeadline}
+            </p>
+          ) : null}
+        </div>
         <div className="flex min-w-0 flex-1 flex-col gap-2 sm:items-end">
           <div className="flex flex-wrap items-center justify-end gap-2">
           <span className={pillBase} title="OpenClaw ingress enabled (secret + env)">

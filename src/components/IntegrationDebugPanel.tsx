@@ -7,6 +7,7 @@ import {
   hasIntegrationConfigBlocker,
   type IntegrationIssueCode,
 } from "@/lib/integration-readiness-ui";
+import { buildIntegrationHeadline } from "@/lib/governance-headline";
 import type { OpenClawHealthPayload } from "@/lib/openclaw-health";
 import { originsAlignedForLocalHud } from "@/lib/hud-origin-alignment";
 
@@ -129,15 +130,36 @@ export default function IntegrationDebugPanel() {
     (c): c is IntegrationIssueCode => c in INTEGRATION_ISSUE_LABELS
   );
 
+  const integrationHeadline = buildIntegrationHeadline({
+    ingressOpenclawEnabled: cfg?.ingressOpenclawEnabled,
+    openclawAllowed: cfg?.openclawAllowed,
+    originAligned,
+    issues,
+    healthStatus: health?.status ?? null,
+    healthSessionBlocked,
+  });
+
   return (
-    <details className="group mt-4 rounded-lg border border-zinc-300 bg-white text-sm dark:border-zinc-600 dark:bg-zinc-900">
+    <div className="mt-4 space-y-2">
+      <div className="rounded-lg border border-zinc-300 bg-zinc-50/90 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900/90">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <p className="min-w-0 flex-1 text-xs font-medium leading-snug text-zinc-900 dark:text-zinc-100">
+            {integrationHeadline}
+          </p>
+          {loading ? statusPill("neutral", "loading") : statusPill("neutral", "ready")}
+        </div>
+        <p className="mt-1 text-[10px] text-zinc-500 dark:text-zinc-400">
+          Same contract as <code className="rounded bg-black/5 px-1 dark:bg-white/10">GET /api/config</code> — expand
+          checklist for probes, origins, and Control UI.
+        </p>
+      </div>
+    <details className="group rounded-lg border border-zinc-300 bg-white text-sm dark:border-zinc-600 dark:bg-zinc-900">
       <summary className="cursor-pointer list-none px-3 py-2 font-medium text-zinc-800 dark:text-zinc-200 [&::-webkit-details-marker]:hidden">
         <span className="inline-flex items-center gap-2">
-          <span className="text-amber-700 dark:text-amber-300">Integration debug</span>
+          <span className="text-amber-700 dark:text-amber-300">Integration checklist</span>
           <span className="text-[10px] font-normal uppercase tracking-wide text-zinc-500">
             operator
           </span>
-          {loading ? statusPill("neutral", "loading") : statusPill("neutral", "ready")}
         </span>
       </summary>
       <div className="space-y-3 border-t border-zinc-200 px-3 py-3 dark:border-zinc-700">
@@ -375,5 +397,6 @@ export default function IntegrationDebugPanel() {
         </ul>
       </div>
     </details>
+    </div>
   );
 }

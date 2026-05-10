@@ -30,6 +30,7 @@ import {
   executionCapabilitiesShortLabel,
 } from "@/lib/execution-surface";
 import { computeIntegrationIssues } from "@/lib/integration-readiness";
+import { buildServerTrustOperatorHeadline } from "@/lib/governance-headline";
 import {
   isIntegrationDebugEnabled,
   probeControlUiReachability,
@@ -135,6 +136,16 @@ export async function GET(request: NextRequest) {
     const sodEnabled = isSodEnabled();
     const sodApproverCount = loadSodApproverPrincipals().length;
     const sodExecutorCount = loadSodExecutorPrincipals().length;
+    const sodRoleMapsReady = !sodEnabled || (sodApproverCount > 0 && sodExecutorCount > 0);
+    const operatorHeadline = buildServerTrustOperatorHeadline({
+      ingressOpenclawEnabled,
+      openclawAllowed,
+      authEnabled,
+      stepUpValid,
+      sodEnabled,
+      sodRoleMapsReady,
+      codeApplyBlockReasons,
+    });
 
     const dateKey = getDateKey();
     const events =
@@ -200,8 +211,8 @@ export async function GET(request: NextRequest) {
         sodEnabled,
         sodApproverPrincipalCount: sodApproverCount,
         sodExecutorPrincipalCount: sodExecutorCount,
-        sodRoleMapsReady:
-          !sodEnabled || (sodApproverCount > 0 && sodExecutorCount > 0),
+        sodRoleMapsReady,
+        operatorHeadline,
       },
       runtimePosture,
       integrationIssues,

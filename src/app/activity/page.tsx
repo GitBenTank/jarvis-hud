@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import ActivityGraph from "@/components/ActivityGraph";
 import OpenClawHealthBadge from "@/components/OpenClawHealthBadge";
+import StatusStrip from "@/components/StatusStrip";
 import TracePanel from "@/components/TracePanel";
+import TrustPostureStrip from "@/components/TrustPostureStrip";
 
 export default function ActivityPage() {
   return (
@@ -19,6 +21,10 @@ export default function ActivityPage() {
             ← Dashboard
           </Link>
         </div>
+        <section aria-label="Trust and queue status" className="mb-4">
+          <TrustPostureStrip innerMaxClassName="mx-auto max-w-4xl" />
+          <StatusStrip innerMaxClassName="mx-auto max-w-4xl" />
+        </section>
         <OpenClawHealthBadge />
         <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
           <div className="border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">

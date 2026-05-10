@@ -1,8 +1,8 @@
-import { normalizeAction } from "@/lib/normalize";
 import {
   buildExecutionCapabilities,
   type ExecutionCapabilities,
 } from "@/lib/execution-surface";
+import { buildQueueHeadline, formatLatestLedgerPulse } from "@/lib/governance-headline";
 
 export type RuntimePosture = {
   activeTraceId: string | null;
@@ -19,6 +19,8 @@ export type RuntimePosture = {
   executedCount: number;
   agentLastSeen: string | null;
   latestDecisionSummary: string;
+  /** One-line queue counts for status strip (aligned with approvals vocabulary). */
+  queueHeadline: string;
   latestBlockReason: string | null;
   authEnabled: boolean;
   ingressEnabled: boolean;
@@ -89,13 +91,29 @@ export function buildRuntimePosture(args: {
     .filter((x) => x.traceId)
     .sort((a, b) => b.at - a.at)[0];
 
-  let latestDecisionSummary = "No decisions yet";
-  if (sortedActions[0]) {
-    latestDecisionSummary = `${sortedActions[0].status ?? "unknown"} · ${sortedActions[0].kind ?? "action"}`;
-  } else if (lastProposal?.payload) {
-    const action = normalizeAction(lastProposal.payload);
-    latestDecisionSummary = `${lastProposal.status ?? "pending"} · ${action.kind}`;
-  }
+  const latestActionRow = sortedActions[0]
+    ? {
+        at: sortedActions[0].at,
+        status: sortedActions[0].status ?? "unknown",
+        kind: sortedActions[0].kind ?? "action",
+      }
+    : null;
+  const latestEventRow = lastProposal
+    ? {
+        status: lastProposal.status,
+        payload: lastProposal.payload,
+        createdAt: lastProposal.createdAt,
+      }
+    : null;
+  const latestDecisionSummary = formatLatestLedgerPulse({
+    latestAction: latestActionRow,
+    latestEvent: latestEventRow,
+  });
+  const queueHeadline = buildQueueHeadline(
+    pendingEvents.length,
+    approvedEvents.length,
+    executedEvents.length
+  );
 
   const latestDeny = [...(args.policyDecisions ?? [])]
     .filter((p) => p.decision === "deny")
@@ -111,6 +129,7 @@ export function buildRuntimePosture(args: {
     executedCount: executedEvents.length,
     agentLastSeen: lastProposal?.createdAt ?? null,
     latestDecisionSummary,
+    queueHeadline,
     latestBlockReason: latestDeny?.reason ?? null,
     authEnabled: args.authEnabled,
     ingressEnabled: args.ingressEnabled,

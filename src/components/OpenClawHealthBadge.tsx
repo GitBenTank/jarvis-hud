@@ -102,20 +102,25 @@ export default function OpenClawHealthBadge({
   const inner = (
     <>
       {showDataPathExplainer ? (
-        <div className="mb-3 space-y-1.5 text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-400">
-          <p className="m-0">
-            <strong className="font-medium text-zinc-700 dark:text-zinc-300">How it connects:</strong> OpenClaw sends
-            signed proposals to this Jarvis process at{" "}
-            <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[10px] dark:bg-zinc-800">
-              POST /api/ingress/openclaw
-            </code>
-            {" "}
-            — The OpenClaw Control UI is only for operating the gateway; it does not proxy proposals into Jarvis.
-          </p>
-          <p className="m-0 font-mono text-[10px] text-zinc-500 dark:text-zinc-500">
-            Receive path ready: {receivePathReadyLine}
-          </p>
-        </div>
+        <details className="mb-3 rounded border border-zinc-200 bg-zinc-50/80 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900/50">
+          <summary className="cursor-pointer list-none text-[11px] font-medium text-zinc-700 dark:text-zinc-200 [&::-webkit-details-marker]:hidden">
+            Receive path — how proposals reach Jarvis (expand)
+          </summary>
+          <div className="mt-2 space-y-1.5 text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-400">
+            <p className="m-0">
+              <strong className="font-medium text-zinc-700 dark:text-zinc-300">How it connects:</strong> OpenClaw sends
+              signed proposals to this Jarvis process at{" "}
+              <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[10px] dark:bg-zinc-800">
+                POST /api/ingress/openclaw
+              </code>
+              {" "}
+              — The OpenClaw Control UI is only for operating the gateway; it does not proxy proposals into Jarvis.
+            </p>
+            <p className="m-0 font-mono text-[10px] text-zinc-500 dark:text-zinc-500">
+              Receive path ready: {receivePathReadyLine}
+            </p>
+          </div>
+        </details>
       ) : null}
 
       {loading && !data ? (

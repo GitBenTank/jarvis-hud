@@ -8,6 +8,7 @@ type StatusStripData = {
   pendingCount: number;
   approvedCount: number;
   executedCount: number;
+  queueHeadline: string;
   /** Newest row in today's ledger (any origin). */
   lastProposalAt: string | null;
   /** Same disk scan as OpenClaw health badge. */
@@ -34,7 +35,13 @@ function formatTimeAgo(ts: string): string {
   }
 }
 
-export default function StatusStrip() {
+type StatusStripProps = Readonly<{
+  innerMaxClassName?: string;
+}>;
+
+export default function StatusStrip({
+  innerMaxClassName = "mx-auto max-w-5xl",
+}: StatusStripProps) {
   const [data, setData] = useState<StatusStripData | null>(null);
 
   const fetchStatus = useCallback(async () => {
@@ -50,6 +57,7 @@ export default function StatusStrip() {
         executedCount: number;
         agentLastSeen: string | null;
         latestDecisionSummary: string;
+        queueHeadline: string;
       };
 
       const lastActivityAt = posture.agentLastSeen
@@ -64,6 +72,10 @@ export default function StatusStrip() {
         pendingCount: posture.pendingCount,
         approvedCount: posture.approvedCount,
         executedCount: posture.executedCount,
+        queueHeadline:
+          typeof posture.queueHeadline === "string" && posture.queueHeadline.trim()
+            ? posture.queueHeadline
+            : `Queue: ${posture.pendingCount} pending · ${posture.approvedCount} authorized (not executed) · ${posture.executedCount} executed`,
         lastProposalAt: posture.lastProposalAt,
         lastOpenClawProposalAt: posture.lastOpenClawProposalAt ?? null,
         activeTraceId: posture.activeTraceId,
@@ -88,10 +100,12 @@ export default function StatusStrip() {
     return () => globalThis.removeEventListener("jarvis-refresh", handler);
   }, [fetchStatus]);
 
+  const innerMax = innerMaxClassName;
+
   if (!data) {
     return (
       <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-2">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 text-xs text-zinc-500">
+        <div className={`${innerMax} flex flex-wrap items-center gap-3 text-xs text-zinc-500`}>
           <span>Loading…</span>
         </div>
       </div>
@@ -102,12 +116,17 @@ export default function StatusStrip() {
 
   return (
     <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-2">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 text-xs tracking-wide text-zinc-400">
+      <div className={`${innerMax} flex flex-col gap-1.5 py-0.5`}>
+        <p className="text-[11px] font-medium leading-snug text-zinc-200 dark:text-zinc-200">
+          {data.queueHeadline}
+        </p>
+        <div className="flex flex-wrap items-center gap-3 text-xs tracking-wide text-zinc-400">
         <span>
           Pending approval: <span className="font-medium text-zinc-300">{data.pendingCount}</span>
         </span>
-        <span title="Approved, not yet executed">
-          Awaiting execution: <span className="font-medium text-zinc-300">{data.approvedCount}</span>
+        <span title="Authorized — not executed yet (approval recorded; Execute still required).">
+          Authorized (not executed):{" "}
+          <span className="font-medium text-zinc-300">{data.approvedCount}</span>
         </span>
         <span>
           Executed: <span className="font-medium text-zinc-300">{data.executedCount}</span>
@@ -143,9 +162,10 @@ export default function StatusStrip() {
           </span>
         )}
         <span title={data.latestDecisionSummary}>
-          Latest decision: <span className="text-zinc-300">{data.latestDecisionSummary}</span>
+          Latest ledger pulse: <span className="text-zinc-300">{data.latestDecisionSummary}</span>
         </span>
         <span className="text-zinc-500">{data.dateKey ?? "-"}</span>
+        </div>
       </div>
     </div>
   );

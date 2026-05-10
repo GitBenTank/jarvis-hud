@@ -13,6 +13,8 @@ type TrustPosturePayload = {
   executionScopeEnforced: boolean | undefined;
   executionSurfaceLabel: string | undefined;
   codeApplyBlockReasons: string[] | undefined;
+  sodEnabled?: boolean | undefined;
+  sodRoleMapsReady?: boolean | undefined;
 };
 
 function readStepUpValid(o: Record<string, unknown>): boolean | null | undefined {
@@ -48,6 +50,8 @@ function parseTrustPosture(json: Record<string, unknown>): TrustPosturePayload |
     executionScopeEnforced: readOptionalBoolean(o, "executionScopeEnforced"),
     executionSurfaceLabel: readOptionalString(o, "executionSurfaceLabel"),
     codeApplyBlockReasons: readOptionalStringArray(o, "codeApplyBlockReasons"),
+    sodEnabled: readOptionalBoolean(o, "sodEnabled"),
+    sodRoleMapsReady: readOptionalBoolean(o, "sodRoleMapsReady"),
   };
 }
 
@@ -79,7 +83,112 @@ type AuthStatusPayload = {
   authEnabled: boolean;
   hasSession: boolean;
   stepUpValid: boolean;
+  identityBindingRequired: boolean;
+  identityBound: boolean;
 };
+
+function formatBindingPill(auth: AuthStatusPayload | null): {
+  label: string;
+  title: string;
+  kind: "neutral" | "warn" | "ok" | "muted";
+} {
+  if (!auth || !auth.authEnabled) {
+    return {
+      label: "Binding: N/A",
+      title: "Auth is off — identity binding is not enforced for HUD session.",
+      kind: "muted",
+    };
+  }
+  if (!auth.identityBindingRequired) {
+    return {
+      label: "Binding: Off",
+      title: "JARVIS_IDENTITY_BINDING_REQUIRED is not set — OIDC bind is optional.",
+      kind: "muted",
+    };
+  }
+  if (auth.identityBound) {
+    return {
+      label: "Binding: Bound",
+      title: "Session has OIDC iss/sub (identity binding satisfied for this session).",
+      kind: "ok",
+    };
+  }
+  if (auth.hasSession) {
+    return {
+      label: "Binding: Missing",
+      title:
+        "Binding is required but this session has no OIDC bind — use stub-bind or real OIDC before approve/execute.",
+      kind: "warn",
+    };
+  }
+  return {
+    label: "Binding: —",
+    title: "Binding is required — sign in (session), then complete OIDC bind.",
+    kind: "neutral",
+  };
+}
+
+function formatSodPill(tp: TrustPosturePayload | null): {
+  label: string;
+  title: string;
+  kind: "neutral" | "warn" | "ok" | "muted";
+} | null {
+  if (!tp || tp.sodEnabled === undefined) return null;
+  if (!tp.sodEnabled) {
+    return {
+      label: "SoD: Off",
+      title: "JARVIS_SOD_ENABLED is not set — approver/executor lists are not enforced.",
+      kind: "muted",
+    };
+  }
+  if (tp.sodRoleMapsReady === true) {
+    return {
+      label: "SoD: On · ready",
+      title: "SoD is on and both JARVIS_SOD_APPROVER_PRINCIPALS and JARVIS_SOD_EXECUTOR_PRINCIPALS are non-empty.",
+      kind: "ok",
+    };
+  }
+  return {
+    label: "SoD: On · incomplete",
+    title:
+      "SoD is on but an approver or executor principal list is empty — approve/execute return 503 sod_role_map_incomplete.",
+    kind: "warn",
+  };
+}
+
+function buildPostureWarningLine(args: {
+  auth: AuthStatusPayload | null;
+  tp: TrustPosturePayload | null;
+  latestPolicyDenyReason: string | null;
+}): string | null {
+  const parts: string[] = [];
+  const { auth, tp, latestPolicyDenyReason } = args;
+
+  if (
+    auth?.authEnabled &&
+    auth.identityBindingRequired &&
+    !auth.identityBound
+  ) {
+    parts.push(
+      auth.hasSession
+        ? "Identity binding required — OIDC not bound on this session (complete bind before governed actions)."
+        : "Identity binding required — sign in, then bind OIDC on the session."
+    );
+  }
+
+  if (tp?.sodEnabled === true && tp.sodRoleMapsReady === false) {
+    parts.push(
+      "SoD is on but role maps are incomplete (expect 503 on approve/execute until both JARVIS_SOD_* lists are set)."
+    );
+  }
+
+  if (latestPolicyDenyReason?.trim()) {
+    parts.push(`Latest policy deny: ${latestPolicyDenyReason.trim()}`);
+  }
+
+  if (!parts.length) return null;
+  return parts.join(" · ");
+}
 
 function sessionPillClass(kind: "neutral" | "warn" | "ok" | "muted"): string {
   if (kind === "warn") {
@@ -178,6 +287,8 @@ export default function TrustPostureStrip() {
         authEnabled: json.authEnabled,
         hasSession: json.hasSession === true,
         stepUpValid: json.stepUpValid === true,
+        identityBindingRequired: json.identityBindingRequired === true,
+        identityBound: json.identityBound === true,
       });
     } catch {
       setAuthStatus(null);
@@ -248,6 +359,13 @@ export default function TrustPostureStrip() {
   const reasons = tp?.codeApplyBlockReasons;
   const showApplyReasons = Boolean(reasons?.length);
   const sessionPill = formatSessionPill(authStatus);
+  const bindingPill = formatBindingPill(authStatus);
+  const sodPill = formatSodPill(tp);
+  const postureWarningLine = buildPostureWarningLine({
+    auth: authStatus,
+    tp,
+    latestPolicyDenyReason: latestBlockReason,
+  });
 
   return (
     <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-2 dark:border-zinc-800 dark:bg-zinc-950">
@@ -255,7 +373,8 @@ export default function TrustPostureStrip() {
         <span className="shrink-0 text-[10px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
           Trust posture
         </span>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:items-end">
+          <div className="flex flex-wrap items-center justify-end gap-2">
           <span className={pillBase} title="OpenClaw ingress enabled (secret + env)">
             Ingress: {tri(ingressOpenclawEnabled, "Enabled", "Disabled")}
           </span>
@@ -265,20 +384,20 @@ export default function TrustPostureStrip() {
           <span className={pillBase} title="HUD auth requirement">
             Auth: {tri(authEnabled, "On", "Off")}
           </span>
+          <span className={sessionPillClass(bindingPill.kind)} title={bindingPill.title}>
+            {bindingPill.label}
+          </span>
+          {sodPill ? (
+            <span className={sessionPillClass(sodPill.kind)} title={sodPill.title}>
+              {sodPill.label}
+            </span>
+          ) : null}
           <span className={sessionPillClass(sessionPill.kind)} title={sessionPill.title}>
             {sessionPill.label}
           </span>
           <span className={pillBase} title="code.apply execution path available">
             Apply: {tri(codeApplyAvailable, "Available", "Blocked")}
           </span>
-          {latestBlockReason ? (
-            <span
-              className={`${pillBase} max-w-[min(100%,28rem)] truncate border-amber-800/40 bg-amber-950/20 text-amber-200`}
-              title={latestBlockReason}
-            >
-              Block: {latestBlockReason}
-            </span>
-          ) : null}
 
           {showStepUpAuthOn ? (
             <span className={pillBase} title="Step-up session (cookie); trustPosture.stepUpValid">
@@ -304,6 +423,15 @@ export default function TrustPostureStrip() {
             <span className={pillBase} title={reasons.join("\n\n")}>
               Apply detail: {reasons.length} reason{reasons.length === 1 ? "" : "s"}
             </span>
+          ) : null}
+          </div>
+          {postureWarningLine ? (
+            <div
+              className="max-w-full rounded border border-amber-700/35 bg-amber-500/10 px-2 py-1 text-left text-[11px] leading-snug text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-50"
+              title={postureWarningLine}
+            >
+              {postureWarningLine}
+            </div>
           ) : null}
         </div>
       </div>

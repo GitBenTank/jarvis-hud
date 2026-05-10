@@ -5,6 +5,7 @@
 **Created:** 2026-05  
 
 **Normative decision:** [ADR-0007: Identity binding v1](../decisions/0007-identity-binding-v1.md)  
+**S0 contract (pinned):** [OIDC claims contract v1](../architecture/identity-binding-claims-contract-v1.md)  
 **Related:** [Thesis Lock](../decisions/0001-thesis-lock.md) · [Pilot bundle baseline (closed)](./0003-operator-integration-phases.md#pilot-bundle-baseline-operator-credibility--closed-2026-05) · [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) · [Audit export](../audit-export.md)
 
 ---
@@ -49,7 +50,7 @@ Order is **documentation and proof hooks before** persistence writes that depend
 
 | Slice | Deliverable | Exit signal |
 |-------|-------------|-------------|
-| **S0 — Claims contract** | Doc: required OIDC/OAuth claims, issuer+sub stability, mapping table → internal `actorId` / display label fields (names TBD in implementation). | Reviewed; no code. |
+| **S0 — Claims contract** | **[Pinned doc](../architecture/identity-binding-claims-contract-v1.md):** required OIDC ID Token claims, `(iss, sub)` stability, session + event field mapping, fail-closed rules. | Reviewed; **no code** until S0 checklist in that doc is satisfied. |
 | **S1 — Session binding** | At session establishment / refresh, parse and validate claims; hold bound subject in session context used by gated routes. | Unit tests or narrow integration tests for parser + failure modes. |
 | **S2 — Approve / execute persistence** | Write bound human principal fields on approve and execute paths already covered by policy + step-up; no change to ingress signing. | F1 manual or scripted pass on dev stack. |
 | **S3 — Trace + audit export** | Surface same identifiers in trace read APIs and audit export JSON for the governed day range. | F2 pass on same run as S2. |

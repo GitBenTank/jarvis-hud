@@ -4,7 +4,7 @@
 **Date:** 2026-05  
 **Owner:** Ben Tankersley  
 
-**Related:** [ADR-0001: Thesis Lock](./0001-thesis-lock.md) · [ADR-0003: Execution policy v1](./0003-execution-policy-v1.md) · [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) · [Tranche plan — identity binding](../roadmap/0006-identity-binding-tranche.md)
+**Related:** [ADR-0001: Thesis Lock](./0001-thesis-lock.md) · [ADR-0003: Execution policy v1](./0003-execution-policy-v1.md) · [Operating assumptions §2](../strategy/operating-assumptions.md#2-auth-and-step-up-jarvis) · [Tranche plan — identity binding](../roadmap/0006-identity-binding-tranche.md) · [S0 — OIDC claims contract (pinned)](../architecture/identity-binding-claims-contract-v1.md)
 
 ---
 
@@ -21,6 +21,8 @@ Ingress remains **capability** (signed connector), not SSO identity. Identity bi
 Adopt **Identity binding v1** as a bounded contract: bind **stable external identity claims** (from an agreed IdP / OIDC shape) to **Jarvis session and persisted actor fields** on approve / execute (and aligned read paths), so audit export and traces can answer “**this human** authorized **this action**” for governed APIs — without expanding scope to full enterprise RBAC or SoD in the same release.
 
 Implementation order and proof obligations live in [0006 — Identity binding tranche](../roadmap/0006-identity-binding-tranche.md).
+
+**S0 (pinned):** [Identity binding — OIDC claims contract v1](../architecture/identity-binding-claims-contract-v1.md) — required claims, canonical `(iss, sub)`, session and persistence mapping, and fail-closed rules. Downstream slices implement **only** against that contract.
 
 ---
 

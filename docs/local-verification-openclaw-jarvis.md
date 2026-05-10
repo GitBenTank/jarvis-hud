@@ -23,6 +23,8 @@ pkill -f next || true
 
 `pkill -f` matches **any** process whose full command line contains that substring, so it can touch unrelated tools. Use only when you mean to clear local dev junk, then start **one** gateway and **one** Jarvis dev server.
 
+**Respawn / PPID 1:** If something keeps listening on **19001** after `kill` and `ps` shows **`openclaw-gateway`** with **PPID 1**, launchd (or a LaunchAgent) is supervising it — **`pkill` the child is not enough**. Unload the OpenClaw jobs under **`~/Library/LaunchAgents`** (see [local stack startup — duplicate gateway](setup/local-stack-startup.md#one-time-disable-the-duplicate-homebrew-gateway)), then confirm **`lsof -nP -iTCP:19001 -sTCP:LISTEN`** is empty before starting a **single** manual gateway.
+
 ---
 
 ## 1. OpenClaw gateway

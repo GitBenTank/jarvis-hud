@@ -14,6 +14,11 @@ import { deriveTraceExecutionOutcome, sortEventsForPrimaryEvent } from "@/lib/ex
 import { findApprovalPreflightSnapshot } from "@/lib/approval-preflight-snapshot-store";
 import type { ApprovalPreflightSnapshotRecord } from "@/lib/approval-preflight-snapshot-shared";
 import { computeWorkflowLineage } from "@/lib/trace-replay";
+import {
+  humanPrincipalsFromLifecycleFields,
+  validateEventsForIdentityBindingExport,
+  AuditExportIdentityIntegrityError,
+} from "@/lib/audit-export-identity";
 
 type StoredEvent = {
   id: string;
@@ -46,6 +51,10 @@ type StoredEvent = {
   executionActorId?: string;
   executionActorType?: "human" | "agent";
   executionActorLabel?: string;
+  approvalPrincipalIss?: string;
+  approvalPrincipalSub?: string;
+  executionPrincipalIss?: string;
+  executionPrincipalSub?: string;
   proposalStatus?: string;
   approvedAt?: string;
   rejectedAt?: string;
@@ -396,8 +405,21 @@ export async function GET(
     );
   }
 
+  try {
+    validateEventsForIdentityBindingExport(matchedEvents as unknown[]);
+  } catch (err: unknown) {
+    if (err instanceof AuditExportIdentityIntegrityError) {
+      return NextResponse.json(
+        { error: err.message, code: err.code },
+        { status: err.httpStatus }
+      );
+    }
+    throw err;
+  }
+
   const events = matchedEvents.map((e) => {
     const normalized = normalizeAction(e.payload);
+    const hp = humanPrincipalsFromLifecycleFields(e as unknown as Record<string, unknown>);
     const ev = e as StoredEvent & {
       proposalStatus?: string;
       approvedAt?: string;
@@ -459,6 +481,11 @@ export async function GET(
       executionActorId: e.executionActorId,
       executionActorType: e.executionActorType,
       executionActorLabel: e.executionActorLabel,
+      approvalPrincipalIss: e.approvalPrincipalIss,
+      approvalPrincipalSub: e.approvalPrincipalSub,
+      executionPrincipalIss: e.executionPrincipalIss,
+      executionPrincipalSub: e.executionPrincipalSub,
+      ...(hp ? { humanPrincipals: hp } : {}),
       builder: e.builder,
       provider: e.provider,
       model: e.model,

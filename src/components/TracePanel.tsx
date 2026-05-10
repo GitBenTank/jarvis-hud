@@ -60,6 +60,11 @@ type TraceEvent = {
   executionActorId?: string;
   executionActorType?: "human" | "agent";
   executionActorLabel?: string;
+  approvalPrincipalIss?: string;
+  approvalPrincipalSub?: string;
+  executionPrincipalIss?: string;
+  executionPrincipalSub?: string;
+  humanPrincipals?: Record<string, unknown>;
   builder?: string;
   provider?: string;
   model?: string;
@@ -159,6 +164,12 @@ type TraceReplayResult = {
     executionActorId?: string;
     executionActorType?: "human" | "agent";
     executionActorLabel?: string;
+    approvalPrincipalIss?: string;
+    approvalPrincipalSub?: string;
+    executionPrincipalIss?: string;
+    executionPrincipalSub?: string;
+    humanPrincipals?: Record<string, unknown>;
+    principalRolesNote?: string;
   } | null;
   policyDecisions: TracePolicyDecision[];
   execution: Record<string, unknown> | null;
@@ -213,6 +224,11 @@ function replayToTraceResponse(raw: TraceReplayResult): TraceResponse {
       executionActorId: approval.executionActorId,
       executionActorType: approval.executionActorType,
       executionActorLabel: approval.executionActorLabel,
+      approvalPrincipalIss: approval.approvalPrincipalIss,
+      approvalPrincipalSub: approval.approvalPrincipalSub,
+      executionPrincipalIss: approval.executionPrincipalIss,
+      executionPrincipalSub: approval.executionPrincipalSub,
+      humanPrincipals: approval.humanPrincipals,
       builder: proposal.builder,
       provider: proposal.provider,
       model: proposal.model,

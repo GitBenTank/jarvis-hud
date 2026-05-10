@@ -1,7 +1,7 @@
 import path from "node:path";
 import os from "node:os";
 import { promises as fs } from "node:fs";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from "vitest";
 
 const TEST_ROOT = path.join(os.tmpdir(), `jarvis-audit-export-${Date.now()}`);
 
@@ -68,6 +68,10 @@ describe("validateAuditDateRange", () => {
 });
 
 describe("buildAuditExportBundle", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("aggregates events and receipts with linkage and actors preserved", async () => {
     const { getEventsFilePath, getActionsFilePath } = await import("@/lib/storage");
     const {
@@ -138,5 +142,104 @@ describe("buildAuditExportBundle", () => {
     expect(rec.traceId).toBe("trace-audit-1");
     const actors = rec.actors as Record<string, Record<string, string>>;
     expect(actors.proposer.actorId).toBe("openclaw");
+
+    const hp = ev.humanPrincipals as Record<string, Record<string, string>>;
+    expect(hp.approval.actorId).toBe("local-user");
+    expect(hp.approval.principalIss).toBeUndefined();
+  });
+
+  it("rejects bundle when identity binding is required and approval lacks principals", async () => {
+    vi.stubEnv("JARVIS_IDENTITY_BINDING_REQUIRED", "true");
+    const { getEventsFilePath, getActionsFilePath } = await import("@/lib/storage");
+    const {
+      validateAuditDateRange,
+      buildAuditExportBundle,
+    } = await import("@/lib/audit-export");
+
+    const dk = "2026-04-10";
+    await fs.mkdir(path.join(TEST_ROOT, "events"), { recursive: true });
+    await fs.mkdir(path.join(TEST_ROOT, "actions"), { recursive: true });
+
+    const eventRow = {
+      id: "evt-bind-bad",
+      traceId: "trace-bind-bad",
+      status: "approved",
+      approvalActorId: "local-user",
+      approvalActorType: "human",
+    };
+    await fs.writeFile(
+      getEventsFilePath(dk),
+      JSON.stringify([eventRow], null, 2),
+      "utf-8"
+    );
+    await fs.writeFile(
+      getActionsFilePath(dk),
+      JSON.stringify({
+        id: "r1",
+        traceId: "trace-bind-bad",
+        approvalId: "evt-bind-bad",
+        at: "2026-04-10T12:00:00.000Z",
+        kind: "system.note",
+        status: "executed",
+        summary: "x",
+      }) + "\n",
+      "utf-8"
+    );
+
+    const v = validateAuditDateRange(dk, dk);
+    expect(v.ok).toBe(true);
+    if (!v.ok) throw new Error("validation failed");
+
+    await expect(buildAuditExportBundle(v)).rejects.toThrow(/approvalPrincipalIss/);
+  });
+
+  it("includes bound principals in humanPrincipals when binding is required", async () => {
+    vi.stubEnv("JARVIS_IDENTITY_BINDING_REQUIRED", "true");
+    const { getEventsFilePath, getActionsFilePath } = await import("@/lib/storage");
+    const {
+      validateAuditDateRange,
+      buildAuditExportBundle,
+    } = await import("@/lib/audit-export");
+
+    const dk = "2026-04-11";
+    await fs.mkdir(path.join(TEST_ROOT, "events"), { recursive: true });
+    await fs.mkdir(path.join(TEST_ROOT, "actions"), { recursive: true });
+
+    const eventRow = {
+      id: "evt-bind-ok",
+      traceId: "trace-bind-ok",
+      status: "approved",
+      approvalActorId: "oidc1:https://issuer:alice",
+      approvalActorType: "human",
+      approvalPrincipalIss: "https://issuer",
+      approvalPrincipalSub: "alice",
+    };
+    await fs.writeFile(
+      getEventsFilePath(dk),
+      JSON.stringify([eventRow], null, 2),
+      "utf-8"
+    );
+    await fs.writeFile(
+      getActionsFilePath(dk),
+      JSON.stringify({
+        id: "r2",
+        traceId: "trace-bind-ok",
+        approvalId: "evt-bind-ok",
+        at: "2026-04-11T12:00:00.000Z",
+        kind: "system.note",
+        status: "executed",
+        summary: "x",
+      }) + "\n",
+      "utf-8"
+    );
+
+    const v = validateAuditDateRange(dk, dk);
+    expect(v.ok).toBe(true);
+    if (!v.ok) throw new Error("validation failed");
+
+    const bundle = await buildAuditExportBundle(v);
+    const ev = bundle.events[0] as Record<string, unknown>;
+    const hp = ev.humanPrincipals as Record<string, Record<string, string>>;
+    expect(hp.approval.principalSub).toBe("alice");
   });
 });

@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 import { assembleTraceReplay } from "@/lib/trace-replay";
+import { AuditExportIdentityIntegrityError } from "@/lib/audit-export-identity";
 
 export async function GET(
   _request: Request,
@@ -19,14 +20,24 @@ export async function GET(
     );
   }
 
-  const result = await assembleTraceReplay(traceId);
+  try {
+    const result = await assembleTraceReplay(traceId);
 
-  if (!result) {
-    return NextResponse.json(
-      { error: "Trace not found", traceId: traceId.trim() },
-      { status: 404 }
-    );
+    if (!result) {
+      return NextResponse.json(
+        { error: "Trace not found", traceId: traceId.trim() },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(result);
+  } catch (err: unknown) {
+    if (err instanceof AuditExportIdentityIntegrityError) {
+      return NextResponse.json(
+        { error: err.message, code: err.code },
+        { status: err.httpStatus }
+      );
+    }
+    throw err;
   }
-
-  return NextResponse.json(result);
 }

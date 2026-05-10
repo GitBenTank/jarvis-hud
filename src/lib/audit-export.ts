@@ -12,6 +12,10 @@ import {
   getReconciliationFilePath,
   ensurePathSafe,
 } from "./storage";
+import {
+  augmentAuditExportEvent,
+  validateEventsForIdentityBindingExport,
+} from "./audit-export-identity";
 
 /** Inclusive range must not exceed this many calendar days (abuse / memory guard). */
 export const AUDIT_EXPORT_MAX_RANGE_DAYS = 90;
@@ -232,17 +236,20 @@ export async function buildAuditExportBundle(
 
   const index = collectIndex(events, receipts, policyDecisions, reconciliation);
 
+  validateEventsForIdentityBindingExport(events);
+  const eventsForExport = events.map((row) => augmentAuditExportEvent(row));
+
   return {
     range: { start, end },
     generatedAt: new Date().toISOString(),
     summary: {
-      events: events.length,
+      events: eventsForExport.length,
       receipts: receipts.length,
       traces: index.traceIds.length,
       policyDecisions: policyDecisions.length,
       reconciliation: reconciliation.length,
     },
-    events,
+    events: eventsForExport,
     receipts,
     policyDecisions,
     reconciliation,

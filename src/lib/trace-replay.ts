@@ -22,6 +22,10 @@ import { readPolicyDecisionsByTraceId, type PolicyDecisionEntry } from "./policy
 import { readReconciliationByTraceId, type ReconciliationEntry } from "./reconciliation-log";
 import { normalizeAction } from "./normalize";
 import type { ActorFieldsOnEvent } from "./actor-identity";
+import {
+  humanPrincipalsFromLifecycleFields,
+  validateEventsForIdentityBindingExport,
+} from "./audit-export-identity";
 
 /** One governed workflow step (child receipt) for replay/export readability. */
 export type WorkflowReplayStepSummary = {
@@ -170,6 +174,8 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
     return null;
   }
 
+  validateEventsForIdentityBindingExport(events as unknown[]);
+
   receipts.sort((a, b) => a.at.localeCompare(b.at));
   const latestReceipt = receipts.at(-1) ?? null;
 
@@ -211,6 +217,13 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
       }
     : null;
 
+  const proposalFields = proposalEvent
+    ? (proposalEvent as unknown as Record<string, unknown>)
+    : null;
+  const humanPrincipals = proposalFields
+    ? humanPrincipalsFromLifecycleFields(proposalFields)
+    : null;
+
   const approval = proposalEvent
     ? {
         status: proposalEvent.status,
@@ -224,6 +237,12 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
               approvalActorId: proposalEvent.approvalActorId,
               approvalActorType: proposalEvent.approvalActorType,
               approvalActorLabel: proposalEvent.approvalActorLabel,
+            }
+          : {}),
+        ...(proposalEvent.approvalPrincipalIss?.trim()
+          ? {
+              approvalPrincipalIss: proposalEvent.approvalPrincipalIss,
+              approvalPrincipalSub: proposalEvent.approvalPrincipalSub,
             }
           : {}),
         ...(proposalEvent.rejectionActorId
@@ -240,6 +259,15 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
               executionActorLabel: proposalEvent.executionActorLabel,
             }
           : {}),
+        ...(proposalEvent.executionPrincipalIss?.trim()
+          ? {
+              executionPrincipalIss: proposalEvent.executionPrincipalIss,
+              executionPrincipalSub: proposalEvent.executionPrincipalSub,
+            }
+          : {}),
+        ...(humanPrincipals ? { humanPrincipals } : {}),
+        principalRolesNote:
+          "approvalPrincipal* = who approved; executionPrincipal* = who executed (receipt actors mirror the latest receipt; event fields are durable source).",
       }
     : null;
 
@@ -250,6 +278,19 @@ export async function assembleTraceReplay(traceId: string): Promise<TraceReplayR
         status: latestReceipt.status,
         approvalId: latestReceipt.approvalId,
         ...(latestReceipt.actors ? { actors: latestReceipt.actors } : {}),
+        ...(proposalEvent?.executionPrincipalIss?.trim()
+          ? {
+              executionPrincipalIss: proposalEvent.executionPrincipalIss,
+              executionPrincipalSub: proposalEvent.executionPrincipalSub,
+            }
+          : {}),
+        ...(proposalEvent?.executionActorId
+          ? {
+              executionActorId: proposalEvent.executionActorId,
+              executionActorType: proposalEvent.executionActorType,
+              executionActorLabel: proposalEvent.executionActorLabel,
+            }
+          : {}),
       }
     : null;
 

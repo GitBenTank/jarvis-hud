@@ -5,6 +5,7 @@ import {
   validateAuditDateRange,
   buildAuditExportBundle,
 } from "@/lib/audit-export";
+import { AuditExportIdentityIntegrityError } from "@/lib/audit-export-identity";
 
 /**
  * GET /api/audit/export?start=YYYY-MM-DD&end=YYYY-MM-DD
@@ -27,6 +28,12 @@ export async function GET(request: NextRequest) {
     const bundle = await buildAuditExportBundle(v);
     return NextResponse.json(bundle);
   } catch (err: unknown) {
+    if (err instanceof AuditExportIdentityIntegrityError) {
+      return NextResponse.json(
+        { error: err.message, code: err.code },
+        { status: err.httpStatus }
+      );
+    }
     const msg = err instanceof Error ? err.message : "Unknown error";
     console.error("[audit-export]", msg);
     return NextResponse.json(

@@ -48,6 +48,8 @@ Implementation: `src/lib/sod-operator-narrative.ts`.
 
 ## Proof chain (cheap verification)
 
+**Copy-paste rerun:** [SoD proof / repro runbook](../runbooks/sod-proof-repro.md) (curl, `jq`, file paths, expected `policy-decisions` rows).
+
 ### A. Success — two different principals
 
 1. Set `JARVIS_SOD_ENABLED=true`, fill **approver** and **executor** lists with **two different** `iss|sub` entries (see Configuration). Ensure identity binding can produce persisted principals (stub-bind is fine for dev).

@@ -5,12 +5,15 @@ category: product-strategy
 owner: Ben Tankersley
 created: 2026-05-10
 related:
+  - ./competitive-gemini-enterprise-agent-platform.md
   - ./competitive-landscape-2026.md
   - ./jarvis-hud-video-thesis.md
   - ../decisions/0001-thesis-lock.md
 ---
 
 # Cursor prompt — Gemini Enterprise competitive (market-teaching)
+
+**Filled analysis (repo):** [competitive-gemini-enterprise-agent-platform.md](./competitive-gemini-enterprise-agent-platform.md)
 
 Paste the **directive prompt** below into Cursor when you want a **Jarvis-decision-oriented** competitive read on Google’s Gemini Enterprise Agent Platform narrative, without treating keynote/explainer videos as authoritative transcripts.
 

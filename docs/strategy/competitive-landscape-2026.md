@@ -11,6 +11,7 @@ related:
   - docs/decisions/0001-thesis-lock.md
   - ./investor-landscape-answer-card.md
   - ./cursor-prompt-gemini-enterprise-competitive.md
+  - ./competitive-gemini-enterprise-agent-platform.md
 ---
 
 # Competitive landscape and positioning (2026)

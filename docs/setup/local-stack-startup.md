@@ -9,8 +9,8 @@ Run from your **jarvis-hud** clone (`cd` there first in both terminals):
 | Step | Command |
 |------|---------|
 | **1 — Jarvis** | `pnpm dev` → **http://127.0.0.1:3000** |
-| **2 — OpenClaw** | `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` → wait for **`[gateway] ready`**, then Control UI (often **http://127.0.0.1:19001**) |
-| **2b — OpenClaw (log file)** | If **`ELIFECYCLE`** shows almost no output: **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log`** — same start, **tee** to **`/tmp/openclaw-gateway-last.log`** (set **`OPENCLAW_GATEWAY_LOG`** to override). Read that file after a failed run. |
+| **2 — OpenClaw** | `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` → wait for **`[gateway] ready`**. **`OPENCLAW_GATEWAY_PORT`** defaults to **19001** (override if needed); gateway scripts print **`expected Control UI: http://127.0.0.1:$OPENCLAW_GATEWAY_PORT`**. |
+| **2b — OpenClaw (log file)** | If **`ELIFECYCLE`** shows almost no output: **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log`** — same start, **tee** to **`/tmp/openclaw-gateway-last.log`** (set **`OPENCLAW_GATEWAY_LOG`** to override). After **90s** with no listener on **`OPENCLAW_GATEWAY_PORT`** or **18789**, the wrapper prints **pgrep** / **lsof** / **tail** diagnostics. Read that file after a failed run. |
 | **3 — Check** | `pnpm local:stack:doctor` |
 
 **Helper:** `pnpm dev:stack` prints these lines with your real paths and env warnings.
@@ -29,7 +29,9 @@ CLI equivalents: **`pnpm local:stack:kill`**, **`pnpm local:stack:start:jarvis`*
 
 OpenClaw logs append to **`/tmp/openclaw-gateway-last.log`** when using tasks or **`pnpm local:stack:start:openclaw`** (wrapper **`pnpm openclaw:dev:log`**). Override with **`OPENCLAW_GATEWAY_LOG`**.
 
-**`.env.local`:** `JARVIS_BASE_URL=http://127.0.0.1:3000`, `JARVIS_HUD_BASE_URL=http://127.0.0.1:3000`, `OPENCLAW_CONTROL_UI_URL` = gateway origin from the log or doctor. Ingress: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, secret ≥32 chars, allowlist includes `openclaw`.
+**Port alignment:** Startup sets **`OPENCLAW_GATEWAY_PORT`** (default **19001**) and exports it to the gateway process. In jarvis-hud **`.env.local`**, set **`OPENCLAW_CONTROL_UI_URL=http://127.0.0.1:<same port>`** — i.e. match **`OPENCLAW_GATEWAY_PORT`**, not an old guess (e.g. **18789** unless that is what actually listens). Restart **`pnpm dev`** after changing **`.env.local`**.
+
+**`.env.local`:** `JARVIS_BASE_URL=http://127.0.0.1:3000`, `JARVIS_HUD_BASE_URL=http://127.0.0.1:3000`, **`OPENCLAW_CONTROL_UI_URL`** = **`http://127.0.0.1:<OPENCLAW_GATEWAY_PORT>`** (with the default gateway port, use **`http://127.0.0.1:19001`**). Ingress: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, secret ≥32 chars, allowlist includes `openclaw`.
 
 **Optional scripted demo (port 3001):** [DEMO.md](../../DEMO.md) — `pnpm demo:boot`, `demo:verify`, `demo:smoke`. Use only when you want that flow; normal integration is **`pnpm dev`** on **3000** above.
 
@@ -231,7 +233,7 @@ Manual checks:
 
 Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001` (or `18789`) refuses connection**: the gateway never bound the Control UI port, is still compiling, or exited before bind. **Silence after** `OPENCLAW_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway` is often a long **`Building TypeScript…`** phase or IDE stdio buffering — not proof the stack is dead.
 
-**Port truth:** checkout gateways often use **19001**; some installs use **18789**. **`OPENCLAW_CONTROL_UI_URL`** must match **`lsof`** / the URL the gateway prints — not a guess (see [env.md](env.md)).
+**Port truth:** **`OPENCLAW_GATEWAY_PORT`** defaults to **19001** in **`scripts/openclaw-gateway-dev.sh`** and **`scripts/local-stack-start-openclaw.sh`**. Some installs still bind **18789**; the startup monitor treats either as success. **`OPENCLAW_CONTROL_UI_URL`** must match **`OPENCLAW_GATEWAY_PORT`** and the real listener (**`lsof`** / gateway log) — not a stale port (see [env.md](env.md)).
 
 1. **Optional clean slate** (stale processes / duplicate dev servers). *Narrow kills if you prefer:* `lsof -tiTCP:3000 -sTCP:LISTEN | xargs kill` instead of blanket `pkill`.
 

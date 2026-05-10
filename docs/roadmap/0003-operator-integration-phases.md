@@ -30,6 +30,16 @@ For **end-to-end platform phases** (flagship as product, verticals, enterprise U
 
 ---
 
+## Pilot bundle baseline (operator credibility) — closed 2026-05
+
+**Closed:** Host-truth probes, governed golden loop on the blessed stack (**including `GOLDEN_LOOP_USE_EXISTING` with `JARVIS_AUTH_ENABLED=true`** and HUD session + step-up), audit export aligned to the server’s **`dateKey`**, a **reusable** policy deny repro runner on `main`, and run-specific evidence **outside git** (`/evidence/`, operator-held `JARVIS_ROOT` copies).
+
+**Cadence shift:** credible **operator verification** → **capability / enterprise authority** work. Likely tranches: **IdP / identity binding** (often highest leverage next), **RBAC / separation of duties**, **richer policy expressiveness**. When that body of work lands, publish a **new dated** governance snapshot (see e.g. [`enterprise-readiness-snapshot-2026-05-09.md`](../governance/enterprise-readiness-snapshot-2026-05-09.md)); prefer **adding** a new snapshot over silently editing an old dated file.
+
+Runbooks: [`pilot-green-single-session.md`](../verification/pilot-green-single-session.md) · [`policy-deny-repro.md`](../verification/policy-deny-repro.md).
+
+---
+
 ## Near-term execution order (recommended)
 
 Do these **next**, in this order:

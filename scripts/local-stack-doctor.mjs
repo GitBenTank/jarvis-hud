@@ -225,6 +225,14 @@ function homebrewOpenclawPsLines() {
 console.log("Local stack doctor (Jarvis + OpenClaw)");
 console.log("─".repeat(44));
 console.log("Jarvis base:", BASE);
+const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "0", 10);
+if (nodeMajor >= 23) {
+  console.log(
+    "⚠ Node",
+    process.versions.node,
+    "— OpenClaw gateway is often more stable on Node 20 LTS. If you see `zsh: killed` or empty ELIFECYCLE, run the gateway from openclaw-runtime under Node 20 (docs/setup/local-stack-startup.md — zsh: killed).",
+  );
+}
 console.log("");
 
 const envUrl = process.env.OPENCLAW_CONTROL_UI_URL ?? loadOpenclawUrlFromEnvLocal();

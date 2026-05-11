@@ -347,7 +347,28 @@ env -i HOME="$HOME" PATH="$PATH" USER="${USER:-}" SHELL="${SHELL:-/bin/bash}" \
   pnpm gateway:dev
 ```
 
-**Noise:** messages like **`pyenv: cannot rehash`** from shell hooks are usually **unrelated** to the gateway exit; they can make subprocess logs look messy but are rarely the root cause.
+**Noise:** messages like **`pyenv: cannot rehash`** from shell hooks are usually **unrelated** to the gateway exit; they can make subprocess logs look messy but are rarely the root cause. If pyenv spam coincides with odd subprocess behavior, try **`rm -f ~/.pyenv/shims/.pyenv-shim`** then **`pyenv rehash`** (stale shim metadata).
+
+### `zsh: killed` (not a normal JavaScript crash)
+
+If the terminal shows something like **`zsh: killed node scripts/run-node.mjs --dev gateway`**, that is **not** a typical uncaught exception inside your app code. The **shell** is telling you the **child process was terminated externally**—common causes include **macOS memory pressure** (jetsam / OOM policy), **SIGKILL** from outside Node, **runaway or duplicate gateway processes**, or **native addon / Node ABI** mismatch on a **very new** Node major.
+
+When Control UI **previously worked** (WebSocket, **`models.list`**, etc.) and the stack later **destabilizes** with **`killed`** or **sparse `ELIFECYCLE`**, treat **runtime stability** before re‑litigating Jarvis **`.env.local`**, ports, or tokens.
+
+**Mitigation (local dev, in order):**
+
+1. **Stop duplicate gateways** — from **jarvis-hud**, **`pnpm local:stack:kill`** (narrow ports + known command lines). Only if something is still wedged: **`pkill -9 node`** / **`pkill -9 pnpm`** (nuclear; kills **all** Node/pnpm on the machine).
+2. **Use Node 20 LTS for `openclaw-runtime`** — e.g. **`nvm install 20`**, **`nvm use 20`**, confirm **`node -v`** is **`v20.x`**. **Node 24** (and other bleeding-edge majors) often lag native/tooling; symptoms can look like **silent lifecycle exits** or **intermittent `killed`**. Jarvis HUD on a newer Node is often fine; the **gateway** shell is what should match what OpenClaw upstream tests against.
+3. **Clean reinstall OpenClaw deps** after switching Node major — from **`~/Documents/openclaw-runtime`** (or your **`OPENCLAW_ROOT`**):
+
+   ```bash
+   rm -rf node_modules .turbo
+   pnpm install
+   ```
+
+   If problems persist **and** you accept lockfile drift, remove **`pnpm-lock.yaml`** as well, then **`pnpm install`** again (prefer matching upstream’s documented install path).
+
+4. **Start raw gateway** (same as isolation block above): **`OPENCLAW_SKIP_CHANNELS=1 pnpm gateway:dev`** from **`openclaw-runtime`** under Node 20 and watch for a real stack trace.
 
 ---
 
@@ -364,7 +385,7 @@ env -i HOME="$HOME" PATH="$PATH" USER="${USER:-}" SHELL="${SHELL:-/bin/bash}" \
 | **Control UI OK but chat fails**; logs: **`exceeded your current quota`**, **`embedded_run_agent_end`**, **`auth profile failure`** with **`rate_limit`** | **OpenAI billing** for the **account that owns the API key** (e.g. **negative credit balance**, **auto-recharge off**, org budget). The auth-profile line is **downstream** of the API error—not missing Jarvis config. Fix billing; optional: auto-recharge. [OpenAI error codes](https://platform.openai.com/docs/guides/error-codes/api-errors). |
 | **Attention: skills with missing dependencies** | Optional. Skills need host apps (1Password, Notes, …). Ignore for Jarvis/ingress unless you rely on those tools. |
 | **`Building TypeScript…` very long or “stuck”; 19001 not listening** | The OpenClaw repo you use for **`pnpm openclaw:dev`** likely has a **dirty** git tree, so the gateway rebuilds before bind. For daily integration, use a **clean** clone via **`OPENCLAW_ROOT`**, or **`git stash` / commit** in your working OpenClaw checkout. |
-| **`ELIFECYCLE`** right after `run-node.mjs --dev gateway` with **almost no lines** | Often **IDE terminal + inherited stdio buffering** (looks “silent”) or an **immediate crash** before flush. Use **`pnpm openclaw:dev:log`** and **`/tmp/openclaw-gateway-last.log`**. If the log never grows past startup lines, run **raw OpenClaw** with **`NODE_OPTIONS=--trace-uncaught --trace-warnings`** from **`openclaw-runtime`** (see **Raw OpenClaw crash** above) — **not** through the jarvis-hud wrapper. Verify **Node ≥ 22.12** (`node -v`). |
+| **`ELIFECYCLE`** right after `run-node.mjs --dev gateway` with **almost no lines** | Often **IDE terminal + inherited stdio buffering** (looks “silent”) or an **immediate crash** before flush. Use **`pnpm openclaw:dev:log`** and **`/tmp/openclaw-gateway-last.log`**. If the log never grows past startup lines, run **raw OpenClaw** with **`NODE_OPTIONS=--trace-uncaught --trace-warnings`** from **`openclaw-runtime`** (see **Raw OpenClaw crash** above) — **not** through the jarvis-hud wrapper. If you see **`zsh: killed`**, see **`zsh: killed`** above (**Node 20 LTS** for the gateway checkout, clean **`pnpm install`**). |
 | **Integration debug: origin mismatch** (`localhost` vs `127.0.0.1`) | Pick **one** host for browser + **`JARVIS_HUD_BASE_URL`** + gateway env; restart **`pnpm dev`** and **`pnpm openclaw:dev`**. Prefer **`127.0.0.1`** (see **HUD signals** below). |
 | **`ReferenceError: loadDocsLibraryIndex is not defined`** on **`/docs`** | Stale **`pnpm dev`** or an outdated `page.tsx`. Confirm **`src/app/docs/[[...path]]/page.tsx`** uses **`buildDocsLibrary`** (not `loadDocsLibraryIndex`); save files, stop the dev server (**Ctrl+C**), run **`pnpm dev`** again. |
 

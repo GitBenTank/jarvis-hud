@@ -20,7 +20,7 @@ related:
 
 ## 0) Surfaces (order of operations)
 
-1. **Optional:** [Investor read pack](../strategy/investor-read-pack.md) / **`/docs/tati`** — 15 min path; **Operator notes** = slide + live script.
+1. **Optional:** [Executive briefing pack](../strategy/investor-read-pack.md) / **`/docs/tati`** — 15 min path; **Briefing appendix** = slide + live script.
 2. **Front door:** **`/docs`** — **Start here** CTA → **`/demo`**.  
 3. **Canonical walkthrough:** **`/demo`** — six slides, then **Enter live system** → **`/`** (HUD home, same origin). In-page cinematic scroll after the deck is **not** on this path.  
 4. **Read-only deck only:** **`/pitch`** (not where notes or execution live; handoff: **`/demo`** then **`/`** for live).  

@@ -33,7 +33,7 @@ That is the bar that matters for demos, pilots, and serious internal use.
 |---|------------|------|
 | **1** | **One flagship agent-team workflow** | The repeatable story: same spine, same language, same receipts. In-repo canonical first loop: [Research batch workflow v1](./research-batch-workflow-v1.md) (Phase 4); second specialist when you need breadth: [Creative batch workflow v1](./creative-batch-workflow-v1.md). **Roles (Coordinator + Research first):** [Three-role briefs v1](./agent-team-three-role-briefs-v1.md). |
 | **2** | **One pilot bundle** | Falsifiable evidence for a run: charter + checklist + operator-held `JARVIS_ROOT` / evidence outside git as your process requires. [Pilot proof bundle checklist](../verification/pilot-proof-bundle-checklist.md) · [Pilot charter template](../verification/pilot-charter-template.md). |
-| **3** | **One buyer/advisor demo** | One rehearsed path you can run calmly: e.g. [Investor demo rehearsal run sheet](../video/investor-demo-rehearsal-run-sheet.md) / [full runbook](../video/investor-demo-full-runbook.md). Sales collateral for **VP Eng first**: [docs/sales](../sales/README.md). |
+| **3** | **One guided external demo** | One documented path you can run calmly: [walkthrough operator sheet](../video/investor-demo-rehearsal-run-sheet.md) · [full runbook](../video/investor-demo-full-runbook.md) · [video index](../video/README.md). Sales collateral for **VP Eng first**: [docs/sales](../sales/README.md). |
 
 ---
 
@@ -41,7 +41,7 @@ That is the bar that matters for demos, pilots, and serious internal use.
 
 **Use it confidently. Describe it honestly.**
 
-Confidence comes from the flagship workflow + bundle + rehearsal. Honesty comes from naming what is **not** closed yet—see [enterprise readiness snapshot](../governance/enterprise-readiness-snapshot-2026-05-09.md)—without underselling the **boundary** you actually proved.
+Confidence comes from the flagship workflow + bundle + a repeatable walkthrough. Honesty comes from naming what is **not** closed yet—see [enterprise readiness snapshot](../governance/enterprise-readiness-snapshot-2026-05-09.md)—without underselling the **boundary** you actually proved.
 
 ---
 

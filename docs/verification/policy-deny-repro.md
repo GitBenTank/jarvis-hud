@@ -58,7 +58,7 @@ node scripts/run-policy-deny-repro-once.mjs
    ```
 4. **Preserved evidence:** under **`$JARVIS_ROOT/policy-decisions/`**, open today’s **`*.jsonl`**; find a line with **`"decision":"deny"`**, **`"rule":"step_up"`**, **`"reason":"reauthenticate_required"`**, and the same **`traceId`** as the proposal (see events file for that approval).
 
-**Note:** To complete execution after this repro, call **`POST /api/auth/step-up`** (browser or scripted) so the session includes **`stepUpAt`**, then repeat execute. See [serious-mode rehearsal](../setup/serious-mode-rehearsal-checklist.md).
+**Note:** To complete execution after this repro, call **`POST /api/auth/step-up`** (browser or scripted) so the session includes **`stepUpAt`**, then repeat execute. See [auth-on stack verification](../setup/serious-mode-rehearsal-checklist.md).
 
 ---
 

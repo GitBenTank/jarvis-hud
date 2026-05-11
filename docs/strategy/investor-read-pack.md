@@ -1,7 +1,7 @@
 ---
-title: "Investor read pack — one path, plain English"
+title: "Executive briefing — control plane (plain English)"
 status: living-document
-version: 2.9
+version: 3.0
 category: strategy
 owner: Ben Tankersley
 related:
@@ -9,6 +9,7 @@ related:
   - ./room-playbook-v1.md
   - ../decisions/0001-thesis-lock.md
   - ./flagship-team-bundle-v1.md
+  - ../video/README.md
   - ../video/investor-demo-full-runbook.md
   - ../video/investor-demo-rehearsal-run-sheet.md
   - ./investor-demo-narrative-script.md
@@ -21,52 +22,54 @@ related:
   - ../interview-prep-jarvis.md
 ---
 
-# Investor read pack
+# Executive briefing (plain English)
 
-**What this is:** For advisors and investors—**why agent systems need a control plane**, in about **15 minutes** reading (fixed order—no reordering slides per meeting).
+**What this is:** A **fixed-order**, ~**15 minute** read for **executives, advisors, and technical buyers**—why agent systems that touch real systems need a **separate control plane** for authority and proof.
 
-**Why now:** As agents begin to take real actions—sending emails, modifying code, triggering APIs—the boundary between **decision** and **execution** becomes the failure point.
+**Why it matters:** As agents send mail, change code, and call APIs, the boundary between **decision** and **execution** becomes the failure point.
 
-**Contrast:** **Most systems log what happened.** Jarvis proves **who decided**, **who executed**, and **what actually occurred**—**at the boundary where failures happen.**
+**Contrast:** **Most systems log what happened.** Jarvis records **who decided**, **who executed**, and **what occurred**—**at the boundary where failures happen.**
 
-**Compressed category language (3-line investor + tagline):** [messaging — execution integrity](./messaging-execution-integrity.md).
+**Compressed positioning lines:** [messaging — execution integrity](./messaging-execution-integrity.md).
 
 **3–5 claim positioning (workflow > model, governed agent teams):** [Positioning memo — workflow governance](./positioning-memo-workflow-governance-agent-teams.md).
 
-**Market narrative (six working patterns, anti-patterns, mentality table):** [Governed agent workflows (2026)](./market-narrative-governed-agent-workflows-2026.md).
+**Market narrative (patterns, anti-patterns, mentality table):** [Governed agent workflows (2026)](./market-narrative-governed-agent-workflows-2026.md).
 
-**In plain English:** AI can already touch real rails (mail, code, APIs). The gap isn’t intelligence—it’s **authority at execution** plus **usable proof afterward**. Jarvis sits on that boundary.
+**In plain English:** AI can already touch production rails. The gap is **authority at execution** and **auditable proof**. Jarvis sits on that boundary.
 
-**In the HUD (minimal layout):** [/docs/tati](/docs/tati) — same four links, faster scan; **Operator notes** toggles a split panel (slide script + live path after handoff).
+**In the HUD:** [/docs/tati](/docs/tati) — the same four links in a minimal layout; optional side panel for script blocks aligned to **`/demo`**.
 
-**In the room:** Lead with the **problem**, then **[Demo](/demo)** (story + live proof). Open these docs when they want depth—not instead of the demo. Need a tight **opener + 3‑minute beats** keyed to Overview + flagship bundle → [investor Overview + Bundle room script](./investor-overview-bundle-room-script.md). **“Who competes?”** — spoken lines (not the long memo): [investor landscape answer card](./investor-landscape-answer-card.md).
+**Guided product walkthrough:** **[Demo](/demo)** — six slides into the live HUD (governed propose → approve → execute → receipt → trace). **`/pitch`** and **`/docs/strategy/gener8tor-pitch`** are read-only slide copy; live queue is **`/activity`**. Use depth docs when stakeholders ask **how** governance is enforced—not as a substitute for the walkthrough.
 
-**Surfaces:** **`/demo`** is the **canonical cinematic investor deck**—six slides with **split outline track** beside the deck (mobile: **N** drawer), transition, and live scroll. **`/pitch`** and **`/docs/strategy/gener8tor-pitch`** are the **same slides read-only**; handoff **Open Jarvis HUD** goes to **`/activity`** (queue) for the live walkthrough (e.g. OpenClaw from the UI). Use **`/demo`** when you want notes next to the slides while you rehearse.
+**Competitive framing (short spoken lines):** [investor landscape answer card](./investor-landscape-answer-card.md).
+
+**Overview + flagship bundle (talk track):** [investor Overview + Bundle room script](./investor-overview-bundle-room-script.md).
 
 ---
 
-## Read in this order (the canonical four)
+## Read in this order (canonical four)
 
 | # | Doc | ~time | What you’re reading |
 |---|-----|-------|---------------------|
-| 1 | [Gener8tor pitch](./gener8tor-pitch.md) | ~5 min | Slide copy + demo beats for investor rooms. |
-| 2 | [Room playbook](./room-playbook-v1.md) | ~3 min | How we show up: restraint, opener, Q&A. |
-| 3 | [Thesis Lock (ADR)](../decisions/0001-thesis-lock.md) | ~4 min | The non‑negotiable rules of the product (law, not marketing). |
-| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~3 min | How teams **operate with** Jarvis—proposals, approvals, recorded outcomes—not a vague “agent swarm”. |
+| 1 | [Gener8tor pitch](./gener8tor-pitch.md) | ~5 min | Slide narrative + demo beats aligned to **`/demo`**. |
+| 2 | [Room playbook](./room-playbook-v1.md) | ~3 min | Restraint, opener, Q&A—keep the story tight. |
+| 3 | [Thesis Lock (ADR)](../decisions/0001-thesis-lock.md) | ~4 min | Non‑negotiable product rules (law, not marketing). |
+| 4 | [Flagship team bundle](./flagship-team-bundle-v1.md) | ~3 min | How teams **operate with** Jarvis—proposals, approvals, recorded outcomes. |
 
 ### 1. Gener8tor pitch
 
-**Technical:** Six-slide `/demo` narrative, consequence-first, then live proof; ties to OpenClaw → Jarvis ingress in operator setups.
+**Technical:** Six-slide **`/demo`** narrative, consequence-first, then live proof; ties to OpenClaw → Jarvis ingress in operator setups.
 
-**Plain English:** It’s the **script for the movie**—what you say and show before anyone asks to “see the product.” The slides exist so **stakes land before the UI**.
+**Plain English:** Stakes and framing **before** deep UI—so the control-plane story lands first.
 
 ---
 
 ### 2. Room playbook
 
-**Technical:** Opener slots (core idea, frame, consequence), 30-second pitch, objection discipline.
+**Technical:** Opener slots (core idea, frame, consequence), short pitch, objection discipline.
 
-**Plain English:** It’s **how we don’t talk ourselves out of a win**—one clear story, no feature laundry list in the first five minutes.
+**Plain English:** One clear story first—avoid a feature list before the problem is felt.
 
 ---
 
@@ -74,55 +77,53 @@ related:
 
 **Technical:** ADR-0001 — propose vs approve vs execute; receipts; model is not a trusted principal.
 
-**Plain English:** The **constitution**: agents can suggest anything; **humans** own the yes; **running** the action is a separate step; everything important leaves an **audit trail**. If someone asks “can the model just do it?” the answer is **no, by design**.
+**Plain English:** Agents may propose; **humans** own approval; **execution** is explicit; durable outcomes leave an **audit trail**.
 
 ---
 
-### 4. Flagship team bundle *(how teams operate—not feature tour)*
+### 4. Flagship team bundle
 
 **Technical:** Alfred / Research / Creative roles, proposal ownership, batch semantics, sample flows.
 
-**Plain English:** Real operations run through **proposals**, **human approvals**, and **attributable outcomes**. This doc shows how teams **operate with** Jarvis so work handoffs **do not** smear who’s allowed to run what.
+**Plain English:** Operations run through **proposals**, **human approvals**, and **attributable outcomes**—not a vague “agent swarm.”
 
 ---
 
-## Live demo (operators + narrators)
+## Guided demo & walkthrough material
 
-Use when you’re **running** the meeting, not just reading.
+Operator scripts, runbooks, and short recordings live under **`docs/video/`** — see **[Walkthroughs, demos, and recording artifacts](../video/README.md)**.
 
-| Doc | Purpose |
-|-----|---------|
-| [Investor demo — full narration script](./investor-demo-narrative-script.md) | **Spoken** weave: hero → three forces → consequence → gap → handoff → HUD. |
-| [Investor demo — full runbook](../video/investor-demo-full-runbook.md) | **Boot**, camera, Flow 1 / email, OpenClaw prompts, checklist. |
-| [Rehearsal run sheet](../video/investor-demo-rehearsal-run-sheet.md) | **One-page** operator order: surfaces, Alfred paste, Reject/Approve rhythm, fallbacks. |
-
-**Plain English:** The **read pack** is for *investors*; the **script + runbook** is for *you* the night before—so the live demo matches the story.
+| Area | Entry |
+|------|--------|
+| Full stack + checklist | [Investor demo — full runbook](../video/investor-demo-full-runbook.md) |
+| One-page operator order | [Rehearsal run sheet](../video/investor-demo-rehearsal-run-sheet.md) |
+| Spoken weave for `/demo` | [Investor demo — full narration script](./investor-demo-narrative-script.md) |
 
 ---
 
-## If they ask for more (optional, not the first email)
+## Optional depth (after the first pass)
 
-- **5-minute pressure sheet (trigger → line → pixel):** [Investor live proof map](./investor-live-proof-map.md) — what to say, what to show, where proof lives in repo.
-- **Pushback — runtime bypass, packaging, risk tiers:** [Interview prep: Q&A](../interview-prep-jarvis.md#runtime-bypass-production-packaging-and-risk-tiers) — *Plain English:* trusted vs auditable path, credentials posture, production shape.
-- **Positioning / market:** [Competitive landscape 2026](./competitive-landscape-2026.md) — *Plain English:* where we sit vs platforms and “governance theater.”
-- **Longer deck storyline:** [Pitch narrative outline](./pitch-narrative-outline.md) — *Plain English:* chapter list if they want a **full deck**, not the six-slide cinematic path.
-- **Marp / export deck source:** [Pitch deck README](./pitch-deck/README.md) — separate artifact from `/demo`.
-- **Ultra-short recording:** [90s proof demo](../video/90s-proof-demo.md) — *Plain English:* when you only have a minute of tape.
-- **Full product narrative spec:** [Video thesis](./jarvis-hud-video-thesis.md) — read **after** the one-pagers; it’s the director’s cut.
+- **Proof map (trigger → line → artifact):** [Investor live proof map](./investor-live-proof-map.md)
+- **Diligence Q&A (runtime, packaging, risk):** [Interview prep: Q&A](../interview-prep-jarvis.md#runtime-bypass-production-packaging-and-risk-tiers)
+- **Positioning / market:** [Competitive landscape 2026](./competitive-landscape-2026.md)
+- **Longer storyline:** [Pitch narrative outline](./pitch-narrative-outline.md)
+- **Marp / export deck:** [Pitch deck README](./pitch-deck/README.md)
+- **Short recording spec:** [90s proof demo](../video/90s-proof-demo.md)
+- **Full product narrative:** [Jarvis HUD video thesis](./jarvis-hud-video-thesis.md) — read after the one-pagers; canonical prose spec (filename is historical).
 
 ---
 
-## What not to send in the first pass
+## What not to lead with
 
 - The whole docs library or `?library=all`
-- Operator runbooks, env files, integration phase roadmaps—unless they’re **installing** or doing **engineering diligence**
-- Architecture dumps—until they ask **how** it’s built
+- Operator runbooks, env files, integration roadmaps—unless they are **installing** or doing **engineering diligence**
+- Architecture dumps—until they ask **how** it is built
 
-**Plain English:** First touch = **problem + demo + these four links**. Depth is a **pull**, not a push.
+**Plain English:** First pass = **problem + guided demo + these four links**. Depth is a **pull**, not a push.
 
 ---
 
 ## Related
 
-- [Documentation hub](../README.md) — full map by role  
-- **Runtime narrative (only if asked how OpenClaw + Jarvis fit):** [Runtime + team + Jarvis — one narrative loop v1](./runtime-openclaw-jarvis-team-loop-v1.md)
+- [Documentation hub](../README.md) — map by role  
+- **OpenClaw + Jarvis (single narrative):** [Runtime + team + Jarvis — one narrative loop v1](./runtime-openclaw-jarvis-team-loop-v1.md)

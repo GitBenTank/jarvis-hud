@@ -7,9 +7,9 @@ pnpm dev
 # open http://127.0.0.1:3000
 ```
 
-**In the browser:** `/docs` is the documentation home—**audience-first** (newcomers, investors, trust story, operators) plus a **curated** file index; use **`/docs?library=all`** for every markdown file. Rendered prose with optional **Slides** mode (split on `##`). New to the product: **`/docs/getting-started/welcome`**. **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) matches the cinematic deck from `/demo` (`?view=markdown` for markdown). Short redirects: `/library` → `/docs`, plus `/pitch`, `/playbook`, `/thesis`.
+**In the browser:** `/docs` is the product documentation home—curated entry points for operators, integrators, and executives, plus a full markdown index at **`/docs?library=all`**. Optional **Slides** mode (split on `##`). Start here: **`/docs/getting-started/welcome`**. **`/docs/strategy/gener8tor-pitch`** (and **`/pitch`**) mirror the **`/demo`** slide copy (`?view=markdown` for markdown). Short redirects: `/library` → `/docs`, plus `/pitch`, `/playbook`, `/thesis`.
 
-Submit a proposal → approve → see receipt + trace (with rollback). (Use `pnpm install` and optional `.env.local` first — see [Quick Start](#quick-start-developers).) **90s proof demo script:** [docs/video/90s-proof-demo.md](docs/video/90s-proof-demo.md).
+Submit a proposal → approve → see receipt + trace (with rollback). (Use `pnpm install` and optional `.env.local` first — see [Quick Start](#quick-start-developers).) Short recording walkthrough: [docs/video/90s-proof-demo.md](docs/video/90s-proof-demo.md).
 
 **Control plane for governed AI execution.**
 

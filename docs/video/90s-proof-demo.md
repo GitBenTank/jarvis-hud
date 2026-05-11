@@ -12,7 +12,7 @@ related:
 
 # Jarvis — Approval and proof for AI action (90s)
 
-**Purpose:** One repeatable recording that shows **approval before action** and **proof after**—usable for pitch, homepage embed, investors, and social.
+**Purpose:** One repeatable recording that shows **approval before action** and **proof after**—usable for homepages, embeds, and short-form distribution.
 
 **Principle:** The demo is the proof. No capability without a visible artifact.
 

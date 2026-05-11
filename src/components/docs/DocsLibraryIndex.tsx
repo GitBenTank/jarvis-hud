@@ -35,7 +35,7 @@ function CardGrid({
   );
 }
 
-function InvestorFifteenMinutePath({
+function ExecutiveOverviewPath({
   items,
 }: {
   items: { href: string; title: string; description: string }[];
@@ -154,7 +154,7 @@ function ExploreAdvancedSection({ stats }: Pick<DocsLibraryBuild, "stats">) {
     {
       label: "Runbooks",
       href: "/docs/live-demo-reliability-checklist",
-      hint: "Demos and rehearsal drills",
+      hint: "Pre-flight checklists and demo reliability",
     },
   ] as const;
 
@@ -174,8 +174,8 @@ function ExploreAdvancedSection({ stats }: Pick<DocsLibraryBuild, "stats">) {
       </summary>
       <div className="border-t border-white/[0.06] px-6 pb-8 pt-2 sm:px-8 sm:pb-10">
         <p className="mb-6 max-w-2xl text-[13px] leading-relaxed text-zinc-500">
-          Operators, integrators, and diligence-heavy readers skip here—not part of onboarding or
-          the investor-first path.
+          Operators, integrators, and security reviewers use this fold—not part of the default
+          executive overview.
         </p>
         <ul className="grid gap-3 sm:grid-cols-2">
           {links.map((item) => (
@@ -198,7 +198,7 @@ function ExploreAdvancedSection({ stats }: Pick<DocsLibraryBuild, "stats">) {
 }
 
 function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
-  const { newcomers, investors, stats } = library;
+  const { newcomers, executiveOverview, stats } = library;
 
   return (
     <div className="min-h-dvh px-4 pb-20 pt-8 sm:px-8 sm:pb-24 sm:pt-10">
@@ -242,12 +242,10 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
             own approval and execution. Trust comes from proof—not from the model sounding confident.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500">
-            Start with proof. Then understand why it matters. Then see how it scales. This fold is paced
-            for diligence:{" "}
-            <strong className="font-medium text-zinc-400">open the live demo</strong>, skim the thesis
-            in plain English (no install), then walk the numbered investor path. Operators and stacks
-            live under <strong className="font-medium text-zinc-400">Explore deeper · advanced</strong>{" "}
-            below—not on this fold.
+            Suggested order: open the <strong className="font-medium text-zinc-400">guided walkthrough</strong>, then
+            the <strong className="font-medium text-zinc-400">executive briefing</strong> (no install). Operators and
+            integration detail live under{" "}
+            <strong className="font-medium text-zinc-400">Explore deeper · advanced</strong> below.
           </p>
         </header>
 
@@ -284,7 +282,7 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
               href="/docs/tati"
               className={`${mono} inline-flex items-center justify-center rounded-xl border border-white/[0.12] bg-zinc-950/50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-300 transition hover:border-zinc-500 hover:text-zinc-100`}
             >
-              Investor pack · 15 min control-plane read
+              Executive briefing · 15 min read
             </Link>
           </div>
         </section>
@@ -299,14 +297,14 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
           <CardGrid items={newcomers} />
         </section>
 
-        <section className="mt-14" aria-labelledby="investors-heading">
+        <section className="mt-14" aria-labelledby="executive-overview-heading">
           <SectionTitle
-            eyebrow="Investors"
-            sectionId="investors-heading"
-            title="For investors — understand the control plane in 15 minutes"
-            subtitle="Start with proof. Then understand why it matters. Then see how it scales."
+            eyebrow="Executive overview"
+            sectionId="executive-overview-heading"
+            title="Stakeholder path — control plane in fifteen minutes"
+            subtitle="Numbered order: walkthrough, briefing pack, Thesis Lock, flagship operations, ecosystem context."
           />
-          <InvestorFifteenMinutePath items={investors} />
+          <ExecutiveOverviewPath items={executiveOverview} />
         </section>
 
         <ExploreAdvancedSection stats={stats} />

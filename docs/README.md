@@ -1,8 +1,8 @@
 # Jarvis HUD documentation
 
-Prose in this tree supports **narrative**, **diligence**, **setup**, **architecture**, and **verification** for the governed-execution control plane.
+Product and engineering prose for the **governed-execution control plane**: how to run it, how integrations behave, how trust boundaries are enforced, and how to verify behavior on a real host.
 
-**In the HUD:** open **`/docs`** for the documentation home (audience-first layout and curated file index). Use **`?library=all`** for the complete file list. Long pages support **Slides** mode (split on `##` headings).
+**In the HUD:** open **`/docs`** for the curated library and role-based entry points. Use **`?library=all`** for every markdown file. Long pages support **Slides** mode (split on `##` headings).
 
 ---
 
@@ -14,7 +14,7 @@ If you run Jarvis + OpenClaw locally, use this row first—before browsing the f
 2. **[Operator checklist](setup/openclaw-jarvis-operator-checklist.md)** — authority, ingress, anti-patterns.
 3. **[OpenClaw ingress for humans](setup/openclaw-ingress-for-humans.md)** — what ingress proves vs what it does not (no code).
 4. **[Return after a pause](setup/return-after-pause.md)** — coming back after days away without re-deriving the stack.
-5. **[Serious-mode rehearsal](setup/serious-mode-rehearsal-checklist.md)** — `JARVIS_AUTH_ENABLED=true`, probes, one batched approve/execute, record UX gaps.
+5. **[Auth-on stack verification](setup/serious-mode-rehearsal-checklist.md)** — `JARVIS_AUTH_ENABLED=true`, probes, batched approve/execute, UX gaps to log.
 
 Then **`pnpm machine-wired`**, **`pnpm local:stack:doctor`**, and (when exercising auth) **`pnpm auth-posture`**.
 
@@ -24,17 +24,17 @@ Then **`pnpm machine-wired`**, **`pnpm local:stack:doctor`**, and (when exercisi
 
 | If you are… | Open this first |
 |-------------|-----------------|
-| **New to Jarvis** | [Welcome — what is Jarvis?](getting-started/welcome.md) |
-| **Investor or advisor** | **Start:** `/docs/tati` or [investor-read-pack.md](strategy/investor-read-pack.md) — one path, plain-English glosses, ~15 min. Then [Demo](/demo). **Compressed lines:** [execution integrity messaging](strategy/messaging-execution-integrity.md). **Positioning claims (3–5):** [workflow governance memo](strategy/positioning-memo-workflow-governance-agent-teams.md). **Market narrative:** [six patterns + mentality shift](strategy/market-narrative-governed-agent-workflows-2026.md). Deeper: [Gener8tor pitch](strategy/gener8tor-pitch.md) · [90s proof](video/90s-proof-demo.md) |
+| **New to the product** | [Welcome — what is Jarvis?](getting-started/welcome.md) |
+| **Executives & buyers** | **`/docs/tati`** or [Executive briefing (plain English)](strategy/investor-read-pack.md) — ~15 min, fixed order. Then [Demo](/demo). **Positioning:** [execution integrity messaging](strategy/messaging-execution-integrity.md) · [workflow governance memo](strategy/positioning-memo-workflow-governance-agent-teams.md) · [market narrative](strategy/market-narrative-governed-agent-workflows-2026.md). **Walkthrough / recording artifacts:** [docs/video](video/README.md). |
 | **Technical diligence** | [Thesis Lock ADR](decisions/0001-thesis-lock.md) · [System overview](architecture/jarvis-openclaw-system-overview.md) · [Security model](architecture/security-model.md) |
-| **Operator / building locally** | [Operators — start here](#operators--start-here) · [Local stack startup](setup/local-stack-startup.md) · [Operator checklist](setup/openclaw-jarvis-operator-checklist.md) |
+| **Operator / integrator** | [Operators — start here](#operators--start-here) · [Local stack startup](setup/local-stack-startup.md) · [Operator checklist](setup/openclaw-jarvis-operator-checklist.md) |
 | **Maintainers — trust vs capability** | [Trust, determinism, and integrity signals](governance/trust-and-determinism.md) — golden loop, integrity signals, adapter gate |
 
 ---
 
 ## What appears in the docs UI (policy)
 
-The browse index at **`/docs`** defaults to a **curated catalog**: investor- and newcomer-friendly, without dumping every internal note into the grid. **That is intentional:** staff-only or noisy paths stay in the repo and remain reachable by **direct URL** or **`/docs?library=all`**. Newcomers see a shorter grid; operators should bookmark **[Local stack startup](setup/local-stack-startup.md)** and the checklist above rather than relying on the default index alone.
+The browse index at **`/docs`** defaults to a **curated catalog** so operators and new readers are not overwhelmed by internal drafts. **That is intentional:** some paths stay in the repo but off the default grid; they remain reachable by **direct URL** or **`/docs?library=all`**. Bookmark **[Local stack startup](setup/local-stack-startup.md)** for day-to-day work.
 
 | Still in the repo | Shown in default `/docs` index? |
 |-------------------|----------------------------------|
@@ -65,13 +65,13 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 | Env reference | [Environment variables](setup/env.md) |
 | Control UI / gateway | [OpenClaw Control UI](setup/openclaw-control-ui.md) |
 | Heartbeat cost / cron check-ins | [OpenClaw heartbeat & cron policy](setup/openclaw-heartbeat-cron-policy.md) |
-| Full narrative spec | [Video thesis](strategy/jarvis-hud-video-thesis.md) |
+| Product narrative spec (canonical prose) | [Jarvis HUD video thesis](strategy/jarvis-hud-video-thesis.md) |
 | Next.js network proxy vs governance layers | [Network proxy boundary](architecture/network-proxy-boundary.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Trust compounding, integrity signals, new adapters | [Trust and determinism](governance/trust-and-determinism.md) |
 | Enterprise readiness gaps (dated snapshot) | [Enterprise readiness snapshot 2026-05-09](governance/enterprise-readiness-snapshot-2026-05-09.md) |
 | v0.2 — golden loop sprint (determinism bar) | [0005 Golden Loop](roadmap/0005-v02-golden-loop-sprint.md) |
-| Auth on — serious rehearsal | [Serious-mode rehearsal checklist](setup/serious-mode-rehearsal-checklist.md) |
+| Auth on — verification pass | [Auth-on stack verification](setup/serious-mode-rehearsal-checklist.md) |
 | Multi-agent + Jarvis boundary | [Agent team contract v1](strategy/agent-team-contract-v1.md) — **read this first** among agent docs |
 | First composable team (Alfred + Research + Creative) | [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md) · operators: [proposal shapes & grep anchors](architecture/flagship-proposal-shape-examples-v1.md) |
 | Research specialist (evidence) | [Research agent v1](strategy/research-agent-v1.md) |
@@ -87,7 +87,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 3. **[Integration verification](openclaw-integration-verification.md)** — **Spec + deep debug**: status codes, validation, threat model.
 4. **[Operator checklist](setup/openclaw-jarvis-operator-checklist.md)** — **Contract**: authority split and anti-patterns.
 
-If advice conflicts: **Thesis Lock / video thesis** → **operating assumptions** → **operator checklist** → **local stack startup** → integration verification.
+If advice conflicts: **Thesis Lock / product narrative thesis** → **operating assumptions** → **operator checklist** → **local stack startup** → integration verification.
 
 ---
 
@@ -97,12 +97,12 @@ If advice conflicts: **Thesis Lock / video thesis** → **operating assumptions*
 |--------|----------|
 | `getting-started/` | Plain-language entry |
 | `setup/` | Stack startup, env, OpenClaw UI, checklists, truth map |
-| `strategy/` | Thesis, pitch, workflows, positioning |
+| `strategy/` | Thesis, positioning, workflows, executive briefing |
 | `architecture/` | Control plane, trust, OpenClaw contracts |
 | `security/` | Ingress signing, execution model |
 | `decisions/` | ADRs |
 | `roadmap/` | Phased plans — [integration (0003)](roadmap/0003-operator-integration-phases.md), [platform growth (0004)](roadmap/0004-phased-platform-plan.md) |
-| `video/` | Demo and episode runbooks |
+| `video/` | Guided demos, runbooks, short recording specs |
 | `research/` | Structured insights intake |
 | `marketing/` | Distribution copy |
 | `receipts/` | Schema examples |

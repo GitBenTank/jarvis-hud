@@ -48,13 +48,13 @@ export function InvestorReadPackTatiLayout({ children }: { children: ReactNode }
           aria-controls="tati-operator-notes"
           className="fixed bottom-6 right-6 z-[60] rounded-full border border-zinc-600 bg-zinc-900/95 px-4 py-2 text-xs font-medium text-zinc-100 shadow-lg backdrop-blur-sm transition-all hover:border-zinc-500 hover:bg-zinc-800"
         >
-          Operator notes
+          Briefing appendix
         </button>
       ) : null}
 
       <aside
         id="tati-operator-notes"
-        aria-label="Operator rehearsal notes"
+        aria-label="Optional script appendix"
         className={cn(
           "fixed inset-y-0 right-0 z-[55] flex w-full flex-col border-l border-zinc-800 bg-[#0c0c0e] shadow-2xl transition-[transform,opacity] duration-200 ease-out sm:w-[min(520px,46vw)] sm:max-w-none",
           notesOpen
@@ -65,10 +65,10 @@ export function InvestorReadPackTatiLayout({ children }: { children: ReactNode }
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-800 px-4 py-3">
           <div>
             <p className="font-[family-name:var(--font-geist-mono),ui-monospace,monospace] text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-              Operator notes
+              Briefing appendix
             </p>
             <p className="mt-1 text-xs text-zinc-500">
-              Left: slides (house / river) · Right: live path after handoff
+              Left: slide blocks · Right: post-handoff script (aligned to /demo)
             </p>
           </div>
           <button

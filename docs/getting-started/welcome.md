@@ -16,7 +16,7 @@ You do **not** need to run anything locally to understand the idea. Use **[About
 | No paper trail | **Receipts + traces** for governed actions. |
 | Fragile integrations | A clear **boundary**: capability layers propose; Jarvis holds **authority**. |
 
-The formal rules are captured in **[Thesis Lock](../decisions/0001-thesis-lock.md)** and the **[video thesis](../strategy/jarvis-hud-video-thesis.md)**—read those when you want the full spec, not the elevator pitch.
+The formal rules are captured in **[Thesis Lock](../decisions/0001-thesis-lock.md)** and the **[product narrative thesis](../strategy/jarvis-hud-video-thesis.md)**—read those when you want the full spec, not the elevator pitch.
 
 ---
 
@@ -25,7 +25,7 @@ The formal rules are captured in **[Thesis Lock](../decisions/0001-thesis-lock.m
 | If you are… | Start here |
 |-------------|------------|
 | **New to the product** | This page, then [About](/about) · [Demo](/demo) |
-| **Investor or advisor** | **[Investor read pack](/docs/tati)** (same as [markdown](../strategy/investor-read-pack.md)) — then [Demo](/demo). Optional: [90s proof](../video/90s-proof-demo.md) if time is tight. |
+| **Executives & buyers** | **[Executive briefing](/docs/tati)** (same as [markdown](../strategy/investor-read-pack.md)) — then [Demo](/demo). Walkthrough artifacts: [docs/video](../video/README.md). |
 | **Technical diligence** | [System overview](../architecture/jarvis-openclaw-system-overview.md) · [Security model](../architecture/security-model.md) · [Thesis Lock ADR](../decisions/0001-thesis-lock.md) |
 | **Building or operating the stack** | [Local stack startup](../setup/local-stack-startup.md) · [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) · [Documentation hub](../README.md#operators--start-here) |
 

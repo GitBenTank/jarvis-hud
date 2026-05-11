@@ -44,6 +44,6 @@ pnpm machine-wired             # Phase 1 stack (run alongside)
 
 ## Related
 
-- [Serious-mode rehearsal checklist](serious-mode-rehearsal-checklist.md) — auth on, one batched flow, record authority UX
+- [Auth-on stack verification checklist](serious-mode-rehearsal-checklist.md) — auth on, one batched flow, record authority UX
 - [Operator integration phases — Phase 2](../roadmap/0003-operator-integration-phases.md)
 - [Environment variables — Authentication](env.md#authentication)

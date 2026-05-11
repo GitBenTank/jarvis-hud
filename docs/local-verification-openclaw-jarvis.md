@@ -8,7 +8,7 @@ Tight pass to confirm **OpenClaw is the live variable** and Jarvis is structural
 
 **Origin discipline:** [Local dev truth map](setup/local-dev-truth-map.md). Prefer **`127.0.0.1`** for `JARVIS_URL`, `JARVIS_HUD_BASE_URL`, and OpenClaw `JARVIS_BASE_URL` so checks and the browser stay aligned.
 
-**Ports:** Standard dev is **`http://127.0.0.1:3000`** (`pnpm dev`). Demo / ingress rehearsal is often **`http://127.0.0.1:3001`**. Replace `JARVIS_URL` below with the **live** origin. OpenClaw must use the **same** base URL and **`JARVIS_INGRESS_OPENCLAW_SECRET`** as Jarvis for signed ingress.
+**Ports:** Standard dev is **`http://127.0.0.1:3000`** (`pnpm dev`). Demo / ingress smoke (port 3001) is often **`http://127.0.0.1:3001`**. Replace `JARVIS_URL` below with the **live** origin. OpenClaw must use the **same** base URL and **`JARVIS_INGRESS_OPENCLAW_SECRET`** as Jarvis for signed ingress.
 
 ---
 
@@ -124,7 +124,7 @@ cd ~/Documents/jarvis-hud
 pnpm jarvis:submit --file examples/openclaw-proposal-flagship-flow1-alfred-intake.sample.json
 ```
 
-In the HUD: **Approve** → **Execute** → confirm artifact / receipt (same honesty as rehearsal).
+In the HUD: **Approve** → **Execute** → confirm artifact / receipt (same honesty as a guided walkthrough).
 
 2. **Research digest** — coordinator `research`, grep anchor `flagship-flow-1-eu-ai-act-digest`:
 
@@ -134,7 +134,7 @@ pnpm jarvis:submit --file examples/openclaw-proposal-flagship-flow1-research.sam
 
 Again: **Approve** → **Execute** → receipt. The Research note body references the Alfred handoff and the same `correlationId`.
 
-**Success bar:** intake copy reads like **routing/consent**, not evidence; Research note carries **claims/sources**; both show **OpenClaw (verified)** ingress, **LOW** risk, and **Execute** produces real paths — compare to your rehearsal batch and confirm it feels like one team, not a single blended chat blob.
+**Success bar:** intake copy reads like **routing/consent**, not evidence; Research note carries **claims/sources**; both show **OpenClaw (verified)** ingress, **LOW** risk, and **Execute** produces real paths — compare to your batch smoke run and confirm it feels like one team, not a single blended chat blob.
 
 **B. Strict-governed OpenClaw (reference registry):** **`proposeAlfredIntakeSystemNote`** then **`proposeResearchSystemNote`** (`src/openclaw-strict-governed/`) — same ingress client as samples; pass the same **`correlationId`** from constants in code (`FLAGSHIP_FLOW_1_BUNDLE_CORRELATION_ID`).
 

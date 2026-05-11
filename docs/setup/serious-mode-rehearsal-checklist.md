@@ -1,5 +1,5 @@
 ---
-title: "Serious-mode rehearsal — auth on, human authority"
+title: "Auth-on stack verification — JARVIS_AUTH_ENABLED, human authority"
 status: living-document
 category: setup
 owner: Ben Tankersley
@@ -14,7 +14,7 @@ related:
   - ../roadmap/0003-operator-integration-phases.md
 ---
 
-# Serious-mode rehearsal — auth on, human authority
+# Auth-on stack verification — human authority under `JARVIS_AUTH_ENABLED`
 
 **Purpose:** After the **auth-off** blessed stack is stable, prove that the **human authority boundary** stays **legible** with **`JARVIS_AUTH_ENABLED=true`**. This is the highest-value check for **enterprise readiness**: not whether docs exist, but whether **who may approve and execute** is clear when the convenience path is gone.
 
@@ -29,7 +29,7 @@ related:
 
 ---
 
-## Rehearsal steps
+## Verification steps
 
 1. **Turn auth on** for the same host you use for the blessed stack:
    - Set **`JARVIS_AUTH_ENABLED=true`** and **`JARVIS_AUTH_SECRET`** (≥ 16 chars) in **`.env.local`**.
@@ -57,7 +57,7 @@ related:
 
    This is an alias of **`pnpm rehearsal:research-batch`** ([`scripts/research-batch-rehearsal.ts`](../../scripts/research-batch-rehearsal.ts)): **three** signed **`system.note`** ingress posts (default), **one shared `batch.id`**, item indices `0…2`. Headless HMAC ingress does **not** use your browser session — that is intentional ([ingress vs human authority](../architecture/openclaw-jarvis-trust-contract.md#ingress-capability-vs-human-authority)).
 
-   Optional pressure only if you already completed a clean pass once: `RESEARCH_BATCH_ITEM_COUNT=6 pnpm rehearsal:serious-mode-ingress` (max per [`INGRESS_BATCH_MAX_ITEM_COUNT`](../architecture/openclaw-proposal-identity-and-contract.md)). For the first serious-mode rehearsal, stay with the default **3**.
+   Optional pressure only if you already completed a clean pass once: `RESEARCH_BATCH_ITEM_COUNT=6 pnpm rehearsal:serious-mode-ingress` (max per [`INGRESS_BATCH_MAX_ITEM_COUNT`](../architecture/openclaw-proposal-identity-and-contract.md)). For the first auth-on verification pass, stay with the default **3**.
 
    **Then in the browser:** **log in** to the HUD → find the batch (titles include `Rehearsal batch — research only`) → **approve** one item → **execute that one item only** → confirm **receipt / trace** for that execution ([ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md)). Deeper ritual context: [Research batch workflow v1](../strategy/research-batch-workflow-v1.md).
 
@@ -67,7 +67,7 @@ related:
 
 ## Recorded passes (evidence)
 
-### 2026-04-23 — Phase 2 serious-mode rehearsal: first credible pass
+### 2026-04-23 — Phase 2 auth-on verification: first credible pass
 
 **Host:** `http://127.0.0.1:3000` (aligned with `JARVIS_HUD_BASE_URL`). **Path:** Session ladder via `GET/POST /api/auth/*` (same cookie behavior as HUD: **None → Limited → Ready** after init + step-up), then HUD-equivalent approve/execute via authenticated API calls. Headless ingress used the blessed command only.
 
@@ -97,7 +97,7 @@ related:
 
 ---
 
-## Exit criteria (good rehearsal)
+## Exit criteria
 
 - You can answer **who may submit** (ingress secret), **who may approve**, and **who may execute** for this host without opening chat.
 - **`JARVIS_EXPECT_AUTH=true pnpm auth-posture`** passes intentionally on this machine.

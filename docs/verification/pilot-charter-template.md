@@ -30,7 +30,7 @@ related:
 
 ## B. Auth posture (HUD authority)
 
-**Reference:** [Operating assumptions §2](../strategy/operating-assumptions.md), [serious-mode rehearsal](../setup/serious-mode-rehearsal-checklist.md).
+**Reference:** [Operating assumptions §2](../strategy/operating-assumptions.md), [auth-on stack verification](../setup/serious-mode-rehearsal-checklist.md).
 
 | Decision | Value |
 |----------|--------|

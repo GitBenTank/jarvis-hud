@@ -16,7 +16,7 @@ related:
 
 # Enterprise readiness — snapshot (2026-05-09)
 
-**Purpose:** Honest **gap list** for diligence and sequencing—not a roadmap commitment. Built from the **current repo baseline** (proxy boundary, lazy `JARVIS_ROOT`, green tests/golden-loop, operating assumptions, serious-mode rehearsal). **Revisit** after material posture changes; supersede with a new dated file rather than letting this one drift.
+**Purpose:** Honest **gap list** for diligence and sequencing—not a roadmap commitment. Built from the **current repo baseline** (proxy boundary, lazy `JARVIS_ROOT`, green tests/golden-loop, operating assumptions, auth-on stack verification). **Revisit** after material posture changes; supersede with a new dated file rather than letting this one drift.
 
 ---
 
@@ -37,9 +37,9 @@ related:
 ## How to use this
 
 - **Diligence:** Point here first, then [security model](../architecture/security-model.md) and [Thesis Lock](../decisions/0001-thesis-lock.md).
-- **Objection rehearsal:** Gaps are **honest**; pair with rebuttals that stress **execution integrity now**, **sequencing**, and **falsifiable probes**—not feature parity with incumbent ITSM.
+- **Diligence responses:** Gaps are **honest**; pair with rebuttals that stress **execution integrity now**, **sequencing**, and **falsifiable probes**—not feature parity with incumbent ITSM.
 
 ## See also
 
 - [Trust and determinism](./trust-and-determinism.md)
-- [Serious-mode rehearsal](../setup/serious-mode-rehearsal-checklist.md)
+- [Auth-on stack verification](../setup/serious-mode-rehearsal-checklist.md)

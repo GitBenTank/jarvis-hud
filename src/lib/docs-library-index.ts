@@ -37,7 +37,8 @@ export type DocsLibraryBuild = {
     hiddenFromPublicIndex: number;
   };
   newcomers: DocsLibraryStartItem[];
-  investors: DocsLibraryStartItem[];
+  /** Ordered path for executives, buyers, and advisors (UI: “Executive overview”) */
+  executiveOverview: DocsLibraryStartItem[];
   trust: DocsLibraryStartItem[];
   operators: DocsLibraryStartItem[];
 };
@@ -97,7 +98,7 @@ const CATEGORY_META: Record<
   narrative: {
     label: "Strategy & narrative",
     description:
-      "Thesis, positioning, pitch materials, operator briefs, and batch workflows.",
+      "Thesis, positioning, executive briefing, operator briefs, and batch workflows.",
     order: 3,
   },
   architecture: {
@@ -146,7 +147,7 @@ const CATEGORY_META: Record<
 
 /**
  * Files that stay in the repo but are omitted from the default docs index so the
- * browse UI stays investor- and newcomer-friendly. Direct URLs still work.
+ * browse UI stays approachable for newcomers and stakeholders. Direct URLs still work.
  * Policy: docs/README.md → "What appears in the docs UI".
  */
 export function isExcludedFromPublicLibraryIndex(segments: string[]): boolean {
@@ -304,37 +305,37 @@ export const DOCS_NEWCOMERS: DocsLibraryStartItem[] = [
   },
 ];
 
-/** Narrative & diligence — canonical /docs home path (numbered on the docs index UI) */
-export const DOCS_INVESTORS: DocsLibraryStartItem[] = [
+/** Executive / buyer path — numbered on the docs home UI */
+export const DOCS_EXECUTIVE_OVERVIEW: DocsLibraryStartItem[] = [
   {
     href: "/demo",
-    title: "See it live",
+    title: "Guided product walkthrough",
     description:
-      "This is not a simulation—this is a governed action. Agents propose. Humans approve. Execution is separate. Every action leaves a receipt and a trace.",
+      "Governed path in the HUD: propose → approve → execute → receipt → trace. Six slides into live Activity.",
   },
   {
     href: "/docs/tati",
-    title: "Read the investor pack",
+    title: "Executive briefing (15 min)",
     description:
-      "Plain-English problem, why the model sits at the boundary, and why now—about 15 minutes, fixed order.",
+      "Plain-language control-plane story—fixed order, same content as the markdown pack.",
   },
   {
     href: "/docs/decisions/0001-thesis-lock",
-    title: "Read Thesis Lock",
+    title: "Thesis Lock (ADR)",
     description:
-      "Autonomy in thinking. Authority in action. The model is not trusted—the boundary is.",
+      "Non-negotiables: human authority, receipts, explicit execute—the model is not the trust root.",
   },
   {
     href: "/docs/strategy/flagship-team-bundle-v1",
     title: "How teams operate with Jarvis",
     description:
-      "How teams actually operate: proposals, approvals, recorded outcomes. (Canonical flagship bundle.)",
+      "Proposals, approvals, recorded outcomes—canonical flagship bundle for multi-agent workflows.",
   },
   {
     href: "/docs/system/full-ecosystem-tree",
-    title: "CTRL+STRUM / DEVHOUSE ecosystem",
+    title: "Ecosystem context",
     description:
-      "Where this sits: distribution, builders, and real-world usage context for how the footprint scales.",
+      "Where Jarvis sits relative to distribution, builders, and downstream usage.",
   },
 ];
 
@@ -348,8 +349,8 @@ export const DOCS_TRUST: DocsLibraryStartItem[] = [
   },
   {
     href: "/docs/strategy/jarvis-hud-video-thesis",
-    title: "Video thesis (canonical spec)",
-    description: "Full narrative spec—read after the one-pagers.",
+    title: "Product narrative thesis",
+    description: "Canonical prose spec for governed execution—read after the one-pagers.",
   },
   {
     href: "/docs/architecture/jarvis-openclaw-system-overview",
@@ -394,9 +395,9 @@ export const DOCS_OPERATORS: DocsLibraryStartItem[] = [
   },
   {
     href: "/docs/setup/serious-mode-rehearsal-checklist",
-    title: "Serious-mode rehearsal",
+    title: "Auth-on stack verification",
     description:
-      "Auth on: machine-wired, auth-posture with expect flag, batched approve/execute.",
+      "JARVIS_AUTH_ENABLED=true: machine-wired, auth-posture with expect flag, batched approve/execute.",
   },
   {
     href: "/docs/local-verification-openclaw-jarvis",
@@ -478,7 +479,7 @@ export async function buildDocsLibrary(): Promise<DocsLibraryBuild> {
       hiddenFromPublicIndex: resolved.length - publicResolved.length,
     },
     newcomers: DOCS_NEWCOMERS,
-    investors: DOCS_INVESTORS,
+    executiveOverview: DOCS_EXECUTIVE_OVERVIEW,
     trust: DOCS_TRUST,
     operators: DOCS_OPERATORS,
   };

@@ -32,7 +32,7 @@ A **checked-in PDF** is included for quick sharing; re-export after editing the 
 
 Install the **Marp for VS Code** extension, open `jarvis-investor-deck.md`, use the preview pane, then export from the extension if you prefer.
 
-## Before sending to investors
+## Before external distribution
 
 1. Replace **placeholder slides** (team, traction, ask, demo screenshot) in `jarvis-investor-deck.md`.
 2. Re-export PDF (or PPTX if you want to tweak fonts in Office).

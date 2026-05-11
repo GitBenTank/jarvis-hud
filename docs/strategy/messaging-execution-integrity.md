@@ -14,7 +14,7 @@ related:
 
 # Messaging — execution integrity (compressed)
 
-**Purpose:** One-page **investor**, **operator**, and **tagline** wording aligned with [operating assumptions](./operating-assumptions.md) (contract / narrative / probe) and [video thesis](./jarvis-hud-video-thesis.md). Use for decks, intros, and operator onboarding—**do not** soften into brochure fog; revise here when doctrine changes.
+**Purpose:** One-page **external**, **operator**, and **tagline** wording aligned with [operating assumptions](./operating-assumptions.md) (contract / narrative / probe) and the [product narrative thesis](./jarvis-hud-video-thesis.md). Use for briefings, intros, and operator onboarding—**do not** soften into brochure fog; revise here when doctrine changes.
 
 **Canon:** [Thesis Lock](../decisions/0001-thesis-lock.md) · [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md)
 
@@ -26,7 +26,7 @@ related:
 
 ---
 
-## Investor (3 lines)
+## Executive / external briefing (3 lines)
 
 1. Jarvis is an **execution integrity layer** for AI systems: consequential actions stay **bounded, reviewable, and provable** under real operating conditions—not demo conditions.
 2. **Agents propose**; **humans and policy** hold authority for effects—**approval is not execution**, and the **model is not the trusted principal**.
@@ -42,7 +42,7 @@ related:
 
 ---
 
-## Optional fourth line (investor, when there is room)
+## Optional fourth line (external briefing, when there is room)
 
 The product goal is **calm operation**: **clear boundaries** and **predictable behavior** when teams are tired or systems are messy.
 
@@ -86,7 +86,7 @@ The product goal is **calm operation**: **clear boundaries** and **predictable b
 
 ## Where this connects in-repo
 
-- **Category + Thesis Lock story:** [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md)
+- **Product narrative + Thesis Lock story:** [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md)
 - **Host reality + triad:** [operating-assumptions.md](./operating-assumptions.md)
-- **Investor path:** [investor-read-pack.md](./investor-read-pack.md)
+- **Executive briefing pack:** [investor-read-pack.md](./investor-read-pack.md)
 - **HTTP / Next.js boundary:** [network proxy (thin)](../architecture/network-proxy-boundary.md) — named network boundary vs governance layers

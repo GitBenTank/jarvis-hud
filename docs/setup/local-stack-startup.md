@@ -370,6 +370,31 @@ When Control UI **previously worked** (WebSocket, **`models.list`**, etc.) and t
 
 4. **Start raw gateway** (same as isolation block above): **`OPENCLAW_SKIP_CHANNELS=1 pnpm gateway:dev`** from **`openclaw-runtime`** under Node 20 and watch for a real stack trace.
 
+**Machine-side checklist (copy-paste)** — use when Jarvis is already fine and OpenClaw needs a **Node 20 + clean runtime** pass. Prefer **`pnpm local:stack:kill`** from **jarvis-hud** first; the **`pkill`** lines below stop **every** Node/pnpm on the machine (save work, quit other dev servers / IDE tasks if needed).
+
+```bash
+pkill -9 node || true
+pkill -9 pnpm || true
+rm -f ~/.pyenv/shims/.pyenv-shim
+pyenv rehash
+
+cd ~/Documents/openclaw-runtime
+nvm install 20
+nvm use 20
+node -v
+
+rm -rf node_modules .turbo
+pnpm install
+OPENCLAW_SKIP_CHANNELS=1 pnpm gateway:dev
+```
+
+When the gateway **binds** and Control UI loads, verify from **jarvis-hud**:
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm local:stack:doctor
+```
+
 ---
 
 ## If something breaks

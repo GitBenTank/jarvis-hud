@@ -7,4 +7,6 @@
 
 Scripts open **Terminal.app** for long-running `pnpm` processes so Raycast does not hang. Kill, doctor, dashboard auth, and “open browsers” run inside Raycast with full output.
 
-If Raycast reports **pnpm not found**, edit `_env.sh` and extend `PATH` (for example for `fnm`, `nvm`, or a custom pnpm location).
+The shared `_env.sh` intentionally pins a known-good Node path (`/opt/homebrew/opt/node@22/bin`) before the general Homebrew PATH. This avoids Raycast picking a broken `node` binary and crashing before output appears.
+
+If Raycast reports **pnpm not found**, or still resolves the wrong runtime, edit `_env.sh` and extend `PATH` (for example for `fnm`, `nvm`, or a custom pnpm location).

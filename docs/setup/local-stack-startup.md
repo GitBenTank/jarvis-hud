@@ -297,7 +297,12 @@ When **Jarvis is healthy on 3000**, **nothing listens on 18789/19001**, and the 
 
 `OPENCLAW_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway`
 
-with **`ELIFECYCLE`** and **no JS stack**, the failure is **inside OpenClaw startup before bind** — not in jarvis-hud. **`pnpm`** / lifecycle can hide the underlying error; **`tail -80 /tmp/openclaw-gateway-last.log`** that only shows repeated startup lines means the process **never reached** Control UI / listener setup.
+with **`ELIFECYCLE`** and **no JS stack**, the failure is **inside OpenClaw startup** — not in jarvis-hud. **`pnpm`** / lifecycle can hide the underlying error.
+
+**Two shapes (both use the same isolation below):**
+
+1. **Never binds** — **`lsof`** shows nothing on **19001** / **18789** after the crash; logs may stop before **`[gateway] ready`**.
+2. **Binds briefly then exits** — the jarvis-hud wrapper’s monitor may print **“Control UI listener detected”** when **`lsof`** sees a listener, then **`ELIFECYCLE`** when the child dies moments later (another process had the port, or the gateway exited right after bind). After you **kill the stray PID**, **`lsof`** is empty again — that confirms **no ghost listener**, not that the checkout stayed healthy. The next step is still **raw runtime + traces** to capture why OpenClaw exited.
 
 **First isolation (do not use the jarvis-hud wrapper):** from **`openclaw-runtime`**, in **Terminal.app** if the IDE terminal looks “empty”:
 

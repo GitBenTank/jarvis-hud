@@ -37,4 +37,4 @@ OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev
 pnpm local:stack:doctor
 ```
 
-See [README.md](README.md), [docs/setup/env.md](docs/setup/env.md), and [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) (**normal `pnpm dev`**, iCloud / `.next` stability, OpenClaw **`OPENCLAW_ROOT`**).
+See [README.md](README.md), [docs/setup/env.md](docs/setup/env.md), and [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) (**normal `pnpm dev`**, iCloud / `.next` stability, OpenClaw **`OPENCLAW_ROOT`**). On **macOS**, optional [Raycast Script Commands](docs/setup/local-stack-startup.md#raycast-script-commands) wrap the same `pnpm` scripts (`raycast/jarvis-hud`).

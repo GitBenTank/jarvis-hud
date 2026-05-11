@@ -1,6 +1,6 @@
 # Jarvis HUD v0.1 — Control Plane Demo Runbook
 
-**Daily dev + OpenClaw (normal commands, port 3000):** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) — `pnpm dev`, `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`, `pnpm local:stack:doctor`. **This file** is the **optional** scripted path on **3001** (`demo:boot`, `demo:verify`, `demo:smoke`).
+**Daily dev + OpenClaw (normal commands, port 3000):** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) — `pnpm dev`, `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`, `pnpm local:stack:doctor`. **macOS:** same commands via [Raycast Script Commands](docs/setup/local-stack-startup.md#raycast-script-commands). **This file** is the **optional** scripted path on **3001** (`demo:boot`, `demo:verify`, `demo:smoke`).
 
 **Mission:** Prove the control-plane thesis in 60 seconds.
 

@@ -10,7 +10,7 @@ Prose in this tree supports **narrative**, **diligence**, **setup**, **architect
 
 If you run Jarvis + OpenClaw locally, use this row first—before browsing the full library:
 
-1. **[Local stack startup](setup/local-stack-startup.md)** — blessed path, terminals, doctor.
+1. **[Local stack startup](setup/local-stack-startup.md)** — blessed path, terminals, doctor. **macOS (optional):** [Raycast Script Commands](setup/local-stack-startup.md#raycast-script-commands) — same `pnpm` flows; add the inner `raycast/jarvis-hud` folder in the **Raycast app** (not the website).
 2. **[Operator checklist](setup/openclaw-jarvis-operator-checklist.md)** — authority, ingress, anti-patterns.
 3. **[OpenClaw ingress for humans](setup/openclaw-ingress-for-humans.md)** — what ingress proves vs what it does not (no code).
 4. **[Return after a pause](setup/return-after-pause.md)** — coming back after days away without re-deriving the stack.
@@ -54,7 +54,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 
 | If you need… | Open this |
 |--------------|-----------|
-| Daily Jarvis + OpenClaw terminals | [Local stack startup](setup/local-stack-startup.md) |
+| Daily Jarvis + OpenClaw terminals (or macOS Raycast launchers) | [Local stack startup](setup/local-stack-startup.md) |
 | Frozen deployment contract | [Operating assumptions §1](strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) |
 | Ordered proof the stacks work | [Local verification](local-verification-openclaw-jarvis.md) |
 | Policy deny + `policy-decisions` line (diligence repro) | [Policy deny repro](verification/policy-deny-repro.md) |
@@ -82,7 +82,7 @@ The browse index at **`/docs`** defaults to a **curated catalog**: investor- and
 
 ## How the main ops docs relate
 
-1. **[Local stack startup](setup/local-stack-startup.md)** — **Routine**: processes, duplicate-gateway avoidance, recovery.
+1. **[Local stack startup](setup/local-stack-startup.md)** — **Routine**: processes, duplicate-gateway avoidance, recovery, optional **macOS** [Raycast](setup/local-stack-startup.md#raycast-script-commands).
 2. **[Local verification](local-verification-openclaw-jarvis.md)** — **Short proof**: step order and “what good looks like.”
 3. **[Integration verification](openclaw-integration-verification.md)** — **Spec + deep debug**: status codes, validation, threat model.
 4. **[Operator checklist](setup/openclaw-jarvis-operator-checklist.md)** — **Contract**: authority split and anti-patterns.

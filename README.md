@@ -127,7 +127,7 @@ Control plane at a glance (click through for architecture detail):
 
 **Default (documented everywhere):** two terminals from this repo — **`pnpm dev`** (Jarvis, **http://127.0.0.1:3000**) then **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, then **`pnpm local:stack:doctor`**. Optional: **`pnpm dev:stack`** prints exact lines and checks `.env.local`.
 
-Full walkthrough: **[docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md)** · drift / ports: [docs/setup/local-dev-truth-map.md](docs/setup/local-dev-truth-map.md) · OpenClaw checks: [docs/local-verification-openclaw-jarvis.md](docs/local-verification-openclaw-jarvis.md).
+Full walkthrough: **[docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md)** · drift / ports: [docs/setup/local-dev-truth-map.md](docs/setup/local-dev-truth-map.md) · OpenClaw checks: [docs/local-verification-openclaw-jarvis.md](docs/local-verification-openclaw-jarvis.md). **macOS:** [Raycast Script Commands](docs/setup/local-stack-startup.md#raycast-script-commands) in `raycast/jarvis-hud/` — add that folder under Raycast → Settings → Extensions → Script Commands → Script Directories (use the **Raycast app**, not the website).
 
 **`.env.local`:** use **`http://127.0.0.1:3000`** for **`JARVIS_BASE_URL`** and **`JARVIS_HUD_BASE_URL`** (same host as the browser). Same ingress **secret** on Jarvis and OpenClaw or signed ingress fails (**401**): [docs/openclaw-integration-verification.md](docs/openclaw-integration-verification.md).
 
@@ -163,7 +163,7 @@ pnpm dev
 
 Open **http://127.0.0.1:3000**. Production-style: `pnpm build && pnpm start`. Scripted demo on **3001**: [DEMO.md](DEMO.md) and [Investor / demo path](#investor--demo-path).
 
-**Jarvis + OpenClaw:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) — **`pnpm dev`**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, **`pnpm local:stack:doctor`**, **`pnpm machine-wired`**, **`pnpm auth-posture`**. VS Code: Task **Local stack: both (parallel)**.
+**Jarvis + OpenClaw:** [docs/setup/local-stack-startup.md](docs/setup/local-stack-startup.md) — **`pnpm dev`**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, **`pnpm local:stack:doctor`**, **`pnpm machine-wired`**, **`pnpm auth-posture`**. VS Code: Task **Local stack: both (parallel)**. Raycast: same commands via [Script Commands](docs/setup/local-stack-startup.md#raycast-script-commands).
 
 ---
 

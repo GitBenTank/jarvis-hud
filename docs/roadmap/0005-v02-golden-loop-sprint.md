@@ -52,7 +52,7 @@ Before expanding tools or adapters, the environment must match [Operating assump
 From jarvis-hud, with Jarvis + OpenClaw running per local-stack-startup:
 
 1. `pnpm machine-wired`
-2. `pnpm local-stack:doctor`
+2. `pnpm local:stack:doctor`
 3. `pnpm auth-posture` — optional serious host: `JARVIS_EXPECT_AUTH=true pnpm auth-posture`
 4. `pnpm rehearsal:preflight` — `machine-wired` + `auth-posture` in one step
 5. `pnpm test`
@@ -65,7 +65,7 @@ From jarvis-hud, with Jarvis + OpenClaw running per local-stack-startup:
 | `JARVIS_INGRESS_OPENCLAW_ENABLED` | `true` |
 | `JARVIS_INGRESS_OPENCLAW_SECRET` | ≥ 32 chars; **same** on Jarvis and OpenClaw |
 | `JARVIS_INGRESS_ALLOWLIST_CONNECTORS` | includes `openclaw` |
-| `OPENCLAW_CONTROL_UI_URL` | **exact** origin of the **running** gateway — use gateway log or `pnpm local-stack:doctor` (often `http://127.0.0.1:19001` for checkout gateway; ports vary; do not guess) |
+| `OPENCLAW_CONTROL_UI_URL` | **exact** origin of the **running** gateway — use gateway log or `pnpm local:stack:doctor` (often `http://127.0.0.1:19001` for checkout gateway; ports vary; do not guess) |
 
 ### Two terminals (canonical)
 

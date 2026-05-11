@@ -14,7 +14,7 @@ related:
 
 **Purpose:** Capture **ground truth** for one machine, then keep [operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) and runbooks aligned. Fill this when onboarding a new laptop or after changing gateway install, ports, or env layout.
 
-**Blessed stack (summary):** [Local stack startup](local-stack-startup.md) — **clean** OpenClaw at **`~/Documents/openclaw-runtime`** + **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** + `~/.openclaw-dev`; Jarvis `pnpm dev`; secrets in jarvis-hud `.env.local`.
+**Blessed stack (summary):** [Local stack startup](local-stack-startup.md) — **clean** OpenClaw at **`~/Documents/openclaw-runtime`** + **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** + `~/.openclaw-dev`; Jarvis `pnpm dev`; secrets in jarvis-hud `.env.local`. **macOS:** same routine via [Raycast Script Commands](local-stack-startup.md#raycast-script-commands) if you prefer launchers over hand-typed terminals.
 
 ---
 

@@ -2,7 +2,7 @@
 
 Tight pass to confirm **OpenClaw is the live variable** and Jarvis is structurally correct. Run **in order**.
 
-**Daily routine (terminals, clone paths, doctor):** [Local stack startup](setup/local-stack-startup.md) — that doc is authoritative for **`OPENCLAW_ROOT=~/Documents/openclaw-runtime`** and **`pnpm local:stack:doctor`**.
+**Daily routine (terminals, clone paths, doctor):** [Local stack startup](setup/local-stack-startup.md) — that doc is authoritative for **`OPENCLAW_ROOT=~/Documents/openclaw-runtime`** and **`pnpm local:stack:doctor`**. **macOS:** optional [Raycast Script Commands](setup/local-stack-startup.md#raycast-script-commands) run the same `pnpm` scripts (configure Script Directories in the **Raycast app**).
 
 **Exit bar (demos / distribution):** [OpenClaw ↔ Jarvis operator sprint](setup/openclaw-jarvis-operator-sprint.md).
 
@@ -190,6 +190,8 @@ After **approve** and **execute** in Jarvis:
 ---
 
 ## Quick start (two terminals)
+
+**macOS:** [Raycast](setup/local-stack-startup.md#raycast-script-commands) can start OpenClaw / Jarvis in **Terminal.app** and run **Doctor** / **Kill** in Raycast — same `pnpm` scripts as below.
 
 After a **hard reset**, shortest path to both stacks up:
 

@@ -86,6 +86,8 @@ Use this when logs show **mixed** paths (`~/Documents/openclaw/dist` vs `/opt/ho
 
 ## Default local flow (same as [local stack startup](setup/local-stack-startup.md))
 
+**macOS (optional):** [Raycast Script Commands](setup/local-stack-startup.md#raycast-script-commands) invoke the same `pnpm` commands; configure Script Directories in the **Raycast app**.
+
 **Terminal 1 — Jarvis**
 
 ```bash

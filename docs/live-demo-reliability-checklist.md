@@ -2,7 +2,7 @@
 
 The goal is **not** perfection — the goal is **deterministic behavior under failure**. When something breaks, you name it, recover, and continue — without panic.
 
-**Default path (same as [local stack startup](setup/local-stack-startup.md)):** **`pnpm dev`** on **http://127.0.0.1:3000**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, **`pnpm local:stack:doctor`**. Optional helper: **`pnpm dev:stack`**.
+**Default path (same as [local stack startup](setup/local-stack-startup.md)):** **`pnpm dev`** on **http://127.0.0.1:3000**, **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`**, **`pnpm local:stack:doctor`**. Optional helpers: **`pnpm dev:stack`** · **macOS** [Raycast Script Commands](setup/local-stack-startup.md#raycast-script-commands).
 
 **Optional scripted path on port 3001:** [DEMO.md](../DEMO.md) (`pnpm demo:boot`, `pnpm demo:verify`, `pnpm demo:smoke`) — use only when you want that flow.
 

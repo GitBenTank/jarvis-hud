@@ -1,6 +1,6 @@
 # Local dev truth map (Jarvis HUD + OpenClaw)
 
-**Default (documented everywhere):** **`pnpm dev`** on **http://127.0.0.1:3000** + **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** — [local stack startup](local-stack-startup.md).
+**Default (documented everywhere):** **`pnpm dev`** on **http://127.0.0.1:3000** + **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** — [local stack startup](local-stack-startup.md). **macOS:** optional [Raycast Script Commands](local-stack-startup.md#raycast-script-commands) run the same `pnpm` entrypoints.
 
 This page explains **why** things break when layers disagree. There is a second mode — **scripted demo on 3001** ([DEMO.md](../../DEMO.md)) — that is optional.
 

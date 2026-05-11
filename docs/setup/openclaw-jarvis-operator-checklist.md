@@ -110,7 +110,7 @@ The canonical submission path **must be implemented exactly once** and **referen
 ## Operator checklist (happy path)
 
 1. **Start Jarvis HUD** — e.g. `pnpm dev` with correct `.env.local` (`JARVIS_INGRESS_*`, allowlist, secret length ≥ 32).  
-2. **Start OpenClaw** with the **same** state dir you always use.  
+2. **Start OpenClaw** with the **same** state dir you always use. *(Optional macOS: [Raycast Script Commands](local-stack-startup.md#raycast-script-commands) — same `pnpm` entrypoints; long-lived servers open **Terminal.app**.)*  
 3. **Confirm Control UI auth** — `gateway.auth.token` from the **same** `openclaw.json` the running gateway loads (`openclaw config get gateway.auth.token` with the same env).  
 4. **Confirm the assistant responds** — Provider / API key available to the gateway process.  
 5. **Confirm a Jarvis proposal path** — Signed ingress succeeds per [local verification](../local-verification-openclaw-jarvis.md).  

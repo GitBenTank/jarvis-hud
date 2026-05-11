@@ -81,7 +81,7 @@ Use this as a **living checklist** when sequencing UI and ingress work. Update t
 | **Ingress** | **`POST {JARVIS_HUD_BASE_URL}/api/ingress/openclaw`** with HMAC. **`JARVIS_INGRESS_OPENCLAW_ENABLED=true`**, **`JARVIS_INGRESS_ALLOWLIST_CONNECTORS`** includes **`openclaw`**, **`JARVIS_INGRESS_OPENCLAW_SECRET`** ≥ 32 chars in **`.env.local`**. The gateway must use the **same** secret and **`JARVIS_BASE_URL`** (injected from `.env.local` when using `pnpm openclaw:dev`). |
 | **Pass/fail** | From jarvis-hud with processes running: **`pnpm machine-wired`**. **Ground-truth capture:** [Phase 1 freeze checklist](../setup/phase1-freeze-checklist.md). |
 
-**Routine and troubleshooting detail:** [Local stack startup](../setup/local-stack-startup.md) · [Integration verification](../openclaw-integration-verification.md) (includes non-blessed recovery). **If your machine differs**, record it in the checklist first; do not treat alternate stacks as equally valid without updating this section.
+**Routine and troubleshooting detail:** [Local stack startup](../setup/local-stack-startup.md) (includes optional **macOS** [Raycast Script Commands](../setup/local-stack-startup.md#raycast-script-commands)) · [Integration verification](../openclaw-integration-verification.md) (includes non-blessed recovery). **If your machine differs**, record it in the checklist first; do not treat alternate stacks as equally valid without updating this section.
 
 ---
 

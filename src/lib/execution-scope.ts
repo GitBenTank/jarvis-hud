@@ -129,6 +129,10 @@ export function collectExecutionScopeTargets(params: {
     return [];
   }
 
+  if (kind === "linkedin.post") {
+    return [];
+  }
+
   if (kind === "system.note") {
     return [
       {

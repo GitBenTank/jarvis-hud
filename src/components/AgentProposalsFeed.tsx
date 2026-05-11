@@ -51,6 +51,7 @@ function getCardSummary(payload: unknown): string {
   if (n.kind === "system.note") return n.summary || "System note";
   if (n.kind === "workflow.plan") return n.summary || "Workflow plan";
   if (n.kind === "send_email") return n.summary || "Send email";
+  if (n.kind === "linkedin.post") return n.summary || "LinkedIn post";
   if (n.kind === "code.diff") return n.summary || "Code diff (dry-run)";
   if (n.kind === "code.apply") return n.summary || "Code apply (git commit)";
   return n.summary || "(no summary)";

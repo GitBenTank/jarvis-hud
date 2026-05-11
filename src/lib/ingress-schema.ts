@@ -3,6 +3,11 @@
  * Enforces allowlisted keys, size limits, and kind-specific rules.
  */
 
+import {
+  LINKEDIN_ACCOUNT_LABEL_MAX,
+  LINKEDIN_POST_BODY_MAX,
+  LINKEDIN_POST_VISIBILITY,
+} from "./linkedin-post-constants";
 import { SEND_EMAIL_DEMO_ALLOWED_TO } from "./send-email-constants";
 import {
   allowedEvidenceStatusListForDocs,
@@ -24,6 +29,7 @@ const PATCH_MAX_BYTES = 1024 * 1024; // 1 MB
 const SYSTEM_NOTE_PAYLOAD_MAX_CHARS = 50_000;
 const SEND_EMAIL_SUBJECT_MAX = 200;
 const SEND_EMAIL_BODY_MAX = 50_000;
+const LINKEDIN_VISIBILITY_SET = new Set<string>(LINKEDIN_POST_VISIBILITY);
 
 const ALLOWLISTED_TOP_LEVEL_KEYS = new Set([
   "kind",
@@ -316,6 +322,14 @@ export function validateIngressBody(
     });
   }
 
+  if (kind === "linkedin.post" && patch !== undefined) {
+    errors.push({
+      code: "PATCH_NOT_ALLOWED",
+      message: "linkedin.post must not include patch",
+      field: "patch",
+    });
+  }
+
   if (kind === "system.note") {
     const payload = o.payload;
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
@@ -350,6 +364,55 @@ export function validateIngressBody(
         message: wf.message,
         field: wf.field ?? "payload",
       });
+    }
+  }
+
+  if (kind === "linkedin.post") {
+    const payload = o.payload;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      errors.push({
+        code: "MISSING_FIELD",
+        message: "linkedin.post requires payload (object)",
+        field: "payload",
+      });
+    } else {
+      const pl = payload as Record<string, unknown>;
+      const body = typeof pl.body === "string" ? pl.body : "";
+      const visibility = typeof pl.visibility === "string" ? pl.visibility.trim().toUpperCase() : "";
+      const accountLabel = typeof pl.accountLabel === "string" ? pl.accountLabel.trim() : "";
+      if (!body.trim()) {
+        errors.push({
+          code: "MISSING_FIELD",
+          message: "linkedin.post requires payload.body",
+          field: "payload.body",
+        });
+      } else if (body.length > LINKEDIN_POST_BODY_MAX) {
+        errors.push({
+          code: "FIELD_TOO_LONG",
+          message: `linkedin.post payload.body must be ≤ ${LINKEDIN_POST_BODY_MAX} chars`,
+          field: "payload.body",
+        });
+      }
+      if (!visibility || !LINKEDIN_VISIBILITY_SET.has(visibility)) {
+        errors.push({
+          code: "INVALID_FIELD",
+          message: `linkedin.post payload.visibility must be one of: ${LINKEDIN_POST_VISIBILITY.join(", ")}`,
+          field: "payload.visibility",
+        });
+      }
+      if (!accountLabel) {
+        errors.push({
+          code: "MISSING_FIELD",
+          message: "linkedin.post requires payload.accountLabel",
+          field: "payload.accountLabel",
+        });
+      } else if (accountLabel.length > LINKEDIN_ACCOUNT_LABEL_MAX) {
+        errors.push({
+          code: "FIELD_TOO_LONG",
+          message: `linkedin.post payload.accountLabel must be ≤ ${LINKEDIN_ACCOUNT_LABEL_MAX} chars`,
+          field: "payload.accountLabel",
+        });
+      }
     }
   }
 

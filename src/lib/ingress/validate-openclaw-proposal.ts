@@ -8,6 +8,7 @@ import {
   isEvidenceStatus,
   UNCERTAINTY_SUMMARY_MAX_CHARS,
 } from "../evidence-status";
+import { parseLinkedInPostPayload } from "../linkedin-post-constants";
 import { parseSendEmailPayload } from "../send-email-constants";
 import { parseWorkflowPlanPayload } from "../workflow-plan";
 
@@ -399,6 +400,18 @@ export function validateOpenClawProposal(input: {
 
   if (kind === "send_email") {
     const parsed = parseSendEmailPayload(o.payload);
+    if (!parsed.ok) {
+      return {
+        ok: false,
+        code: "bad_request",
+        message: parsed.message,
+        field: parsed.field,
+      };
+    }
+  }
+
+  if (kind === "linkedin.post") {
+    const parsed = parseLinkedInPostPayload(o.payload);
     if (!parsed.ok) {
       return {
         ok: false,

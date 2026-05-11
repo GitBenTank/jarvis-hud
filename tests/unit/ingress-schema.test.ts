@@ -306,6 +306,42 @@ describe("validateIngressBody", () => {
     }
   });
 
+  it("accepts valid linkedin.post payload", () => {
+    const body = {
+      kind: "linkedin.post",
+      title: "Update",
+      summary: "Weekly",
+      source: { connector: "openclaw" },
+      payload: {
+        body: "Shipped improvements.",
+        visibility: "CONNECTIONS",
+        accountLabel: "Company page",
+      },
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects linkedin.post with patch", () => {
+    const body = {
+      kind: "linkedin.post",
+      title: "T",
+      summary: "S",
+      source: { connector: "openclaw" },
+      patch: "diff --git a/x b/x\n",
+      payload: {
+        body: "Hi",
+        visibility: "PUBLIC",
+        accountLabel: "x",
+      },
+    };
+    const r = validateIngressBody(body);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.errors.some((e) => e.code === "PATCH_NOT_ALLOWED")).toBe(true);
+    }
+  });
+
   it("accepts optional evidenceStatus and uncertaintySummary", () => {
     const body = {
       ...BASE,

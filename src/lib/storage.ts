@@ -140,6 +140,16 @@ export function getSendEmailReceiptPath(dateKey: string, approvalId: string): st
   return path.join(getSendEmailReceiptDir(dateKey), `${approvalId}.json`);
 }
 
+/** Markdown artifact: governed LinkedIn post body (v1 dry-run — no API). */
+export function getLinkedInPostArtifactPath(dateKey: string, approvalId: string): string {
+  return path.join(getJarvisRoot(), "linkedin-posts", dateKey, `${approvalId}.md`);
+}
+
+/** JSON receipt for linkedin.post executions. */
+export function getLinkedInPostReceiptPath(dateKey: string, approvalId: string): string {
+  return path.join(getJarvisRoot(), "linkedin-posts", dateKey, `${approvalId}.json`);
+}
+
 export function getRecoveryRunbookDir(dateKey: string): string {
   return path.join(getJarvisRoot(), "recovery-runbooks", dateKey);
 }

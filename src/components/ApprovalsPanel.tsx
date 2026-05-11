@@ -101,6 +101,8 @@ type ExecuteResult = {
   providerMessageId?: string;
   emailDestination?: string;
   workflowStepCount?: number;
+  linkedinDryRun?: boolean;
+  bodyHash?: string;
 };
 
 type ExecuteError = {
@@ -365,6 +367,7 @@ function DetailModal({
   const isSystemNote = normalized.kind === "system.note";
   const isWorkflowPlan = normalized.kind === "workflow.plan";
   const isSendEmail = normalized.kind === "send_email";
+  const isLinkedInPost = normalized.kind === "linkedin.post";
   const isCodeDiff = normalized.kind === "code.diff";
   const isCodeApply = normalized.kind === "code.apply";
   const isRecovery = isRecoveryClass(normalized.kind);
@@ -375,6 +378,7 @@ function DetailModal({
     isSystemNote ||
     isWorkflowPlan ||
     isSendEmail ||
+    isLinkedInPost ||
     isCodeDiff ||
     isCodeApply ||
     isRecovery;
@@ -396,6 +400,7 @@ function DetailModal({
     if (isSystemNote) return "Execute (write note & receipt)";
     if (isCodeApply) return "Execute (git commit)";
     if (isSendEmail) return "Execute (send email)";
+    if (isLinkedInPost) return "Execute (LinkedIn dry-run artifact)";
     return "Execute (dry run)";
   })();
 
@@ -706,6 +711,7 @@ function DetailModal({
           isSystemNote ||
           isWorkflowPlan ||
           isSendEmail ||
+          isLinkedInPost ||
           isCodeDiff ||
           isCodeApply ||
           isRecovery) && (
@@ -724,6 +730,8 @@ function DetailModal({
                   <strong>Execute (git commit)</strong>
                 ) : isSendEmail ? (
                   <strong>Execute (send email)</strong>
+                ) : isLinkedInPost ? (
+                  <strong>Execute (LinkedIn dry-run)</strong>
                 ) : isWorkflowPlan ? (
                   <strong>Execute workflow</strong>
                 ) : (
@@ -737,6 +745,8 @@ function DetailModal({
                       ? "modifies working tree + creates local git commit + receipts (no pushing)"
                       : isSendEmail
                         ? "sends one allowlisted outbound email + writes receipt JSON + action log entry"
+                        : isLinkedInPost
+                          ? "writes LinkedIn-ready .md + JSON receipt + action log (v1: no LinkedIn API — publish manually)"
                       : isWorkflowPlan
                         ? "runs every planned step in order under this parent id; one child receipt per step, then a parent workflow receipt — not N separate approvals"
                       : isCodeDiff
@@ -756,6 +766,14 @@ function DetailModal({
                 <p className="font-medium text-amber-900 dark:text-amber-200">
                   Execute sends a real email to the demo allowlist address only. Requires DEMO_EMAIL_USER and
                   DEMO_EMAIL_PASS on the server.
+                </p>
+              </div>
+            )}
+            {isLinkedInPost && (
+              <div className="mt-3 rounded-lg border border-amber-400/50 bg-amber-50/80 py-2 px-3 text-sm dark:border-amber-400/30 dark:bg-amber-950/30">
+                <p className="font-medium text-amber-900 dark:text-amber-200">
+                  linkedin.post v1 does not call LinkedIn. Execute records the exact post text as a governed artifact +
+                  receipt (body hash). Paste or post manually after review.
                 </p>
               </div>
             )}
@@ -897,6 +915,44 @@ function DetailModal({
               {String((event.payload as Record<string, unknown>)?.sourceApprovalId ?? "")}
             </p>
           </div>
+        ) : isLinkedInPost ? (
+          (() => {
+            const p = event.payload as Record<string, unknown>;
+            const inner =
+              p?.payload != null && typeof p.payload === "object" && !Array.isArray(p.payload)
+                ? (p.payload as Record<string, unknown>)
+                : p;
+            const body = typeof inner.body === "string" ? inner.body : "";
+            const visibility = typeof inner.visibility === "string" ? inner.visibility : "—";
+            const accountLabel = typeof inner.accountLabel === "string" ? inner.accountLabel : "—";
+            const preview = body.length > 600 ? `${body.slice(0, 600)}…` : body;
+            return (
+              <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <h3 className="mb-2 flex items-center gap-2 font-medium">
+                  LinkedIn post preview
+                  <Badge variant="dry_run">DRY RUN v1</Badge>
+                </h3>
+                <dl className="space-y-2 text-sm">
+                  <div>
+                    <dt className="font-medium text-zinc-500">Account label</dt>
+                    <dd className="break-words">{accountLabel}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-zinc-500">Visibility</dt>
+                    <dd>{visibility}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-zinc-500">Body</dt>
+                    <dd>
+                      <pre className="mt-1 max-h-48 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-100 p-2 text-xs dark:bg-zinc-900">
+                        {preview || "—"}
+                      </pre>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            );
+          })()
         ) : isSendEmail ? (
           (() => {
             const p = event.payload as Record<string, unknown>;
@@ -1082,7 +1138,9 @@ function DetailModal({
                 Approval records human consent only. Execute writes artifacts and receipts
                 {isSendEmail
                   ? " (or sends the allowlisted demo email)."
-                  : isWorkflowPlan
+                  : isLinkedInPost
+                    ? " (LinkedIn v1: artifact + receipt only; no API)."
+                    : isWorkflowPlan
                     ? " for each workflow step plus a parent workflow receipt."
                     : "."}
               </p>
@@ -1090,7 +1148,9 @@ function DetailModal({
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               {isSendEmail
                 ? "Execute sends one outbound email using server SMTP credentials; receipt JSON is written under JARVIS_ROOT."
-                : isWorkflowPlan
+                : isLinkedInPost
+                  ? "Execute writes linkedin-posts/{date}/ under JARVIS_ROOT: .md artifact + .json receipt (SHA-256 body hash). No network to LinkedIn in v1."
+                  : isWorkflowPlan
                   ? "Execute runs allowlisted steps sequentially (v0.3: system.note only), with per-step and parent receipts."
                   : isSystemNote
                     ? "Execute writes the note artifact plus action-log and reconciliation receipts under JARVIS_ROOT (local persistence, not a model-only reply)."
@@ -1116,7 +1176,7 @@ function DetailModal({
                   {firstPreflightBlockerLine(preflight)}
                 </p>
               )}
-              {(isPublish || isWorkflowPlan) && <Badge variant="dry_run">DRY RUN</Badge>}
+              {(isPublish || isWorkflowPlan || isLinkedInPost) && <Badge variant="dry_run">DRY RUN</Badge>}
             </div>
           </div>
         )}
@@ -1125,7 +1185,7 @@ function DetailModal({
           <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/30">
             <p className="font-medium">Execution not supported yet</p>
             <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Only supported kinds (including workflow.plan, send_email, system.note, code.apply, …) can be executed when present in
+              Only supported kinds (including workflow.plan, send_email, linkedin.post, system.note, code.apply, …) can be executed when present in
               policy.
             </p>
           </div>
@@ -1136,7 +1196,9 @@ function DetailModal({
             <p className="font-medium">
               {executeResult.kind === "system.note"
                 ? "Executed · note artifact & receipts"
-                : "Executed · receipt recorded"}
+                : executeResult.kind === "linkedin.post"
+                  ? "Executed · LinkedIn dry-run artifact & receipt"
+                  : "Executed · receipt recorded"}
             </p>
             <p className="mt-1 flex items-center gap-2">
               {executeResult.dryRun === true && <Badge variant="dry_run">DRY RUN</Badge>}
@@ -1172,6 +1234,38 @@ function DetailModal({
                       <code className="text-xs">{executeResult.rollbackCommand}</code>
                     </div>
                   )}
+                </div>
+              </>
+            )}
+            {executeResult.kind === "linkedin.post" && (
+              <>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                  Governed post text recorded under JARVIS_ROOT. Copy from the .md artifact and publish on LinkedIn
+                  manually when ready.
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  {executeResult.bodyHash ? (
+                    <div>
+                      <span className="font-medium text-zinc-500">Body hash (SHA-256):</span>{" "}
+                      <code className="break-all text-xs">{executeResult.bodyHash}</code>
+                    </div>
+                  ) : null}
+                  <div>
+                    <span className="font-medium text-zinc-500">Artifact (.md):</span>{" "}
+                    <code className="break-all text-xs">{executeResult.artifactPath ?? "—"}</code>
+                  </div>
+                  <div>
+                    <span className="font-medium text-zinc-500">Receipt (.json):</span>{" "}
+                    <code className="break-all text-xs">{executeResult.outputPath ?? "—"}</code>
+                  </div>
+                  <div>
+                    <Link
+                      href={activityTraceHref(event.traceId ?? event.id)}
+                      className="text-xs font-medium text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      Open trace & receipts on Activity
+                    </Link>
+                  </div>
                 </div>
               </>
             )}
@@ -1308,13 +1402,17 @@ function DetailModal({
               <div className="mt-2 space-y-2">
                 <div className="flex items-center gap-2">
                   <code className="flex-1 truncate rounded bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800">
-                    {executeResult.outputPath ?? executeResult.artifactPath}
+                    {executeResult.kind === "linkedin.post"
+                      ? executeResult.artifactPath ?? executeResult.outputPath ?? ""
+                      : executeResult.outputPath ?? executeResult.artifactPath ?? ""}
                   </code>
                   <button
                     type="button"
                     onClick={() =>
                       navigator.clipboard.writeText(
-                        executeResult.outputPath ?? executeResult.artifactPath ?? ""
+                        executeResult.kind === "linkedin.post"
+                          ? executeResult.artifactPath ?? executeResult.outputPath ?? ""
+                          : executeResult.outputPath ?? executeResult.artifactPath ?? ""
                       )
                     }
                     className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
@@ -1331,7 +1429,10 @@ function DetailModal({
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
-                            path: executeResult.outputPath ?? executeResult.artifactPath,
+                            path:
+                              executeResult.kind === "linkedin.post"
+                                ? executeResult.artifactPath ?? executeResult.outputPath ?? ""
+                                : executeResult.outputPath ?? executeResult.artifactPath ?? "",
                             app: "finder",
                           }),
                         });
@@ -1345,11 +1446,14 @@ function DetailModal({
                       ? "Open runbook in Finder"
                       : executeResult.kind === "send_email"
                         ? "Open receipt in Finder"
-                        : executeResult.kind === "system.note" || executeResult.kind === "reflection.note"
-                          ? "Open note artifact in Finder"
-                          : executeResult.outputPath
-                            ? "Open package in Finder"
-                            : "Open artifact in Finder"}
+                        : executeResult.kind === "linkedin.post"
+                          ? "Open post draft in Finder"
+                          : executeResult.kind === "system.note" ||
+                              executeResult.kind === "reflection.note"
+                            ? "Open note artifact in Finder"
+                            : executeResult.outputPath
+                              ? "Open package in Finder"
+                              : "Open artifact in Finder"}
                   </button>
                   <button
                     type="button"
@@ -1359,7 +1463,10 @@ function DetailModal({
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
-                            path: executeResult.outputPath ?? executeResult.artifactPath,
+                            path:
+                              executeResult.kind === "linkedin.post"
+                                ? executeResult.artifactPath ?? executeResult.outputPath ?? ""
+                                : executeResult.outputPath ?? executeResult.artifactPath ?? "",
                             app: "cursor",
                           }),
                         });
@@ -1371,11 +1478,14 @@ function DetailModal({
                   >
                     {executeResult.kind === "send_email"
                       ? "Open receipt in Cursor"
-                      : executeResult.kind === "system.note" || executeResult.kind === "reflection.note"
-                        ? "Open note artifact in Cursor"
-                        : executeResult.outputPath
-                          ? "Open package in Cursor"
-                          : "Open artifact in Cursor"}
+                      : executeResult.kind === "linkedin.post"
+                        ? "Open post draft in Cursor"
+                        : executeResult.kind === "system.note" ||
+                            executeResult.kind === "reflection.note"
+                          ? "Open note artifact in Cursor"
+                          : executeResult.outputPath
+                            ? "Open package in Cursor"
+                            : "Open artifact in Cursor"}
                   </button>
                   {executeResult.kind === "youtube.package" && (
                     <>

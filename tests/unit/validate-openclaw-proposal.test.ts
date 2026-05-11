@@ -71,6 +71,72 @@ describe("validateOpenClawProposal", () => {
     }
   });
 
+  it("accepts valid linkedin.post", () => {
+    const body = {
+      kind: "linkedin.post",
+      title: "Launch post",
+      summary: "Product update",
+      payload: {
+        body: "We shipped v1.",
+        visibility: "PUBLIC",
+        accountLabel: "DevHouse HSV",
+      },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects linkedin.post with patch", () => {
+    const body = {
+      kind: "linkedin.post",
+      title: "Bad",
+      summary: "S",
+      patch: "diff --git a/x b/x\n",
+      payload: {
+        body: "Hi",
+        visibility: "PUBLIC",
+        accountLabel: "x",
+      },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("patch");
+  });
+
+  it("rejects linkedin.post with invalid visibility", () => {
+    const body = {
+      kind: "linkedin.post",
+      title: "T",
+      summary: "S",
+      payload: {
+        body: "Hi",
+        visibility: "SECRET",
+        accountLabel: "x",
+      },
+      source: { connector: "openclaw" },
+    };
+    const r = validateOpenClawProposal({
+      rawBody: JSON.stringify(body),
+      parsed: body,
+      maxBytes: MAX_BYTES,
+      allowedKinds: ALLOWED,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.field).toBe("payload.visibility");
+  });
+
   it("accepts valid code.apply with patch", () => {
     const body = {
       kind: "code.apply",

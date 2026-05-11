@@ -18,6 +18,10 @@ describe("execution-surface", () => {
     expect(NON_DRY_RUN_EXECUTE_KINDS).toContain("system.note");
   });
 
+  it("keeps linkedin.post as dry-run execute (v1 artifact + receipt only)", () => {
+    expect(NON_DRY_RUN_EXECUTE_KINDS).not.toContain("linkedin.post");
+  });
+
   it("buildExecutionCapabilities matches execute route invariant", () => {
     const c = buildExecutionCapabilities();
     expect(c.nonDryRunExecuteKinds).toEqual([

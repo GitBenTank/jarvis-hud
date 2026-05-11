@@ -45,6 +45,8 @@ import {
   reconcileSystemNote,
   appendReconciliationLog,
 } from "@/lib/reconciliation-log";
+import { executeLinkedInPostDryRunAndWriteReceipt } from "@/lib/linkedin-post";
+import { parseLinkedInPostPayload } from "@/lib/linkedin-post-constants";
 import { parseSendEmailPayload } from "@/lib/send-email-constants";
 import { executeSendEmailAndWriteReceipt } from "@/lib/send-email";
 import { writeRecoveryRunbook, isRecoveryClass } from "@/lib/recovery";
@@ -289,6 +291,7 @@ export async function POST(
     let codeApplyRepoHeadAfter: string | null = null;
     let sendEmailMessageId: string | null = null;
     let sendEmailDestination: string | null = null;
+    let linkedinBodyHash: string | null = null;
 
     if (normalized.kind === "system.note") {
       outputPath = await writeSystemNote({
@@ -348,6 +351,36 @@ export async function POST(
         outputPath,
         emailDestination: parsed.value.to,
         providerMessageId: emailResult.messageId || undefined,
+        actors: receiptActors,
+      });
+    } else if (normalized.kind === "linkedin.post") {
+      const parsed = parseLinkedInPostPayload(eventRecord.payload);
+      if (!parsed.ok) {
+        return NextResponse.json({ error: parsed.message, field: parsed.field }, { status: 400 });
+      }
+      const proposalTitle = String(normalized.title ?? "(untitled)");
+      const liResult = await executeLinkedInPostDryRunAndWriteReceipt({
+        proposalTitle,
+        payload: parsed.value,
+        approvalId,
+        dateKey,
+        executedAt,
+        traceId,
+      });
+      outputPath = liResult.receiptPath;
+      artifactPath = liResult.artifactPath;
+      linkedinBodyHash = liResult.receipt.bodyHash;
+      executionKind = "linkedin.post";
+      await appendActionLog({
+        id: crypto.randomUUID(),
+        traceId,
+        at: executedAt,
+        kind: "linkedin.post",
+        approvalId,
+        status: actionStatus,
+        summary: normalized.summary,
+        outputPath,
+        artifactPath: liResult.artifactPath,
         actors: receiptActors,
       });
     } else if (normalized.kind === "workflow.plan") {
@@ -673,6 +706,10 @@ export async function POST(
     if (executionKind === "send_email") {
       response.providerMessageId = sendEmailMessageId ?? "";
       response.emailDestination = sendEmailDestination ?? "";
+    }
+    if (executionKind === "linkedin.post") {
+      response.linkedinDryRun = true;
+      response.bodyHash = linkedinBodyHash ?? "";
     }
     if (executionKind === "workflow.plan") {
       const w = parseWorkflowPlanPayload(eventRecord.payload);

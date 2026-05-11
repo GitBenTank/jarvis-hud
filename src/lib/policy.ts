@@ -12,6 +12,7 @@ export const ALLOWED_KINDS = [
   "reflection.note",
   "system.note",
   "workflow.plan",
+  "linkedin.post",
   "send_email",
   "code.diff",
   "code.apply",
@@ -172,6 +173,11 @@ export function evaluatePreflightPolicy(
   if (config.kind === "send_email") {
     notes.push(
       "Execute sends one real outbound email (demo allowlist) using DEMO_EMAIL_* server credentials."
+    );
+  }
+  if (config.kind === "linkedin.post") {
+    notes.push(
+      "linkedin.post v1: Execute writes a ready-to-post artifact + receipt only — no LinkedIn API call. Publish manually outside Jarvis."
     );
   }
   if (config.kind === "workflow.plan") {

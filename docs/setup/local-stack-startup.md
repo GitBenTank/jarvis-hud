@@ -265,9 +265,12 @@ Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001
    cd ~/Documents/openclaw-runtime
    export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"
    export OPENCLAW_DISABLE_BONJOUR=1
+   export OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-19001}"
    unset DEBUG
    pnpm gateway:dev
    ```
+
+   **`OPENCLAW_GATEWAY_PORT`** matches **`scripts/openclaw-gateway-dev.sh`** (default **19001**). If you skip it, OpenClaw may bind **18789** (upstream default) while the browser and **`OPENCLAW_CONTROL_UI_URL`** still point at **19001** → **`ERR_CONNECTION_REFUSED`** with a “silent” gateway terminal until you open the right port.
 
    This path does **not** inject **`JARVIS_BASE_URL` / ingress secret** from jarvis-hud `.env.local`. It answers: “does the gateway bind at all?” After it works, use **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** from **jarvis-hud** for the full integration env (or export the same vars yourself).
 
@@ -285,6 +288,7 @@ Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001
    cd ~/Documents/openclaw-runtime
    export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"
    export OPENCLAW_DISABLE_BONJOUR=1
+   export OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-19001}"
    export NODE_OPTIONS="--trace-uncaught --trace-warnings"
    pnpm gateway:dev
    ```
@@ -310,6 +314,7 @@ with **`ELIFECYCLE`** and **no JS stack**, the failure is **inside OpenClaw star
 cd ~/Documents/openclaw-runtime
 export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev"
 export OPENCLAW_DISABLE_BONJOUR=1
+export OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-19001}"
 NODE_OPTIONS="--trace-uncaught --trace-warnings" \
 OPENCLAW_SKIP_CHANNELS=1 \
 pnpm gateway:dev
@@ -323,6 +328,7 @@ You want a real **exception**, **missing env**, **import/module** error, **confi
 cd ~/Documents/openclaw-runtime
 env -i HOME="$HOME" PATH="$PATH" USER="${USER:-}" SHELL="${SHELL:-/bin/bash}" \
   OPENCLAW_STATE_DIR="$HOME/.openclaw-dev" OPENCLAW_DISABLE_BONJOUR=1 OPENCLAW_SKIP_CHANNELS=1 \
+  OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-19001}" \
   NODE_OPTIONS="--trace-uncaught --trace-warnings" \
   pnpm gateway:dev
 ```

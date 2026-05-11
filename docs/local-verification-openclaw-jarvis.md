@@ -177,7 +177,7 @@ pnpm jarvis:submit --file examples/linkedin-post-dry-run.json
 
 The `<YYYY-MM-DD>` folder is the **local calendar day** at execute time (same bucketing as other daily artifacts).
 
-**UI / API check:** Activity should show a trace for the proposal’s `traceId`; execute response includes **`linkedinDryRun: true`** (no live post id).
+**UI / API check:** Activity should show a trace for the proposal’s `traceId`; execute response includes both **`dryRun: true`** (generic execute surface) and **`linkedinDryRun: true`** (LinkedIn-specific), with no live post id.
 
 ---
 

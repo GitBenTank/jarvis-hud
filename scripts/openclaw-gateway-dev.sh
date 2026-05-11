@@ -15,6 +15,7 @@ echo "openclaw-gateway-dev: JARVIS_BASE_URL=$JARVIS_BASE_URL (from .env.local)"
 export OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-19001}"
 echo "openclaw-gateway-dev: expected Control UI: http://127.0.0.1:$OPENCLAW_GATEWAY_PORT"
 echo "openclaw-gateway-dev: set OPENCLAW_CONTROL_UI_URL in jarvis-hud .env.local to match this port"
+echo "openclaw-gateway-dev: Control UI token (while this gateway runs): from jarvis-hud run pnpm openclaw:dashboard-auth"
 
 export OPENCLAW_STATE_DIR="${OPENCLAW_STATE_DIR:-$HOME/.openclaw-dev}"
 OPENCLAW_ROOT="${OPENCLAW_ROOT:-$HOME/Documents/openclaw}"

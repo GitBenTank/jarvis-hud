@@ -33,6 +33,8 @@ OpenClaw logs append to **`/tmp/openclaw-gateway-last.log`** when using tasks or
 
 **`.env.local`:** `JARVIS_BASE_URL=http://127.0.0.1:3000`, `JARVIS_HUD_BASE_URL=http://127.0.0.1:3000`, **`OPENCLAW_CONTROL_UI_URL`** = **`http://127.0.0.1:<OPENCLAW_GATEWAY_PORT>`** (with the default gateway port, use **`http://127.0.0.1:19001`**). Ingress: `JARVIS_INGRESS_OPENCLAW_ENABLED=true`, secret ≥32 chars, allowlist includes `openclaw`.
 
+**Control UI “Connect” / `token_mismatch`:** With the gateway already running, do **not** run **`openclaw dashboard`** (it can hit **`EADDRINUSE`** and print a confusing URL). From jarvis-hud run **`pnpm openclaw:dashboard-auth`**, paste the token into the Control UI, WebSocket **`ws://127.0.0.1:<OPENCLAW_GATEWAY_PORT>`**. Details: [OpenClaw Control UI — §4b](openclaw-control-ui.md#4b-token-for-connect-when-the-gateway-is-already-running-19001-stack).
+
 **Optional scripted demo (port 3001):** [DEMO.md](../../DEMO.md) — `pnpm demo:boot`, `demo:verify`, `demo:smoke`. Use only when you want that flow; normal integration is **`pnpm dev`** on **3000** above.
 
 ### Normal local dev (`pnpm dev`) — no demo scripts required

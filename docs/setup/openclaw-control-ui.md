@@ -122,6 +122,21 @@ cd ~/Documents/openclaw && node openclaw.mjs dashboard --no-open
 
 **Option B —** Open the URL printed in the gateway startup log, and append the token query parameter if your build requires it (see Overview in the UI).
 
+### 4b. Token for Connect when the gateway is already running (**19001** stack)
+
+Official OpenClaw [Dashboard](https://docs.openclaw.ai/web/dashboard) shows **`http://127.0.0.1:18789/`** as the usual local Control UI. In **jarvis-hud**, **`OPENCLAW_GATEWAY_PORT`** defaults to **`19001`** so the checkout gateway does not fight a **Homebrew** listener on **18789** (see [integration verification — Homebrew](../openclaw-integration-verification.md)). **`OPENCLAW_CONTROL_UI_URL`** must match whichever port actually listens.
+
+If **`pnpm openclaw:dev`** or **`pnpm local:stack:start:openclaw`** is **already** running, **`openclaw dashboard`** / **`dashboard --no-open`** may try to bind **another** gateway → **`EADDRINUSE`**, and any tokenized URL it prints for a fallback port can **disagree** with the live process on **19001** → **`token_mismatch`** in the browser.
+
+**Use this instead** (same **`OPENCLAW_STATE_DIR`** as `scripts/openclaw-gateway-dev.sh`, typically **`~/.openclaw-dev`**):
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm openclaw:dashboard-auth
+```
+
+Open **`http://127.0.0.1:<OPENCLAW_GATEWAY_PORT>`** (see script output), set WebSocket to **`ws://127.0.0.1:<same port>`**, paste the printed **Gateway token**, then **Connect**. Upstream recovery for auth errors: [Dashboard — If you see "unauthorized" / 1008](https://docs.openclaw.ai/web/dashboard#if-you-see-unauthorized--1008).
+
 ---
 
 ## 5. Point Jarvis HUD at the Control UI (navigation only)

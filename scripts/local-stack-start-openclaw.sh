@@ -17,4 +17,5 @@ echo "local-stack-start-openclaw: expected Control UI: http://127.0.0.1:$OPENCLA
 echo "local-stack-start-openclaw: set OPENCLAW_CONTROL_UI_URL in .env.local to match this port"
 echo "local-stack-start-openclaw: wait for gateway ready; tail -f \"$OPENCLAW_GATEWAY_LOG\" in another terminal if needed"
 echo "local-stack-start-openclaw: when stable, run: pnpm local:stack:doctor"
+echo "local-stack-start-openclaw: Control UI token (while this gateway runs): pnpm openclaw:dashboard-auth"
 exec pnpm openclaw:dev:log

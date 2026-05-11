@@ -358,7 +358,7 @@ When Control UI **previously worked** (WebSocket, **`models.list`**, etc.) and t
 **Mitigation (local dev, in order):**
 
 1. **Stop duplicate gateways** — from **jarvis-hud**, **`pnpm local:stack:kill`** (narrow ports + known command lines). Only if something is still wedged: **`pkill -9 node`** / **`pkill -9 pnpm`** (nuclear; kills **all** Node/pnpm on the machine).
-2. **Use Node 20 LTS for `openclaw-runtime`** — e.g. **`nvm install 20`**, **`nvm use 20`**, confirm **`node -v`** is **`v20.x`**. **Node 24** (and other bleeding-edge majors) often lag native/tooling; symptoms can look like **silent lifecycle exits** or **intermittent `killed`**. Jarvis HUD on a newer Node is often fine; the **gateway** shell is what should match what OpenClaw upstream tests against.
+2. **Use a stable Node for `openclaw-runtime` (not Node 24 for daily dev)** — OpenClaw declares **`engines.node >= 22.14`**: prefer **`nvm install 22`** / **`nvm use 22`**, or Homebrew **`/opt/homebrew/opt/node@22/bin`** first on **`PATH`**, then **`node -v`**. **Node 20** may install deps with warnings and is only worth trying if upstream relaxes engines. **Node 24** can still show **`zsh: killed`** or odd lifecycle behavior; keep the **gateway** shell on **22 LTS** when possible. Jarvis HUD can stay on your normal Node.
 3. **Clean reinstall OpenClaw deps** after switching Node major — from **`~/Documents/openclaw-runtime`** (or your **`OPENCLAW_ROOT`**):
 
    ```bash
@@ -368,7 +368,9 @@ When Control UI **previously worked** (WebSocket, **`models.list`**, etc.) and t
 
    If problems persist **and** you accept lockfile drift, remove **`pnpm-lock.yaml`** as well, then **`pnpm install`** again (prefer matching upstream’s documented install path).
 
-4. **Start raw gateway** (same as isolation block above): **`OPENCLAW_SKIP_CHANNELS=1 pnpm gateway:dev`** from **`openclaw-runtime`** under Node 20 and watch for a real stack trace.
+4. **Start raw gateway** (same as isolation block above): **`OPENCLAW_SKIP_CHANNELS=1 pnpm gateway:dev`** from **`openclaw-runtime`** under a **supported** Node (OpenClaw’s **`package.json`** currently wants **`>=22.14.0`** — use **Node 22 LTS**, e.g. Homebrew **`node@22`**, or **nvm 22**, not only “20.x”) and watch for a real stack trace.
+
+**Gateway looks hung (no log lines, no 19001 for many minutes):** OpenClaw’s startup can run **`syncRuntimeArtifacts`** and walk very large **`dist/extensions/**`/trees; that shows up as **stuck in `readdir`** in a sample. From **jarvis-hud**, **`pnpm openclaw:dev`** / **`pnpm openclaw:run`** now default **`OPENCLAW_WATCH_MODE=1`**, which skips that sync on gateway start. To force a full sync after changing bundled extensions, run once with **`OPENCLAW_WATCH_MODE=0`**.
 
 **Machine-side checklist (copy-paste)** — use when Jarvis is already fine and OpenClaw needs a **Node 20 + clean runtime** pass. Prefer **`pnpm local:stack:kill`** from **jarvis-hud** first; the **`pkill`** lines below stop **every** Node/pnpm on the machine (save work, quit other dev servers / IDE tasks if needed).
 
@@ -379,8 +381,8 @@ rm -f ~/.pyenv/shims/.pyenv-shim
 pyenv rehash
 
 cd ~/Documents/openclaw-runtime
-nvm install 20
-nvm use 20
+nvm install 22
+nvm use 22
 node -v
 
 rm -rf node_modules .turbo

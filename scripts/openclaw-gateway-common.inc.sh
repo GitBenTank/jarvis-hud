@@ -3,6 +3,14 @@
 # shellcheck source=openclaw-gateway-fixed-env.inc.sh
 source "$SCRIPT_DIR/openclaw-gateway-fixed-env.inc.sh"
 
+# Prefer Homebrew Node 22 for gateway if present (OpenClaw engines: node >= 22.14). Override with PATH if needed.
+if [[ -x "/opt/homebrew/opt/node@22/bin/node" ]]; then
+  PATH="/opt/homebrew/opt/node@22/bin:$PATH"
+elif [[ -x "/usr/local/opt/node@22/bin/node" ]]; then
+  PATH="/usr/local/opt/node@22/bin:$PATH"
+fi
+export PATH
+
 eval "$(node "$SCRIPT_DIR/openclaw-gateway-env-from-jarvis.mjs")"
 
 # Prefer clean runtime clone (local-stack-startup.md); allow explicit OPENCLAW_ROOT override.

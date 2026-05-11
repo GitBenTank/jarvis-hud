@@ -270,6 +270,14 @@ Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001
    pnpm gateway:dev
    ```
 
+   **If your terminal “ate” the newlines** (Cursor / task metadata sometimes shows one string like `…openclaw-runtimeexport OPENCLAW…` or `kill -9 12345sleep 2lsof…`), **`cd` and `export` never run** and **`lsof` stays empty**. Prefer a **paste-safe one-liner** with `&&`:
+
+   ```bash
+   cd ~/Documents/openclaw-runtime && export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev" && export OPENCLAW_DISABLE_BONJOUR=1 && export OPENCLAW_GATEWAY_PORT=19001 && unset DEBUG && pnpm gateway:dev
+   ```
+
+   For **kill then verify port**, use **`;`** not glued lines: `kill -9 PID; sleep 2; lsof -nP -iTCP:19001 -sTCP:LISTEN`
+
    **`OPENCLAW_GATEWAY_PORT`** matches **`scripts/openclaw-gateway-dev.sh`** (default **19001**). If you skip it, OpenClaw may bind **18789** (upstream default) while the browser and **`OPENCLAW_CONTROL_UI_URL`** still point at **19001** → **`ERR_CONNECTION_REFUSED`** with a “silent” gateway terminal until you open the right port.
 
    This path does **not** inject **`JARVIS_BASE_URL` / ingress secret** from jarvis-hud `.env.local`. It answers: “does the gateway bind at all?” After it works, use **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev`** from **jarvis-hud** for the full integration env (or export the same vars yourself).

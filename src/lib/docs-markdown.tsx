@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { Components } from "react-markdown";
+import rehypeSlug from "rehype-slug";
 import { resolveDocsRelativeHref } from "@/lib/docs-content";
+
+/** Used by `/docs` ReactMarkdown so in-app links with `#fragment` match GitHub-style heading ids. */
+export const docsMarkdownRehypePlugins = [rehypeSlug];
 
 const mono =
   "[font-family:var(--font-docs-mono),ui-monospace,monospace]" as const;
@@ -40,8 +44,9 @@ export function getDocsMarkdownComponents(
         </Link>
       );
     },
-    h1: ({ children }) => (
+    h1: ({ id, children }) => (
       <h1
+        id={id}
         className={
           isLight
             ? "mb-6 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-[2rem]"
@@ -51,8 +56,9 @@ export function getDocsMarkdownComponents(
         {children}
       </h1>
     ),
-    h2: ({ children }) => (
+    h2: ({ id, children }) => (
       <h2
+        id={id}
         className={
           isLight
             ? "mb-4 mt-14 border-b border-zinc-200/90 pb-2 text-xl font-semibold tracking-tight text-zinc-900 first:mt-0 sm:text-2xl"
@@ -62,8 +68,9 @@ export function getDocsMarkdownComponents(
         {children}
       </h2>
     ),
-    h3: ({ children }) => (
+    h3: ({ id, children }) => (
       <h3
+        id={id}
         className={
           isLight
             ? "mb-3 mt-8 text-lg font-semibold text-zinc-800"
@@ -73,8 +80,9 @@ export function getDocsMarkdownComponents(
         {children}
       </h3>
     ),
-    h4: ({ children }) => (
+    h4: ({ id, children }) => (
       <h4
+        id={id}
         className={
           isLight
             ? "mb-2 mt-6 text-base font-semibold text-zinc-800"

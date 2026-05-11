@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useLayoutEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { getDocsMarkdownComponents } from "@/lib/docs-markdown";
+import {
+  docsMarkdownRehypePlugins,
+  getDocsMarkdownComponents,
+} from "@/lib/docs-markdown";
 import type { DocsMarkdownVariant } from "@/lib/docs-markdown";
 import { splitMarkdownIntoSlides, stripFrontmatter } from "@/lib/docs-content";
 
@@ -43,6 +47,7 @@ export function DocsArticleClient({
   docSegments: string[];
   variant?: DocsMarkdownVariant;
 }) {
+  const pathname = usePathname();
   const [mode, setMode] = useState<"read" | "slides">("read");
   const slides = useMemo(() => splitMarkdownIntoSlides(raw), [raw]);
   const canSlides = slides.length >= 2;
@@ -51,6 +56,24 @@ export function DocsArticleClient({
     [docSegments, variant],
   );
   const body = stripFrontmatter(raw);
+
+  useLayoutEffect(() => {
+    if (mode !== "read") return;
+    const scrollToHash = () => {
+      const rawHash = window.location.hash.replace(/^#/, "");
+      if (!rawHash) return;
+      const id = decodeURIComponent(rawHash.replace(/\+/g, " "));
+      document.getElementById(id)?.scrollIntoView({ block: "start" });
+    };
+    scrollToHash();
+    requestAnimationFrame(scrollToHash);
+    const t = window.setTimeout(scrollToHash, 0);
+    window.addEventListener("hashchange", scrollToHash);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("hashchange", scrollToHash);
+    };
+  }, [raw, mode, pathname]);
 
   const muted = variant === "light" ? "text-zinc-500" : "text-zinc-500";
   const footerLink =
@@ -98,7 +121,11 @@ export function DocsArticleClient({
 
       {mode === "read" ? (
         <article className="pb-28">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={docsMarkdownRehypePlugins}
+            components={components}
+          >
             {body}
           </ReactMarkdown>
         </article>
@@ -119,6 +146,7 @@ export function DocsArticleClient({
                 </p>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
+                  rehypePlugins={docsMarkdownRehypePlugins}
                   components={components}
                 >
                   {slide}

@@ -11,7 +11,7 @@ import {
   type IntegrationIssueCode,
 } from "@/lib/integration-readiness-ui";
 import { isHudChromelessPath } from "@/lib/hud-chromeless-routes";
-import { safeExternalHttpUrl } from "@/lib/safe-external-url";
+import { openClawControlUiBrowserUrl } from "@/lib/safe-external-url";
 
 type ConfigJson = {
   integrationIssues?: string[];
@@ -54,7 +54,7 @@ export default function HudIntegrationReadinessBanner() {
           return;
         }
         const u = cfg.openclawControlUiUrl;
-        const openclawControlUiUrl = safeExternalHttpUrl(typeof u === "string" ? u : null);
+        const openclawControlUiUrl = openClawControlUiBrowserUrl(typeof u === "string" ? u : null);
         if (!cancelled) setState({ issues, openclawControlUiUrl });
       } catch {
         if (!cancelled) setState(null);

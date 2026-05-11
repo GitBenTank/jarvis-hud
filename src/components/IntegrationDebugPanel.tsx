@@ -10,6 +10,7 @@ import {
 import { buildIntegrationHeadline } from "@/lib/governance-headline";
 import type { OpenClawHealthPayload } from "@/lib/openclaw-health";
 import { originsAlignedForLocalHud } from "@/lib/hud-origin-alignment";
+import { openClawControlUiBrowserUrl } from "@/lib/safe-external-url";
 
 type ConfigPayload = {
   serverTime?: string;
@@ -138,6 +139,8 @@ export default function IntegrationDebugPanel() {
     healthStatus: health?.status ?? null,
     healthSessionBlocked,
   });
+
+  const openclawControlNavUrl = openClawControlUiBrowserUrl(cfg?.openclawControlUiUrl ?? null);
 
   return (
     <div className="mt-4 space-y-2">
@@ -338,6 +341,21 @@ export default function IntegrationDebugPanel() {
               <p className="break-all text-zinc-600 dark:text-zinc-400">
                 {cfg?.openclawControlUiUrl ?? "OPENCLAW_CONTROL_UI_URL not set — HUD link hidden."}
               </p>
+              {openclawControlNavUrl ? (
+                <p className="mt-1.5">
+                  <a
+                    href={openclawControlNavUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-sky-700 underline underline-offset-2 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+                  >
+                    Open Control UI (new tab)
+                  </a>
+                  <span className="ml-2 text-[10px] text-zinc-500 dark:text-zinc-400">
+                    Prefer this over selecting the URL text (avoids blank tabs).
+                  </span>
+                </p>
+              ) : null}
               {cfg?.integrationDebugEnabled && cfg.openclawControlUiProbe && (
                 <p className="mt-1 text-zinc-600 dark:text-zinc-400">
                   Probe (JARVIS_DEBUG_INTEGRATION):{" "}

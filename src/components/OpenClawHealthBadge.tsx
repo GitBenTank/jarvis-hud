@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { safeExternalHttpUrl } from "@/lib/safe-external-url";
+import { openClawControlUiBrowserUrl } from "@/lib/safe-external-url";
 import { useOpenClawHealth } from "@/lib/use-openclaw-health";
 
 type ConfigIngressSlice = {
@@ -66,7 +66,7 @@ export default function OpenClawHealthBadge({
         setCfg({
           ingressOpenclawEnabled: json.ingressOpenclawEnabled,
           openclawAllowed: json.openclawAllowed,
-          openclawControlUiUrl: safeExternalHttpUrl(typeof u === "string" ? u : null),
+          openclawControlUiUrl: openClawControlUiBrowserUrl(typeof u === "string" ? u : null),
         });
       })
       .catch(() => {

@@ -14,3 +14,23 @@ export function safeExternalHttpUrl(raw: string | null | undefined): string | nu
     return null;
   }
 }
+
+/**
+ * Same allowlist as {@link safeExternalHttpUrl}, then normalize to the OpenClaw
+ * Control UI entry path when operators only configured an origin (matches
+ * typical local URLs in https://docs.openclaw.ai/web/dashboard).
+ */
+export function openClawControlUiBrowserUrl(raw: string | null | undefined): string | null {
+  const safe = safeExternalHttpUrl(raw);
+  if (!safe) return null;
+  try {
+    const u = new URL(safe);
+    const path = u.pathname.replace(/\/$/, "") || "/";
+    if (path === "/") {
+      u.pathname = "/overview";
+    }
+    return u.href.replace(/\/$/, "");
+  } catch {
+    return safe;
+  }
+}

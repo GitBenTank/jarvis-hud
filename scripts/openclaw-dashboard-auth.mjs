@@ -60,14 +60,28 @@ const portRaw =
   "19001";
 const port = /^\d+$/.test(portRaw) ? portRaw : "19001";
 
-let controlOrigin = `http://127.0.0.1:${port}`;
 const urlHint = process.env.OPENCLAW_CONTROL_UI_URL?.trim() || fileEnv.OPENCLAW_CONTROL_UI_URL?.trim();
-if (urlHint) {
+
+/** Match src/lib/safe-external-url openClawControlUiBrowserUrl — default /overview for origin-only env. */
+function controlUiBrowserEntryUrl() {
+  const raw = urlHint || `http://127.0.0.1:${port}`;
   try {
-    controlOrigin = new URL(urlHint).origin;
+    const u = new URL(raw);
+    if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error("not http(s)");
+    const path = u.pathname.replace(/\/$/, "") || "/";
+    if (path === "/") u.pathname = "/overview";
+    return u.href.replace(/\/$/, "");
   } catch {
-    /* keep computed */
+    return `http://127.0.0.1:${port}/overview`;
   }
+}
+
+const controlBrowserUrl = controlUiBrowserEntryUrl();
+let wsPort = port;
+try {
+  wsPort = new URL(controlBrowserUrl).port || port;
+} catch {
+  /* keep port */
 }
 
 if (!existsSync(join(OPENCLAW_ROOT, "package.json"))) {
@@ -89,8 +103,8 @@ console.log("so the Homebrew gateway does not fight the dev checkout on the same
 console.log("");
 console.log(`  OPENCLAW_ROOT:       ${OPENCLAW_ROOT}`);
 console.log(`  OPENCLAW_STATE_DIR:  ${OPENCLAW_STATE_DIR}`);
-console.log(`  Control UI origin:   ${controlOrigin}`);
-console.log(`  WebSocket (typical): ws://127.0.0.1:${new URL(controlOrigin).port || port}`);
+console.log(`  Control UI (browser): ${controlBrowserUrl}`);
+console.log(`  WebSocket (typical): ws://127.0.0.1:${wsPort}`);
 console.log("");
 console.log("Do not run `openclaw dashboard` while this gateway is already listening — it tries");
 console.log("to start a second listener and hits EADDRINUSE. With the stack up, paste below.");

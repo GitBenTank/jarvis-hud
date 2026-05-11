@@ -20,7 +20,7 @@ if (flags.has("--help") || flags.has("-h")) {
   console.log(`Usage: pnpm dev:stack [--start-jarvis]
 
 Prints the two-terminal workflow for normal dev (pnpm dev + openclaw:dev).
-Does not start OpenClaw.
+Does not start OpenClaw. For a single-command gateway with fixed env: pnpm openclaw:run.
 
   --start-jarvis   After checks, run pnpm dev in this directory (foreground).
   --help           This text.
@@ -178,6 +178,7 @@ function main() {
   console.log("Terminal 2:");
   console.log(`cd ${ROOT}`);
   console.log(`OPENCLAW_ROOT=${ocRoot} pnpm openclaw:dev`);
+  console.log("  (debug / ELIFECYCLE: pnpm openclaw:run — same env, no tee/monitor)");
   console.log("");
   console.log("Expected Jarvis URL:");
   console.log(EXPECTED);

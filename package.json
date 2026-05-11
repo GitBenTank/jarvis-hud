@@ -43,6 +43,7 @@
     "local:stack:reset": "bash scripts/local-stack-reset.sh",
     "openclaw:sync-openai-auth": "node scripts/sync-openclaw-openai-auth-from-env.mjs",
     "openclaw:dashboard-auth": "node scripts/openclaw-dashboard-auth.mjs",
+    "openclaw:run": "bash scripts/openclaw-gateway-run.sh",
     "openclaw:dev": "bash scripts/openclaw-gateway-dev.sh",
     "openclaw:dev:log": "OPENCLAW_GATEWAY_LOG=\"${OPENCLAW_GATEWAY_LOG:-/tmp/openclaw-gateway-last.log}\" bash scripts/openclaw-gateway-dev.sh",
     "demo:boot": "bash scripts/demo-boot.sh",

@@ -95,6 +95,21 @@
       "problemMatcher": []
     },
     {
+      "label": "OpenClaw: run (foreground, fixed env)",
+      "type": "shell",
+      "command": "pnpm openclaw:run",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "openclawGateway",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Jarvis HUD: dev",
       "type": "shell",
       "command": "pnpm local:stack:start:jarvis",

@@ -9,8 +9,9 @@ Run from your **jarvis-hud** clone (`cd` there first in both terminals):
 | Step | Command |
 |------|---------|
 | **1 — Jarvis** | `pnpm dev` → **http://127.0.0.1:3000** |
-| **2 — OpenClaw** | `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` → wait for **`[gateway] ready`**. **`OPENCLAW_GATEWAY_PORT`** defaults to **19001** (override if needed); gateway scripts print **`expected Control UI: http://127.0.0.1:$OPENCLAW_GATEWAY_PORT`**. |
+| **2 — OpenClaw** | `OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev` → wait for **`[gateway] ready`**. Scripts auto-pick **`~/Documents/openclaw-runtime`** when present, so **`OPENCLAW_ROOT=`** is optional if that clone exists. **`OPENCLAW_GATEWAY_PORT`** defaults to **19001**; gateway prints **`expected Control UI: http://127.0.0.1:$OPENCLAW_GATEWAY_PORT`**. |
 | **2b — OpenClaw (log file)** | If **`ELIFECYCLE`** shows almost no output: **`OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log`** — same start, **tee** to **`/tmp/openclaw-gateway-last.log`** (set **`OPENCLAW_GATEWAY_LOG`** to override). After **90s** with no listener on **`OPENCLAW_GATEWAY_PORT`** or **18789**, the wrapper prints **pgrep** / **lsof** / **tail** diagnostics. Read that file after a failed run. |
+| **2c — OpenClaw (stop fighting the shell)** | **`pnpm openclaw:run`** from **jarvis-hud** — **one** command, no hand-pasted `export`s. Same env as **`openclaw:dev`** (**`~/.openclaw-dev`**, **`OPENCLAW_DISABLE_BONJOUR=1`**, **`OPENCLAW_GATEWAY_PORT=19001`**, Jarvis vars from **`.env.local`**), **foreground** only (no tee / background monitor). Use when IDE terminals merge lines or you need a clean trace. |
 | **3 — Check** | `pnpm local:stack:doctor` |
 
 **Helper:** `pnpm dev:stack` prints these lines with your real paths and env warnings.
@@ -23,6 +24,7 @@ When the workspace folder is **jarvis-hud** (not another repo), use the Command 
 2. Typical flows:
    - **Jarvis: Reset Local Stack** — narrow kill on stack ports (**3000**, **18789**, **19001**) and known **`next dev`** / **`run-node.mjs --dev gateway`** processes; then start again.
    - **Jarvis: Start Full Local Stack** — runs **Start HUD** and **Start OpenClaw Gateway** in **parallel** in separate dedicated terminals.
+   - **OpenClaw: run (foreground, fixed env)** — **`pnpm openclaw:run`** in a dedicated terminal when paste / **`ELIFECYCLE`** noise wins (same env as **`pnpm openclaw:dev`**, no tee).
    - **Jarvis: Doctor** — **`pnpm local:stack:doctor`** after things settle.
 
 CLI equivalents: **`pnpm local:stack:kill`**, **`pnpm local:stack:start:jarvis`**, **`pnpm local:stack:start:openclaw`**, **`pnpm local:stack:reset`**, **`pnpm local:stack:doctor`**. **`pnpm local:stack:start`** prints the same two-terminal hint.

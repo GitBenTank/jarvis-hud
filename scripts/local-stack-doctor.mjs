@@ -259,7 +259,7 @@ if (noControlUiListener) {
     "  Quick: OPENCLAW_ROOT=~/Documents/openclaw-runtime pnpm openclaw:dev:log — then tail /tmp/openclaw-gateway-last.log"
   );
   console.log(
-    "  Isolate: cd ~/Documents/openclaw-runtime && OPENCLAW_STATE_DIR=$HOME/.openclaw-dev OPENCLAW_DISABLE_BONJOUR=1 pnpm gateway:dev (wait 60–90s; unset DEBUG)"
+    "  Isolate (no hand-pasted exports): cd ~/Documents/jarvis-hud && pnpm openclaw:run — same env as openclaw:dev, foreground only."
   );
   console.log("");
 }
@@ -384,7 +384,7 @@ try {
 
 console.log("");
 console.log("Canonical startup: docs/setup/local-stack-startup.md");
-console.log("OpenClaw gateway helper: scripts/openclaw-gateway-dev.sh");
+console.log("OpenClaw gateway: pnpm openclaw:dev | pnpm openclaw:run | scripts/openclaw-gateway-dev.sh");
 if (!cfgOk) {
   process.exitCode = 1;
 }

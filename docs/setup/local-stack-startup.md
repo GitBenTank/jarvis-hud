@@ -29,6 +29,8 @@ When the workspace folder is **jarvis-hud** (not another repo), use the Command 
 
 CLI equivalents: **`pnpm local:stack:kill`**, **`pnpm local:stack:start:jarvis`**, **`pnpm local:stack:start:openclaw`**, **`pnpm local:stack:reset`**, **`pnpm local:stack:doctor`**. **`pnpm local:stack:start`** prints the same two-terminal hint.
 
+**Raycast:** Script Commands in **`raycast/jarvis-hud/`** (kill, doctor, start Jarvis / OpenClaw in Terminal, dashboard auth, open browsers). Add that directory in Raycast → Script Commands; see **`raycast/jarvis-hud/README.md`**.
+
 OpenClaw logs append to **`/tmp/openclaw-gateway-last.log`** when using tasks or **`pnpm local:stack:start:openclaw`** (wrapper **`pnpm openclaw:dev:log`**). Override with **`OPENCLAW_GATEWAY_LOG`**.
 
 **Port alignment:** Startup sets **`OPENCLAW_GATEWAY_PORT`** (default **19001**) and exports it to the gateway process. In jarvis-hud **`.env.local`**, set **`OPENCLAW_CONTROL_UI_URL=http://127.0.0.1:<same port>`** — i.e. match **`OPENCLAW_GATEWAY_PORT`**, not an old guess (e.g. **18789** unless that is what actually listens). Restart **`pnpm dev`** after changing **`.env.local`**.

@@ -157,6 +157,28 @@ See [jarvis-proposal-submit.md](jarvis-proposal-submit.md). Same env vars as `pn
 
 **Want in Jarvis UI:** proposal in feed; Approvals show metadata; **approval** still requires a human; **execution** only via Jarvis after approve.
 
+### `linkedin.post` (v1 dry-run)
+
+**v1** does **not** call the LinkedIn API. After **Approve** → **Execute**, Jarvis writes a **markdown post draft** and a **JSON receipt** only (Thesis Lock: governed outcome with artifacts).
+
+**Sample ingress body:** [`examples/linkedin-post-dry-run.json`](../examples/linkedin-post-dry-run.json) — includes required top-level **`title`** and **`summary`**, `kind: "linkedin.post"`, `payload.body` (escape inner `"` in JSON), `dryRun: true`, and OpenClaw metadata fields your stack expects.
+
+**Submit (same as other kinds):**
+
+```bash
+cd ~/Documents/jarvis-hud
+pnpm jarvis:submit --file examples/linkedin-post-dry-run.json
+```
+
+**After execute, on disk** (replace `JARVIS_ROOT` with the value your HUD process actually uses — see Activity / env, not an assumed path):
+
+- `$JARVIS_ROOT/linkedin-posts/<YYYY-MM-DD>/<approvalId>.md` — draft body + front matter (`dryRun: true`, `bodyHash`, …)
+- `$JARVIS_ROOT/linkedin-posts/<YYYY-MM-DD>/<approvalId>.json` — receipt (`status: "DRY_RUN_READY"`, `bodyHash`, `traceId`, paths, no `providerPostId`)
+
+The `<YYYY-MM-DD>` folder is the **local calendar day** at execute time (same bucketing as other daily artifacts).
+
+**UI / API check:** Activity should show a trace for the proposal’s `traceId`; execute response includes **`linkedinDryRun: true`** (no live post id).
+
 ---
 
 ## 6. Final truth test

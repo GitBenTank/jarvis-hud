@@ -35,6 +35,7 @@
     "machine-wired": "node scripts/machine-wired-probe.mjs",
     "auth-posture": "node scripts/auth-posture-probe.mjs",
     "local:stack:doctor": "node scripts/local-stack-doctor.mjs",
+    "local:stack:open": "node scripts/local-stack-open-browsers.mjs",
     "local:stack:kill": "bash scripts/local-stack-kill.sh",
     "local:stack:start": "bash scripts/local-stack-start-hint.sh",
     "local:stack:start:jarvis": "bash scripts/local-stack-start-jarvis.sh",

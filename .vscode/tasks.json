@@ -128,6 +128,20 @@
       "dependsOn": ["Jarvis: Start HUD", "Jarvis: Start OpenClaw Gateway"],
       "dependsOrder": "parallel",
       "problemMatcher": []
+    },
+    {
+      "label": "Jarvis: Open HUD + OpenClaw in browser",
+      "type": "shell",
+      "command": "pnpm local:stack:open",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
     }
   ]
 }

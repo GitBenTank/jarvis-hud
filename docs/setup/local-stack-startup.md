@@ -198,6 +198,8 @@ Leave this terminal running. First start (or dirty OpenClaw tree) may show **`Bu
 
 **Do not open the Control UI** until the gateway is ready — early opens → **connection refused**.
 
+**Chrome stuck on `about:blank` with a spinner:** that is usually an empty new tab (IDE simple browser, or a link with no real URL). After **`[gateway] ready`**, run **`pnpm local:stack:open`** from jarvis-hud (or the task **Jarvis: Open HUD + OpenClaw in browser**) to open **`http://127.0.0.1:3000`** and the Control UI origin explicitly; paste manually if needed.
+
 **VS Code / Cursor:** **Terminal → Run Task… →** `OpenClaw: gateway:dev` or **Local stack: both (parallel)**.
 
 ### `.env.local` (Jarvis)

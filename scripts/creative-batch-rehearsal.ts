@@ -15,10 +15,12 @@
  */
 
 import { randomUUID } from "node:crypto";
+import { validateCreativeSystemNoteMarkdown } from "../src/lib/creative-note";
 import { INGRESS_BATCH_MAX_ITEM_COUNT } from "../src/lib/proposal-batch";
 import { submitProposal } from "../src/jarvis/submitProposal";
 
 const VARIANTS_PER_ITEM = 3;
+const NOTE_PREVIEW_MAX_CHARS = 200;
 
 function resolveItemCount(): number {
   const raw = process.env.CREATIVE_BATCH_ITEM_COUNT?.trim();
@@ -60,6 +62,12 @@ function buildCreativeNote(itemIndex: number, itemCount: number): string {
   ].join("\n");
 }
 
+function previewNote(note: string): string {
+  const compact = note.replace(/\s+/g, " ").trim();
+  if (compact.length <= NOTE_PREVIEW_MAX_CHARS) return compact;
+  return `${compact.slice(0, NOTE_PREVIEW_MAX_CHARS)}…`;
+}
+
 async function main() {
   const secret = process.env.JARVIS_INGRESS_OPENCLAW_SECRET;
   if (!secret || secret.length < 32) {
@@ -89,12 +97,26 @@ async function main() {
   const results: { itemIndex: number; id?: string; traceId?: string; error?: string }[] = [];
 
   for (let itemIndex = 0; itemIndex < itemCount; itemIndex++) {
+    const note = buildCreativeNote(itemIndex, itemCount);
+    const noteValidation = validateCreativeSystemNoteMarkdown(note);
+    if (!noteValidation.ok) {
+      console.error(`Item ${itemIndex}: FAIL local creative-note validation`);
+      console.error(`  problem: ${noteValidation.message}`);
+      console.error(`  fix: ${noteValidation.fix}`);
+      console.error(`  note preview: ${previewNote(note)}`);
+      results.push({ itemIndex, error: `${noteValidation.message} Fix: ${noteValidation.fix}` });
+      continue;
+    }
+
     const body: Record<string, unknown> = {
       kind: "system.note",
       title: `Creative rehearsal ${itemIndex + 1}: variant set (${idFrag})`,
       summary: `Item ${itemIndex + 1} one-line hook for queue scan.`,
+      evidenceStatus: "speculative",
+      uncertaintySummary:
+        "Variants are exploratory rehearsal copy, not validated messaging or source-backed claims.",
       payload: {
-        note: buildCreativeNote(itemIndex, itemCount),
+        note,
       },
       source: { connector: "openclaw" },
       agent: "creative-rehearsal-runner",
@@ -119,7 +141,9 @@ async function main() {
     }
 
     if (status >= 200 && status < 300 && json?.ok === true) {
-      console.log(`Item ${itemIndex}: OK id=${json.id} traceId=${json.traceId}`);
+      console.log(
+        `Item ${itemIndex}: OK id=${json.id} traceId=${json.traceId} variants=${noteValidation.variantCount} evidence=speculative`
+      );
       results.push({ itemIndex, id: json.id, traceId: json.traceId });
     } else {
       console.error(`Item ${itemIndex}: FAIL`, status, json?.error ?? bodyText);
@@ -130,7 +154,19 @@ async function main() {
   console.log("");
   console.log("batch.id:", batchId);
   console.log("Submitted ids:", results.map((r) => r.id).filter(Boolean).join(", ") || "(none)");
+
   const failed = results.filter((r) => r.error);
+  const succeeded = results.filter((r) => r.id);
+
+  console.log("");
+  console.log("Summary:");
+  console.log(`  batch: ${batchId}`);
+  console.log(`  items: ${succeeded.length}/${itemCount} submitted`);
+  console.log(`  hud: ${base.replace(/\/$/, "")}/approvals`);
+  if (succeeded.length > 0) {
+    console.log(`  next: open HUD, review batch ${idFrag}, approve as needed, then execute exactly one item (suggestion: item 1)`);
+  }
+
   if (failed.length > 0) {
     process.exit(1);
   }

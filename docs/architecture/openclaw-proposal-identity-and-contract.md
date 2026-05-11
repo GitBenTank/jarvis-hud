@@ -73,12 +73,30 @@ This section is a **simplified, non-normative** skim. **Canonical semantics** ar
 
 - `agent`, `builder`, `provider`, `model`, `correlationId`
 - `source.sessionId`, `source.agentId` (≤ 128 chars), `source.requestId`
+- `evidenceStatus` (`sourced` | `inferred` | `speculative` | `user_provided` | `unknown`)
+- `uncertaintySummary` (short operator-facing line naming what is unknown, missing, inferred, or unverified)
 
 `agent` and `source.agentId` are **independent**: send a human coordinator in `agent` and a machine id in `source.agentId` when both exist.
 
 **Optional (review container only — ADR-0005)**
 
 - `batch` — plain object, **only** these keys allowed: `id` (string, ≤ 128 chars after trim), `title` (optional string, ≤ 200 chars after trim), `summary` (optional string, ≤ 2000 chars after trim), `itemIndex` (non-negative integer), `itemCount` (integer 1–100, must be **greater than** `itemIndex`). Extra keys are rejected. Semantics are validated at ingress by `strictValidateIngressBatch` in `src/lib/proposal-batch.ts` (fail closed before HMAC). **Do not** put `batch` inside `payload` — it is stripped/forbidden there; send it **top-level** only.
+
+### Evidence posture fields (canonical authoring guidance)
+
+For Phase 3 authoring, proposals should include these fields by default even when server ingress still treats them as optional.
+
+| Field | Meaning | When to use |
+|------|---------|-------------|
+| `evidenceStatus: "sourced"` | Claims are backed by concrete sources, attachments, or quoted evidence. | Use only when the proposal body actually carries those sources or cites them clearly. **Do not default to `sourced`.** |
+| `evidenceStatus: "inferred"` | Proposal includes reasoning from available evidence, but not every claim is directly cited. | Use when conclusions are synthesized from sources, logs, or inputs. |
+| `evidenceStatus: "speculative"` | Exploratory or hypothesis-shaped content. | Use for brainstorming, early framing, or unverified options. |
+| `evidenceStatus: "user_provided"` | Material comes from the user or upstream runtime and Jarvis has not independently verified it. | Use when the proposal is relaying user assertions or upstream facts as given. |
+| `evidenceStatus: "unknown"` | Proposer did not classify epistemic posture cleanly. | Use sparingly; better to classify honestly if possible. |
+
+**Rule:** never mark a proposal `sourced` just because it sounds careful. If the claims are not backed by concrete sources or evidence visible to the reviewer, pick a different status.
+
+**`uncertaintySummary`:** one short operator-facing line that names what is unknown, missing, inferred, or unverified. Good examples: “Competitor pricing is inferred from public screenshots, not confirmed with current invoices.” “User provided timeline; Jarvis has not verified dates.” Bad examples: “N/A”, “none”, or empty filler when the proposal is obviously exploratory.
 
 ### Stored event (after successful ingress)
 
@@ -91,6 +109,8 @@ Jarvis appends a row that **always** includes:
 **When the client sends it:** `source.agentId` is stored under `source.agentId` unchanged (trimmed). If omitted, the key is absent — there is no invented default.
 
 **When the client sends `batch`:** the normalized object (trimmed strings, no extra keys) is stored **top-level** on the event alongside `payload`. Each proposal still has its own HUD `id` for approval and execution.
+
+**When the client sends them:** `evidenceStatus` and `uncertaintySummary` persist as top-level review fields for operator surfaces. Authoring guidance should follow `src/lib/evidence-status.ts` as the single code source of truth for allowed statuses.
 
 ---
 

@@ -53,6 +53,8 @@ pnpm --dir ~/Documents/jarvis-hud jarvis:submit --file ~/Documents/jarvis-hud/ex
   "builder": "forge",
   "provider": "openai",
   "model": "openai/gpt-4o",
+  "evidenceStatus": "inferred",
+  "uncertaintySummary": "Summary reflects reasoning over available notes; underlying claim is not independently verified yet.",
   "kind": "…",
   "title": "…",
   "summary": "…",
@@ -60,6 +62,49 @@ pnpm --dir ~/Documents/jarvis-hud jarvis:submit --file ~/Documents/jarvis-hud/ex
   "payload": { … }
 }
 ```
+
+## Copy-paste examples
+
+### Research-shaped `system.note`
+
+```json
+{
+  "agent": "research",
+  "kind": "system.note",
+  "title": "AI Index notes — management gap",
+  "summary": "Capability is outrunning operational preparedness; Jarvis should emphasize evidence, uncertainty, authority, and proof.",
+  "evidenceStatus": "sourced",
+  "uncertaintySummary": "Summary is grounded in cited report sections; chart-level numeric claims should be re-checked against the PDF before external use.",
+  "source": { "connector": "openclaw" },
+  "payload": {
+    "note": "## Finding\nThe report frames governance and measurement as lagging capability.\n\n## Sources\n- Stanford HAI, AI Index 2026\n- Local PDF extraction notes"
+  }
+}
+```
+
+### Exploratory creative or strategy note
+
+```json
+{
+  "agent": "creative",
+  "kind": "system.note",
+  "title": "Positioning options — AI management gap",
+  "summary": "Three framing directions for Jarvis messaging based on current strategy inputs.",
+  "evidenceStatus": "speculative",
+  "uncertaintySummary": "Options are exploratory messaging directions, not validated customer language.",
+  "source": { "connector": "openclaw" },
+  "payload": {
+    "note": "## Brief\nExplore positioning options.\n\n## Sources\n- Internal strategy notes"
+  }
+}
+```
+
+## Common failure modes
+
+- **Speculative proposal with no uncertainty** — if the content is exploratory, say what is still unknown or unverified.
+- **`sourced` claim without sources or body evidence** — do not mark a proposal `sourced` unless the note body actually carries concrete sources, attachments, or citations.
+- **Vague uncertainty like `N/A`** — name the missing verification, inference, or upstream dependency in one honest line.
+- **Defaulting everything to `sourced`** — this defeats the point of the field and trains reviewers to ignore it.
 
 ## Definition of done (manual E2E)
 

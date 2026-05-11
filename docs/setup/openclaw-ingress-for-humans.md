@@ -58,6 +58,15 @@ Think of a proposal as a **form** Jarvis can parse:
 
 **Optional but useful:** who proposed (`agent`), machine ids (`source.agentId`), correlation ids — helps **trace** work across systems without changing who is allowed to **approve**.
 
+### Evidence status and uncertainty summary (plain-language)
+
+Two optional fields make proposals easier to review honestly:
+
+- **`evidenceStatus`** says how grounded the proposal is: sourced, inferred, speculative, user-provided, or unknown.
+- **`uncertaintySummary`** says what is still unknown, missing, inferred, or unverified in one short line.
+
+Simple rule: do **not** mark something `sourced` unless the proposal body actually shows the sources or evidence. If the proposal is exploratory, say so. If it depends on user claims or missing verification, say that too.
+
 **Batches (review containers):** Sometimes several items are grouped for **triage** in the UI. That grouping is **not** permission to “execute the whole batch as one click” in a vague way — execution and receipts stay **per item**, per [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md). If someone says “batch approved,” ask whether they mean **review grouping** or **each item was explicitly handled**.
 
 ---

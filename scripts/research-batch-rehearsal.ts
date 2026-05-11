@@ -67,6 +67,9 @@ async function main() {
       kind: "system.note",
       title: `Research rehearsal ${itemIndex + 1}: sample finding (${idFrag})`,
       summary: `Item ${itemIndex + 1} one-line takeaway for queue scan.`,
+      evidenceStatus: "sourced",
+      uncertaintySummary:
+        "Finding is backed by the listed source link, but the rehearsal does not independently verify anything beyond the note body.",
       payload: {
         note: [
           "## Finding",
@@ -99,7 +102,7 @@ async function main() {
     }
 
     if (status >= 200 && status < 300 && json?.ok === true) {
-      console.log(`Item ${itemIndex}: OK id=${json.id} traceId=${json.traceId}`);
+      console.log(`Item ${itemIndex}: OK id=${json.id} traceId=${json.traceId} evidence=sourced`);
       results.push({ itemIndex, id: json.id, traceId: json.traceId });
     } else {
       console.error(`Item ${itemIndex}: FAIL`, status, json?.error ?? bodyText);

@@ -74,13 +74,15 @@ Create: `extensions/jarvis/src/ingress.ts`
      kind: "system.note" | "code.diff" | "code.apply" | "content.publish" | "youtube.package" | "reflection.note";
      title: string;
      summary: string;
+     evidenceStatus?: "sourced" | "inferred" | "speculative" | "user_provided" | "unknown";
+     uncertaintySummary?: string;
      payload?: Record<string, unknown>;
    }
    ```
 
    Build body:
    ```json
-   { "kind", "title", "summary", "payload": payload ?? {}, "source": { "connector": "openclaw" } }
+   { "kind", "title", "summary", "evidenceStatus", "uncertaintySummary", "payload": payload ?? {}, "source": { "connector": "openclaw" } }
    ```
 
    **Signing:**
@@ -127,10 +129,18 @@ Create: `extensions/jarvis/src/jarvis-tool.ts`
 
 - Tool name: `jarvis_propose_system_note`
 - Params: `title` (string), `summary` (string), `markdown` (string, optional)
+- Include `evidenceStatus` and `uncertaintySummary` by default when generating proposals. Do not default to `sourced`; pick the honest epistemic posture.
 - Use `@sinclair/typebox` `Type.Object` for params (like llm-task, lobster)
 - If `JARVIS_PREFLIGHT` !== `"false"`, run `preflightJarvis()` first
-- Call `postJarvisIngress({ kind: "system.note", title, summary, payload: { note: markdown ?? "" } })`
+- Call `postJarvisIngress({ kind: "system.note", title, summary, evidenceStatus, uncertaintySummary, payload: { note: markdown ?? "" } })`
 - Return `{ ok, id, traceId, status }`
+
+**Operational guidance:**
+- `sourced` only when the note body includes concrete sources or attached evidence.
+- `inferred` when conclusions are synthesized from available inputs.
+- `speculative` for exploratory drafts or hypotheses.
+- `user_provided` when relaying user assertions not independently verified.
+- `unknown` only when the proposer genuinely cannot classify the posture yet.
 
 ---
 

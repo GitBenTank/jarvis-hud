@@ -29,7 +29,30 @@ When the workspace folder is **jarvis-hud** (not another repo), use the Command 
 
 CLI equivalents: **`pnpm local:stack:kill`**, **`pnpm local:stack:start:jarvis`**, **`pnpm local:stack:start:openclaw`**, **`pnpm local:stack:reset`**, **`pnpm local:stack:doctor`**. **`pnpm local:stack:start`** prints the same two-terminal hint.
 
-**Raycast:** Script Commands in **`raycast/jarvis-hud/`** (kill, doctor, start Jarvis / OpenClaw in Terminal, dashboard auth, open browsers). Add that directory in Raycast → Script Commands; see **`raycast/jarvis-hud/README.md`**.
+### Raycast (Script Commands)
+
+Shell scripts in **`raycast/jarvis-hud/`** mirror the CLI above. Configure them in the **Raycast Mac app**, not **raycast.com** (the website has account/pricing only — no Script Directories).
+
+**One-time setup**
+
+1. Open **Raycast** (the app from **Applications** / Spotlight — pick **Raycast.app**, not a VM or web shortcut).
+2. **Raycast** → **Settings** → **Extensions** → **Script Commands** → **Script Directories** → **Add Directories**.
+3. Select the folder that contains **`kill-local-stack.sh`** and **`_env.sh`** (the inner **`jarvis-hud`** under **`raycast`**). Example: **`/Users/<you>/Documents/jarvis-hud/raycast/jarvis-hud`**. If the macOS folder picker is stuck on **Search**, cancel search and use **Go → Go to Folder…** (**⌘⇧G**) and paste that path, then **Open**.
+4. Optional: if the repo is not **`~/Documents/jarvis-hud`**, set **`JARVIS_HUD_ROOT`** or edit **`raycast/jarvis-hud/_env.sh`**. **`_env.sh`** pins **Node 22** and **pnpm** so Raycast’s thin **`PATH`** does not pick a broken **`/opt/homebrew/bin/node`** — see **`raycast/jarvis-hud/README.md`**.
+
+**Commands** (search by title in the main Raycast bar; package name **Jarvis HUD**)
+
+| Raycast title | Runs | Where output goes |
+|---------------|------|---------------------|
+| **Doctor (Jarvis + OpenClaw)** | **`pnpm local:stack:doctor`** | Raycast (full output) |
+| **Kill Jarvis + OpenClaw** | **`pnpm local:stack:kill`** | Raycast |
+| **OpenClaw dashboard token** | **`pnpm openclaw:dashboard-auth`** | Raycast |
+| **Open Jarvis + OpenClaw in browser** | **`pnpm local:stack:open`** | Raycast |
+| **Start Jarvis (Terminal)** | **`pnpm dev`** from repo root | New **Terminal.app** tab |
+| **Start OpenClaw gateway (Terminal, log)** | **`pnpm local:stack:start:openclaw`** | New **Terminal** (tee log) |
+| **Start OpenClaw (Terminal, openclaw:run)** | **`pnpm openclaw:run`** | New **Terminal** (foreground, fixed env) |
+
+**Typical flow:** **Kill** → **Start Jarvis** + one **Start OpenClaw** command (two Terminal tabs) → **Doctor** → **Open Jarvis + OpenClaw in browser** or **OpenClaw dashboard token** as needed.
 
 OpenClaw logs append to **`/tmp/openclaw-gateway-last.log`** when using tasks or **`pnpm local:stack:start:openclaw`** (wrapper **`pnpm openclaw:dev:log`**). Override with **`OPENCLAW_GATEWAY_LOG`**.
 

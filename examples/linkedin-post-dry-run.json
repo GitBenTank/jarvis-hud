@@ -1,0 +1,16 @@
+{
+  "kind": "linkedin.post",
+  "title": "LinkedIn dry-run — governed path",
+  "summary": "Verify linkedin.post v1: approve → execute → .md + .json receipt under JARVIS_ROOT; no live API.",
+  "agent": "alfred",
+  "source": {
+    "connector": "openclaw"
+  },
+  "evidenceStatus": "speculative",
+  "uncertaintySummary": "Dry-run rehearsal copy; not posted to LinkedIn; engagement and compliance not evaluated.",
+  "payload": {
+    "body": "We're not shipping \"autonomous posting.\" We're shipping governed loops: propose → approve → execute → receipt.\n\nThis line is a dry-run rehearsal in Jarvis (linkedin.post v1). Nothing hit LinkedIn's API—just proof that the exact outbound text and hash landed where operators can audit it.",
+    "visibility": "PUBLIC",
+    "accountLabel": "default"
+  }
+}

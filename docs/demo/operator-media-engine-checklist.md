@@ -6,6 +6,35 @@
 
 ---
 
+## Day 1: one full loop (today)
+
+Do this **once** before tuning cadence. Goal: **one** real artifact → **one** approved proposal → **Execute** → manual publish → proof you can reuse.
+
+1. **Pick a real artifact** — One concrete input only, e.g. a meaningful **commit**, **debug breakthrough**, **DevHouse insight**, or **doc/architecture** change you care about.
+
+2. **Generate proposals** — From repo root:
+   ```bash
+   pnpm operator:media:rehearsal
+   ```
+   Optional: save files for easier editing:
+   ```bash
+   pnpm operator:media:rehearsal -- --out-dir=artifacts/operator-media-engine
+   ```
+
+3. **Shape 2–3 drafts, submit ONE** — Copy one JSON object (or edit a saved file): align `payload.note` **Context** / **Proposed content** with your artifact; keep `evidenceStatus` / `uncertaintySummary` honest. Discard or defer the others. Submit with **`pnpm jarvis:submit --file …`** (or your OpenClaw ingress path). **Do not** commit `.env.local`; export the ingress secret only in your shell.
+
+4. **Approve in HUD** — **Approve** the one you want authorized (still not executed).
+
+5. **Execute** — Open proposal **Details** → **Execute** as `system.note`; confirm artifact path / receipt.
+
+6. **Publish manually** — Post or send from the real channel (LinkedIn, mail client, etc.). Jarvis does not publish for you.
+
+7. **Export / keep proof** — Open **Activity** with the proposal’s trace: `/activity?trace=<traceId>` (from the row or detail). Optionally pull the same day from **`GET /api/audit/export`** (see [SoD proof repro](../runbooks/sod-proof-repro.md) for curl patterns) or `GET /api/traces/<traceId>` and save a copy under your operator evidence folder — **outside git** if it contains anything sensitive.
+
+**Done for Day 1:** One executed `system.note` + trace headline **Executed · receipt recorded** + you shipped one thing manually and know which proposal id to cite.
+
+---
+
 ## Steps
 
 1. **Generate samples** — From repo root:

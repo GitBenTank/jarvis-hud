@@ -3,7 +3,7 @@ title: "Operator Media Engine v1 — governed content from real activity"
 status: living-document
 category: product-strategy
 owner: Ben Tankersley
-last_reviewed: 2026-05-10
+last_reviewed: 2026-05-11
 related:
   - ../roadmap/0003-operator-integration-phases.md
   - ../decisions/0001-thesis-lock.md
@@ -73,7 +73,7 @@ Each output is a **`system.note`** (or future kind) entering Jarvis as a **propo
 
 - **Script:** [`scripts/operator-media-engine-rehearsal.ts`](../../scripts/operator-media-engine-rehearsal.ts) — prints (or writes) sample JSON only; **no network**, **no email**, **no secrets**.
 - **Package:** `pnpm operator:media:rehearsal`
-- **Checklist:** [Operator Media Engine — demo checklist](../demo/operator-media-engine-checklist.md)
+- **Checklist:** [Operator Media Engine — demo checklist](../demo/operator-media-engine-checklist.md) — start with **[Day 1: one full loop (today)](../demo/operator-media-engine-checklist.md#day-1-one-full-loop-today)** when you want a single governed proof, not a long rehearsal.
 
 ---
 

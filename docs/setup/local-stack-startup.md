@@ -276,6 +276,8 @@ Use this when **Jarvis and integration checks look fine** but **`127.0.0.1:19001
    cd ~/Documents/openclaw-runtime && export OPENCLAW_STATE_DIR="$HOME/.openclaw-dev" && export OPENCLAW_DISABLE_BONJOUR=1 && export OPENCLAW_GATEWAY_PORT=19001 && unset DEBUG && pnpm gateway:dev
    ```
 
+   **Typo guard:** the Bonjour flag is **`OPENCLAW_DISABLE_BONJOUR`** (`…ABLE…`). **`OPENCLAW_DISBLE_BONJOUR`** is a no-op and skips the stable-local-dev fix.
+
    For **kill then verify port**, use **`;`** not glued lines: `kill -9 PID; sleep 2; lsof -nP -iTCP:19001 -sTCP:LISTEN`
 
    **`OPENCLAW_GATEWAY_PORT`** matches **`scripts/openclaw-gateway-dev.sh`** (default **19001**). If you skip it, OpenClaw may bind **18789** (upstream default) while the browser and **`OPENCLAW_CONTROL_UI_URL`** still point at **19001** → **`ERR_CONNECTION_REFUSED`** with a “silent” gateway terminal until you open the right port.

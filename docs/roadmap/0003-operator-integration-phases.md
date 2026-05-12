@@ -117,7 +117,7 @@ Phases **6–10** follow when leverage, kinds, team breadth, high-risk capabilit
 
 **Goal:** One boringly reliable governed workflow.
 
-- Keep **research batch v1** as the canonical first loop ([workflow](../strategy/research-batch-workflow-v1.md)).
+- Keep **research batch v1** as the canonical first loop ([workflow](../strategy/research-batch-workflow-v1.md)); **external story** (one page: hero table, buyer line, proof checklist): [Research batch v1 — hero, buyer, proof](../strategy/research-batch-v1-hero-buyer-and-proof.md).
 - **Preflight every session:** **`pnpm rehearsal:preflight`** (`machine-wired` + `auth-posture`) on the blessed stack.
 - **Rehearse:** 3-item batch → approve → **execute one item** → verify receipt/trace per **proposal id**; repeat until calm.
 - **Capture friction** in the workflow doc [friction log](../strategy/research-batch-workflow-v1.md#friction-log-after-rehearsals) (copy, UX, slowness — feeds Phase 3 templates, not new policy).

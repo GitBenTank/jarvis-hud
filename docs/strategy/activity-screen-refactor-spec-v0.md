@@ -5,6 +5,7 @@ category: strategy
 owner: Ben Tankersley
 related:
   - ./research-batch-v1-hero-buyer-and-proof.md
+  - ./activity-layout-v1-implementation-checklist.md
   - ../roadmap/0003-operator-integration-phases.md
 ---
 
@@ -82,5 +83,5 @@ Not “too technical,” but **too many truths competing at once** without a dom
 
 ## Next (post-validation)
 
-- Collapse or move **TrustPostureStrip** / integration panels lower or behind `<details>` on Activity only.
+- **Activity layout v1 (file-ordered build list):** [activity-layout-v1-implementation-checklist.md](./activity-layout-v1-implementation-checklist.md) — two-column shell, diagnostics disclosure, proof tab, `/activity` only.
 - Remove **OperationsRow** from `/` when Activity is the sole queue surface; keep a single strong CTA to `/activity`.

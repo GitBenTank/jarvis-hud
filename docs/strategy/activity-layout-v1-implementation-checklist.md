@@ -74,11 +74,11 @@ related:
 
 **Shipped in app (follow-up to checklist):**
 
-- `src/app/activity/page.tsx` — `max-w-6xl`, two-column grid (`lg`), `OperationsRow layout="activity"`, diagnostics disclosure, `ActivityProofPanel` in `Suspense`.
+- `src/app/activity/page.tsx` — `max-w-6xl`, two-column grid (`lg`), `OperationsRow layout="activity"`, diagnostics disclosure, `ActivityProofPanel` in `Suspense`; intro copy mentions small-screen **Pipeline & trace** disclosure.
 - `src/components/OperationsRow.tsx` — `layout="activity"` → proposals column only; home unchanged (`default`).
 - `src/components/activity/ActivityDiagnosticsDisclosure.tsx` — `<details>`; opens when **`shouldOpenActivityDiagnosticsDisclosure`** is true: `integrationIssues`, **`ingressOpenclawEnabled === false`**, **`openclawAllowed === false`**, **`authEnabled && trustPosture.stepUpValid === false`**, **SoD on + role maps not ready**, **`runtimePosture.latestBlockReason`** non-empty, **`openclawControlUiProbe.ok === false`**, or fetch/parse failure / non-OK response.
 - `src/lib/activity-diagnostics-disclosure-open.ts` — pure open predicate (unit-tested).
-- `src/components/activity/ActivityProofRail.tsx` — pipeline + active trace snippet + `Proof → Timeline` / share link.
+- `src/components/activity/ActivityProofRail.tsx` — pipeline + trace context; **`lg+` aside**; below `lg`, **`<details>` “Pipeline & trace”** collapsible (`e6c94f5`).
 - `src/components/activity/ActivityProofPanel.tsx` — Graph \| Timeline tabs, max-height region; URL `?trace=` remounts body to Timeline default (`key` on inner body).
 - `src/lib/activity-proof-ui.ts` — `ACTIVITY_PROOF_TAB_EVENT` for rail → panel focus.
 - **Trace URL vs latest-receipt card:** [scope collision spec](./activity-trace-scope-collision-fix-spec.md) — copy + amber mismatch banner in `AgentProposalsFeed.tsx` (§1–2 shipped).
@@ -86,4 +86,3 @@ related:
 **Next**
 
 - **Comprehension:** run [Research batch v1 — buyer-proof demo pass](./research-batch-v1-buyer-proof-demo-pass.md) with 3–5 observers; log friction in [workflow friction log](./research-batch-workflow-v1.md#friction-log-after-rehearsals).
-- **Comfort:** mobile proof-rail collapse on `/activity` only (checklist §1 when added).

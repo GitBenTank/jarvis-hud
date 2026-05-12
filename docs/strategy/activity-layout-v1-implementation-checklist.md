@@ -81,3 +81,8 @@ related:
 - `src/components/activity/ActivityProofRail.tsx` — pipeline + active trace snippet + `Proof → Timeline` / share link.
 - `src/components/activity/ActivityProofPanel.tsx` — Graph \| Timeline tabs, max-height region; URL `?trace=` remounts body to Timeline default (`key` on inner body).
 - `src/lib/activity-proof-ui.ts` — `ACTIVITY_PROOF_TAB_EVENT` for rail → panel focus.
+
+**Next**
+
+- **Comprehension:** run [Research batch v1 — buyer-proof demo pass](./research-batch-v1-buyer-proof-demo-pass.md) with 3–5 observers; log friction in [workflow friction log](./research-batch-workflow-v1.md#friction-log-after-rehearsals).
+- **Comfort:** mobile proof-rail collapse on `/activity` only (checklist §1 when added).

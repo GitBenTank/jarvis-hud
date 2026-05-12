@@ -11,6 +11,7 @@ related:
   - ../decisions/0001-thesis-lock.md
   - ./messaging-execution-integrity.md
   - ./activity-screen-refactor-spec-v0.md
+  - ./research-batch-v1-buyer-proof-demo-pass.md
 ---
 
 # Research batch v1 — hero workflow, buyer line, proof checklist

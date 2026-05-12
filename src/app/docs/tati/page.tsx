@@ -74,6 +74,14 @@ export default function InvestorReadPackPage() {
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-50">
           Control plane — plain English
         </h1>
+        <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+          Minimal HUD layout for the executive briefing pack—the same four links as the markdown page.
+          Stable URL alias:{" "}
+          <Link href="/docs/briefing" className="text-zinc-400 underline-offset-2 hover:text-zinc-200 hover:underline">
+            /docs/briefing
+          </Link>{" "}
+          (identical content).
+        </p>
         <p className="mt-4 text-sm leading-relaxed text-zinc-400">
           As agents begin to take real actions—sending emails, modifying code, triggering APIs—the boundary
           between <strong className="font-medium text-zinc-300">decision</strong> and{" "}

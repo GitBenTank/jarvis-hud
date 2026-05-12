@@ -1,6 +1,6 @@
 # Walkthroughs, demos, and recording artifacts
 
-This folder holds **operator runbooks**, **guided-demo scripts**, and **short recording specs** tied to the in-app **`/demo`** experience. Product law and architecture live under **`docs/decisions/`**, **`docs/architecture/`**, and **`docs/strategy/`** (Thesis Lock, system overview)—not here.
+This folder holds **operator runbooks**, **guided-demo scripts**, and **short recording specs** tied to the in-app **`/demo`** experience. In the HUD, the executive briefing layout lives at **`/docs/tati`** and **`/docs/briefing`** (same page). Product law and architecture live under **`docs/decisions/`**, **`docs/architecture/`**, and **`docs/strategy/`** (Thesis Lock, system overview)—not here.
 
 | Doc | Use |
 |-----|-----|

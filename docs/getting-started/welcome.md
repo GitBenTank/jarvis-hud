@@ -25,7 +25,7 @@ The formal rules are captured in **[Thesis Lock](../decisions/0001-thesis-lock.m
 | If you are… | Start here |
 |-------------|------------|
 | **New to the product** | This page, then [About](/about) · [Demo](/demo) |
-| **Executives & buyers** | **[Executive briefing](/docs/tati)** (same as [markdown](../strategy/investor-read-pack.md)) — then [Demo](/demo). Walkthrough artifacts: [docs/video](../video/README.md). |
+| **Executives & buyers** | **[Executive briefing](/docs/tati)** · [same layout at `/docs/briefing`](/docs/briefing) — markdown: [Executive briefing pack](../strategy/investor-read-pack.md). Then [Demo](/demo). Walkthrough artifacts: [docs/video](../video/README.md). |
 | **Technical diligence** | [System overview](../architecture/jarvis-openclaw-system-overview.md) · [Security model](../architecture/security-model.md) · [Thesis Lock ADR](../decisions/0001-thesis-lock.md) |
 | **Building or operating the stack** | [Local stack startup](../setup/local-stack-startup.md) · [Operator checklist](../setup/openclaw-jarvis-operator-checklist.md) · [Documentation hub](../README.md#operators--start-here) |
 

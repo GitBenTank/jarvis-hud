@@ -38,7 +38,7 @@ related:
 
 **In plain English:** AI can already touch production rails. The gap is **authority at execution** and **auditable proof**. Jarvis sits on that boundary.
 
-**In the HUD:** [/docs/tati](/docs/tati) — the same four links in a minimal layout; optional side panel for script blocks aligned to **`/demo`**.
+**In the HUD:** [/docs/tati](/docs/tati) or [/docs/briefing](/docs/briefing) — the same four links in a minimal layout; optional side panel for script blocks aligned to **`/demo`**.
 
 **Guided product walkthrough:** **[Demo](/demo)** — six slides into the live HUD (governed propose → approve → execute → receipt → trace). **`/pitch`** and **`/docs/strategy/gener8tor-pitch`** are read-only slide copy; live queue is **`/activity`**. Use depth docs when stakeholders ask **how** governance is enforced—not as a substitute for the walkthrough.
 

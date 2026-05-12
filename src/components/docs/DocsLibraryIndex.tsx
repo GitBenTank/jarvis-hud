@@ -285,6 +285,15 @@ function DocsOnboardingHub({ library }: { library: DocsLibraryBuild }) {
               Executive briefing · 15 min read
             </Link>
           </div>
+          <p className={`${mono} mt-3 text-center text-[10px] text-zinc-600 sm:text-left`}>
+            Same page:{" "}
+            <Link
+              href="/docs/briefing"
+              className="text-zinc-500 underline-offset-2 hover:text-zinc-400 hover:underline"
+            >
+              /docs/briefing
+            </Link>
+          </p>
         </section>
 
         <section className="mt-12" aria-labelledby="newcomers-heading">

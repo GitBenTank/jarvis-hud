@@ -317,7 +317,7 @@ export const DOCS_EXECUTIVE_OVERVIEW: DocsLibraryStartItem[] = [
     href: "/docs/tati",
     title: "Executive briefing (15 min)",
     description:
-      "Plain-language control-plane story—fixed order, same content as the markdown pack.",
+      "Plain-language control-plane story—fixed order, same content as the markdown pack. Same layout at /docs/briefing.",
   },
   {
     href: "/docs/decisions/0001-thesis-lock",

@@ -1,7 +1,7 @@
 ---
 title: "Jarvis — 90s proof demo"
 status: living-document
-version: 1.3
+version: 1.4
 owner: Ben Tankersley
 created: 2026-04-11
 related:
@@ -48,7 +48,7 @@ related:
 ## Scene 4 — Execution (15s)
 
 - Run **execute** (explicit step per your action type), or **intentionally block once** to show policy / denial path.
-- **Callout:** “Execution is separate from decision.”
+- **Callout:** “Approval is not execution—the execute step is explicit and governed.”
 
 **Optional failure variant:** Show **blocked** execution (policy gate or preflight deny). Outcome is still first-class: **receipt + trace** with status **BLOCKED** / denied—denies are proof too, not silent failures.
 
@@ -64,7 +64,7 @@ related:
 
 ## Scene 6 — Close (10–15s)
 
-- **Tagline:** “Jarvis decides what AI is allowed to do—and proves what it did.”
+- **Tagline:** “Jarvis gates what may run and proves what ran—human authority at execute.”
 
 ---
 

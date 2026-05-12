@@ -83,5 +83,5 @@ Not “too technical,” but **too many truths competing at once** without a dom
 
 ## Next (post-validation)
 
-- **Activity layout v1 (file-ordered build list):** [activity-layout-v1-implementation-checklist.md](./activity-layout-v1-implementation-checklist.md) — two-column shell, diagnostics disclosure, proof tab, `/activity` only.
+- **Activity layout v1 (file-ordered build list):** [activity-layout-v1-implementation-checklist.md](./activity-layout-v1-implementation-checklist.md) — two-column shell, diagnostics disclosure, proof tab, `/activity` only. **Status:** initial layout shipped (see checklist § Implementation status).
 - Remove **OperationsRow** from `/` when Activity is the sole queue surface; keep a single strong CTA to `/activity`.

@@ -67,3 +67,16 @@ related:
 
 - [Activity screen refactor v0](./activity-screen-refactor-spec-v0.md) — transition plan and queue-first v0.  
 - After this ships, add a short **“Activity layout v1”** note to v0 spec **Next** section pointing here.
+
+---
+
+## Implementation status (2026-05)
+
+**Shipped in app (follow-up to checklist):**
+
+- `src/app/activity/page.tsx` — `max-w-6xl`, two-column grid (`lg`), `OperationsRow layout="activity"`, diagnostics disclosure, `ActivityProofPanel` in `Suspense`.
+- `src/components/OperationsRow.tsx` — `layout="activity"` → proposals column only; home unchanged (`default`).
+- `src/components/activity/ActivityDiagnosticsDisclosure.tsx` — `<details>`; opens automatically when `GET /api/config` → `integrationIssues.length > 0` (else starts closed).
+- `src/components/activity/ActivityProofRail.tsx` — pipeline + active trace snippet + `Proof → Timeline` / share link.
+- `src/components/activity/ActivityProofPanel.tsx` — Graph \| Timeline tabs, max-height region; URL `?trace=` remounts body to Timeline default (`key` on inner body).
+- `src/lib/activity-proof-ui.ts` — `ACTIVITY_PROOF_TAB_EVENT` for rail → panel focus.

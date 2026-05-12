@@ -95,6 +95,70 @@ Ask them to answer **without** opening your docs:
 
 ---
 
+## Run the pass (two-session loop)
+
+Live observers are **you + them** — this section is the **operator run sheet** so nothing is ambiguous the day you run it.
+
+### Same-day stack smoke (before Session 1)
+
+From repo root (note pass/fail in Session 1 table):
+
+```bash
+pnpm machine-wired
+```
+
+If your stack uses auth for execute demos:
+
+```bash
+pnpm rehearsal:preflight
+```
+
+Load or emit the **3-item research batch** (see [workflow quick path](./research-batch-workflow-v1.md#1-submit-a-3-item-research-batch)):
+
+```bash
+pnpm rehearsal:research-batch
+```
+
+Open **`/activity`** (default dev: `http://127.0.0.1:3000/activity` — match your port).
+
+### Session 1 — capture immediately after narrate-back
+
+| Field | Fill in |
+|--------|---------|
+| **Date** | |
+| **Observer(s)** | |
+| **Governance beat used** | deny / step-up / (other): |
+| **Hesitation points** | |
+| **Misreadings** | |
+| **Approve vs execute clarity (1–5)** | |
+| **Language that landed** | |
+| **Language that failed** | |
+| **Next fix (one comprehension item only)** | |
+| **Merged to [friction log](./research-batch-workflow-v1.md#friction-log-after-rehearsals)?** | y / n |
+
+### Session 2 — second observer, same script (or same observer cold 48h later)
+
+| Field | Fill in |
+|--------|---------|
+| **Date** | |
+| **Observer(s)** | |
+| **Governance beat used** | (same class as Session 1 if comparing apples to apples) |
+| **Hesitation points** | |
+| **Misreadings** | |
+| **Approve vs execute clarity (1–5)** | |
+| **Language that landed** | |
+| **Language that failed** | |
+| **Next fix (one)** | |
+| **Merged to friction log?** | y / n |
+
+### After both sessions
+
+1. If the **same** confusion appears twice → it is a **blocker**; fix that first (copy, order, one UI cue, or one missing artifact).  
+2. If fixes are in → **rerun** one short observer pass (same script) before widening scope (new workflow, new surface).  
+3. Promote durable rows into the workflow **friction log** table so Phase 3 stays evidence-backed.
+
+---
+
 ## Related
 
 - [Hero workflow + proof checklist](./research-batch-v1-hero-buyer-and-proof.md)  

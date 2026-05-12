@@ -36,15 +36,21 @@ related:
 
 ## 2. Buyer-facing one-liner + 30-second pitch
 
-### One-liner
+### One-liner (default — grip-first)
 
-**Jarvis governs AI work at the execution boundary—proposals, approvals, executions, receipts, and traces—so teams can safely run real AI workflows with accountable authority.**
+**Jarvis governs AI work at the execution boundary so teams can safely run workflows like a research memo batch with accountable authority.**
 
-*(Prefer this over generic “AI governance platform” language.)*
+*(Concrete workflow noun first; avoid generic “AI governance platform” framing.)*
+
+### One-liner (alternate — boundary inventory)
+
+**Jarvis governs AI work at the execution boundary—proposals, approvals, executions, receipts, and traces—so that work stays accountable, not automatic.**
+
+Use when the listener already cares about *audit language*; still name **research memo batch** in the next sentence out loud.
 
 ### ~30 seconds
 
-“Agents and tools can propose work all day. The failure mode enterprises feel is *who said this could run*, and *what actually happened*. Jarvis sits on the **execution boundary**: every consequential path goes **propose → human approve → explicit execute → receipt and trace**. We prove it first on **research batches**—OpenClaw proposes structured notes; nothing lands in the world without that gate. Same spine later for riskier kinds.”
+“Picture a **research memo batch**: several structured memo candidates, explicit sources, proposed from your agent stack. The failure mode teams feel is not speed—it is *who said this could run* and *what actually happened*. Jarvis sits on the **execution boundary**: **propose → human approve → explicit execute → receipt and trace**. Approval does not fire adapters; nothing in that batch runs until a person executes it. We prove that loop here first; the same spine extends to riskier kinds later.”
 
 **Compressed lines (alternate register):** [Messaging — execution integrity](./messaging-execution-integrity.md).
 

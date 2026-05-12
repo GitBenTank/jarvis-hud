@@ -48,6 +48,12 @@ related:
 
 Use when the listener already cares about *audit language*; still name **research memo batch** in the next sentence out loud.
 
+### Chyron / email subject (very short)
+
+**Governed research memo batches with accountable AI execution**
+
+Use where there is no space for the full one-liner (deck strap, lower-third, tight subject). Pair with **Jarvis** in the title line, sender, or first body sentence so the product name is not orphaned.
+
 ### ~30 seconds
 
 “Picture a **research memo batch**: several structured memo candidates, explicit sources, proposed from your agent stack. The failure mode teams feel is not speed—it is *who said this could run* and *what actually happened*. Jarvis sits on the **execution boundary**: **propose → human approve → explicit execute → receipt and trace**. Approval does not fire adapters; nothing in that batch runs until a person executes it. We prove that loop here first; the same spine extends to riskier kinds later.”

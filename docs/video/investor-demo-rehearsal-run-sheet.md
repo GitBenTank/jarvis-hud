@@ -14,7 +14,7 @@ related:
 
 **One page.** Use with the [full runbook](./investor-demo-full-runbook.md) for boot and camera. **Canonical spoken outline + OpenClaw pastes** live in [`investorDemoSpeakerNotes.ts`](../../src/components/demo/investorDemoSpeakerNotes.ts) (`ALFRED_INVESTOR_DEMO_*`, live Flow 1 blocks).
 
-**Thesis Lock:** [jarvis-hud-video-thesis.md](../strategy/jarvis-hud-video-thesis.md).
+**Thesis Lock:** [product narrative thesis](../strategy/jarvis-hud-video-thesis.md).
 
 ---
 

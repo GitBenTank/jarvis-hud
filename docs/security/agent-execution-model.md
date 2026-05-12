@@ -10,7 +10,7 @@ related:
 # Agent Execution Model
 
 > **Security model.** This document defines how agents are constrained at runtime.
-> It implements the principles in [Jarvis HUD Video Thesis](../strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift).
+> It implements the principles in [Product narrative thesis](../strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift).
 
 ## Overview
 

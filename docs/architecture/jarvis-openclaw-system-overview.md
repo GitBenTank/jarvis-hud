@@ -98,7 +98,7 @@ These are the rules that make the system **enforceable** — not just descriptiv
 
 | Topic | Doc |
 |--------|-----|
-| Thesis + Thesis Lock | [Video thesis](../strategy/jarvis-hud-video-thesis.md) |
+| Thesis + Thesis Lock | [Product narrative thesis](../strategy/jarvis-hud-video-thesis.md) |
 | Batch = review container; per-item execute | [ADR-0005](../decisions/0005-agent-team-batch-v0-per-item-execute.md), [Agent team v1](../strategy/agent-team-v1.md) |
 | First research loop | [Research batch workflow v1](../strategy/research-batch-workflow-v1.md) |
 | Creative specialist v1 (Phase 5) | [Creative batch workflow v1](../strategy/creative-batch-workflow-v1.md) |

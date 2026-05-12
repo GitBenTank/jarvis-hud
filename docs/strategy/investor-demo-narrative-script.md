@@ -17,7 +17,7 @@ related:
 
 # Investor demo — full narration script
 
-Canonical product thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock).  
+Canonical product thesis: [product narrative thesis](./jarvis-hud-video-thesis.md) (Thesis Lock).  
 **Tight opener + 3-minute walkthrough** (Overview + Bundle + `/demo` beats): [investor-overview-bundle-room-script.md](./investor-overview-bundle-room-script.md).  
 Live demo steps: [DEMO.md](../../DEMO.md).  
 **Operator runbook** (boot + camera): [investor-demo-full-runbook.md](../video/investor-demo-full-runbook.md). **Rehearsal run sheet** (one page): [investor-demo-rehearsal-run-sheet.md](../video/investor-demo-rehearsal-run-sheet.md).

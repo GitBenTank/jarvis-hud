@@ -1,7 +1,7 @@
 # Positioning: Secure AI Code Execution for Engineering Teams
 
 **Status:** Draft (external-facing)  
-**Related:** [Master Plan](../roadmap/0000-master-plan.md) · [Video Thesis](./jarvis-hud-video-thesis.md) · [Competitive landscape (2026)](./competitive-landscape-2026.md) · [ADR-0002: Positioning and ICP](../decisions/0002-money-arc-and-icp.md) · [Agent Execution Model](../security/agent-execution-model.md)
+**Related:** [Master Plan](../roadmap/0000-master-plan.md) · [Product narrative thesis](./jarvis-hud-video-thesis.md) · [Competitive landscape (2026)](./competitive-landscape-2026.md) · [ADR-0002: Positioning and ICP](../decisions/0002-money-arc-and-icp.md) · [Agent Execution Model](../security/agent-execution-model.md)
 
 ---
 
@@ -97,7 +97,7 @@ Jarvis HUD is a control plane for AI agents with execution capabilities. It sits
 ## Strategic Links
 
 - [Master Plan](../roadmap/0000-master-plan.md)
-- [Video Thesis](./jarvis-hud-video-thesis.md)
+- [Product narrative thesis](./jarvis-hud-video-thesis.md)
 - [ADR-0002: Positioning and ICP](../decisions/0002-money-arc-and-icp.md)
 - [Agent Execution Model](../security/agent-execution-model.md)
 - [Control Plane Architecture](../architecture/control-plane.md)

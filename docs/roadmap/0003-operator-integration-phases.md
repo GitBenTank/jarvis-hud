@@ -5,7 +5,7 @@
 **Created:** 2026-04  
 **Related:**
 
-- [Video thesis / Thesis Lock](../strategy/jarvis-hud-video-thesis.md)
+- [Product narrative thesis / Thesis Lock](../strategy/jarvis-hud-video-thesis.md)
 - [Operating assumptions §1–§2](../strategy/operating-assumptions.md) (deployment + auth provisionals)
 - [Jarvis ↔ OpenClaw system overview](../architecture/jarvis-openclaw-system-overview.md)
 - [OpenClaw integration verification](../openclaw-integration-verification.md)

@@ -43,7 +43,7 @@ The browse index at **`/docs`** defaults to a **curated catalog** so operators a
 | Dated video insight writeups under `research/video-insights/` (except [insight index](research/video-insights/insight-index.md) and the folder README) | **No** — intake notes; keep for staff |
 | [Social copy draft](marketing/social-copy.md) | **No** — internal GTM |
 | [Cursor ingress prompt](cursor-prompt-openclaw-ingress.md) | **No** — agent prompt fragment |
-| [Interview prep](interview-prep-jarvis.md) | **No** — founder prep |
+| [Interview prep](interview-prep-jarvis.md) | **No** — stakeholder diligence Q&A |
 | Mission logs & episode production under `video/` (`MISSION-LOG*`, `EPISODE2-RUNBOOK`, `episode-02-artifacts`, `episode-02-film-checklist`) | **No** — production artifacts |
 
 **Direct URLs always work** (e.g. bookmarked paths, links from GitHub). **`/docs?library=all`** lists every file. Adjust exclusions in `isExcludedFromPublicLibraryIndex` in `src/lib/docs-library-index.ts` when the policy changes.
@@ -65,7 +65,7 @@ The browse index at **`/docs`** defaults to a **curated catalog** so operators a
 | Env reference | [Environment variables](setup/env.md) |
 | Control UI / gateway | [OpenClaw Control UI](setup/openclaw-control-ui.md) |
 | Heartbeat cost / cron check-ins | [OpenClaw heartbeat & cron policy](setup/openclaw-heartbeat-cron-policy.md) |
-| Product narrative spec (canonical prose) | [Jarvis HUD video thesis](strategy/jarvis-hud-video-thesis.md) |
+| Product narrative spec (canonical prose) | [Product narrative thesis](strategy/jarvis-hud-video-thesis.md) |
 | Next.js network proxy vs governance layers | [Network proxy boundary](architecture/network-proxy-boundary.md) |
 | Machine ground truth capture | [Phase 1 freeze checklist](setup/phase1-freeze-checklist.md) |
 | Trust compounding, integrity signals, new adapters | [Trust and determinism](governance/trust-and-determinism.md) |

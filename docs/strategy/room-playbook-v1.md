@@ -16,7 +16,7 @@ related:
 
 # Room playbook (v1)
 
-**Purpose:** Win conversations with **discipline in what you don’t say**. **Investor path:** [investor-read-pack.md](./investor-read-pack.md) (this doc is item 2). Canonical thesis: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md). Slides + demo arc: [gener8tor-pitch.md](./gener8tor-pitch.md).
+**Purpose:** Win conversations with **discipline in what you don’t say**. **Investor path:** [investor-read-pack.md](./investor-read-pack.md) (this doc is item 2). Canonical thesis: [product narrative thesis](./jarvis-hud-video-thesis.md). Slides + demo arc: [gener8tor-pitch.md](./gener8tor-pitch.md).
 
 **Technical:** Three fixed slots in the opener (idea, one frame, consequence); everything else waits for Q&A so the room doesn’t get a feature dump before stakes land.
 

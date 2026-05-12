@@ -20,7 +20,7 @@ related:
 
 Single place for **boot discipline**, **spoken narrative**, and **camera choreography**. **Operator run sheet (one page):** [investor-demo-rehearsal-run-sheet.md](./investor-demo-rehearsal-run-sheet.md). The **single woven read-through** (no separate setup section on camera) is [investor-demo-narrative-script.md](../strategy/investor-demo-narrative-script.md). **Six-slide + block-timed narration:** [gener8tor-pitch.md](../strategy/gener8tor-pitch.md). On-screen beats: **`/demo`** — **six full-screen slides** (hero **Jarvis** + thesis, then Gener8tor narrative), **transition** (“This is not a concept. This is running.”), then the **cinematic proof** scroll (door / authority boundary, lifecycle, mock, HUD link). Integration and origin banners are hidden on `/demo` for a clean recording surface. **Alfred pastes and live outline text** (canonical) are in `src/components/demo/investorDemoSpeakerNotes.ts` — do not maintain a second copy; link here only.
 
-**Thesis Lock:** [jarvis-hud-video-thesis.md](../strategy/jarvis-hud-video-thesis.md).
+**Thesis Lock:** [product narrative thesis](../strategy/jarvis-hud-video-thesis.md).
 
 ---
 

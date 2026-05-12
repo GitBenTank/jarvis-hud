@@ -67,6 +67,6 @@ Across coding assistants, research stacks, enterprise ops, and long-running agen
 ## See also
 
 - [Market narrative — six patterns + mentality shift (2026)](./market-narrative-governed-agent-workflows-2026.md) — depth behind this memo
-- [Video thesis & Thesis Lock](./jarvis-hud-video-thesis.md)
+- [Product narrative thesis & Thesis Lock](./jarvis-hud-video-thesis.md)
 - [Competitive landscape (2026)](./competitive-landscape-2026.md)
 - [Executive briefing pack](./investor-read-pack.md) — fixed reading order for stakeholders

@@ -85,7 +85,7 @@ related:
 | **Trigger** | “Why now?” / “Why didn’t this exist two years ago?” |
 | **Say** | “AI moved from talking to acting.” |
 | **Show** | **Live path:** proposal → approval → execution → **real** side effect (e.g. email / note) with trace. |
-| **Proof** | [Video thesis](./jarvis-hud-video-thesis.md); [demo → production phases](../roadmap/0002-demo-safety-production-phases.md). |
+| **Proof** | [Product narrative thesis](./jarvis-hud-video-thesis.md); [demo → production phases](../roadmap/0002-demo-safety-production-phases.md). |
 
 **Burn line:** “We didn’t need this when AI talked. We need it now that it acts.”
 

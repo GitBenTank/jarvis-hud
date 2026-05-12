@@ -42,4 +42,4 @@ Install the **Marp for VS Code** extension, open `jarvis-investor-deck.md`, use 
 
 - Narration script: [../investor-demo-narrative-script.md](../investor-demo-narrative-script.md)
 - VC lens + outline: [../investor-fundraising-deck-outline.md](../investor-fundraising-deck-outline.md)
-- Thesis Lock: [../jarvis-hud-video-thesis.md](../jarvis-hud-video-thesis.md)
+- Product narrative thesis (Thesis Lock): [../jarvis-hud-video-thesis.md](../jarvis-hud-video-thesis.md)

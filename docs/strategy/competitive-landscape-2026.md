@@ -30,7 +30,7 @@ Jarvis should **not** compete as “another agent platform.” It competes as th
 
 **Who loses if Jarvis wins:** teams that rely on **logs or policy toggles** instead of **explicit approval** and **reconstructable proof** of what was authorized and what ran.
 
-**Canonical product narrative** remains [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock). This memo is outward-facing positioning and competitive context; it must not contradict Thesis Lock.
+**Canonical product narrative** remains [product narrative thesis](./jarvis-hud-video-thesis.md) (Thesis Lock). This memo is outward-facing positioning and competitive context; it must not contradict Thesis Lock.
 
 ---
 
@@ -127,7 +127,7 @@ Strong early fit:
 
 ## Related documents
 
-- [Video thesis / Thesis Lock](./jarvis-hud-video-thesis.md)
+- [Product narrative thesis / Thesis Lock](./jarvis-hud-video-thesis.md)
 - [Positioning: secure AI code execution](./positioning-secure-ai-code-execution.md)
 - [ADR 0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 - [Pitch narrative outline (deck)](./pitch-narrative-outline.md)

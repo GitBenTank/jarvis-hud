@@ -16,7 +16,7 @@ related:
 **First touch for advisors and buyers:** [Executive briefing pack](./investor-read-pack.md) — ~15 min, fixed order, plain-English glosses. This doc is **longer VC framing** when they want a full deck story.
 
 Spoken script: [investor-demo-narrative-script.md](./investor-demo-narrative-script.md)  
-Thesis Lock: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md)  
+Thesis Lock: [product narrative thesis](./jarvis-hud-video-thesis.md)  
 **Investor deck (Marp → PDF/PPTX):** [pitch-deck/README.md](./pitch-deck/README.md)
 
 ---

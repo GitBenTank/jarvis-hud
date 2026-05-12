@@ -199,7 +199,7 @@ flowchart LR
 *To be refined as distribution channels and launch sequence are finalized.*
 
 - [x] Demo-ready HUD (local, dry-run only) — README investor/demo path, `DEMO.md`, OpenClaw verification doc
-- [ ] Video thesis publication
+- [ ] Product narrative thesis publication
 - [ ] Developer-focused landing
 - [ ] Production governance roadmap
 

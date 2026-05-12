@@ -115,7 +115,7 @@ Jarvis **governs authority transfer and traceability within its boundary** (prop
 
 ## Related
 
-- [Video thesis / Thesis Lock](../strategy/jarvis-hud-video-thesis.md)  
+- [Product narrative thesis / Thesis Lock](../strategy/jarvis-hud-video-thesis.md)  
 - [Operating assumptions](../strategy/operating-assumptions.md)  
 - [Phased platform plan](../roadmap/0004-phased-platform-plan.md)  
 - [Operator integration phases](../roadmap/0003-operator-integration-phases.md)  

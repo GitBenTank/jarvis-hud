@@ -109,7 +109,7 @@ Operator scripts, runbooks, and short recordings live under **`docs/video/`** �
 - **Longer storyline:** [Pitch narrative outline](./pitch-narrative-outline.md)
 - **Marp / export deck:** [Pitch deck README](./pitch-deck/README.md)
 - **Short recording spec:** [90s proof demo](../video/90s-proof-demo.md)
-- **Full product narrative:** [Jarvis HUD video thesis](./jarvis-hud-video-thesis.md) — read after the one-pagers; canonical prose spec (filename is historical).
+- **Full product narrative:** [Product narrative thesis](./jarvis-hud-video-thesis.md) — read after the one-pagers; canonical prose spec (filename is historical).
 
 ---
 

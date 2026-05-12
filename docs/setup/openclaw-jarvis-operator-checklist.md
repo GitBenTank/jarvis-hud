@@ -27,7 +27,7 @@ related:
 
 This page is the **mental model and order-of-operations** for local and operator use. **Which doc to open first:** [Documentation hub](../README.md). **Ingress without code jargon:** [OpenClaw ingress for humans](openclaw-ingress-for-humans.md). **Auth-on verification:** [Auth-on stack verification checklist](serious-mode-rehearsal-checklist.md). **Phase 1 blessed stack** (single contract): [Operating assumptions §1](../strategy/operating-assumptions.md#1-canonical-openclaw-deployment-for-this-project) · [Local stack startup](local-stack-startup.md) · **`pnpm machine-wired`**. For E2E exit criteria before demos, see [OpenClaw ↔ Jarvis operator sprint](openclaw-jarvis-operator-sprint.md). For ingress wiring and env, see [OpenClaw integration verification](../openclaw-integration-verification.md).
 
-**Thesis lock:** Agents propose; humans approve; execution and receipts live in Jarvis. See [Thesis Lock](../decisions/0001-thesis-lock.md) and the [video thesis](../strategy/jarvis-hud-video-thesis.md).
+**Thesis lock:** Agents propose; humans approve; execution and receipts live in Jarvis. See [Thesis Lock](../decisions/0001-thesis-lock.md) and the [product narrative thesis](../strategy/jarvis-hud-video-thesis.md).
 
 These components implement a **governed execution protocol for autonomous agents**: deterministic ingress, a single execution authority, constrained agent behavior, an auditable chain, and an explicit failure model—not optional integration guidance.
 

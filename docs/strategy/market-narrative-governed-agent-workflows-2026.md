@@ -122,4 +122,4 @@ Brittle failure modes include recursive loops, premature “done” signals, con
 
 - [Competitive landscape (2026)](./competitive-landscape-2026.md)
 - [Executive briefing pack](./investor-read-pack.md)
-- [Video thesis & Thesis Lock](./jarvis-hud-video-thesis.md)
+- [Product narrative thesis & Thesis Lock](./jarvis-hud-video-thesis.md)

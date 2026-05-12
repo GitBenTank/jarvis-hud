@@ -2,7 +2,7 @@
 
 **Status:** Accepted  
 **Date:** 2026-02  
-**Related:** [ADR-0001: Thesis Lock](./0001-thesis-lock.md) · [Master Plan](../roadmap/0000-master-plan.md) · [Video Thesis](../strategy/jarvis-hud-video-thesis.md) · [Agent Execution Model](../security/agent-execution-model.md)
+**Related:** [ADR-0001: Thesis Lock](./0001-thesis-lock.md) · [Master Plan](../roadmap/0000-master-plan.md) · [Product narrative thesis](../strategy/jarvis-hud-video-thesis.md) · [Agent Execution Model](../security/agent-execution-model.md)
 
 ---
 
@@ -82,7 +82,7 @@ Adopt **"Secure AI Code Execution for Engineering Teams"** as the product positi
 
 - [ADR-0001: Thesis Lock](./0001-thesis-lock.md)
 - [Master Plan](../roadmap/0000-master-plan.md)
-- [Video Thesis](../strategy/jarvis-hud-video-thesis.md)
+- [Product narrative thesis](../strategy/jarvis-hud-video-thesis.md)
 - [Agent Execution Model](../security/agent-execution-model.md)
 - [Control Plane](../architecture/control-plane.md)
 - [Positioning Draft](../strategy/positioning-secure-ai-code-execution.md)

@@ -109,4 +109,4 @@ Holding the ingress secret is **powerful**: it can **flood** the queue with prop
 
 ## Thesis Lock (non-negotiable)
 
-Agents may **propose** anything; **execution** requires **explicit human approval**; **approval** is not **execution**; every real action produces **receipts**; the **model** is not a trusted principal. If a workflow skips or blurs those steps, it is **drift**, not a shortcut — see [video thesis](../strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift).
+Agents may **propose** anything; **execution** requires **explicit human approval**; **approval** is not **execution**; every real action produces **receipts**; the **model** is not a trusted principal. If a workflow skips or blurs those steps, it is **drift**, not a shortcut — see [product narrative thesis](../strategy/jarvis-hud-video-thesis.md#thesis-lock-do-not-drift).

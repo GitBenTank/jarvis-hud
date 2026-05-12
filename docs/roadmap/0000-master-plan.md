@@ -4,7 +4,7 @@
 **Owner:** Ben Tankersley  
 **Created:** 2026-02  
 **Related:**  
-- [Video Thesis](../strategy/jarvis-hud-video-thesis.md)  
+- [Product narrative thesis](../strategy/jarvis-hud-video-thesis.md)  
 - [Agent Execution Model](../security/agent-execution-model.md)  
 - [Control Plane](../architecture/control-plane.md)  
 - [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)  

@@ -13,7 +13,7 @@ related:
   - docs/decisions/0001-thesis-lock.md
 ---
 
-Canonical narrative spec: [jarvis-hud-video-thesis.md](./jarvis-hud-video-thesis.md) (Thesis Lock). Pitch compression: [gener8tor-pitch.md](./gener8tor-pitch.md). Competitive framing: [competitive-landscape-2026.md](./competitive-landscape-2026.md).
+Canonical narrative spec: [product narrative thesis](./jarvis-hud-video-thesis.md) (Thesis Lock). Pitch compression: [gener8tor-pitch.md](./gener8tor-pitch.md). Competitive framing: [competitive-landscape-2026.md](./competitive-landscape-2026.md).
 
 # Jarvis Strongman (Operator Brief)
 

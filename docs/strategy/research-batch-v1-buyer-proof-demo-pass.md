@@ -92,6 +92,17 @@ Ask them to answer **without** opening your docs:
 | **Language that failed** | Words that confused them |
 | **Next fix** | **One** item: copy / order / one UI cue / one artifact — avoid a laundry list |
 
+### Quick classify — repeated confusion (Session 2+)
+
+One **row per** repeat or sharp hesitation. Put text in **one** column only (leave the other two empty).
+
+| Scope (trace / URL / “what am I looking at?” / latest vs stale) | Approve ≠ execute (what moved; what still blocks) | Other (labels, layout, trust) |
+| --- | --- | --- |
+| | | |
+| | | |
+| | | |
+| | | |
+
 **Rule:** Tighten **only what blocked comprehension** in this pass; park architecture unless the observer surfaced a **trust** lie.
 
 ---
@@ -138,6 +149,8 @@ Open **`/activity`** (default dev: `http://127.0.0.1:3000/activity` — match yo
 | **Merged to [friction log](./research-batch-workflow-v1.md#friction-log-after-rehearsals)?** | y / n |
 
 ### Session 2 — second observer, same script (or same observer cold 48h later)
+
+After narrate-back, log repeats in **Quick classify** (three columns, same section as the capture template above).
 
 | Field | Fill in |
 |--------|---------|

@@ -78,6 +78,7 @@ The browse index at **`/docs`** defaults to a **curated catalog** so operators a
 | First governed loop — contract + demo story | [Research batch workflow v1](strategy/research-batch-workflow-v1.md) · [Hero / pitch / proof (one page)](strategy/research-batch-v1-hero-buyer-and-proof.md) · [Buyer-proof demo pass](strategy/research-batch-v1-buyer-proof-demo-pass.md) |
 | Activity queue-first UI (transition spec) | [Activity screen refactor v0](strategy/activity-screen-refactor-spec-v0.md) |
 | Activity layout v1 (build checklist) | [activity-layout-v1-implementation-checklist.md](strategy/activity-layout-v1-implementation-checklist.md) |
+| Activity `?trace=` vs latest receipt (comprehension) | [activity-trace-scope-collision-fix-spec.md](strategy/activity-trace-scope-collision-fix-spec.md) |
 | Creative specialist (messaging) | [Creative agent v1](strategy/creative-agent-v1.md) |
 | OpenClaw runtime + team + Jarvis (one narrative) | [Runtime + team + Jarvis loop v1](strategy/runtime-openclaw-jarvis-team-loop-v1.md) |
 

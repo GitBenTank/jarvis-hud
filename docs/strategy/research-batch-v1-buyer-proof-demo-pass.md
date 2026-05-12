@@ -6,6 +6,7 @@ owner: Ben Tankersley
 related:
   - ./research-batch-v1-hero-buyer-and-proof.md
   - ./research-batch-workflow-v1.md
+  - ./activity-trace-scope-collision-fix-spec.md
   - ../verification/pilot-proof-bundle-checklist.md
   - ../verification/policy-deny-repro.md
   - ../setup/local-stack-startup.md

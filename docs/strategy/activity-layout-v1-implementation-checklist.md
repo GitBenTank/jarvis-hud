@@ -81,6 +81,7 @@ related:
 - `src/components/activity/ActivityProofRail.tsx` — pipeline + active trace snippet + `Proof → Timeline` / share link.
 - `src/components/activity/ActivityProofPanel.tsx` — Graph \| Timeline tabs, max-height region; URL `?trace=` remounts body to Timeline default (`key` on inner body).
 - `src/lib/activity-proof-ui.ts` — `ACTIVITY_PROOF_TAB_EVENT` for rail → panel focus.
+- **Trace URL vs latest-receipt card:** [scope collision spec](./activity-trace-scope-collision-fix-spec.md) — copy + amber mismatch banner in `AgentProposalsFeed.tsx` (§1–2 shipped).
 
 **Next**
 

@@ -10,6 +10,7 @@ related:
   - ../verification/policy-deny-repro.md
   - ../decisions/0001-thesis-lock.md
   - ./messaging-execution-integrity.md
+  - ./activity-screen-refactor-spec-v0.md
 ---
 
 # Research batch v1 — hero workflow, buyer line, proof checklist

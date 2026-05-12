@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import ActionsPanel from "@/components/ActionsPanel";
 import ActivityLogPanel from "@/components/ActivityLogPanel";
+import ActivityQueueHandoff from "@/components/ActivityQueueHandoff";
 import AgentActivityPanel from "@/components/AgentActivityPanel";
+import { ApprovalQueueCountsProvider } from "@/components/ApprovalQueueCountsProvider";
 import DraftsPanel from "@/components/DraftsPanel";
 import ExecutionAuthorityBanner from "@/components/ExecutionAuthorityBanner";
 import OpenClawHealthBadge from "@/components/OpenClawHealthBadge";
@@ -45,7 +47,8 @@ export default function Home() {
               Jarvis HUD — approval and proof layer for AI-driven action
             </p>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              Jarvis decides what AI is allowed to do—and proves what it did.
+              Jarvis gates what may run and proves what ran—human authority at
+              execute.
             </p>
             <p className="text-[11px] tracking-wide text-zinc-500 opacity-60 dark:text-zinc-400">
               approval before action
@@ -124,10 +127,13 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Operations Row — proposals + pipeline (control-plane focus) */}
-        <div id="operations-row" className="mb-6">
-          <OperationsRow />
-        </div>
+        <ApprovalQueueCountsProvider>
+          <ActivityQueueHandoff />
+          {/* Operations Row — mirrored on /activity; duplicate transition (see activity-screen-refactor-spec-v0) */}
+          <div id="operations-row" className="mb-6">
+            <OperationsRow />
+          </div>
+        </ApprovalQueueCountsProvider>
 
         {/* Executed Actions (Receipts) */}
         <div id="actions-panel" className="mb-6">

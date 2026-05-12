@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import ActivityGraph from "@/components/ActivityGraph";
+import { ApprovalQueueCountsProvider } from "@/components/ApprovalQueueCountsProvider";
 import OpenClawHealthBadge from "@/components/OpenClawHealthBadge";
+import OperatorAttentionBanner from "@/components/OperatorAttentionBanner";
+import OperationsRow from "@/components/OperationsRow";
 import StatusStrip from "@/components/StatusStrip";
 import TracePanel from "@/components/TracePanel";
 import TrustPostureStrip from "@/components/TrustPostureStrip";
@@ -21,7 +24,17 @@ export default function ActivityPage() {
             ← Dashboard
           </Link>
         </div>
-        <section aria-label="Trust and queue status" className="mb-4">
+        <p className="mb-4 text-xs text-zinc-500 dark:text-zinc-400">
+          Queue-first operator surface: approvals, execute, then trace and graph
+          below.
+        </p>
+        <ApprovalQueueCountsProvider>
+          <OperatorAttentionBanner />
+          <div id="operations-row" className="mb-6">
+            <OperationsRow />
+          </div>
+        </ApprovalQueueCountsProvider>
+        <section aria-label="Trust and integration context" className="mb-4">
           <TrustPostureStrip innerMaxClassName="mx-auto max-w-4xl" />
           <StatusStrip innerMaxClassName="mx-auto max-w-4xl" />
         </section>

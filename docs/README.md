@@ -76,6 +76,7 @@ The browse index at **`/docs`** defaults to a **curated catalog** so operators a
 | First composable team (Alfred + Research + Creative) | [Flagship team bundle v1](strategy/flagship-team-bundle-v1.md) · operators: [proposal shapes & grep anchors](architecture/flagship-proposal-shape-examples-v1.md) |
 | Research specialist (evidence) | [Research agent v1](strategy/research-agent-v1.md) |
 | First governed loop — contract + demo story | [Research batch workflow v1](strategy/research-batch-workflow-v1.md) · [Hero / pitch / proof (one page)](strategy/research-batch-v1-hero-buyer-and-proof.md) |
+| Activity queue-first UI (transition spec) | [Activity screen refactor v0](strategy/activity-screen-refactor-spec-v0.md) |
 | Creative specialist (messaging) | [Creative agent v1](strategy/creative-agent-v1.md) |
 | OpenClaw runtime + team + Jarvis (one narrative) | [Runtime + team + Jarvis loop v1](strategy/runtime-openclaw-jarvis-team-loop-v1.md) |
 

@@ -1,34 +1,43 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
+import {
+  ApprovalQueueCountsContext,
+} from "@/components/ApprovalQueueCountsProvider";
 import ApprovalsPanel from "./ApprovalsPanel";
 import ExecutionTimeline from "./ExecutionTimeline";
 
 export default function OperationsRow() {
-  const [pendingCount, setPendingCount] = useState(0);
+  const shared = useContext(ApprovalQueueCountsContext);
+  const [pendingCountLocal, setPendingCountLocal] = useState(0);
 
   const fetchPending = useCallback(async () => {
     try {
       const res = await fetch("/api/approvals?status=pending");
       const json = await res.json();
-      setPendingCount(Array.isArray(json.approvals) ? json.approvals.length : 0);
+      setPendingCountLocal(
+        Array.isArray(json.approvals) ? json.approvals.length : 0
+      );
     } catch {
-      setPendingCount(0);
+      setPendingCountLocal(0);
     }
   }, []);
 
   useEffect(() => {
+    if (shared) return;
     const id = setInterval(fetchPending, 5000);
     queueMicrotask(() => fetchPending());
     return () => clearInterval(id);
-  }, [fetchPending]);
+  }, [fetchPending, shared]);
 
   useEffect(() => {
+    if (shared) return;
     const handler = () => fetchPending();
     globalThis.addEventListener("jarvis-refresh", handler);
     return () => globalThis.removeEventListener("jarvis-refresh", handler);
-  }, [fetchPending]);
+  }, [fetchPending, shared]);
 
+  const pendingCount = shared ? shared.pendingApproval : pendingCountLocal;
   const hasPending = pendingCount > 0;
 
   return (

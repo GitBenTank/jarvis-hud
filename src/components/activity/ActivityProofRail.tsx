@@ -14,7 +14,7 @@ function shortenTraceId(id: string): string {
   return `${id.slice(0, 8)}…${id.slice(-4)}`;
 }
 
-export default function ActivityProofRail() {
+function ActivityProofRailContent() {
   const { activeTraceId, traceData, loading, error } = useTraceContext();
 
   const focusProofTimeline = () => {
@@ -31,10 +31,7 @@ export default function ActivityProofRail() {
       : null;
 
   return (
-    <aside
-      aria-label="Execution pipeline and trace context"
-      className="flex min-w-0 flex-col gap-4"
-    >
+    <div className="flex min-w-0 flex-col gap-4">
       <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="border-b border-zinc-200 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
           Execution pipeline
@@ -100,6 +97,33 @@ export default function ActivityProofRail() {
           </div>
         )}
       </div>
-    </aside>
+    </div>
+  );
+}
+
+export default function ActivityProofRail() {
+  return (
+    <>
+      <details className="group rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/80 lg:hidden">
+        <summary className="cursor-pointer list-none px-4 py-2.5 text-sm font-medium text-zinc-700 marker:content-none dark:text-zinc-200 [&::-webkit-details-marker]:hidden">
+          <span className="select-none">
+            Pipeline & trace
+            <span className="ml-2 text-xs font-normal text-zinc-500 dark:text-zinc-400">
+              (expand)
+            </span>
+          </span>
+        </summary>
+        <div className="border-t border-zinc-200 px-3 py-3 dark:border-zinc-800">
+          <ActivityProofRailContent />
+        </div>
+      </details>
+
+      <aside
+        aria-label="Execution pipeline and trace context"
+        className="hidden min-w-0 lg:flex lg:flex-col lg:gap-4"
+      >
+        <ActivityProofRailContent />
+      </aside>
+    </>
   );
 }

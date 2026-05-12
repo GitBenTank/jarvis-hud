@@ -26,9 +26,10 @@ export default function ActivityPage() {
           </Link>
         </div>
         <p className="mb-4 max-w-2xl text-xs text-zinc-500 dark:text-zinc-400">
-          Queue-first: approve and execute here. Pipeline and trace context on
-          the right (wide screens). Proof graph and full timeline live below
-          (one click to switch tabs).
+          Queue-first: approve and execute here. On wide screens, pipeline and
+          trace context stay on the right. On smaller screens, open the
+          Pipeline & trace section when you need proof context. Full graph and
+          timeline live below.
         </p>
         <ApprovalQueueCountsProvider>
           <OperatorAttentionBanner />

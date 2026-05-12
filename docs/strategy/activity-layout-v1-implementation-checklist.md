@@ -34,7 +34,7 @@ related:
 
 | Step | File(s) | Notes |
 |------|---------|--------|
-| 2a | **New:** `src/components/activity/ActivityDiagnosticsDisclosure.tsx` | Wrap **`TrustPostureStrip`**, **`StatusStrip`**, **`OpenClawHealthBadge`** (Activity page currently renders these in `src/app/activity/page.tsx` after the queue). Use `<details>` or a small client toggle. **Default closed** when posture is “all green” (define minimal rule: e.g. ingress on + gate green + no integration checklist errors—reuse signals you already surface, even if v1 is heuristic). **Default open** when any signal is red/amber/mixed. |
+| 2a | **`ActivityDiagnosticsDisclosure.tsx`** + **`activity-diagnostics-disclosure-open.ts`** | Wrap trust / status / OpenClaw. **Default open** when `shouldOpenActivityDiagnosticsDisclosure(config)` is true (integration issues, ingress off, allowlist, step-up false with auth on, SoD maps incomplete, `latestBlockReason`, control UI probe `ok: false`, or config fetch error). Else **closed**. |
 | 2b | `src/components/TrustPostureStrip.tsx` | Only if you need a **compact one-line summary** prop for the closed state; otherwise keep strip full inside `<details>`. |
 | 2c | `src/app/activity/page.tsx` | Replace loose vertical stack of diagnostics with the disclosure wrapper; keep **one** optional always-visible **micro-row** (e.g. “Trust: OK · Open Activity for details”) if you want zero clicks when green—keep it one line max. |
 
@@ -76,7 +76,8 @@ related:
 
 - `src/app/activity/page.tsx` — `max-w-6xl`, two-column grid (`lg`), `OperationsRow layout="activity"`, diagnostics disclosure, `ActivityProofPanel` in `Suspense`.
 - `src/components/OperationsRow.tsx` — `layout="activity"` → proposals column only; home unchanged (`default`).
-- `src/components/activity/ActivityDiagnosticsDisclosure.tsx` — `<details>`; opens automatically when `GET /api/config` → `integrationIssues.length > 0` (else starts closed).
+- `src/components/activity/ActivityDiagnosticsDisclosure.tsx` — `<details>`; opens when **`shouldOpenActivityDiagnosticsDisclosure`** is true: `integrationIssues`, **`ingressOpenclawEnabled === false`**, **`openclawAllowed === false`**, **`authEnabled && trustPosture.stepUpValid === false`**, **SoD on + role maps not ready**, **`runtimePosture.latestBlockReason`** non-empty, **`openclawControlUiProbe.ok === false`**, or fetch/parse failure / non-OK response.
+- `src/lib/activity-diagnostics-disclosure-open.ts` — pure open predicate (unit-tested).
 - `src/components/activity/ActivityProofRail.tsx` — pipeline + active trace snippet + `Proof → Timeline` / share link.
 - `src/components/activity/ActivityProofPanel.tsx` — Graph \| Timeline tabs, max-height region; URL `?trace=` remounts body to Timeline default (`key` on inner body).
 - `src/lib/activity-proof-ui.ts` — `ACTIVITY_PROOF_TAB_EVENT` for rail → panel focus.

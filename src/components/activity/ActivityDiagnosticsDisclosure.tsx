@@ -1,13 +1,15 @@
 "use client";
 
 import { type ReactNode, useEffect, useRef } from "react";
+import { shouldOpenActivityDiagnosticsDisclosure } from "@/lib/activity-diagnostics-disclosure-open";
 
 type ActivityDiagnosticsDisclosureProps = Readonly<{
   children: ReactNode;
 }>;
 
 /**
- * Collapses trust / status / OpenClaw on Activity unless integration issues exist.
+ * Collapses trust / status / OpenClaw on Activity when healthy; opens when
+ * integration issues, receive path, auth step-up, SoD, policy block, or control UI probe fail.
  */
 export default function ActivityDiagnosticsDisclosure({
   children,
@@ -19,12 +21,12 @@ export default function ActivityDiagnosticsDisclosure({
     (async () => {
       try {
         const res = await fetch("/api/config");
-        const json = (await res.json()) as {
-          integrationIssues?: unknown;
-        };
-        const issues = json.integrationIssues;
-        const shouldOpen =
-          Array.isArray(issues) && issues.length > 0;
+        const json: unknown = await res.json();
+        if (!res.ok) {
+          if (!cancelled && detailsRef.current) detailsRef.current.open = true;
+          return;
+        }
+        const shouldOpen = shouldOpenActivityDiagnosticsDisclosure(json);
         if (!cancelled && shouldOpen && detailsRef.current) {
           detailsRef.current.open = true;
         }

@@ -66,6 +66,7 @@ Use this label only when the product can credibly promise:
 
 ### P0 — Done when (aggregate)
 
+- [ ] **Appendix A** matrix filled with owner + disposition for every route (**this revision**).  
 - [ ] Matrix completed: every externally reachable **write** and **execute** path mapped to A1–A6 with owner sign-off  
 - [ ] **A2** explicitly resolved (fix, gate, or documented exception with deployment guardrails)  
 - [ ] **A6** produces an artifact (doc table + test/probe output) updated when API surface changes  
@@ -133,7 +134,7 @@ Use this label only when the product can credibly promise:
 
 ## Near-term tranche (suggested execution order)
 
-1. **A1–A6** — safety audit matrix + **A2** resolution + **A6** bypass detection artifact  
+1. **A1–A6** — complete **Appendix A** safety audit matrix (owner + OK/Gap/Won’t fix per row) + **A2** resolution + **A6** bypass detection automation or CI hook as scoped  
 2. **B1–B2** — demo reliability + receipt consistency  
 3. **B3a / B3b / B5** — export schema freeze + operator bundle + attribution contract  
 4. **C1** — ADR for multi-day trace lookup (with **declared search scope** in API contracts)  
@@ -170,6 +171,65 @@ Use this label only when the product can credibly promise:
 
 - [ ] D1 Deprecation / build hygiene  
 - [ ] D2 Doc/runtime drift  
+
+---
+
+## Appendix A — Safety audit matrix (v0 draft, repo-backed)
+
+**Purpose:** Close **A1–A6** with evidence. Update this table when routes or auth behavior change.
+
+**Convention — `proxy` column:** When `JARVIS_AUTH_ENABLED` is **false**, `src/proxy.ts` passes all `/api` traffic (no cookie gate). Values below describe behavior when auth is **true** (see exemptions in `src/proxy.ts` lines 25–31).
+
+**Convention — approval plane:** “**Chain**” means proposal enters with explicit human **approve** then **execute** (or equivalent documented gate). “**Bypass**” means durable queue or execution-shaped state without that chain (thesis-risk — see **A2**, **A6**).
+
+### A. Read-only or low-risk GET (still map for A5 / data exfil)
+
+| Route | `proxy` (auth on) | Handler session / identity | Sensitive read? | A-map | Initial | Owner |
+|-------|-------------------|-----------------------------|-----------------|-------|---------|-------|
+| `GET /api/config` | Exempt | No | Config surface | A5 | OK — intentional public | |
+| `GET /api/auth/status` | Exempt | Uses cookie if present | Session | A5 | OK | |
+| `GET /api/approvals` | Session required | No extra check in handler (`src/app/api/approvals/route.ts`) | Today’s approvals | A5 | **Investigate** — relies on proxy only | |
+| `GET /api/approvals/[id]/preflight-snapshot` | Session required | No | Preflight snapshot | A5 | **Investigate** | |
+| `GET /api/actions` | Session required | No | Receipts / action log | A5 | **Investigate** | |
+| `GET /api/activity/stream` | Session required | No | Merged activity | A5 | **Investigate** | |
+| `GET /api/traces/[traceId]` | Session required | No | Trace bundle | A5 | **Investigate** | |
+| `GET /api/traces/[traceId]/replay` | Session required | No | Replay | A5 | **Investigate** | |
+| `GET /api/traces/recent` | Session required | No | Recent ids | A5 | **Investigate** | |
+| `GET /api/audit/export` | Session required | No | Full audit JSON | A5, B3 | **Gap** — export sensitivity; confirm intended policy | |
+| `GET /api/connectors/openclaw/health` | Session required | No | Health | A5 | OK | |
+| `GET /api/proof-path` | Session required | Unknown | Proof hints | A5 | **Investigate** — confirm handler | |
+| `GET /api/incidents` | Session required | Unknown | Incidents | A5 | **Investigate** | |
+| `GET /api/alfred/status` | Session required | No | Log tail | A5 | OK | |
+
+### B. Writes, side effects, and ingress (approval-plane focus)
+
+| Route | Methods | Effect | `proxy` (auth on) | Handler auth / gate | Approval plane | A-map | Initial | Owner |
+|-------|---------|--------|-------------------|---------------------|------------------|-------|---------|-------|
+| `POST /api/ingress/openclaw` | POST | Append pending events | **Exempt** (HMAC ingress) | HMAC + schema + policy ingress rules | **Chain** — pending only per ADR-0004 | A1, A3 | OK — not cookie session | |
+| `POST /api/approvals/[id]` | POST | Approve / deny | Session required | Session + principal resolution (`src/app/api/approvals/[id]/route.ts`) | **Chain** | A4, A5 | OK | |
+| `POST /api/execute/[approvalId]` | POST | Execute adapter | Session required | Session + step-up + policy + gate + SoD (`src/app/api/execute/[approvalId]/route.ts`) | **Chain** | A3, A4, A5 | OK | |
+| `POST /api/preflight` | POST | Preflight evaluation | Session required | Session (`src/app/api/preflight/route.ts`) | Supports chain, does not execute | A4, A5 | OK | |
+| `POST /api/auth/init` | POST | Session cookie | **Exempt** | N/A | N/A | A5 | OK | |
+| `POST /api/auth/step-up` | POST | Step-up | Session required | Session | N/A | A5 | OK | |
+| `POST /api/auth/oidc/stub-bind` | POST | Bind principal | Session required | Stub guard env | N/A | A5 | **Investigate** — dev-only surface | |
+| `POST /api/events` | GET+**POST** | **POST** writes `events/{date}.json` | Session required when auth on | **No** auth in handler (`src/app/api/events/route.ts`) | **Bypass** — unsigned proposal creation (**A2**, **A6**) | **A2**, A6 | **Gap** | |
+| `POST /api/drafts/content` | POST | Writes proposal-shaped events | Session required when auth on | **No** auth in handler (`src/app/api/drafts/content/route.ts`) | **Bypass** — UI/demo path (**A2**, **A6**) | **A2**, A6 | **Gap** | |
+| `POST /api/reflections` | POST | Writes reflection / events | Session required when auth on | **No** session check in handler (`src/app/api/reflections/route.ts`) | **Partial** — creates work from prior execute; confirm policy | A6 | **Investigate** | |
+| `POST /api/recovery/verify` | POST | Writes verification state | Session required when auth on | **No** handler auth (`src/app/api/recovery/verify/route.ts`) | Post-execute operator mark | A6 | **Investigate** | |
+| `POST /api/reset/today` | POST | Archives day files | Session required when auth on | **`x-jarvis-reset: YES`** header — not session identity | **Bypass** of normal UX — operator secret | A6 | **Gap** — document + restrict | |
+| `POST /api/os/open` | POST | **`open` process** (Finder/Cursor) | Session required when auth on | Path allowlist only (`src/app/api/os/open/route.ts`) | **Side effect** outside Jarvis files | A3, A6 | **Gap** — OS spawn | |
+
+### C. `GET /api/events`
+
+| Route | Effect | `proxy` | Handler | Approval plane | A-map | Initial | Owner |
+|-------|--------|---------|---------|------------------|-------|---------|-------|
+| `GET /api/events` | Read today’s events | Session when auth on | No | Read | A5 | **Investigate** | |
+
+### D. Matrix completion (A6 deliverable)
+
+- [ ] Every row above has **Owner** + **Initial** resolved to **OK**, **Gap** (with ticket/ADR), or **Won’t fix** (with explicit prod stance)  
+- [ ] New `src/app/api/**/route.ts` files added since this revision are **appended** within one release  
+- [ ] Optional: automated inventory test that fails if an unlisted API route ships (link from CI doc when built)
 
 ---
 

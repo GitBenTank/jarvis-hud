@@ -12,6 +12,7 @@
 - [ADR-0003: Execution Policy v1](../decisions/0003-execution-policy-v1.md)
 - [Operator integration phases](./0003-operator-integration-phases.md)
 - [Phased platform plan](./0004-phased-platform-plan.md)
+- [Enterprise readiness punch list (0007)](./0007-enterprise-readiness-punch-list.md)
 
 ---
 

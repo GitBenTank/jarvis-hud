@@ -47,7 +47,7 @@ export default function StatusStrip({
 
   const fetchStatus = useCallback(async () => {
     try {
-      const configRes = await fetch("/api/config");
+      const configRes = await fetch("/api/config", { credentials: "include" });
       const config = await configRes.json();
       const posture = config.runtimePosture as {
         activeTraceId: string | null;

@@ -1603,7 +1603,7 @@ export default function ApprovalsPanel() {
   }, [fetchApprovals]);
 
   useEffect(() => {
-    fetch("/api/config")
+    fetch("/api/config", { credentials: "include" })
       .then((r) => r.json())
       .then((c) => {
         if (typeof c.irreversibleConfirmEnabled === "boolean") {

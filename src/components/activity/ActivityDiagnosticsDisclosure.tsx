@@ -20,7 +20,7 @@ export default function ActivityDiagnosticsDisclosure({
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/config");
+        const res = await fetch("/api/config", { credentials: "include" });
         const json: unknown = await res.json();
         if (!res.ok) {
           if (!cancelled && detailsRef.current) detailsRef.current.open = true;

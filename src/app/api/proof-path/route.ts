@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { promises as fs } from "node:fs";
 import {
   readJson,
@@ -39,7 +40,10 @@ async function dirFileCount(dirPath: string): Promise<number> {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const dateKey = getDateKey();
     const events = (await readJson<Event[]>(getEventsFilePath(dateKey))) ?? [];

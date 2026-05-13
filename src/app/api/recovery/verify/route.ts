@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import { readActionLog } from "@/lib/action-log";
 import { writeRecoveryVerification } from "@/lib/recovery-verification";
@@ -15,6 +16,9 @@ import { writeRecoveryVerification } from "@/lib/recovery-verification";
 export type RecoveryVerificationStatus = "pending" | "verified" | "failed";
 
 export async function POST(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const body = await request.json();
     const approvalId = body?.approvalId;

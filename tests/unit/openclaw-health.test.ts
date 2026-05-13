@@ -4,6 +4,7 @@
 import path from "node:path";
 import os from "node:os";
 import { promises as fs } from "node:fs";
+import { NextRequest } from "next/server";
 import { describe, it, expect, vi, afterEach } from "vitest";
 
 const TEST_ROOT = path.join(os.tmpdir(), `jarvis-openclaw-health-${Date.now()}`);
@@ -116,7 +117,9 @@ describe("GET /api/connectors/openclaw/health", () => {
     const { GET } = await import(
       "@/app/api/connectors/openclaw/health/route"
     );
-    const res = await GET();
+    const res = await GET(
+      new NextRequest("http://127.0.0.1/api/connectors/openclaw/health")
+    );
     expect(res.status).toBe(200);
     const json = (await res.json()) as Record<string, unknown>;
     expect(["connected", "idle", "degraded", "disconnected"]).toContain(json.status);

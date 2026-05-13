@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { spawn } from "node:child_process";
 import { ensurePathAllowed } from "@/lib/storage";
 
 export async function POST(request: Request) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const body = await request.json();
     const pathInput = body?.path;

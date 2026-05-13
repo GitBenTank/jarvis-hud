@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { getRecentTraces } from "@/lib/trace-scan";
 
 export async function GET(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   const raw = request.nextUrl.searchParams.get("limit");
   const parsed = raw ? parseInt(raw, 10) : 20;
   const limit = Number.isFinite(parsed) ? parsed : 20;

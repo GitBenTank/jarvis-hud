@@ -8,12 +8,8 @@ import {
   writeJson,
 } from "@/lib/storage";
 import type { Session } from "@/lib/auth";
-import {
-  isAuthEnabled,
-  getSessionFromCookie,
-  isStepUpValid,
-  AuthConfigError,
-} from "@/lib/auth";
+import { isStepUpValid } from "@/lib/auth";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { resolveGovernedHumanPrincipal } from "@/lib/governed-human-principal";
 import {
   appendActionLog,
@@ -98,29 +94,13 @@ export async function POST(
   { params }: { params: Promise<{ approvalId: string }> }
 ) {
   try {
-    let authEnabled = false;
+    const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+    if (!gate.ok) return gate.response;
+
+    const authEnabled = gate.authEnabled;
     let stepUpValid = true;
-    let session: Session | null = null;
-    try {
-      authEnabled = isAuthEnabled();
-    } catch (authErr) {
-      if (authErr instanceof AuthConfigError) {
-        return NextResponse.json(
-          { error: authErr.message },
-          { status: 500 }
-        );
-      }
-      throw authErr;
-    }
-    if (authEnabled) {
-      const cookie = request.headers.get("cookie");
-      session = getSessionFromCookie(cookie);
-      if (!session) {
-        return NextResponse.json(
-          { error: "Session required" },
-          { status: 401 }
-        );
-      }
+    const session: Session | null = gate.session;
+    if (authEnabled && session) {
       stepUpValid = isStepUpValid(session);
     }
 

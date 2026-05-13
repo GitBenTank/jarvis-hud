@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { promises as fs } from "node:fs";
 import {
   getAlfredOrchestratorLogPath,
@@ -66,7 +67,10 @@ async function readLastLines(
   return lines.slice(-maxLines);
 }
 
-export async function GET(): Promise<NextResponse<AlfredStatusResponse | { error: string }>> {
+export async function GET(request: Request): Promise<NextResponse<AlfredStatusResponse | { error: string }>> {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const logPath = getAlfredOrchestratorLogPath();
     ensurePathSafe(logPath);

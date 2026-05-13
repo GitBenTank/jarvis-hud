@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import {
   getDateKey,
   getEventsFilePath,
@@ -40,6 +41,9 @@ function isReflectionBody(body: unknown): body is ReflectionBody {
 }
 
 export async function POST(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const body = await request.json();
 

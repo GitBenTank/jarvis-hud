@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import {
@@ -14,6 +15,9 @@ import {
 } from "@/lib/storage";
 
 export async function POST(request: Request) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   const header = request.headers.get("x-jarvis-reset");
   if (header !== "YES") {
     return NextResponse.json(

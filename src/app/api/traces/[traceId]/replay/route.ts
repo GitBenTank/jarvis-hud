@@ -5,13 +5,17 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { assembleTraceReplay } from "@/lib/trace-replay";
 import { AuditExportIdentityIntegrityError } from "@/lib/audit-export-identity";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ traceId: string }> }
 ) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   const { traceId } = await params;
   if (!traceId || typeof traceId !== "string" || !traceId.trim()) {
     return NextResponse.json(

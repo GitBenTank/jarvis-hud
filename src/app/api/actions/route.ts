@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { readActionLog } from "@/lib/action-log";
 import { getDateKey } from "@/lib/storage";
 import { readRecoveryVerifications } from "@/lib/recovery-verification";
@@ -10,7 +11,10 @@ type ActionWithVerification = Awaited<ReturnType<typeof readActionLog>>[number] 
   verificationStatus?: "pending" | "verified" | "failed";
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const dateKey = getDateKey();
     const [actions, verifications] = await Promise.all([

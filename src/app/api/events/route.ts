@@ -3,6 +3,7 @@ import {
   areEventsAndDraftsProposalApisEnabled,
   localProposalApisDisabledResponse,
 } from "@/lib/local-proposal-apis";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import {
   getDateKey,
   getEventsFilePath,
@@ -44,7 +45,10 @@ function isEventInput(body: unknown): body is EventInput {
   );
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const dateKey = getDateKey();
     const filePath = getEventsFilePath(dateKey);
@@ -59,6 +63,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   if (!areEventsAndDraftsProposalApisEnabled()) {
     return localProposalApisDisabledResponse();
   }

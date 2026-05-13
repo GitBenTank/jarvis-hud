@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { promises as fs } from "node:fs";
 import {
   getDateKey,
@@ -337,6 +338,11 @@ function toActivityEvents(
 
 export async function GET(request: Request) {
   try {
+    const gate = requireVerifiedSessionGate(
+      request.headers.get("cookie")
+    );
+    if (!gate.ok) return gate.response;
+
     const dateKey = getDateKey();
     const events = (await readJson<StoredEvent[]>(getEventsFilePath(dateKey))) ?? [];
     const actions = await readActionLogChronological(dateKey);

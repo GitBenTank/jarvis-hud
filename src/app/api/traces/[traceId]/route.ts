@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { readJson, getEventsFilePath, getDateKey } from "@/lib/storage";
 import { listTraceScanDateKeys } from "@/lib/trace-scan";
 import { readActionLogByTraceId, type ActionLogEntry } from "@/lib/action-log";
@@ -360,9 +361,12 @@ function stringFromPayloadField(payload: Record<string, unknown>, key: string): 
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ traceId: string }> }
 ) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   const { traceId } = await params;
   if (!traceId || typeof traceId !== "string" || !traceId.trim()) {
     return NextResponse.json(

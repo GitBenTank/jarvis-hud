@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import {
   validateAuditDateRange,
   buildAuditExportBundle,
@@ -13,6 +14,9 @@ import { AuditExportIdentityIntegrityError } from "@/lib/audit-export-identity";
  * See docs/audit-export.md
  */
 export async function GET(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   const start = request.nextUrl.searchParams.get("start");
   const end = request.nextUrl.searchParams.get("end");
 

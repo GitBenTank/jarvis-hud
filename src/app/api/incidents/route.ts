@@ -4,10 +4,11 @@
  * No changes to existing recovery logic.
  */
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { readActionLog } from "@/lib/action-log";
 import { readRecoveryVerifications } from "@/lib/recovery-verification";
 import { readJson, getEventsFilePath } from "@/lib/storage";
@@ -38,7 +39,10 @@ export type IncidentsResponse = {
   incidents: IncidentGroup[];
 };
 
-export async function GET(): Promise<NextResponse<IncidentsResponse | { error: string }>> {
+export async function GET(request: NextRequest): Promise<NextResponse<IncidentsResponse | { error: string }>> {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const verifications = await readRecoveryVerifications();
 

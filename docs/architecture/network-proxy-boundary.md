@@ -27,6 +27,8 @@ The proxy must **not** become a second control plane.
 
 - Path-scoped interception (here: `/api/:path*`).
 - **Lightweight posture:** when `JARVIS_AUTH_ENABLED=true`, require **presence** of the session cookie for protected API paths (see `src/lib/auth-edge.ts`). Cryptographic verification of the session belongs in **Node route handlers**.
+
+**Defense in depth (B1/B2):** session-backed `/api` handlers that are not intentionally public (`GET /api/config`, `POST /api/auth/init`, `GET /api/auth/status`, `POST /api/ingress/*`) call **`requireVerifiedSessionGate`** in `src/lib/api-session-guard.ts` so a **forged or malformed cookie** cannot rely on proxy cookie-presence alone. `POST /api/preflight` intentionally allows missing sessions when auth is on (it reports `stepUpValid: false` instead of hard-401).
 - **Allowlisted passthrough** for paths that must stay reachable without a browser session (e.g. auth bootstrap, **`GET /api/config`**, **`/api/ingress/*`** headless ingress).
 
 **Out of scope (anti-patterns):**

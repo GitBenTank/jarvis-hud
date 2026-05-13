@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import {
   getDateKey,
   getEventsFilePath,
@@ -32,6 +33,9 @@ function isStatusFilter(s: string): s is StatusFilter {
 }
 
 export async function GET(request: NextRequest) {
+  const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+  if (!gate.ok) return gate.response;
+
   try {
     const statusParam = request.nextUrl.searchParams.get("status");
     const status: StatusFilter = statusParam && isStatusFilter(statusParam)

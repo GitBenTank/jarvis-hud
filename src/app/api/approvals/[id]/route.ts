@@ -9,11 +9,7 @@ import {
   writeJson,
 } from "@/lib/storage";
 import { normalizeAction } from "@/lib/normalize";
-import {
-  isAuthEnabled,
-  getSessionFromCookie,
-  AuthConfigError,
-} from "@/lib/auth";
+import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import { resolveGovernedHumanPrincipal } from "@/lib/governed-human-principal";
 import { assertSodApprovalAllowed, logSodPolicyDeny } from "@/lib/sod-rbac";
 import {
@@ -63,24 +59,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    let authEnabled = false;
-    try {
-      authEnabled = isAuthEnabled();
-    } catch (err) {
-      if (err instanceof AuthConfigError) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
-      }
-      throw err;
-    }
+    const gate = requireVerifiedSessionGate(request.headers.get("cookie"));
+    if (!gate.ok) return gate.response;
 
-    const cookie = request.headers.get("cookie");
-    const session = authEnabled ? getSessionFromCookie(cookie) : null;
-    if (authEnabled && !session) {
-      return NextResponse.json(
-        { error: "Session required", code: "session_required" },
-        { status: 401 }
-      );
-    }
+    const authEnabled = gate.authEnabled;
+    const session = gate.session;
 
     const humanRes = resolveGovernedHumanPrincipal(session, authEnabled);
     if (!humanRes.ok) {

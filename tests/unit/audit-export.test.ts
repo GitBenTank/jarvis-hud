@@ -77,6 +77,7 @@ describe("buildAuditExportBundle", () => {
     const {
       validateAuditDateRange,
       buildAuditExportBundle,
+      AUDIT_EXPORT_SCHEMA_VERSION,
     } = await import("@/lib/audit-export");
 
     const dk = "2026-04-09";
@@ -126,6 +127,7 @@ describe("buildAuditExportBundle", () => {
 
     const bundle = await buildAuditExportBundle(v);
 
+    expect(bundle.schemaVersion).toBe(AUDIT_EXPORT_SCHEMA_VERSION);
     expect(bundle.summary.events).toBe(1);
     expect(bundle.summary.receipts).toBe(1);
     expect(bundle.summary.traces).toBe(1);
@@ -199,6 +201,7 @@ describe("buildAuditExportBundle", () => {
     const {
       validateAuditDateRange,
       buildAuditExportBundle,
+      AUDIT_EXPORT_SCHEMA_VERSION,
     } = await import("@/lib/audit-export");
 
     const dk = "2026-04-11";
@@ -238,6 +241,7 @@ describe("buildAuditExportBundle", () => {
     if (!v.ok) throw new Error("validation failed");
 
     const bundle = await buildAuditExportBundle(v);
+    expect(bundle.schemaVersion).toBe(AUDIT_EXPORT_SCHEMA_VERSION);
     const ev = bundle.events[0] as Record<string, unknown>;
     const hp = ev.humanPrincipals as Record<string, Record<string, string>>;
     expect(hp.approval.principalSub).toBe("alice");
@@ -259,5 +263,23 @@ describe("buildAuditExportBundle", () => {
     if (!v.ok) throw new Error("validation failed");
     const bundle = await buildAuditExportBundle(v);
     expect(bundle.sodOperatorGuide?.join(" ")).toContain("humanPrincipals");
+  });
+
+  it("export JSON envelope matches snapshot (B3a schema freeze)", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-15T12:00:00.000Z"));
+    const { getEventsFilePath, getActionsFilePath } = await import("@/lib/storage");
+    const { validateAuditDateRange, buildAuditExportBundle } = await import("@/lib/audit-export");
+    const dk = "2026-08-15";
+    await fs.mkdir(path.join(TEST_ROOT, "events"), { recursive: true });
+    await fs.mkdir(path.join(TEST_ROOT, "actions"), { recursive: true });
+    await fs.writeFile(getEventsFilePath(dk), "[]", "utf-8");
+    await fs.writeFile(getActionsFilePath(dk), "", "utf-8");
+    const v = validateAuditDateRange(dk, dk);
+    expect(v.ok).toBe(true);
+    if (!v.ok) throw new Error("validation failed");
+    const bundle = await buildAuditExportBundle(v);
+    expect(bundle).toMatchSnapshot();
+    vi.useRealTimers();
   });
 });

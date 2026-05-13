@@ -5,6 +5,7 @@ import { requireVerifiedSessionGate } from "@/lib/api-session-guard";
 import {
   validateAuditDateRange,
   buildAuditExportBundle,
+  AUDIT_EXPORT_SCHEMA_VERSION,
 } from "@/lib/audit-export";
 import { AuditExportIdentityIntegrityError } from "@/lib/audit-export-identity";
 
@@ -30,7 +31,11 @@ export async function GET(request: NextRequest) {
 
   try {
     const bundle = await buildAuditExportBundle(v);
-    return NextResponse.json(bundle);
+    return NextResponse.json(bundle, {
+      headers: {
+        "X-Jarvis-Audit-Export-Schema": String(AUDIT_EXPORT_SCHEMA_VERSION),
+      },
+    });
   } catch (err: unknown) {
     if (err instanceof AuditExportIdentityIntegrityError) {
       return NextResponse.json(

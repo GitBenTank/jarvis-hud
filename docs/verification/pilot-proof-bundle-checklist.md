@@ -7,6 +7,7 @@ related:
   - ./policy-deny-repro.md
   - ./pilot-charter-template.md
   - ../audit-export.md
+  - ../runbooks/audit-export-operator-proof.md
   - ../setup/phase1-freeze-checklist.md
   - ../strategy/operating-assumptions.md
 ---
@@ -73,9 +74,10 @@ curl -sS "http://127.0.0.1:3000/api/audit/export?start=START&end=END" \
   -o "evidence/jarvis-audit-export_START_to_END.json"
 ```
 
-If **`JARVIS_AUTH_ENABLED=true`**, add session cookie per [audit export](../audit-export.md).
+If **`JARVIS_AUTH_ENABLED=true`**, add session cookie per [audit export](../audit-export.md) and [Audit export — operator proof](../runbooks/audit-export-operator-proof.md).
 
 - [ ] Saved file: **`evidence/jarvis-audit-export_<start>_to_<end>.json`**
+- [ ] **`jq '.schemaVersion'`** matches **`AUDIT_EXPORT_SCHEMA_VERSION`** in `src/lib/audit-export.ts` (frozen envelope — see snapshot test in `tests/unit/audit-export.test.ts`).
 - [ ] Confirm **`index.approvalIds`** / **`index.traceIds`** include the pilot approval.
 
 Store **`evidence/`** locally; do not commit secrets or raw exports unless counsel/redaction allows. Repo lists `/evidence/` in `.gitignore`.

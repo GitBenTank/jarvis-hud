@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildAuditExportBundle > export JSON envelope matches snapshot (B3a schema freeze) 1`] = `
+{
+  "events": [],
+  "generatedAt": "2026-08-15T12:00:00.000Z",
+  "index": {
+    "approvalIds": [],
+    "traceIds": [],
+  },
+  "policyDecisions": [],
+  "range": {
+    "end": "2026-08-15",
+    "start": "2026-08-15",
+  },
+  "receipts": [],
+  "reconciliation": [],
+  "schemaVersion": 1,
+  "summary": {
+    "events": 0,
+    "policyDecisions": 0,
+    "receipts": 0,
+    "reconciliation": 0,
+    "traces": 0,
+  },
+}
+`;

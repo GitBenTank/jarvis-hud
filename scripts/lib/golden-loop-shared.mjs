@@ -354,6 +354,9 @@ export async function runIngressApproveExecuteTraceExport({
   const expRes = await fetch(exportUrl, { headers: { ...cookieHeaders } });
   if (!expRes.ok) fail(`audit export: HTTP ${expRes.status} ${await expRes.text()}`);
   const bundle = await expRes.json();
+  if (bundle?.schemaVersion !== 1) {
+    fail(`audit export: expected schemaVersion 1, got ${JSON.stringify(bundle?.schemaVersion)}`);
+  }
   const ids = new Set(bundle?.index?.approvalIds ?? []);
   const traces = new Set(bundle?.index?.traceIds ?? []);
   if (!ids.has(approvalId)) fail(`audit export: approvalId ${approvalId} not in index.approvalIds`);

@@ -91,14 +91,14 @@ Use this label only when the product can credibly promise:
 
 | ID | Priority | Workstream | Item | Owner | Status |
 |----|----------|------------|------|-------|--------|
-| B3a | P2 | B | **Audit export — schema frozen** — version field, stable columns, fixture or snapshot tests so exports do not drift silently. Touch: `src/app/api/audit/export/route.ts`, tests. | | Not started |
-| B3b | P2 | B | **Audit export — operator bundle flow proven** — pilot bundle steps + redacted sample + “done when” in [pilot checklist](../verification/pilot-proof-bundle-checklist.md). | | Not started |
+| **B3a** | P2 | B | **Audit export — schema frozen** — **`schemaVersion`** + `AUDIT_EXPORT_SCHEMA_VERSION` in `src/lib/audit-export.ts`; snapshot envelope test; response header `X-Jarvis-Audit-Export-Schema`; docs. | | Done |
+| **B3b** | P2 | B | **Audit export — operator bundle flow proven** — [Audit export — operator proof](../runbooks/audit-export-operator-proof.md) + pilot checklist §3 (`schemaVersion` jq line). | | Done |
 | B5 | P2 | B | **Attribution contract** — approve / execute (and principals when bound) on events and in export; gaps documented. Touch: `src/lib/governed-human-principal.ts`, `src/app/api/approvals/[id]/route.ts`, execute route, export. | | Not started |
 
 ### P2 — Done when
 
-- [ ] B3a: export schema versioned; breaking change requires doc + test bump  
-- [ ] B3b: one operator can produce a bundle from runbook without ad-hoc tooling  
+- [x] B3a: export schema versioned; breaking change requires doc + test bump  
+- [x] B3b: one operator can produce a bundle from runbook without ad-hoc tooling  
 - [ ] B5: attribution fields defined in a short contract doc + export includes them  
 
 ---
@@ -195,7 +195,7 @@ Use this label only when the product can credibly promise:
 | `GET /api/traces/[traceId]` | Session required | No | Trace bundle | A5 | **Investigate** | |
 | `GET /api/traces/[traceId]/replay` | Session required | No | Replay | A5 | **Investigate** | |
 | `GET /api/traces/recent` | Session required | No | Recent ids | A5 | **Investigate** | |
-| `GET /api/audit/export` | Session required | No | Full audit JSON | A5, B3 | **Gap** — export sensitivity; confirm intended policy | |
+| `GET /api/audit/export` | Session required | Verified session gate | Full audit JSON + `schemaVersion` | A5, B3 | **OK** — B3a/B3b: versioned envelope + runbook | |
 | `GET /api/connectors/openclaw/health` | Session required | No | Health | A5 | OK | |
 | `GET /api/proof-path` | Session required | Unknown | Proof hints | A5 | **Investigate** — confirm handler | |
 | `GET /api/incidents` | Session required | Unknown | Incidents | A5 | **Investigate** | |

@@ -7,7 +7,7 @@ Read-only JSON export for **external audit**: prove what happened in a calendar 
 `GET /api/audit/export?start=YYYY-MM-DD&end=YYYY-MM-DD`
 
 - **`start`** / **`end`**: inclusive calendar dates in UTC (`YYYY-MM-DD`).
-- **Auth:** When `JARVIS_AUTH_ENABLED=true`, the route follows the same session requirement as other `/api/*` routes (see `src/proxy.ts`).
+- **Auth:** When `JARVIS_AUTH_ENABLED=true`, **`requireVerifiedSessionGate`** (`src/lib/api-session-guard.ts`) requires a **valid signed** `jarvis_session` cookie (same as other session-backed `/api` routes). Use `curl -b` with cookies from the browser after `POST /api/auth/init`, or see [Audit export — operator proof](../runbooks/audit-export-operator-proof.md).
 
 ## Limits
 
@@ -17,10 +17,13 @@ Read-only JSON export for **external audit**: prove what happened in a calendar 
 
 ## Response shape
 
+**Schema version:** every bundle includes **`schemaVersion`** (integer), equal to **`AUDIT_EXPORT_SCHEMA_VERSION`** in `src/lib/audit-export.ts`. Bump the constant, snapshot test, and this doc together on **breaking** JSON shape changes. Successful HTTP responses also set header **`X-Jarvis-Audit-Export-Schema`** to the same value for quick `curl -I` checks.
+
 JSON only:
 
 ```json
 {
+  "schemaVersion": 1,
   "range": { "start": "2026-04-01", "end": "2026-04-07" },
   "generatedAt": "2026-04-09T…Z",
   "summary": {
@@ -41,12 +44,22 @@ JSON only:
 }
 ```
 
+Optional when SoD is enabled or historical `sod.*` policy rows exist in-range:
+
+```json
+  "sodOperatorGuide": ["…"]
+```
+
 - **`events`**: rows from `~/jarvis/events/{date}.json` (proposals / lifecycle), including Phase 1 `actor*` / `approvalActor*` and optional **`approvalPrincipal*` / `executionPrincipal*`** when present. Each row is returned with the same persisted fields, plus an added **`humanPrincipals`** object (approval vs execution side-by-side) when there is anything to mirror — see [Identity binding §9](../architecture/identity-binding-claims-contract-v1.md#9-read-surfaces-s3).
 - **`receipts`**: lines from `~/jarvis/actions/{date}.jsonl` (including `traceId`, `approvalId`, `actors` when present).
 - **`policyDecisions`** / **`reconciliation`**: JSONL from `policy-decisions/` and `reconciliation/` for each day in range (empty arrays if files are missing).
 - **`index`**: sorted unique `traceId` and `approvalId` values seen across those arrays (for quick correlation).
 
 No new persistence format is introduced; this is a **bundle of existing files**.
+
+## Operator proof (B3)
+
+One sitting, same `JARVIS_ROOT`: **[Audit export — operator proof](./runbooks/audit-export-operator-proof.md)** (curl + `jq` + link to the pilot bundle checklist).
 
 ## Example
 

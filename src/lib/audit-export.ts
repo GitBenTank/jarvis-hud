@@ -28,7 +28,12 @@ export const AUDIT_EXPORT_MAX_RANGE_DAYS = 90;
 
 const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+/** Increment when breaking changes to `AuditExportBundle` JSON shape; keep in sync with docs and snapshot tests. */
+export const AUDIT_EXPORT_SCHEMA_VERSION = 1 as const;
+
 export type AuditExportBundle = {
+  /** Frozen JSON envelope version — bump on breaking shape changes (see `docs/audit-export.md`). */
+  schemaVersion: typeof AUDIT_EXPORT_SCHEMA_VERSION;
   range: { start: string; end: string };
   generatedAt: string;
   summary: {
@@ -264,6 +269,7 @@ export async function buildAuditExportBundle(
   );
 
   return {
+    schemaVersion: AUDIT_EXPORT_SCHEMA_VERSION,
     range: { start, end },
     generatedAt: new Date().toISOString(),
     summary: {

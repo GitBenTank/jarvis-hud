@@ -173,7 +173,7 @@ Open **http://127.0.0.1:3000**. Production-style: `pnpm build && pnpm start`. Sc
 Agent → Proposal → Approval → Execution → Receipt → Trace
 ```
 
-- **Agents propose** (UI, API, or signed **OpenClaw** ingress).
+- **Agents propose** via the path you deploy: **signed OpenClaw ingress** is the production-shaped entry; **`POST /api/events`** and **`POST /api/drafts/content`** are optional **local/demo helpers** (on by default, **403** when `JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS=false` — see [Environment variables](docs/setup/env.md)).
 - **Humans approve** (or reject) in the HUD.
 - **Execution** runs only after approval — **separate** from the approval click.
 - **Proof:** receipt log + artifacts + trace reconstruction.
@@ -192,7 +192,8 @@ Jarvis sits between AI agents and system execution:
 
 | Stage     | Route                            | Purpose                  |
 |-----------|----------------------------------|--------------------------|
-| Ingress   | `POST /api/ingress/openclaw`     | Signed proposals         |
+| Ingress   | `POST /api/ingress/openclaw`     | Signed proposals (trusted path) |
+| Local (optional) | `POST /api/events`, `POST /api/drafts/content` | Dev/UI/scripts — **not** HMAC ingress; disable in strict hosts via `JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS=false` |
 | Approval  | `GET/POST /api/approvals`        | List / approve / deny    |
 | Execution | `POST /api/execute/[approvalId]` | Policy gate → adapters |
 | Trace     | `GET /api/traces/[traceId]`      | Reconstruct session      |
@@ -200,6 +201,8 @@ Jarvis sits between AI agents and system execution:
 | Connectors | `GET /api/connectors/openclaw/health` | OpenClaw trust signal (disk + env) |
 
 → [Control plane architecture](docs/architecture/control-plane.md)
+
+**Positioning (honest):** Jarvis is a **governed control plane for the blessed path** (approve → execute → receipts/traces), with **strong local proof** and **demo/diligence** workflows when you set explicit deployment boundaries (auth, ingress secret, disabling local proposal APIs). It is **not** “enterprise secure by default” without your configuration; see [Trusted ingress](docs/security/trusted-ingress.md) and [Enterprise readiness punch list](docs/roadmap/0007-enterprise-readiness-punch-list.md).
 
 ---
 

@@ -40,6 +40,16 @@ Jarvis HUD configuration is driven by environment variables. Never commit secret
 
 ---
 
+## Local proposal APIs (dev / demos)
+
+These routes are **not** HMAC-signed OpenClaw ingress. When auth is on, the **proxy** may require a session, but they are still a **separate trust surface** from `POST /api/ingress/openclaw`.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS` | No | When **`false`**, **`0`**, or **`no`** (case-insensitive), **`POST /api/events`** and **`POST /api/drafts/content`** return **403** with `code: local_proposal_apis_disabled`. When **unset**, both are **enabled** (default local/script behavior). Set **`false`** on production-shaped hosts so proposals enter only via signed ingress. See [Trusted ingress](../security/trusted-ingress.md). |
+
+---
+
 ## Connector ingress (OpenClaw)
 
 | Variable | Required | Description |

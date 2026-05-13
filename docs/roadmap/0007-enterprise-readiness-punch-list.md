@@ -58,7 +58,7 @@ Use this label only when the product can credibly promise:
 | ID | Priority | Workstream | Item | Owner | Status |
 |----|----------|------------|------|-------|--------|
 | A1 | P0 | A | **Ingress validation** — schema, size, depth, batch limits; failures operator-readable; tests for oversize / malformed. Touch: `src/lib/ingress-schema.ts`, `src/app/api/ingress/openclaw/route.ts`. | | Not started |
-| **A2** | P0 | A | **Untrusted proposal surfaces — thesis-risk.** **`POST /api/events`** and **`POST /api/drafts/content`** can create proposals **without** signed ingress. For enterprise, either **remove**, **auth-gate**, **network-restrict**, or **document as explicit non-production escape hatch** with tests proving it cannot ship enabled on hosted prod without review. Touch: `src/app/api/events/route.ts`, `src/app/api/drafts/content/route.ts`, [roadmap 0001 § surface table](./0001-technical-roadmap-production.md). | | Not started |
+| **A2** | P0 | A | **Untrusted proposal surfaces — thesis-risk.** **`POST /api/events`** and **`POST /api/drafts/content`** are **not** signed ingress. **Mitigated:** set **`JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS=false`** → both POST handlers return **403** (`local_proposal_apis_disabled`); default **on** for local/scripts. Hosted prod should set **false** and use **`POST /api/ingress/openclaw`** only. Touch: `src/lib/local-proposal-apis.ts`, `src/app/api/events/route.ts`, `src/app/api/drafts/content/route.ts`, [roadmap 0001 § surface table](./0001-technical-roadmap-production.md). | | Mitigated (env gate) |
 | A3 | P0 | A | **Execution allowlist + workspace boundaries** — policy + execution scope + adapter behavior aligned; expanded deny-path tests. Touch: `src/lib/policy.ts`, `src/lib/execution-scope.ts`, `src/app/api/execute/[approvalId]/route.ts`. | | Not started |
 | A4 | P0 | A | **Server-side irreversible gates** — high-risk kinds cannot execute on UI confirmation alone; policy / preflight / step-up as designed. Touch: `src/lib/risk.ts`, execute route, `docs/execution-scope.md`. | | Not started |
 | A5 | P0 | A | **API trust boundary** — with auth enabled, no inconsistent session requirements between proxy and handlers for sensitive reads/writes. Touch: `src/proxy.ts`, gated routes (`/api/activity/stream`, approvals, actions, execute). | | Not started |
@@ -68,7 +68,7 @@ Use this label only when the product can credibly promise:
 
 - [ ] **Appendix A** matrix filled with owner + disposition for every route (**this revision**).  
 - [ ] Matrix completed: every externally reachable **write** and **execute** path mapped to A1–A6 with owner sign-off  
-- [ ] **A2** explicitly resolved (fix, gate, or documented exception with deployment guardrails)  
+- [x] **A2** — env gate: **`JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS=false`** disables **`POST /api/events`** and **`POST /api/drafts/content`** (403); default on for local/scripts; docs in `README`, `docs/setup/env.md`, `env.example`  
 - [ ] **A6** produces an artifact (doc table + test/probe output) updated when API surface changes  
 
 ---
@@ -212,8 +212,8 @@ Use this label only when the product can credibly promise:
 | `POST /api/auth/init` | POST | Session cookie | **Exempt** | N/A | N/A | A5 | OK | |
 | `POST /api/auth/step-up` | POST | Step-up | Session required | Session | N/A | A5 | OK | |
 | `POST /api/auth/oidc/stub-bind` | POST | Bind principal | Session required | Stub guard env | N/A | A5 | **Investigate** — dev-only surface | |
-| `POST /api/events` | GET+**POST** | **POST** writes `events/{date}.json` | Session required when auth on | **No** auth in handler (`src/app/api/events/route.ts`) | **Bypass** — unsigned proposal creation (**A2**, **A6**) | **A2**, A6 | **Gap** | |
-| `POST /api/drafts/content` | POST | Writes proposal-shaped events | Session required when auth on | **No** auth in handler (`src/app/api/drafts/content/route.ts`) | **Bypass** — UI/demo path (**A2**, **A6**) | **A2**, A6 | **Gap** | |
+| `POST /api/events` | GET+**POST** | **POST** writes `events/{date}.json` | Session required when auth on | **No** auth in handler (`src/app/api/events/route.ts`); **403** when `JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS=false` | **Bypass** when env allows — unsigned proposal creation (**A2**, **A6**) | **A2**, A6 | **Mitigated** — strict: env false; **Gap** if left default on in prod | |
+| `POST /api/drafts/content` | POST | Writes proposal-shaped events | Session required when auth on | **No** auth in handler (`src/app/api/drafts/content/route.ts`); **403** when `JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS=false` | **Bypass** when env allows — UI/demo path (**A2**, **A6**) | **A2**, A6 | **Mitigated** — strict: env false; **Gap** if left default on in prod | |
 | `POST /api/reflections` | POST | Writes reflection / events | Session required when auth on | **No** session check in handler (`src/app/api/reflections/route.ts`) | **Partial** — creates work from prior execute; confirm policy | A6 | **Investigate** | |
 | `POST /api/recovery/verify` | POST | Writes verification state | Session required when auth on | **No** handler auth (`src/app/api/recovery/verify/route.ts`) | Post-execute operator mark | A6 | **Investigate** | |
 | `POST /api/reset/today` | POST | Archives day files | Session required when auth on | **`x-jarvis-reset: YES`** header — not session identity | **Bypass** of normal UX — operator secret | A6 | **Gap** — document + restrict | |
@@ -229,7 +229,7 @@ Use this label only when the product can credibly promise:
 
 - [ ] Every row above has **Owner** + **Initial** resolved to **OK**, **Gap** (with ticket/ADR), or **Won’t fix** (with explicit prod stance)  
 - [ ] New `src/app/api/**/route.ts` files added since this revision are **appended** within one release  
-- [ ] Optional: automated inventory test that fails if an unlisted API route ships (link from CI doc when built)
+- [ ] Optional: automated inventory test that fails if an unlisted API route ships (link from CI doc when built) — **`tests/unit/api-route-surface-manifest.test.ts`** (update manifest when adding `src/app/api/**/route.ts`)
 
 ---
 

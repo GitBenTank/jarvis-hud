@@ -4,7 +4,7 @@ Status: Accepted
 Date: 2026-02-25  
 Owner: Ben Tankersley  
 
-**Related:** [ADR-0005: Agent team batch v0](./0005-agent-team-batch-v0-per-item-execute.md) · [ADR-0006: Governed workflow plans v0.3](./0006-governed-workflow-plans-v03.md) · [Agent team v1](../strategy/agent-team-v1.md)
+**Related:** [ADR-0005: Agent team batch v0](./0005-agent-team-batch-v0-per-item-execute.md) · [ADR-0006: Governed workflow plans v0.3](./0006-governed-workflow-plans-v03.md) · [Agent team v1](../strategy/agent-team-v1.md) · **HTTP / session:** [Security model](../architecture/security-model.md) · [Network proxy boundary](../architecture/network-proxy-boundary.md) · `src/lib/api-session-guard.ts`
 
 ---
 

@@ -9,6 +9,7 @@ Jarvis enforces multiple boundaries so AI-driven automation remains **governed, 
 | Boundary | When | Purpose |
 |----------|------|---------|
 | **Network proxy** | Edge of `/api` requests | Thin interception: session *presence* when auth is on; public `/api` allowlist. Not ingress, approval, or execution policy. See [Network proxy boundary](./network-proxy-boundary.md). |
+| **Verified session (Node)** | Same request, in route handlers | Defense in depth: `requireVerifiedSessionGate` (`src/lib/api-session-guard.ts`) verifies the **signed** session cookie for browser-backed APIs. Answers “what if a fake cookie passes proxy presence-only?” — **401** with `session_required`. See [Network proxy boundary](./network-proxy-boundary.md#why-the-proxy-stays-thin). |
 | **Connector verification** | Ingress | Only allowlisted connectors with valid signatures can propose actions |
 | **Human approval** | Before execution | Operators review and approve; no auto-execution |
 | **Policy gate** | Execute-time | Kind allowlist, auth step-up, preflight checks before adapters run |
@@ -19,10 +20,11 @@ Jarvis enforces multiple boundaries so AI-driven automation remains **governed, 
 ## Defense in Depth
 
 1. **Trusted Ingress** — Controls what can propose. HMAC-signed requests; connector allowlist; nonce replay protection.
-2. **Approval gate** — Human authority. Proposals queue until approved; approval ≠ execution.
-3. **Policy gate** — Execute-time enforcement. Unknown kinds blocked; step-up when auth enabled; preflight for `code.apply`.
-4. **Audit trail** — Receipts written to `~/jarvis/actions/YYYY-MM-DD.jsonl`; traces link proposal → approval → execution → receipt.
-5. **Policy decision logs** — Every policy evaluation logged to `~/jarvis/policy-decisions/YYYY-MM-DD.jsonl` with `traceId`, `decision`, `rule`, `reason`, `timestamp`. Answers: *Why was execution allowed or blocked?*
+2. **Browser session (when auth on)** — Proxy requires cookie **presence**; Node handlers call **`requireVerifiedSessionGate`** so only a valid `jarvis_session` reaches approvals, actions, traces, execute, etc. (`POST /api/preflight` is an exception: it may run without a session and reports `stepUpValid: false`.)
+3. **Approval gate** — Human authority. Proposals queue until approved; approval ≠ execution.
+4. **Policy gate** — Execute-time enforcement. Unknown kinds blocked; step-up when auth enabled; preflight for `code.apply`.
+5. **Audit trail** — Receipts written to `~/jarvis/actions/YYYY-MM-DD.jsonl`; traces link proposal → approval → execution → receipt.
+6. **Policy decision logs** — Every policy evaluation logged to `~/jarvis/policy-decisions/YYYY-MM-DD.jsonl` with `traceId`, `decision`, `rule`, `reason`, `timestamp`. Answers: *Why was execution allowed or blocked?*
 
 ---
 
@@ -34,7 +36,8 @@ Jarvis enforces multiple boundaries so AI-driven automation remains **governed, 
 
 ## See Also
 
-- [Network proxy boundary](./network-proxy-boundary.md) — thin Next.js `proxy.ts`, auth shell vs ingress vs execution
+- [Network proxy boundary](./network-proxy-boundary.md) — thin Next.js `proxy.ts`, auth shell vs ingress vs execution; links **`src/lib/api-session-guard.ts`** (verified session in Node)
+- `src/lib/api-session-guard.ts` — `requireVerifiedSessionGate` for session-backed `/api` routes (pair with [ADR-0001 Thesis Lock](../decisions/0001-thesis-lock.md) — human authority in action, not paperwork alone)
 - [Policy Decision Logs](policy-decision-logs.md) — why execution was allowed or blocked
 - [Agent Execution Model](../security/agent-execution-model.md) — runtime constraints, Thesis Lock
 - [Trusted Ingress](../security/trusted-ingress.md) — connector verification

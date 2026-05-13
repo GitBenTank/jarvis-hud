@@ -65,8 +65,11 @@ The proxy touches only a **narrow slice** of human authority: “does this `/api
 
 **Changes to allowlists** (e.g. new `/api` routes that must work without session) are **operational contract changes**: update code, update narrative (runbooks), confirm probes still describe the same host.
 
+**Browser clients:** HUD code that calls session-gated `/api` routes should pass **`fetch(..., { credentials: "include" })`** so the `jarvis_session` cookie is always sent when operators use **`JARVIS_AUTH_ENABLED=true`** (explicit and consistent; same-origin defaults are easy to misread in refactors).
+
 ## See also
 
-- [Security model](./security-model.md) — boundary table
+- [Security model](./security-model.md) — boundary table (includes **verified session / Node** row)
+- **`src/lib/api-session-guard.ts`** — `requireVerifiedSessionGate`: signed cookie verification for session-backed handlers (discoverability from architecture docs)
 - [Trusted ingress](../security/trusted-ingress.md) — ingress as separate boundary
 - [Thesis Lock](../decisions/0001-thesis-lock.md)

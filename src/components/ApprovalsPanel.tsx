@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { activityTraceHref } from "@/lib/activity-trace-href";
 import { formatRelativeTime } from "@/lib/operator-timestamp";
 import { parseWorkflowPlanPayload } from "@/lib/workflow-plan";
 import { workflowStepBoundaryLabel } from "@/lib/workflow-step-boundary";
 import { normalizeAction } from "@/lib/normalize";
+import { pickExecutedReceiptCardEvent } from "@/lib/executed-receipt-card-selection";
 import {
   isApprovedAwaitingExecution,
   isExecuted,
@@ -83,6 +85,8 @@ type ApprovalsResponse = {
   dateKey: string;
   approvals: Event[];
 };
+
+const NO_APPROVALS: Event[] = [];
 
 type ExecuteResult = {
   ok: boolean;
@@ -1551,6 +1555,8 @@ function DetailModal({
 }
 
 export default function ApprovalsPanel() {
+  const searchParams = useSearchParams();
+  const urlTraceId = searchParams.get("trace")?.trim() || null;
   const [allApprovals, setAllApprovals] = useState<ApprovalsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [approvalsEmptyBlocked, setApprovalsEmptyBlocked] = useState<"session" | null>(null);
@@ -1726,7 +1732,7 @@ export default function ApprovalsPanel() {
     [fetchApprovals]
   );
 
-  const raw = allApprovals?.approvals ?? [];
+  const raw = allApprovals?.approvals ?? NO_APPROVALS;
   const approvals = raw.filter((e) => isPendingApproval(e));
   const approvedNotExecuted = raw.filter((e) => isApprovedAwaitingExecution(e));
   const lastExecutedProposal =
@@ -1738,12 +1744,19 @@ export default function ApprovalsPanel() {
           new Date(a.executedAt ?? a.createdAt).getTime()
       )[0] ?? null;
 
+  const { card: receiptCardProposal, traceUrlFallback } = useMemo(
+    () => pickExecutedReceiptCardEvent(raw, urlTraceId, lastExecutedProposal),
+    [raw, urlTraceId, lastExecutedProposal]
+  );
+
   return (
     <>
       <AgentProposalsFeed
         pendingApprovals={approvals}
         approvedNotExecuted={approvedNotExecuted}
         lastExecutedProposal={lastExecutedProposal}
+        receiptCardProposal={receiptCardProposal}
+        traceReceiptUrlFallback={traceUrlFallback}
         loading={loading}
         dateKey={allApprovals?.dateKey}
         onDetails={(e) => setDetailEvent(e as Event)}

@@ -100,7 +100,7 @@ One **row per** repeat or sharp hesitation. Put text in **one** column only (lea
 | --- | --- | --- |
 | **Operator dry-run 2026-05-12:** `pnpm rehearsal:research-batch` submitted **one** `batch.id` (`8fbee78e-16c8-4b9c-90fa-d512c72666c4`) but each item returned a **different** `traceId` (`81a855bd-…`, `d5502f8f-…`, `179e7fa7-…`). A buyer hunting “the batch trace” may pick the wrong deep link or think the three rows are unrelated. | | |
 | **Operator dry-run 2026-05-12:** With `JARVIS_AUTH_ENABLED=true`, `GET /api/activity/stream` without a Jarvis session cookie returns **401** and `{ error: "Session required. Call POST /api/auth/init first." }` (`src/proxy.ts`). A cold open of `/activity` (or a second device) shows the graph error state before queue content unless the observer has already established session on that origin. | | |
-| **HUD 2026-05-12 (post-rehearsal):** With `?trace=` set to item 2 or 3, **Agent Proposals** shows orange **Different trace in URL** — URL trace ≠ **latest completed receipt** card (which stays on the most recently executed item). Copy points observers to timeline / proof rail or clearing `?trace=`. Implementation: `mismatchedUrlTrace` in `src/components/AgentProposalsFeed.tsx`. | | |
+| **HUD 2026-05-12 (pre-fix):** With `?trace=` for item 2/3, the receipt card stayed on **latest-by-time** while the URL pointed elsewhere — **fixed:** card now follows `?trace=` when that trace matches an **executed** row in the loaded day (`pickExecutedReceiptCardEvent` + `AgentProposalsFeed`). Amber only when the URL trace is **missing** from that set (wrong day / typo / not executed). | | |
 | | **`pnpm rehearsal:preflight`** reports `stepUpValid=false` without browser cookies (expected for the probe). In the HUD, that can read as “something is wrong” until framed as **execute gate**, not “approve failed.” | |
 | | | **HUD 2026-05-12:** Home **Executed Actions** listed **DRY RUN** on every row including live **`system.note`** — unconditional badge in `src/components/ActionsPanel.tsx` (misaligned with `src/lib/execution-surface.ts`). **Fixed:** show DRY RUN only when `!isNonDryRunExecuteKind(kind)`. |
 
@@ -165,7 +165,7 @@ After narrate-back, log repeats in **Quick classify** (three columns, same secti
 | **Approve vs execute clarity (1–5)** | *Pending observer.* |
 | **Language that landed** | *Pending observer.* |
 | **Language that failed** | *Pending observer.* |
-| **Next fix (one)** | **Done:** receipts strip false **DRY RUN** for live kinds (`ActionsPanel` + `isNonDryRunExecuteKind`). **Still open:** batch vs `?trace=` handoff (row 4) — pick UI copy/default trace **or** runbook cue after next observer pass. |
+| **Next fix (one)** | **Shipped:** receipt card follows `?trace=` when possible. **Still open:** smart-stranger narrate-back only — optional copy tweaks in runbook (`docs/video/investor-demo-rehearsal-run-sheet.md`). |
 | **Merged to friction log?** | n |
 
 ### After both sessions

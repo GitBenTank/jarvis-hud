@@ -24,7 +24,7 @@ related:
 2. **Front door:** **`/docs`** — **Start here** CTA → **`/demo`**.  
 3. **Canonical walkthrough:** **`/demo`** — six slides, then **Enter live system** → **`/`** (HUD home, same origin). In-page cinematic scroll after the deck is **not** on this path.  
 4. **Read-only deck only:** **`/pitch`** (not where notes or execution live; handoff: **`/demo`** then **`/`** for live).  
-5. **Proof surface:** navigate from home to **`/activity`** as needed — Reject / Approve / Execute, receipts, traces.  
+5. **Proof surface:** navigate from home to **`/activity`** as needed — Reject / Approve / Execute, receipts, traces. With **`?trace=<id>`** in the URL, the empty-queue **Agent Proposals** receipt card **follows that trace** when it matches an executed row for the loaded day (see [scope collision spec](../strategy/activity-trace-scope-collision-fix-spec.md)); amber **only** if that trace is not in today’s executed set (then use timeline or fix the date / link).  
 6. **Runtime (paste):** **OpenClaw Control → Chat (Alfred)**.
 
 ---

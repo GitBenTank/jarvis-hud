@@ -13,12 +13,9 @@ related:
 
 ## Problem (comprehension)
 
-When **`/activity?trace=<id>`** points at **one** proposal’s story (e.g. **rejected** item 2/3) but **Agent Proposals** still shows **“latest completed execution”** for a **different** item (e.g. executed 3/3), observers **merge two scopes into one** and doubt the product or the data.
+When **`/activity?trace=<id>`** points at **one** proposal’s story but **Agent Proposals** showed a **different** executed row (always **latest-by-time**), observers **merged two scopes into one** and doubted the product or the data.
 
-**Risk:** not the rejected trace — the **scope collision** between:
-
-- **Selected trace** (URL + timeline + proof rail), and  
-- **Queue summary card** (“what happened most recently in the approvals ledger”).
+**Residual risk (narrower):** mismatch between **selected trace** (URL + timeline + proof rail) and **today’s loaded approvals** when the URL trace is **not** in that set (e.g. wrong calendar day for `GET /api/approvals`, typo, or trace not yet executed).
 
 ## Smallest fixes (try in order)
 
@@ -28,9 +25,16 @@ When **`/activity?trace=<id>`** points at **one** proposal’s story (e.g. **rej
 
 - Replaced “most recent completed execution” / “Last execution” with **latest completed receipt** and clarified it is **this queue**, not necessarily `?trace=`.
 
-### 2. Mismatch cue when `?trace=` ≠ card’s trace (**shipped** in `AgentProposalsFeed.tsx`)
+### 2. Receipt card follows `?trace=` when it matches an executed row (**shipped**)
 
-- `useSearchParams()` + optional prop `urlTraceId`; amber banner when URL trace ≠ `lastExecutedProposal` trace/id.
+**Files:** `src/lib/executed-receipt-card-selection.ts`, `src/components/ApprovalsPanel.tsx`, `src/components/AgentProposalsFeed.tsx`
+
+- When the queue is empty of pending work and the address bar has **`?trace=`**, the **Agent Proposals** receipt card prefers the **executed** event whose `traceId` (or legacy `id`) matches the URL (case-insensitive), instead of always showing the chronologically latest execution.
+- **Amber banner** only when the URL trace does **not** match any executed row in the **loaded day’s** approvals list (wrong day, typo, or not executed yet) — the card then falls back to the latest completed receipt and explains why.
+
+### 2b. ~~Mismatch cue when `?trace=` ≠ card’s trace~~ (superseded by §2)
+
+Previously: amber whenever URL ≠ latest-by-time card. That is removed for the common case now that the card follows the URL when possible.
 
 ### 3. Richer “Viewing trace …” line (optional next)
 
@@ -45,7 +49,7 @@ When **`/activity?trace=<id>`** points at **one** proposal’s story (e.g. **rej
 
 ## Success check
 
-A stranger with **`?trace=`** open can say: **this card is the latest receipt; the URL is a different story** — without you coaching.
+A stranger with **`?trace=`** open sees the **same executed receipt** in the Agent Proposals card as in the address bar when that trace exists in today’s loaded approvals. If the banner appears, it reads as a **real fallback** (trace missing from this day’s executed set), not a routine “you clicked the wrong link” scold.
 
 ## Friction log
 

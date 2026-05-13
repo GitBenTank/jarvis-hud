@@ -81,7 +81,7 @@ related:
 - `src/components/activity/ActivityProofRail.tsx` — pipeline + trace context; **`lg+` aside**; below `lg`, **`<details>` “Pipeline & trace”** collapsible (`e6c94f5`).
 - `src/components/activity/ActivityProofPanel.tsx` — Graph \| Timeline tabs, max-height region; URL `?trace=` remounts body to Timeline default (`key` on inner body).
 - `src/lib/activity-proof-ui.ts` — `ACTIVITY_PROOF_TAB_EVENT` for rail → panel focus.
-- **Trace URL vs latest-receipt card:** [scope collision spec](./activity-trace-scope-collision-fix-spec.md) — copy + amber mismatch banner in `AgentProposalsFeed.tsx` (§1–2 shipped).
+- **Trace URL vs receipt card:** [scope collision spec](./activity-trace-scope-collision-fix-spec.md) — empty-queue receipt card **follows `?trace=`** when it matches an executed row for the loaded day; amber banner only on genuine fallback (`ApprovalsPanel.tsx`, `AgentProposalsFeed.tsx`, `executed-receipt-card-selection.ts`).
 
 **Next**
 

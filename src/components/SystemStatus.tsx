@@ -133,10 +133,10 @@ export default function SystemStatus() {
   const fetchStatus = useCallback(async () => {
     try {
       const [pendingRes, approvedRes, actionsRes, configRes] = await Promise.all([
-        fetch("/api/approvals?status=pending"),
-        fetch("/api/approvals?status=approved"),
-        fetch("/api/actions"),
-        fetch("/api/config"),
+        fetch("/api/approvals?status=pending", { credentials: "include" }),
+        fetch("/api/approvals?status=approved", { credentials: "include" }),
+        fetch("/api/actions", { credentials: "include" }),
+        fetch("/api/config", { credentials: "include" }),
       ]);
       const pending = await pendingRes.json();
       const approved = await approvedRes.json();
@@ -144,7 +144,7 @@ export default function SystemStatus() {
       const configData = await configRes.json();
 
       try {
-        const alfredRes = await fetch("/api/alfred/status");
+        const alfredRes = await fetch("/api/alfred/status", { credentials: "include" });
         if (alfredRes.ok) {
           const alfredData = await alfredRes.json();
           if (!alfredData.error) setAlfredStatus(alfredData);
@@ -157,7 +157,7 @@ export default function SystemStatus() {
       }
 
       try {
-        const incidentsRes = await fetch("/api/incidents");
+        const incidentsRes = await fetch("/api/incidents", { credentials: "include" });
         if (incidentsRes.ok) {
           const incidentsJson = await incidentsRes.json();
           if (!incidentsJson.error) setIncidentsData(incidentsJson);
@@ -273,6 +273,7 @@ export default function SystemStatus() {
       const res = await fetch("/api/reset/today", {
         method: "POST",
         headers: { "x-jarvis-reset": "YES" },
+        credentials: "include",
       });
       const json = await res.json();
       if (res.ok) {
@@ -572,6 +573,7 @@ export default function SystemStatus() {
                     await fetch("/api/os/open", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
+                      credentials: "include",
                       body: JSON.stringify({
                         path: resetResult.archived.archiveDir,
                         app: "finder",

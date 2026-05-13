@@ -13,7 +13,7 @@ export default function ExecutionAuthorityBanner({
 
   const fetchPending = useCallback(async () => {
     try {
-      const res = await fetch("/api/approvals?status=pending");
+      const res = await fetch("/api/approvals?status=pending", { credentials: "include" });
       const json = await res.json();
       const count = Array.isArray(json.approvals)
         ? json.approvals.length

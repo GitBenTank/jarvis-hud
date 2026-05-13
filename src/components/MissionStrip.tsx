@@ -111,10 +111,10 @@ export default function MissionStrip() {
   const fetchData = useCallback(async () => {
     try {
       const [pendingRes, approvedRes, actionsRes, configRes] = await Promise.all([
-        fetch("/api/approvals?status=pending"),
-        fetch("/api/approvals?status=approved"),
-        fetch("/api/actions"),
-        fetch("/api/config"),
+        fetch("/api/approvals?status=pending", { credentials: "include" }),
+        fetch("/api/approvals?status=approved", { credentials: "include" }),
+        fetch("/api/actions", { credentials: "include" }),
+        fetch("/api/config", { credentials: "include" }),
       ]);
       const pending = (await pendingRes.json()).approvals ?? [];
       const approved = (await approvedRes.json()).approvals ?? [];

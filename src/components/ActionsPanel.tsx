@@ -133,6 +133,7 @@ export default function ActionsPanel() {
         const res = await fetch("/api/recovery/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ approvalId, status }),
         });
         if (res.ok) {

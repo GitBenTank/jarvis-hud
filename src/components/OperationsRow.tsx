@@ -20,7 +20,7 @@ export default function OperationsRow({
 
   const fetchPending = useCallback(async () => {
     try {
-      const res = await fetch("/api/approvals?status=pending");
+      const res = await fetch("/api/approvals?status=pending", { credentials: "include" });
       const json = await res.json();
       setPendingCountLocal(
         Array.isArray(json.approvals) ? json.approvals.length : 0

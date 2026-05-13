@@ -163,6 +163,7 @@ export default function ActivityLogPanel() {
                           await fetch("/api/os/open", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
+                            credentials: "include",
                             body: JSON.stringify({
                               path: action.outputPath ?? action.artifactPath,
                               app: "finder",
@@ -183,6 +184,7 @@ export default function ActivityLogPanel() {
                           await fetch("/api/os/open", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
+                            credentials: "include",
                             body: JSON.stringify({
                               path: action.outputPath ?? action.artifactPath,
                               app: "cursor",

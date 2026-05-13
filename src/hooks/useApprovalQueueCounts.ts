@@ -29,7 +29,7 @@ export function useApprovalQueueCounts(): ApprovalQueueCounts {
 
   const fetchCounts = useCallback(async () => {
     try {
-      const res = await fetch("/api/approvals?status=all");
+      const res = await fetch("/api/approvals?status=all", { credentials: "include" });
       const json = (await res.json()) as ApprovalsAllResponse;
       const list = Array.isArray(json.approvals) ? json.approvals : [];
       let p = 0;

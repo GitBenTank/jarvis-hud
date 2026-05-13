@@ -7,6 +7,7 @@ import { AuthConfigError, getSessionFromCookie, isAuthEnabled } from "@/lib/auth
  * The proxy only checks cookie **presence** (edge-safe). Handlers must verify the signed cookie here.
  *
  * @see docs/architecture/network-proxy-boundary.md
+ * @see docs/architecture/security-model.md (boundaries table — verified session / Node)
  */
 export const SESSION_REQUIRED_JSON = {
   error: "Session required. Call POST /api/auth/init first.",

@@ -325,7 +325,9 @@ function DetailModal({
       listDateKey.trim() !== ""
         ? `?dateKey=${encodeURIComponent(listDateKey)}`
         : "";
-    fetch(`/api/approvals/${event.id}/preflight-snapshot${q}`)
+    fetch(`/api/approvals/${event.id}/preflight-snapshot${q}`, {
+      credentials: "include",
+    })
       .then((r) => r.json())
       .then((j: { snapshot?: ApprovalPreflightSnapshotRecord | null }) => {
         if (!cancelled) setPersistedSnapshot(j.snapshot ?? null);
@@ -1432,6 +1434,7 @@ function DetailModal({
                         await fetch("/api/os/open", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
+                          credentials: "include",
                           body: JSON.stringify({
                             path:
                               executeResult.kind === "linkedin.post"
@@ -1466,6 +1469,7 @@ function DetailModal({
                         await fetch("/api/os/open", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
+                          credentials: "include",
                           body: JSON.stringify({
                             path:
                               executeResult.kind === "linkedin.post"
@@ -1625,6 +1629,7 @@ export default function ApprovalsPanel() {
         const res = await fetch(`/api/approvals/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(body),
         });
         if (res.ok) {
@@ -1646,6 +1651,7 @@ export default function ApprovalsPanel() {
         const res = await fetch(`/api/approvals/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ action: "deny" }),
         });
         if (res.ok) {
@@ -1715,6 +1721,7 @@ export default function ApprovalsPanel() {
         const res = await fetch("/api/reflections", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             sourceKind: result.kind,
             sourceApprovalId: result.approvalId,

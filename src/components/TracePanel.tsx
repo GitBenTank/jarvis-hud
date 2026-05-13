@@ -620,6 +620,7 @@ export default function TracePanel() {
       await fetch("/api/os/open", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ path, app }),
       });
     } catch {
@@ -1641,6 +1642,7 @@ export default function TracePanel() {
                                   const res = await fetch("/api/recovery/verify", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
+                                    credentials: "include",
                                     body: JSON.stringify({ approvalId: primaryEvent.id, status: "verified" }),
                                   });
                                   if (res.ok) {
@@ -1663,6 +1665,7 @@ export default function TracePanel() {
                                   const res = await fetch("/api/recovery/verify", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
+                                    credentials: "include",
                                     body: JSON.stringify({ approvalId: primaryEvent.id, status: "failed" }),
                                   });
                                   if (res.ok) {

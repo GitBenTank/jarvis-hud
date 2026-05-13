@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildExecutionCapabilities,
   executionCapabilitiesShortLabel,
+  isNonDryRunExecuteKind,
   NON_DRY_RUN_EXECUTE_KINDS,
 } from "@/lib/execution-surface";
 
@@ -24,16 +25,17 @@ describe("execution-surface", () => {
 
   it("buildExecutionCapabilities matches execute route invariant", () => {
     const c = buildExecutionCapabilities();
-    expect(c.nonDryRunExecuteKinds).toEqual([
-      "code.apply",
-      "send_email",
-      "system.note",
-      "reflection.note",
-      "workflow.plan",
-    ]);
+    expect(c.nonDryRunExecuteKinds).toEqual([...NON_DRY_RUN_EXECUTE_KINDS]);
     expect(c.dryRunDefaultForOtherKinds).toBe(true);
     expect(c.invariant).toContain("dryRun: false");
-    expect(c.invariant).toContain("system.note");
+    expect(c.invariant).toContain("linkedin.post");
+  });
+
+  it("treats content.publish and recovery kinds as non-dry-run (durable primary outcome)", () => {
+    expect(isNonDryRunExecuteKind("content.publish")).toBe(true);
+    expect(isNonDryRunExecuteKind("youtube.package")).toBe(true);
+    expect(isNonDryRunExecuteKind("recovery.approvals.cleanup")).toBe(true);
+    expect(isNonDryRunExecuteKind("code.diff")).toBe(true);
   });
 
   it("executionCapabilitiesShortLabel is mixed when live kinds exist", () => {

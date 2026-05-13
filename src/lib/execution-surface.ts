@@ -1,17 +1,27 @@
 /**
- * Honest description of execute-time dry-run vs durable adapter output.
- * Must stay aligned with POST /api/execute/[approvalId] (dryRun in JSON response).
+ * Execute JSON `dryRun` vs adapter behavior (C3 — trust language).
  *
- * `dryRun: false` means the execute response represents persisted artifacts / outbound
- * effects operators treat as the real run (not preview-only).
+ * **`dryRun: false`** — the governed adapter path for this `executionKind` wrote **durable**
+ * receipts/artifacts/runbooks (or real outbound for `send_email`) as the primary outcome.
+ * Not a preview-only simulation.
+ *
+ * **`dryRun: true`** — preview / simulation / explicitly dry adapter (e.g. **`linkedin.post` v1**),
+ * even when receipts or markdown artifacts are persisted for audit.
+ *
+ * Must stay aligned with `POST /api/execute/[approvalId]` (`dryRun: !isNonDryRunExecuteKind(executionKind)`).
  */
+import { RECOVERY_CLASSES } from "@/lib/recovery-shared";
 
 export const NON_DRY_RUN_EXECUTE_KINDS = [
   "code.apply",
+  "code.diff",
   "send_email",
   "system.note",
   "reflection.note",
   "workflow.plan",
+  "content.publish",
+  "youtube.package",
+  ...RECOVERY_CLASSES,
 ] as const;
 
 export function isNonDryRunExecuteKind(kind: string): boolean {
@@ -32,7 +42,7 @@ export function buildExecutionCapabilities(): ExecutionCapabilities {
     nonDryRunExecuteKinds: [...NON_DRY_RUN_EXECUTE_KINDS],
     dryRunDefaultForOtherKinds: true,
     invariant:
-      "POST /api/execute returns dryRun: false for code.apply, send_email, system.note, reflection.note, and workflow.plan; other kinds use preview / bundle-only adapter behavior.",
+      "POST /api/execute returns dryRun: false for kinds in NON_DRY_RUN_EXECUTE_KINDS (durable adapter primary outcome). linkedin.post v1 stays dryRun: true (simulated post + persisted receipt/artifact).",
   };
 }
 

@@ -98,10 +98,13 @@ One **row per** repeat or sharp hesitation. Put text in **one** column only (lea
 
 | Scope (trace / URL / “what am I looking at?” / latest vs stale) | Approve ≠ execute (what moved; what still blocks) | Other (labels, layout, trust) |
 | --- | --- | --- |
-| | | |
-| | | |
-| | | |
-| | | |
+| **Operator dry-run 2026-05-12:** `pnpm rehearsal:research-batch` submitted **one** `batch.id` (`8fbee78e-16c8-4b9c-90fa-d512c72666c4`) but each item returned a **different** `traceId` (`81a855bd-…`, `d5502f8f-…`, `179e7fa7-…`). A buyer hunting “the batch trace” may pick the wrong deep link or think the three rows are unrelated. | | |
+| **Operator dry-run 2026-05-12:** With `JARVIS_AUTH_ENABLED=true`, `GET /api/activity/stream` without a Jarvis session cookie returns **401** and `{ error: "Session required. Call POST /api/auth/init first." }` (`src/proxy.ts`). A cold open of `/activity` (or a second device) shows the graph error state before queue content unless the observer has already established session on that origin. | | |
+| **HUD 2026-05-12 (post-rehearsal):** With `?trace=` set to item 2 or 3, **Agent Proposals** shows orange **Different trace in URL** — URL trace ≠ **latest completed receipt** card (which stays on the most recently executed item). Copy points observers to timeline / proof rail or clearing `?trace=`. Implementation: `mismatchedUrlTrace` in `src/components/AgentProposalsFeed.tsx`. | | |
+| | **`pnpm rehearsal:preflight`** reports `stepUpValid=false` without browser cookies (expected for the probe). In the HUD, that can read as “something is wrong” until framed as **execute gate**, not “approve failed.” | |
+| | | **HUD 2026-05-12:** Home **Executed Actions** listed **DRY RUN** on every row including live **`system.note`** — unconditional badge in `src/components/ActionsPanel.tsx` (misaligned with `src/lib/execution-surface.ts`). **Fixed:** show DRY RUN only when `!isNonDryRunExecuteKind(kind)`. |
+
+\*Rows 1–3: **operator stack + rehearsal** (no external narrate-back). Row 4–5: **HUD evidence** after executing the batch (screenshots on file). After a smart-stranger Session 2, **replace or tighten** using their exact words; keep this table to **one column per row**.
 
 **Rule:** Tighten **only what blocked comprehension** in this pass; park architecture unless the observer surfaced a **trust** lie.
 
@@ -154,16 +157,16 @@ After narrate-back, log repeats in **Quick classify** (three columns, same secti
 
 | Field | Fill in |
 |--------|---------|
-| **Date** | |
-| **Observer(s)** | |
-| **Governance beat used** | (same class as Session 1 if comparing apples to apples) |
-| **Hesitation points** | |
-| **Misreadings** | |
-| **Approve vs execute clarity (1–5)** | |
-| **Language that landed** | |
-| **Language that failed** | |
-| **Next fix (one)** | |
-| **Merged to friction log?** | y / n |
+| **Date** | 2026-05-12 |
+| **Observer(s)** | *Operator rehearsal only — no external narrate-back this run.* |
+| **Governance beat used** | *Not exercised in this dry-run* (use same class as Session 1 when comparing observers). |
+| **Hesitation points** | Stack smoke **PASS**; rehearsal **PASS**. **HUD:** `/activity?trace=` for items 2–3 shows **Different trace in URL** vs latest receipt card; home receipts showed false **DRY RUN** on `system.note` (**fixed** in code). |
+| **Misreadings** | *Pending smart-stranger narrate-back.* |
+| **Approve vs execute clarity (1–5)** | *Pending observer.* |
+| **Language that landed** | *Pending observer.* |
+| **Language that failed** | *Pending observer.* |
+| **Next fix (one)** | **Done:** receipts strip false **DRY RUN** for live kinds (`ActionsPanel` + `isNonDryRunExecuteKind`). **Still open:** batch vs `?trace=` handoff (row 4) — pick UI copy/default trace **or** runbook cue after next observer pass. |
+| **Merged to friction log?** | n |
 
 ### After both sessions
 

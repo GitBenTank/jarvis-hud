@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { activityTraceHref } from "@/lib/activity-trace-href";
+import { isNonDryRunExecuteKind } from "@/lib/execution-surface";
 import { isRecoveryClass } from "@/lib/recovery-shared";
 import { reasonFromMessage } from "@/lib/reason-taxonomy";
 import Badge from "./Badge";
@@ -218,7 +219,9 @@ export default function ActionsPanel() {
                     <span className="text-zinc-600 dark:text-zinc-400">
                       {action.summary || "(no summary)"}
                     </span>
-                    <Badge variant="dry_run">DRY RUN</Badge>
+                    {!isNonDryRunExecuteKind(action.kind) && (
+                      <Badge variant="dry_run">DRY RUN</Badge>
+                    )}
                   </div>
                   <p className="mt-1 text-xs text-zinc-400">
                     {action.at} · {action.status}

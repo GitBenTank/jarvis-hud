@@ -58,6 +58,8 @@ Proposals also enter via:
 - `POST /api/events` — Programmatic event creation
 - `POST /api/drafts/content` — UI draft creation
 
+These are **not** HMAC-signed ingress. For production-shaped deployments, set **`JARVIS_ALLOW_EVENTS_AND_DRAFTS_PROPOSAL_APIS=false`** so both return **403** and proposals enter only via **`POST /api/ingress/openclaw`**. When unset, they stay **enabled** for local development and scripts. See [Environment variables](../setup/env.md).
+
 Both require an explicit request. There is no automatic polling of inboxes, webhooks, or external APIs outside the connector ingress endpoint.
 
 ---

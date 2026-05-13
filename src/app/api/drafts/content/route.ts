@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const runtime = "nodejs";
+import {
+  areEventsAndDraftsProposalApisEnabled,
+  localProposalApisDisabledResponse,
+} from "@/lib/local-proposal-apis";
 import {
   getDateKey,
   getEventsFilePath,
@@ -8,6 +10,8 @@ import {
   writeJson,
 } from "@/lib/storage";
 import { agentActorFromAgentField } from "@/lib/actor-identity";
+
+export const runtime = "nodejs";
 
 type Event = {
   id: string;
@@ -52,6 +56,9 @@ function isDraftContentBody(body: unknown): body is DraftContentBody {
 }
 
 export async function POST(request: NextRequest) {
+  if (!areEventsAndDraftsProposalApisEnabled()) {
+    return localProposalApisDisabledResponse();
+  }
   try {
     const body = await request.json();
 

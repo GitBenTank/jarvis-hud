@@ -3,7 +3,7 @@
 **Status:** Draft  
 **Date:** 2026-02  
 **Owner:** Ben Tankersley  
-**Related:** [Master Plan](./0000-master-plan.md) · [Agent Execution Model](../security/agent-execution-model.md) · [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
+**Related:** [Master Plan](./0000-master-plan.md) · [Enterprise readiness punch list (0007)](./0007-enterprise-readiness-punch-list.md) · [Agent Execution Model](../security/agent-execution-model.md) · [ADR-0001: Thesis Lock](../decisions/0001-thesis-lock.md)
 
 ---
 
